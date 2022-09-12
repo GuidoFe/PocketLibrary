@@ -1,0 +1,12 @@
+BOOK ( **IdBook**, Title, Subtitle, Description, Publisher, Published, IndustryIdentifierType, Identifier, isEbook, Score, PlacementURI, Mature)
+GENRE ( **IdGenre**, Name)
+AUTHOR ( **IdAuthor**, Name, Surname)
+PLACE ( **Id**, Name )
+ROOM ( **Id**, RoomName, PlaceId )
+BOOKSHELF ( **Id**, BookshelfName, RoomId )
+SHELF ( **Id**, ShelfName, BookShelfId )
+BOOK_AUTHOR ( **BookId**, **AuthorId**)
+WISHLIST( **BookId**, date)
+NOTE ( **BookId**, note, date)
+FAVORITE ( **BookId** )
+

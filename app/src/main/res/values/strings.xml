@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Pocket Library</string>
+    <string name="main_activity_name">Home</string>
+    <string name="cd_toggle_drawer">Toggle Drawer</string>
+    <string name="home">Home</string>
+    <string name="my_library">My Library</string>
+    <string name="stats">Stats</string>
+    <string name="credits">Credits</string>
+    <string name="no_value">Error: No Value</string>
+    <string name="favorites">Favorites</string>
+    <string name="lent">Lent</string>
+    <string name="title">Title</string>
+    <string name="subtitle">Subtitle</string>
+    <string name="close">Close</string>
+    <string name="authors">Authors</string>
+    <string name="publisher">Publisher</string>
+    <string name="published_year">Published Year</string>
+    <string name="identifier_type">ISBN type</string>
+    <string name="dropdown">dropdown</string>
+    <string name="isbn">ISBN</string>
+    <string name="description">Description</string>
+    <string name="owned">Owned</string>
+    <string name="language">Language</string>
+    <string name="type">Type</string>
+    <string name="note">Note</string>
+    <string name="add_book">Add book</string>
+    <string name="scan_isbn">Scan ISBN</string>
+    <string name="insert_manually">Insert manually</string>
+    <string name="import_ebook">Import ebook</string>
+    <string name="type_isbn">Type ISBN</string>
+    <string name="search">Search</string>
+</resources>
