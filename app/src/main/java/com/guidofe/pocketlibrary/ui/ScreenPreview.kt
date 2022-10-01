@@ -17,4 +17,6 @@ sealed class ScreenPreview(pxWidth: Int, pxHeight: Int, density: Int) {
     object LG {
         object Phoenix2: ScreenPreview(720, 1280, 294)
     }
+
+    object LongScreen: ScreenPreview(1080, 6340, 403)
 }

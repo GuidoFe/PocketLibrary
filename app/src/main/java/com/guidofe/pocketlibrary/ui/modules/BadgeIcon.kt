@@ -3,13 +3,11 @@ package com.guidofe.pocketlibrary.ui.modules
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -23,8 +21,8 @@ import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 fun BadgeIcon(painter: Painter,
               contentDescription: String,
               modifier: Modifier = Modifier,
-              badgeBackground: Color = MaterialTheme.colors.primary,
-              badgeForeground: Color = MaterialTheme.colors.onPrimary,
+              badgeBackground: Color = MaterialTheme.colorScheme.primary,
+              badgeForeground: Color = MaterialTheme.colorScheme.onPrimary,
               badgeDiameter: Dp = 20.dp,
               iconProportion: Float = 0.75f,
 ) {

@@ -1,13 +1,12 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,56 +14,71 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.model.repositories.ImportedBookData
-import com.guidofe.pocketlibrary.model.repositories.local_db.entities.IndustryIdentifierType
-import com.guidofe.pocketlibrary.viewmodels.EditBookViewModel
-import com.guidofe.pocketlibrary.model.FormData
-import com.guidofe.pocketlibrary.model.repositories.local_db.BookBundle
-import com.guidofe.pocketlibrary.model.repositories.local_db.entities.Author
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.entities.IndustryIdentifierType
+import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.modules.AppBarState
+import com.guidofe.pocketlibrary.ui.pages.destinations.LandingPageDestination
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookPageNavArgs
+import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
+import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
+import com.guidofe.pocketlibrary.viewmodels.EditBookViewModel
+import com.guidofe.pocketlibrary.viewmodels.IEditBookViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import java.lang.NumberFormatException
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination(navArgsDelegate = EditBookPageNavArgs::class)
-@ExperimentalMaterialApi
 @Composable
 fun EditBookPage(
-      viewModel: EditBookViewModel = hiltViewModel()
+   navigator: DestinationsNavigator,
+   viewModel: IEditBookViewModel = hiltViewModel<EditBookViewModel>()
 ) {
    val scrollState = rememberScrollState()
-   BoxWithConstraints(
-   ) {
-      Column(horizontalAlignment = Alignment.CenterHorizontally,
+   val coroutineScope = rememberCoroutineScope()
+   val context = LocalContext.current
+   LaunchedEffect(key1 = true) {
+      viewModel.appBarDelegate.setAppBarContent(
+         AppBarState(title=context.getString(R.string.edit_book)
+         )
+      )
+   }
+   Scaffold() { innerPadding ->
+      Column(
+         horizontalAlignment = Alignment.CenterHorizontally,
          verticalArrangement = Arrangement.spacedBy(verticalSpace),
          modifier = Modifier
             .verticalScroll(scrollState)
             .fillMaxWidth()
-            .padding(20.dp)
+            .padding(innerPadding)
       ) {
-         if(viewModel.formData.coverUri.value != null) {
+         if (viewModel.formData.coverUri != null) {
             //TODO: placeholder for book cover
-            var url: String = viewModel.formData.coverUri.value.toString()
-            url = url.replaceFirst("http", "https")
-            Log.d("test", url)
-            AsyncImage(model = ImageRequest.Builder(LocalContext.current)
-               .data(url)
-               .build(),
-               contentDescription = viewModel.formData.title.value,
+            AsyncImage(
+               model = ImageRequest.Builder(LocalContext.current)
+                  .data(viewModel.formData.coverUri)
+                  .build(),
+               contentDescription = stringResource(id = R.string.cover),
                Modifier.size(200.dp, 200.dp)
             )
          } else
-            Image(painterResource(id = R.drawable.sample_cover),
-               viewModel.formData.title.value)
+            Image(
+               painterResource(id = R.drawable.sample_cover),
+               stringResource(R.string.cover)
+            )
          Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -76,56 +90,56 @@ fun EditBookPage(
             ) {
                Text(stringResource(R.string.owned))
                Checkbox(
-                  checked = viewModel.formData.isOwned.value,
-                  onCheckedChange = { viewModel.formData.isOwned.value = it }
+                  checked = viewModel.formData.isOwned,
+                  onCheckedChange = { viewModel.formData.isOwned = it }
                )
             }
-            OutlinedTextField(
-               value = viewModel.formData.progress.value.toString(),
+            TextField(
+               value = viewModel.formData.progress.toString(),
                onValueChange = {},
                readOnly = true,
-               label = {Text(stringResource(R.string.progress))}
+               label = { Text(stringResource(R.string.progress)) }
             )
          }
-         OutlinedTextField(
-            value = viewModel.formData.title.value,
-            label = { Text(stringResource(id = R.string.title)+"*") },
-            onValueChange = { viewModel.formData.title.value = it },
+         TextField(
+            value = viewModel.formData.title,
+            label = { Text(stringResource(id = R.string.title) + "*") },
+            onValueChange = { viewModel.formData.title = it },
             modifier = Modifier.fillMaxWidth()
          )
-         OutlinedTextField(
-            value = viewModel.formData.subtitle.value,
-            label = { Text(stringResource(id = R.string.subtitle))},
-            onValueChange = { viewModel.formData.subtitle.value = it },
+         TextField(
+            value = viewModel.formData.subtitle,
+            label = { Text(stringResource(id = R.string.subtitle)) },
+            onValueChange = { viewModel.formData.subtitle = it },
             modifier = Modifier.fillMaxWidth()
          )
-         OutlinedTextField(
-            value = viewModel.formData.authors.joinToString(),
-            onValueChange = {},
-            label = {Text(stringResource(R.string.authors))},
+         TextField(
+            value = viewModel.formData.authors,
+            onValueChange = { viewModel.formData.authors = it },
+            label = { Text(stringResource(R.string.authors)) },
             modifier = Modifier.fillMaxWidth()
          )
-         OutlinedTextField(
-            value = viewModel.formData.description.value,
-            onValueChange = {viewModel.formData.description.value = it},
-            label = {Text(stringResource(id = R.string.description))},
+         TextField(
+            value = viewModel.formData.description,
+            onValueChange = { viewModel.formData.description = it },
+            label = { Text(stringResource(id = R.string.description)) },
             modifier = Modifier.fillMaxWidth()
          )
          Row(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
          ) {
-            OutlinedTextField(
-               value = viewModel.formData.language.value,
-               onValueChange = {viewModel.formData.language.value = it},
+            TextField(
+               value = viewModel.formData.language,
+               onValueChange = { viewModel.formData.language = it },
                label = { Text(stringResource(R.string.language)) },
                singleLine = true,
                modifier = Modifier
                   .weight(1f)
             )
-            OutlinedTextField(
-               value = viewModel.formData.media.value.toString(),
+            TextField(
+               value = viewModel.formData.media.toString(),
                onValueChange = {},
-               label = {Text(stringResource(R.string.type))},
+               label = { Text(stringResource(R.string.type)) },
                singleLine = true,
                modifier = Modifier
                   .weight(1f)
@@ -134,22 +148,24 @@ fun EditBookPage(
          Row(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
          ) {
-            OutlinedTextField(
-               value = viewModel.formData.publisher.value,
-               onValueChange = {viewModel.formData.publisher.value = it},
-               label = {Text(stringResource(R.string.publisher))},
+            TextField(
+               value = viewModel.formData.publisher,
+               onValueChange = { viewModel.formData.publisher = it },
+               label = { Text(stringResource(R.string.publisher)) },
                singleLine = true,
                modifier = Modifier
                   .weight(2f)
             )
-            OutlinedTextField(
-               value = viewModel.formData.published.value.toString(),
+            TextField(
+               value = viewModel.formData.published.toString(),
                onValueChange = {
                   try {
-                     viewModel.formData.published.value = it.toInt()
-                  } catch(e:NumberFormatException){
-                  }},
-               label = {Text(stringResource(R.string.published_year))},
+                     viewModel.formData.published = it
+                  } catch (e: NumberFormatException) {
+                     //TODO: Manage exception
+                  }
+               },
+               label = { Text(stringResource(R.string.published_year)) },
                singleLine = true,
                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                modifier = Modifier
@@ -160,67 +176,110 @@ fun EditBookPage(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
             modifier = Modifier.fillMaxWidth()
          ) {
-            OutlinedTextField(
-               value = viewModel.formData.identifierType.value.toString(),
+            TextField(
+               value = viewModel.formData.identifierType.toString(),
                onValueChange = {},
                readOnly = true,
-               trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
-                  expanded = false
-               )},
-               label = {Text(stringResource(R.string.identifier_type))},
+               trailingIcon = {
+                  ExposedDropdownMenuDefaults.TrailingIcon(
+                     expanded = false
+                  )
+               },
+               label = { Text(stringResource(R.string.identifier_type)) },
                singleLine = true,
                modifier = Modifier
                   .weight(1f)
             )
-            OutlinedTextField(
-               value = viewModel.formData.identifier.value,
-               onValueChange = {viewModel.formData.identifier.value = it},
+            TextField(
+               value = viewModel.formData.identifier,
+               onValueChange = { viewModel.formData.identifier = it },
                singleLine = true,
-               label = {Text(stringResource(R.string.isbn))},
+               label = { Text(stringResource(R.string.isbn)) },
                modifier = Modifier
                   .weight(1f)
             )
          }
-         OutlinedTextField(
-            value = viewModel.formData.note.value,
-            onValueChange = {viewModel.formData.note.value = it},
-            label = {Text(stringResource(id = R.string.note))},
+         TextField(
+            value = viewModel.formData.place,
+            onValueChange = { viewModel.formData.place = it },
+            label = { Text(stringResource(id = R.string.place)) },
+            placeholder = { Text(stringResource(id = R.string.placeExample)) },
             modifier = Modifier.fillMaxWidth()
          )
-         Button(onClick = { viewModel.submitBook()}) {
+         TextField(
+            value = viewModel.formData.room,
+            onValueChange = { viewModel.formData.room = it },
+            label = { Text(stringResource(id = R.string.room)) },
+            placeholder = { Text(stringResource(id = R.string.roomExample)) },
+            enabled = viewModel.formData.place.isNotBlank(),
+            modifier = Modifier.fillMaxWidth()
+         )
+         TextField(
+            value = viewModel.formData.bookshelf,
+            onValueChange = { viewModel.formData.bookshelf = it },
+            label = { Text(stringResource(id = R.string.bookshelf)) },
+            placeholder = { Text(stringResource(id = R.string.bookshelfExample)) },
+            enabled = viewModel.formData.place.isNotBlank() && viewModel.formData.room.isNotBlank(),
+            modifier = Modifier.fillMaxWidth(),
+         )
+         TextField(
+            value = viewModel.formData.note,
+            onValueChange = { viewModel.formData.note = it },
+            label = { Text(stringResource(id = R.string.note)) },
+            modifier = Modifier.fillMaxWidth()
+         )
+         Button(onClick = {
+            coroutineScope.launch(Dispatchers.IO) {
+               val id = viewModel.submitBook()
+               //TODO: check if id >= 0
+               withContext(Dispatchers.Main) {
+                  navigator.navigate(LandingPageDestination)
+               }
+            }
+         }) {
             Text(text = "Submit")
          }
       }
    }
 }
 
-@ExperimentalMaterialApi
-@Composable
-fun EditBookPageContent() {
+private object ViewModelPreview: IEditBookViewModel {
+    override var formData: FormData by mutableStateOf(
+        FormData(
+            title = "Dune",
+            subtitle = "The Greatest Sci-Fi Story",
+            description = "Opposing forces struggle for control of the universe when the archenemy of the cosmic emperor is banished to a barren world where savages fight for water",
+            publisher = "Penguin",
+            published = "1990",
+            coverUri = Uri.parse("http://books.google.com/books/content?id=nrRKDwAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"),
+            identifierType = IndustryIdentifierType.ISBN_13,
+            identifier = "9780441172719",
+            language = "en",
+            authors   = "Frank Herbert, Princess Irulan",
+            genres    = listOf("Fantasy", "Sci-fi"),
+            place     = "Home",
+            room      = "",
+            bookshelf = "Big library",
+            note      = "Very cool book"
+        )
+    )
 
+   override fun initializeFromImportedBook(importedBook: ImportedBookData) {
+   }
+
+   override suspend fun initialiseFromDatabase(bookBundle: BookBundle) {
+   }
+
+   override suspend fun submitBook() {}
+   override val appBarDelegate: AppBarStateDelegate =
+      AppBarStateDelegate(MutableStateFlow(AppBarState()))
 }
 
-@ExperimentalMaterialApi
 @Composable
-@Preview(device = Devices.PIXEL_4, showSystemUi = true)
+@Preview(showSystemUi = true)
 fun ImportedBookFormPagePreview() {
-   val formData = FormData()
-   formData.title.value = "Dune"
-   formData.subtitle.value = "The Greatest Sci-Fi Story"
-   formData.description.value = "Opposing forces struggle for control of the universe when the archenemy of the cosmic emperor is banished to a barren world where savages fight for water"
-   formData.publisher.value = "Penguin"
-   formData.published.value = 1990
-   formData.coverUri.value = Uri.parse("http://books.google.com/books/content?id=nrRKDwAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api")
-   formData.identifierType.value = IndustryIdentifierType.ISBN_13
-   formData.identifier.value = "9780441172719"
-   formData.language.value = "en"
-   formData.authors.addAll(
-      listOf(
-         Author(-1, "Frank Herbert"),
-         Author(-1, "Frank Imagination"),
-         Author(-1, "Paul Muad'Dib"),
-         Author(-1, "Gurney Hallek"),
-         Author(-1, "Princess Irulan")))
-   //formData.genre = listOf("Fiction", "Sci-Fi", "Drama")
-   EditBookPageContent()
+   EditBookPage(
+      navigator = EmptyDestinationsNavigator,
+      viewModel = ViewModelPreview
+      )
 }

@@ -27,6 +27,24 @@
     <string name="scan_isbn">Scan ISBN</string>
     <string name="insert_manually">Insert manually</string>
     <string name="import_ebook">Import ebook</string>
-    <string name="type_isbn">Type ISBN</string>
+    <string name="type_the_isbn">Type the ISBN</string>
     <string name="search">Search</string>
+    <string name="place">Place</string>
+    <string name="room">Room</string>
+    <string name="bookshelf">Bookshelf</string>
+    <string name="placeExample">Home, workplace...</string>
+    <string name="roomExample">Bedroom, livingroom...</string>
+    <string name="bookshelfExample">Over the TV, left of the window...</string>
+    <string name="cover">cover</string>
+    <string name="favorite">favorite</string>
+    <string name="isbn_camera_rationale">The camera is important for this. Please grant the permission if you want to scan an isbn.</string>
+    <string name="request_permission">Request permission</string>
+    <string name="permission_required">Permission required</string>
+    <string name="cancel">Cancel</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="book_not_found">Book not found</string>
+    <string name="book_not_found_message">The details about the book were not found on Google databases. Do you want to insert them manually?</string>
+    <string name="error">Error</string>
+    <string name="library">Library</string>
+    <string name="edit_book">Edit book</string>
 </resources>

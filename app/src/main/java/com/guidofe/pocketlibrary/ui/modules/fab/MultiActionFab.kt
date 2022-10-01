@@ -1,13 +1,14 @@
 package com.guidofe.pocketlibrary.ui.modules.fab
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -21,8 +22,8 @@ import androidx.compose.ui.unit.dp
 fun MultiActionFab(
     fabIcon: Painter,
     fabIconDescription: String,
-    fabColor: Color = MaterialTheme.colors.primary,
-    fabIconColor: Color = MaterialTheme.colors.onPrimary,
+    fabColor: Color = MaterialTheme.colorScheme.primary,
+    fabIconColor: Color = MaterialTheme.colorScheme.onPrimary,
     menuEntries: List<FabMenuEntry>,
     fabSize: Dp = 56.dp,
     miniFabSize: Dp = 40.dp,
@@ -59,8 +60,8 @@ fun MultiActionFab(
                     if (showMiniFabText) {
                         Surface(
                             shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colors.surface,
-                            elevation = elevation,
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = elevation,
                             modifier = Modifier
                                 //.alpha(miniFabScaleAndAlpha)
                                 .graphicsLayer(
@@ -95,7 +96,7 @@ fun MultiActionFab(
             onClick = {
                 isMenuOpen = !isMenuOpen
             },
-            backgroundColor = fabColor,
+            containerColor = fabColor,
             contentColor = fabIconColor,
             modifier = Modifier
                 .size(fabSize)

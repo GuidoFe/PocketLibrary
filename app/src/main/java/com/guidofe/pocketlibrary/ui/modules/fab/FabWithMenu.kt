@@ -1,12 +1,12 @@
 package com.guidofe.pocketlibrary.ui.modules.fab
 
-import androidx.compose.animation.*
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,8 +31,8 @@ import com.guidofe.pocketlibrary.R
 fun FabWithMenu(
     fabIcon: Painter,
     fabIconDescription: String,
-    fabColor: Color = MaterialTheme.colors.primary,
-    fabIconColor: Color = MaterialTheme.colors.onPrimary,
+    fabColor: Color = MaterialTheme.colorScheme.primary,
+    fabIconColor: Color = MaterialTheme.colorScheme.onPrimary,
     menuEntries: List<FabMenuEntry>,
     fabSize: Dp = 56.dp,
     menuIconSize: Dp = 40.dp,
@@ -43,7 +43,9 @@ fun FabWithMenu(
     val fabAlphaAndScale by transition.animateFloat(label = "fabAlpha") { isOpen -> if (isOpen) 0f else 1f }
     val menuAlpha by transition.animateFloat(label = "menuAlpha") { isOpen -> if (isOpen) 1f else 0f }
     val menuScale by transition.animateFloat(label = "menuScale") { isOpen -> if (isOpen) 1f else 0.8f }
-    val animatedFabColor by transition.animateColor(label = "fabColor") { isOpen -> if (isOpen) MaterialTheme.colors.surface else fabColor }
+    val animatedFabColor by transition.animateColor(label = "fabColor") {
+            isOpen -> if (isOpen) MaterialTheme.colorScheme.surface else fabColor
+    }
     Box(
         contentAlignment = Alignment.BottomEnd,
     ) {
@@ -52,7 +54,7 @@ fun FabWithMenu(
                 isMenuOpen = !isMenuOpen
             },
             shape = RoundedCornerShape(100 * fabAlphaAndScale),
-            backgroundColor = animatedFabColor,
+            containerColor = animatedFabColor,
             contentColor = fabIconColor,
             modifier = Modifier
                 .size(fabSize)
@@ -79,8 +81,8 @@ fun FabWithMenu(
                 }
             ) {
                 Card(
-                    backgroundColor = MaterialTheme.colors.surface,
-                    elevation = 5.dp,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier
                         .alpha(menuAlpha)
