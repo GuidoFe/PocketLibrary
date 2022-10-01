@@ -1,9 +1,16 @@
 package com.guidofe.pocketlibrary.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import com.guidofe.pocketlibrary.model.repositories.local_db.AppDatabase
+import coil.ImageLoader
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
+import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
+import com.guidofe.pocketlibrary.model.repositories.DefaultBookMetaRepository
+import com.guidofe.pocketlibrary.model.repositories.DefaultLibraryRepository
+import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
+import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module
 import dagger.Provides
@@ -12,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Singleton
 
 
@@ -22,6 +30,30 @@ object AppModule {
     // @Provides
     // @Named("")
     // provideWhat() = what
+
+    @Singleton
+    @Provides
+    fun provideAppBarState(): MutableStateFlow<AppBarState?> {
+        return MutableStateFlow(null)
+    }
+    @Singleton
+    @Provides
+    fun provideImageLoader(@ApplicationContext context: Context): ImageLoader {
+        return ImageLoader.Builder(context)
+            .memoryCache {
+                MemoryCache.Builder(context)
+                    .maxSizePercent(0.25)
+                    .build()
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(context.cacheDir.resolve("image_cache"))
+                    .maxSizePercent(0.02)
+                    .build()
+            }
+            .build()
+    }
+
     @Singleton
     @Provides
     fun provideDispatcherProvider(): DispatcherProvider {
@@ -67,13 +99,6 @@ object AppModule {
     @Provides
     fun providesBookBundleDao(db: AppDatabase) = db.bookBundleDao()
 
-    @Singleton
-    @Provides
-    fun providesBookshelfDao(db: AppDatabase) = db.bookshelfDao()
-
-    @Singleton
-    @Provides
-    fun providesFavoriteDao(db: AppDatabase) = db.favoriteDao()
 
     @Singleton
     @Provides
@@ -91,11 +116,16 @@ object AppModule {
     @Provides
     fun providesRoomDao(db: AppDatabase) = db.roomDao()
 
-    @Singleton
-    @Provides
-    fun providesShelfDao(db: AppDatabase) = db.shelfDao()
 
     @Singleton
     @Provides
     fun providesWhishlistDao(db: AppDatabase) = db.wishlistDao()
+
+    @Singleton
+    @Provides
+    fun providesLibraryRepository(db: AppDatabase): LibraryRepository = DefaultLibraryRepository(db)
+
+    @Singleton
+    @Provides
+    fun providesBookMetaRepository(): BookMetaRepository = DefaultBookMetaRepository()
 }

@@ -1,131 +1,125 @@
 package com.guidofe.pocketlibrary.viewmodels
 
-import android.content.Context
-import android.net.Uri
-import android.util.Log
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.model.repositories.ImportedBookData
-import com.guidofe.pocketlibrary.model.FormData
-import com.guidofe.pocketlibrary.model.repositories.local_db.AppDatabase
-import com.guidofe.pocketlibrary.model.repositories.local_db.BookBundle
-import com.guidofe.pocketlibrary.model.repositories.local_db.entities.Author
-import com.guidofe.pocketlibrary.model.repositories.local_db.entities.Book
-import com.guidofe.pocketlibrary.model.repositories.local_db.entities.Genre
-import com.guidofe.pocketlibrary.model.repositories.local_db.entities.Note
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
+import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.utils.getUri
-import com.guidofe.pocketlibrary.utils.nullIfEmptyOrBlank
+import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
+import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@ExperimentalMaterialApi
 @HiltViewModel
 class EditBookViewModel @Inject constructor(
-    db: AppDatabase,
-    appContext: Context,
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
-    private val defaultCoverUri:Uri = appContext.resources.getUri(R.drawable.ic_baseline_book_24)
-    lateinit var formData: FormData
-        private set
+    private val repo: LibraryRepository,
+    savedStateHandle: SavedStateHandle,
+    appBarState: MutableStateFlow<AppBarState?>
+) : IEditBookViewModel, ViewModel() {
     //var formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
     //    private set
-    private var currentId = 0L
-    @Inject
-    lateinit var db: AppDatabase
+    var currentBookId = 0L
+        private set
+    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(appBarState)
+    override var formData: FormData by mutableStateOf(FormData())
+
     init {
         val navArgs = EditBookPageDestination.argsFrom(savedStateHandle)
         when {
-            navArgs.bookBundle != null -> initialiseFormDataFromDatabase(navArgs.bookBundle)
-            navArgs.importedBookData != null -> initializeFormDataFromImportedBook(navArgs.importedBookData)
-            else -> formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
+            navArgs.bookBundle != null -> viewModelScope.launch {
+                initialiseFromDatabase(navArgs.bookBundle)
+            }
+            navArgs.importedBookData != null -> initializeFromImportedBook(navArgs.importedBookData)
+
         }
     }
-    fun initializeFormDataFromImportedBook(book: ImportedBookData) {
-        formData = FormData()
-        viewModelScope.launch(Dispatchers.IO) {
-            currentId = 0L
-            Log.d("Test", "Initializing from imported data...")
-            formData = FormData()
-            formData.title.value = book.title
-            formData.subtitle.value = book.subtitle ?: ""
-            formData.description.value = book.description ?: ""
-            formData.publisher.value = book.publisher ?: ""
-            formData.published.value = book.published
-            formData.media.value = book.media
-            if (book.industryIdentifierType != null && !book.identifier.isNullOrBlank()) {
-                formData.identifierType.value = book.industryIdentifierType
-                formData.identifier.value = book.identifier
-            }
-            formData.language.value = book.language
-            val existingAuthors = db.authorDao().getExistingAuthors(book.authors)
-            val existingAuthorsNames = existingAuthors.map { author -> author.name }
-            formData.authors.addAll(existingAuthors)
-            book.authors.forEach { authorName ->
-                if (!existingAuthorsNames.contains(authorName))
-                    formData.authors.add(Author(0L, authorName))
-            }
-            formData.coverUri.value = Uri.parse(book.coverUrl)
-        }
+    override fun initializeFromImportedBook(importedBook: ImportedBookData) {
+        currentBookId = 0L
+        formData = FormData(importedBook)
     }
 
-    fun initialiseFormDataFromDatabase(
+    override suspend fun initialiseFromDatabase(
         bookBundle: BookBundle
     ) {
-        formData = FormData()
-        val book = bookBundle.book;
-        val authors = bookBundle.authors;
-        formData = FormData()
-        formData.title.value = book.title
-        formData.subtitle.value = book.subtitle ?: ""
-        formData.description.value = book.description ?: ""
-        formData.publisher.value = book.publisher ?: ""
-        formData.published.value = book.published
-        formData.isOwned.value = book.isOwned
-        formData.media.value = book.media
-        formData.progress.value = book.progress
-        formData.coverUri.value = book.coverURI
-        formData.identifierType.value = book.industryIdentifierType
-        formData.identifier.value = book.identifier ?: ""
-        formData.language.value = book.language
-        formData.authors.addAll(authors)
-        formData.note.value = if(bookBundle.note != null) bookBundle.note.note else ""
+        currentBookId = bookBundle.book.bookId
+        formData = FormData(bookBundle)
     }
 
-    fun submitBook() {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.insertBookBundle(convertFormDataToBookBundle())
+    override suspend fun submitBook() {
+        //TODO: Check for validity
+        repo.withTransaction {
+            val book = Book(
+                bookId = currentBookId,
+                title = formData.title,
+                subtitle = formData.subtitle.ifBlank { null },
+                description = formData.description.ifBlank { null },
+                publisher = formData.publisher.ifBlank { null },
+                published = formData.published.toIntOrNull(),
+                isOwned = formData.isOwned,
+                isFavorite = formData.isFavorite,
+                progress = formData.progress,
+                coverURI = formData.coverUri,
+                industryIdentifierType = formData.identifierType,
+                identifier = formData.identifier,
+                media = formData.media,
+                language = formData.language
+            )
+            if (book.bookId == 0L) {
+                currentBookId = repo.insertBook(book)
+            } else {
+                repo.updateBook(book)
+            }
+            val authorsList = formData.authors.split(",").map{a -> a.trim()}
+            val existingAuthors = repo.getExistingAuthors(authorsList)
+            val existingAuthorsNames = existingAuthors.map{a -> a.name}
+            val newAuthorsNames = authorsList.filter{a -> !existingAuthorsNames.contains(a)}
+            val newAuthorsIds = repo.insertAllAuthors(newAuthorsNames.map{name -> Author(0L, name) })
+            val authorsIds = newAuthorsIds.plus(existingAuthors.map{a -> a.authorId})
+            val bookAuthorList = authorsIds.map{id -> BookAuthor(currentBookId, id) }
+            repo.insertAllBookAuthors(bookAuthorList)
+            if (formData.place.isNotBlank()) {
+                var placeId = repo.getPlaceIdByName(formData.place)
+                if (placeId == null)
+                    placeId = repo.insertPlace(Place(0L, formData.place))
+                var roomId: Long? = null
+                if (formData.room.isNotBlank()) {
+                    roomId = repo.getRoomIdByNameAndPlaceId(formData.room, placeId)
+                    if (roomId == null)
+                        roomId = repo.insertRoom(Room(0L, formData.room, placeId))
+                }
+                var bookshelfId: Long? = null
+                if (roomId != null && formData.bookshelf.isNotBlank()) {
+                    bookshelfId = repo.getBookshelfIdByNameAndRoomId(formData.bookshelf, roomId)
+                    if (bookshelfId == null) {
+                        bookshelfId = repo.insertBookshelf(Bookshelf(0L, formData.bookshelf, roomId))
+                    }
+                }
+                repo.insertBookPlacement(BookPlacement(currentBookId, placeId, roomId, bookshelfId))
+            }
+            if (formData.note.isNotBlank())
+                repo.upsertNote(Note(currentBookId, formData.note))
+            if (formData.genres.isNotEmpty()) {
+                val existingGenres = repo.getGenresByNames(formData.genres)
+                val existingGenresNames = existingGenres.map{g -> g.name}
+                val newGenresNames= formData.genres.filter{g -> !existingGenresNames.contains(g)}
+                val newGenresIds = repo.insertAllGenres(newGenresNames.map{name ->
+                    Genre(0L, name)
+                })
+                val genresIds = newGenresIds.plus(existingGenres.map{g -> g.genreId})
+               repo.insertAllBookGenres(genresIds.map{ id -> BookGenre(currentBookId, id) })
+            }
         }
     }
 
-    private fun convertFormDataToBookBundle(): BookBundle{
-        val book = Book(
-            bookId = currentId,
-            title = formData.title.value,
-            subtitle = formData.subtitle.value.nullIfEmptyOrBlank(),
-            description = formData.description.value.nullIfEmptyOrBlank(),
-            publisher = formData.publisher.value.nullIfEmptyOrBlank(),
-            published = formData.published.value,
-            isOwned = formData.isOwned.value,
-            progress = formData.progress.value,
-            coverURI = formData.coverUri.value,
-            industryIdentifierType = formData.identifierType.value,
-            identifier = formData.identifier.value.nullIfEmptyOrBlank(),
-            media = formData.media.value,
-            //TODO: implement score
-            score = null,
-            language = formData.language.value
-        )
-        val note = if (formData.note.value.isBlank()) null else Note(currentId, formData.note.value)
-        //TODO: add missing fields to form
-        return BookBundle(book, formData.authors, listOf<Genre>(), null, null, null, null, null, note, null)
-    }
+
 
 }
