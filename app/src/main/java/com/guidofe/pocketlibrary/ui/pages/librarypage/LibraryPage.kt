@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.librarypage
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,6 +11,8 @@ import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.ui.modules.LibraryListItem
+import com.guidofe.pocketlibrary.ui.pages.ViewBookPage
+import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.viewmodels.ILibraryViewModel
 import com.guidofe.pocketlibrary.viewmodels.LibraryViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -35,7 +38,10 @@ fun LibraryPage(
             key = {bundle -> bundle.book.bookId}
         ) { bundle ->
             if(bundle != null)
-                LibraryListItem(bundle)
+                LibraryListItem(bundle, onTap = {
+                    Log.d("debug", "Navigating to viewbook")
+                    navigator.navigate(ViewBookPageDestination(bundle.book.bookId))
+                })
             //TODO: add placeholder if bundle != null
         }
     }

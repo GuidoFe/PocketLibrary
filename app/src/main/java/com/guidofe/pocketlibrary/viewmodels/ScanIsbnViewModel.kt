@@ -29,9 +29,7 @@ const val MIN_WIDTH = 1920
 class ScanIsbnViewModel @Inject constructor(
     private val repo: BookMetaRepository,
     private val appBarState: MutableStateFlow<AppBarState?>,
-
-    ): IScanIsbnViewModel, ViewModel() {
-    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(this.appBarState)
+    ): ViewModel(), IScanIsbnViewModel {
     private val scannerOptions = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_EAN_13)
         .build()
@@ -97,5 +95,7 @@ class ScanIsbnViewModel @Inject constructor(
         })
         return imageAnalysis!!
     }
+
+    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(appBarState)
 
 }

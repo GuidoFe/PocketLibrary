@@ -18,7 +18,7 @@
     <string name="identifier_type">ISBN type</string>
     <string name="dropdown">dropdown</string>
     <string name="isbn">ISBN</string>
-    <string name="description">Description</string>
+    <string name="summary">Summary</string>
     <string name="owned">Owned</string>
     <string name="language">Language</string>
     <string name="type">Type</string>
@@ -47,4 +47,14 @@
     <string name="error">Error</string>
     <string name="library">Library</string>
     <string name="edit_book">Edit book</string>
+    <string name="details">Details</string>
+    <string name="no_description">No description available  :(</string>
+    <string name="book_details">Book Details</string>
+    <string name="location">Location</string>
+    <string name="media_type">Media type</string>
+    <string name="book">Book</string>
+    <string name="ebook">E-Book</string>
+    <string name="note_placeholder">Opinions, reminders, annotations...</string>
+    <string name="edit_details">Edit details</string>
+    <string name="save">Save</string>
 </resources>

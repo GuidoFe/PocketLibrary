@@ -13,4 +13,7 @@ interface RoomDao {
 
     @Query("SELECT roomId FROM room WHERE UPPER(name) LIKE UPPER(:name) AND parentPlace = :placeId")
     suspend fun getRoomIdByNameAndPlaceId(name: String, placeId: Long): Long?
+
+    @Query("SELECT * FROM room WHERE parentPlace = :placeId")
+    suspend fun getRoomsByParentPlaceId(placeId: Long): List<Room>
 }

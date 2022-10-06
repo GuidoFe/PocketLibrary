@@ -13,4 +13,7 @@ interface PlaceDao {
 
     @Query("SELECT placeId FROM place WHERE UPPER(name) LIKE UPPER(:name)")
     suspend fun getPlaceByName(name: String): Long?
+
+    @Query("SELECT * FROM place")
+    suspend fun getAllPlaces(): List<Place>
 }

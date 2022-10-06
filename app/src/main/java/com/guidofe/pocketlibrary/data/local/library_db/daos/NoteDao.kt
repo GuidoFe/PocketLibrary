@@ -18,5 +18,8 @@ interface NoteDao {
             this.update(note)
     }
 
+    @Delete
+    suspend fun delete(note: Note)
+
 
 }

@@ -12,17 +12,31 @@ interface LibraryRepository {
     suspend fun updateBook(book: Book)
     suspend fun insertAllAuthors(authors: List<Author>): List<Long>
     suspend fun getExistingAuthors(authorsNames: List<String>): List<Author>
+
     suspend fun insertAllBookAuthors(bookAuthors: List<BookAuthor>)
+
     suspend fun insertPlace(place: Place): Long
     suspend fun getPlaceIdByName(name: String): Long?
+    suspend fun getAllPlaces(): List<Place>
+
     suspend fun insertRoom(room: Room): Long
     suspend fun getRoomIdByNameAndPlaceId(name: String, placeId: Long): Long?
+    suspend fun getRoomsByParentPlaceId(placeId: Long): List<Room>
+
     suspend fun insertBookshelf(bookshelf: Bookshelf): Long
     suspend fun getBookshelfIdByNameAndRoomId(name: String, roomId: Long): Long?
+    suspend fun getBookshelvesByParentRoomId(roomId: Long): List<Bookshelf>
+
     suspend fun insertBookPlacement(bookPlacement: BookPlacement)
+    suspend fun upsertBookPlacement(bookPlacement: BookPlacement)
+    suspend fun deleteBookPlacement(bookId: Long)
+
     suspend fun upsertNote(note: Note)
+    suspend fun deleteNote(note: Note)
+
     suspend fun insertAllGenres(genres: List<Genre>): List<Long>
     suspend fun getGenresByNames(names: List<String>): List<Genre>
+
     suspend fun insertAllBookGenres(bookGenres: List<BookGenre>)
     fun close()
 }

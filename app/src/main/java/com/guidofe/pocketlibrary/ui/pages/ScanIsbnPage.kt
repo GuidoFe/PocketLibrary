@@ -22,6 +22,7 @@ import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.ui.modules.CameraView
 import com.guidofe.pocketlibrary.ui.modules.InsertIsbnDialog
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
 import com.guidofe.pocketlibrary.viewmodels.IScanIsbnViewModel
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnViewModel
@@ -36,7 +37,7 @@ private fun submitIsbnEffect(viewModel: IScanIsbnViewModel, navigator: Destinati
         viewModel.code!!,
         callback = { importedBook: ImportedBookData? ->
             if (importedBook != null) {
-                navigator.navigate(EditBookPageDestination(importedBookData = importedBook))
+                //navigator.navigate(EditBookPageDestination(importedBookData = importedBook))
             } else {
                 Log.w("debug", "Book not found")
                 viewModel.displayBookNotFoundDialog = true
@@ -113,7 +114,7 @@ fun ScanIsbnPage(
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.displayBookNotFoundDialog = false
-                    navigator.navigate(EditBookPageDestination())
+                    //navigator.navigate(EditBookPageDestination())
                 }) {
                     Text(stringResource(R.string.ok))
                 }
@@ -164,7 +165,6 @@ fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         navigator = EmptyDestinationsNavigator,
         viewModel = object: IScanIsbnViewModel {
-            override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(MutableStateFlow(null))
             override var displayBookNotFoundDialog = false
             override var displayInsertIsbnDialog: Boolean = false
             override var errorMessage: String? = null
@@ -182,6 +182,9 @@ fun ScanIsbnPagePreview() {
             override fun getImageAnalysis(): ImageAnalysis {
                 return ImageAnalysis.Builder().build()
             }
+
+            override val appBarDelegate: AppBarStateDelegate =
+                PreviewUtils.fakeAppBarStateDelegate
 
         }
     )

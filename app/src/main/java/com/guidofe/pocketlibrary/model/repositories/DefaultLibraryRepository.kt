@@ -68,6 +68,10 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return db.bookBundleDao().getBookBundle(bookId)
     }
 
+    override suspend fun upsertBookPlacement(bookPlacement: BookPlacement) {
+        db.bookPlacementDao().upsert(bookPlacement)
+    }
+
     override suspend fun getBookBundles(pageNumber: Int, pageSize: Int): List<BookBundle> {
         return db.bookBundleDao().getBookBundles(pageNumber, pageSize)
     }
@@ -108,6 +112,11 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return db.roomDao().insert(room)
     }
 
+    override suspend fun getRoomsByParentPlaceId(placeId: Long): List<Room> {
+        return db.roomDao().getRoomsByParentPlaceId(placeId)
+    }
+
+
     override suspend fun getRoomIdByNameAndPlaceId(name: String, placeId: Long): Long? {
         return db.roomDao().getRoomIdByNameAndPlaceId(name, placeId)
     }
@@ -116,16 +125,28 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return db.bookshelfDao().insert(bookshelf)
     }
 
+    override suspend fun getBookshelvesByParentRoomId(roomId: Long): List<Bookshelf> {
+        return db.bookshelfDao().getBookshelvesByParentRoomId(roomId)
+    }
+
     override suspend fun getBookshelfIdByNameAndRoomId(name: String, roomId: Long): Long? {
         return db.bookshelfDao().getBookshelfIdByNameAndRoomId(name, roomId)
     }
 
     override suspend fun insertBookPlacement(bookPlacement: BookPlacement) {
-        return db.bookPlacementDao().insert(bookPlacement)
+        db.bookPlacementDao().insert(bookPlacement)
+    }
+
+    override suspend fun deleteBookPlacement(bookId: Long) {
+        db.bookPlacementDao().delete(bookId)
     }
 
     override suspend fun upsertNote(note: Note) {
         db.noteDao().upsert(note)
+    }
+
+    override suspend fun deleteNote(note: Note) {
+        db.noteDao().delete(note)
     }
 
     override suspend fun insertAllGenres(genres: List<Genre>): List<Long> {
@@ -138,6 +159,10 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
 
     override suspend fun insertAllBookGenres(bookGenres: List<BookGenre>) {
         db.bookGenreDao().insertAll(bookGenres)
+    }
+
+    override suspend fun getAllPlaces(): List<Place> {
+        return db.placeDao().getAllPlaces()
     }
 
     override fun close() {

@@ -16,6 +16,7 @@ import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
 import com.guidofe.pocketlibrary.viewmodels.IScanIsbnViewModel
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnViewModel
@@ -39,44 +40,44 @@ fun LandingPage(
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         viewModel.appBarDelegate.setAppBarContent(
-            AppBarState(title=context.getString(R.string.my_library)
+            AppBarState(
+                title = context.getString(R.string.my_library)
             )
         )
     }
-    Surface(
-        modifier = Modifier
-            //.padding(paddingValues)
-    ) {
-        Column() {
-            TextField(
-                value = isbnText,
-                onValueChange = {value ->
-                    isbnText = value
-                },
-                label = {Text("ISBN")}
-            )
-            Button(
-                onClick = {
-                    scope.launch {
-                        viewModel.getImportedBookFromIsbn(isbnText, callback = { importedBook: ImportedBookData? ->
-                           if (importedBook != null) {
-                               navigator.navigate(EditBookPageDestination(importedBookData = importedBook))
-                           }
-                        },
-                        failureCallback = { code: Int, msg: String ->
+    Column() {
+        TextField(
+            value = isbnText,
+            onValueChange = {value ->
+                isbnText = value
+            },
+            label = {Text("ISBN")}
+        )
+        Button(
+            onClick = {
+                scope.launch {
+                    viewModel.getImportedBookFromIsbn(isbnText, callback = { importedBook: ImportedBookData? ->
+                       if (importedBook != null) {
+                           //navigator.navigate(EditBookPageDestination(importedBookData = importedBook))
+                       }
+                    },
+                    failureCallback = { code: Int, msg: String ->
 
-                        })
-                    }
-                },
-                content = {Text("Send")}
-            )
-            Button(
-                onClick = {
-                    navigator.navigate(ScanIsbnPageDestination())
-                },
-                content = {Text("Scan")}
-            )
-        }
+                    })
+                }
+            },
+            content = {Text("Send")}
+        )
+        Button(
+            onClick = {
+                navigator.navigate(ScanIsbnPageDestination())
+            },
+            content = {Text("Scan")}
+        )
+        val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
+        var expanded by remember { mutableStateOf(false) }
+        var selectedOptionText by remember { mutableStateOf(options[0]) }
+
     }
 }
 
@@ -88,7 +89,6 @@ fun  LandingPagePreview() {
         LandingPage(
             EmptyDestinationsNavigator,
             object: IScanIsbnViewModel {
-                override val appBarDelegate = AppBarStateDelegate(MutableStateFlow(AppBarState()))
                 override var displayBookNotFoundDialog: Boolean = false
                 override var displayInsertIsbnDialog: Boolean = false
                 override var errorMessage: String? = null
@@ -105,6 +105,9 @@ fun  LandingPagePreview() {
                 override fun getImageAnalysis(): ImageAnalysis {
                     return ImageAnalysis.Builder().build()
                 }
+
+                override val appBarDelegate: AppBarStateDelegate =
+                    PreviewUtils.fakeAppBarStateDelegate
 
             }
         )

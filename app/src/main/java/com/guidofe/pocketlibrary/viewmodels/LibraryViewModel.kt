@@ -20,9 +20,8 @@ class LibraryViewModel @Inject constructor(
     private val repo: LibraryRepository,
     private val metaRepo: BookMetaRepository,
     private val appBarState: MutableStateFlow<AppBarState?>
-): ILibraryViewModel, ViewModel() {
+): ViewModel(), ILibraryViewModel {
     private val pageSize = 50
-    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(this.appBarState)
     override val pager = Pager(PagingConfig(pageSize)) {
         BookPagingSource(repo)
     }.flow.cachedIn(viewModelScope)
@@ -32,6 +31,8 @@ class LibraryViewModel @Inject constructor(
                                        failureCallback: (Int, String) -> Unit) {
         metaRepo.fetchVolumeByIsbn(isbn, callback, failureCallback)
     }
+
+    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(appBarState)
 
 
 }

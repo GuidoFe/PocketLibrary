@@ -13,4 +13,7 @@ interface BookshelfDao {
 
     @Query("SELECT bookshelfId FROM bookshelf WHERE UPPER(name) LIKE UPPER(:name) AND parentRoom = :roomId")
     suspend fun getBookshelfIdByNameAndRoomId(name: String, roomId: Long): Long?
+
+    @Query("SELECT * FROM bookshelf WHERE parentRoom = :roomId")
+    suspend fun getBookshelvesByParentRoomId(roomId: Long): List<Bookshelf>
 }

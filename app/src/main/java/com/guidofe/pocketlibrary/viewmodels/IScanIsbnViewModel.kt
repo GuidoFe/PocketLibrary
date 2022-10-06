@@ -3,7 +3,7 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.camera.core.ImageAnalysis
 import com.guidofe.pocketlibrary.model.ImportedBookData
 
-interface IScanIsbnViewModel: IDestinationPage{
+interface IScanIsbnViewModel: IDestinationViewModel {
     var displayBookNotFoundDialog: Boolean
     var displayInsertIsbnDialog: Boolean
     var errorMessage: String?
