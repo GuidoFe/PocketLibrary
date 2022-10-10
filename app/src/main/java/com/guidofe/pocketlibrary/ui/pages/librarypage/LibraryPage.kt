@@ -11,10 +11,9 @@ import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.ui.modules.LibraryListItem
-import com.guidofe.pocketlibrary.ui.pages.ViewBookPage
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
-import com.guidofe.pocketlibrary.viewmodels.ILibraryViewModel
-import com.guidofe.pocketlibrary.viewmodels.LibraryViewModel
+import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
+import com.guidofe.pocketlibrary.viewmodels.LibraryVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -22,7 +21,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun LibraryPage(
     navigator: DestinationsNavigator,
-    viewModel: ILibraryViewModel = hiltViewModel<LibraryViewModel>(),
+    viewModel: ILibraryVM = hiltViewModel<LibraryVM>(),
 ) {
     val lazyPagingItems = viewModel.pager.collectAsLazyPagingItems()
     val context = LocalContext.current

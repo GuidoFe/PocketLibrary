@@ -3,7 +3,6 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
@@ -14,51 +13,42 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.modules.FAB
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookPageNavArgs
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.DetailsTab
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.LocationTab
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
-import com.guidofe.pocketlibrary.viewmodels.ILocationViewModel
-import com.guidofe.pocketlibrary.viewmodels.IViewBookViewModel
-import com.guidofe.pocketlibrary.viewmodels.LocationViewModel
-import com.guidofe.pocketlibrary.viewmodels.ViewBookViewModel
+import com.guidofe.pocketlibrary.viewmodels.interfaces.ILocationVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
+import com.guidofe.pocketlibrary.viewmodels.LocationVM
+import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 @Destination
 @Composable
 fun ViewBookPage (
     bookId: Long,
-    vm: IViewBookViewModel = hiltViewModel<ViewBookViewModel>(),
-    locationVm: ILocationViewModel = hiltViewModel<LocationViewModel>(),
+    vm: IViewBookVM = hiltViewModel<ViewBookVM>(),
+    locationVm: ILocationVM = hiltViewModel<LocationVM>(),
     navigator: DestinationsNavigator,
 ) {
     val context = LocalContext.current
@@ -77,8 +67,8 @@ private enum class LocalTab {SUMMARY, DETAILS, NOTE, LOCATION}
 @Composable
 private fun ViewBookContent(
     bundle: BookBundle,
-    vm: IViewBookViewModel,
-    locationVm: ILocationViewModel,
+    vm: IViewBookVM,
+    locationVm: ILocationVM,
     navigator: DestinationsNavigator,
     defaultTab: Int = 0,
 ) {
@@ -226,7 +216,7 @@ private fun ViewBookContent(
                     modifier = fabModifier
                 ) {
                     Icon(
-                        painterResource(R.drawable.edit_48px),
+                        painterResource(R.drawable.edit_24px),
                         stringResource(R.string.edit_details),
                         modifier = iconModifier
                     )
@@ -274,7 +264,7 @@ fun ViewBookPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
         ViewBookContent(
             PreviewUtils.exampleBookBundle,
-            object: IViewBookViewModel {
+            object: IViewBookVM {
                 override var bundle: StateFlow<BookBundle?> =
                     MutableStateFlow(PreviewUtils.exampleBookBundle)
                 override var editedNoteFlow = MutableStateFlow("")
@@ -282,7 +272,7 @@ fun ViewBookPagePreview() {
                 override fun saveNote() {}
                 override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(MutableStateFlow(null))
             },
-            object: ILocationViewModel {
+            object: ILocationVM {
                 override var placeText: String = "Place"
                 override var roomText: String = "Room"
                 override var bookshelfText: String = "Bookshelf"

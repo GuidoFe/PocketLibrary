@@ -22,33 +22,27 @@ class DefaultBookMetaRepository: BookMetaRepository {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    //successCallback(null) if no book found, failureCallback(code) if other types of error
-    override fun fetchVolumeByIsbn(isbn: String, onSuccessCallback: (ImportedBookData?) -> Unit, onFailureCallback: (code: Int, message: String) -> Unit) {
-        //TODO: Manage book not found
-        val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
-        val call = service.getVolumesByQuery(QueryData(null, mapOf(QueryData.QueryKey.isbn to isbn)))
+    private fun fetchListOfBooks(
+        call: Call<RawVolumeListResponse>,
+        onSuccessCallback: (List<ImportedBookData>) -> Unit,
+        onFailureCallback: (code: Int, message: String) -> Unit
+    ) {
         call.enqueue(object: Callback<RawVolumeListResponse> {
             override fun onResponse(
                 call: Call<RawVolumeListResponse>,
                 response: Response<RawVolumeListResponse>
             ) {
                 if (response.isSuccessful) {
-                    Log.d("debug", response.body().toString())
                     if (response.code() == 200) {
                         if (!response.body()?.items.isNullOrEmpty()) {
-                            val rawBook = response.body()!!.items[0]
-                            onSuccessCallback(rawBook.toImportedBookData())
+                            onSuccessCallback(response.body()!!.items.map{it.toImportedBookData()})
                         }
                         else
-                            onSuccessCallback(null)
+                            onSuccessCallback(listOf())
                     } else {
-                        Log.d("debug", call.request().url.toString())
-                        Log.d("debug", "Something is null. " + response.body())
                         onFailureCallback(response.code(), response.message())
                     }
                 } else {
-                    Log.d("debug", call.request().url.toString())
-                    Log.d("debug", response.errorBody().toString())
                     onFailureCallback(response.code(), response.message())
                 }
 
@@ -58,5 +52,21 @@ class DefaultBookMetaRepository: BookMetaRepository {
                 onFailureCallback(0, t.message ?: "Unknown error")
             }
         })
+    }
+    //successCallback(null) if no book found, failureCallback(code) if other types of error
+    override fun fetchVolumesByIsbn(isbn: String, onSuccessCallback: (List<ImportedBookData>) -> Unit, onFailureCallback: (code: Int, message: String) -> Unit) {
+        val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
+        val call = service.getVolumesByQuery(QueryData(null, mapOf(QueryData.QueryKey.isbn to isbn)))
+        fetchListOfBooks(call, onSuccessCallback, onFailureCallback)
+    }
+
+    override fun searchVolumesByTitle(
+        title: String,
+        onSuccessCallback: (List<ImportedBookData>) -> Unit,
+        onFailureCallback: (code: Int, message: String) -> Unit
+    ) {
+        val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
+        val call = service.getVolumesByQuery(QueryData(null, mapOf(QueryData.QueryKey.intitle to title)))
+        fetchListOfBooks(call, onSuccessCallback, onFailureCallback)
     }
 }

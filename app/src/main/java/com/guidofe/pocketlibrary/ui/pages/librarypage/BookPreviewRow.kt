@@ -43,8 +43,8 @@ fun BookPreviewRow(book: Book, authors: List<Author>, isFavorite: Boolean = fals
                     var statusBadge: Int? = null
                     if (loanStatus != null)
                         statusBadge = when (loanStatus.type) {
-                            LoanType.LENT -> R.drawable.ic_baseline_lent_24
-                            LoanType.BORROWED -> R.drawable.ic_baseline_borrowed_24
+                            LoanType.LENT -> R.drawable.lent_24px
+                            LoanType.BORROWED -> R.drawable.borrowed_24px
                             else -> null
                         }
                     if (statusBadge != null)
@@ -62,7 +62,7 @@ fun BookPreviewRow(book: Book, authors: List<Author>, isFavorite: Boolean = fals
                         Text(book.subtitle ?: "", fontSize = 15.sp)
                 }
                 if (isFavorite)
-                    Icon(painter = painterResource(R.drawable.ic_baseline_star_24),
+                    Icon(painter = painterResource(R.drawable.star_24px),
                         "star")
             }
 

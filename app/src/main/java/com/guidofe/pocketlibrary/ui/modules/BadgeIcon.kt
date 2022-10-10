@@ -44,6 +44,6 @@ fun BadgeIcon(painter: Painter,
 @Composable
 fun BadgeIconPreview() {
     PocketLibraryTheme() {
-        BadgeIcon(painterResource(R.drawable.ic_baseline_star_24), "Test", badgeBackground = Color.Red, badgeForeground = Color.White)
+        BadgeIcon(painterResource(R.drawable.star_24px), "Test", badgeBackground = Color.Red, badgeForeground = Color.White)
     }
 }

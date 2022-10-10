@@ -1,39 +1,53 @@
 package com.guidofe.pocketlibrary.ui.pages.editbookpage
 
 import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.IndustryIdentifierType
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Progress
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.setValue
 
-data class FormData(
-    var title: String = "",
-    var subtitle: String = "",
-    var description: String = "",
-    var publisher: String = "",
-    var published: String = "",
-    var media: Media = Media.BOOK,
-    var coverUri: Uri? = null,
-    var identifierType: IndustryIdentifierType = IndustryIdentifierType.ISBN_13,
-    var identifier: String = "",
-    var language: String = "",
-    var authors: String = "",
-    var genres: List<String> = listOf(),
-) {
-    constructor(book: ImportedBookData) : this() {
-        this.title = book.title
-        this.subtitle = book.subtitle ?: ""
-        this.description = book.description ?: ""
-        this.publisher = book.publisher ?: ""
-        this.published = if (book.published == null) "" else book.published.toString()
-        this.media = book.media
-        this.coverUri = if (book.coverUrl.isNullOrBlank()) null else Uri.parse(book.coverUrl)
-        this.identifierType = book.industryIdentifierType ?: IndustryIdentifierType.ISBN_13
-        this.identifier = book.identifier ?: ""
-        this.language = book.language ?: ""
-        this.authors = book.authors.joinToString(", ")
-        this.genres = book.genres
+class FormData(){
+    var title: String by mutableStateOf("")
+    var subtitle: String by mutableStateOf("")
+    var description: String by mutableStateOf("")
+    var publisher: String by mutableStateOf("")
+    var published: String by mutableStateOf("")
+    var media: Media by mutableStateOf(Media.BOOK)
+    var coverUri: Uri? by mutableStateOf(null)
+    var identifier: String by mutableStateOf("")
+    var language: String by mutableStateOf("")
+    var authors: String by mutableStateOf("")
+    var genres: List<String> by mutableStateOf(listOf())
+    constructor(
+        title: String = "",
+        subtitle: String = "",
+        description: String = "",
+        publisher: String = "",
+        published: Int? = null,
+        media: Media = Media.BOOK,
+        coverUri: Uri? = null,
+        identifier: String = "",
+        language: String = "",
+        authors: String = "",
+        genres: List<String> = listOf()
+
+    ): this() {
+        this.title = title
+        this.subtitle = subtitle
+        this.description = description
+        this.publisher = publisher
+        this.published = published?.toString() ?: ""
+        this.media = media
+        this.coverUri = coverUri
+        this.identifier = identifier
+        this.language = language
+        this.authors = authors
+        this.genres = genres
     }
 
     constructor(bundle: BookBundle): this() {
@@ -45,9 +59,8 @@ data class FormData(
         this.published = (book.published?.toString()) ?: ""
         this.media = book.media
         this.coverUri = book.coverURI
-        this.identifierType = book.industryIdentifierType
         this.identifier = book.identifier ?: ""
-        this.language = book.language
+        this.language = book.language ?: ""
         this.authors = bundle.authors.joinToString(", ")
         this.genres = bundle.genres.map {it.name}
     }

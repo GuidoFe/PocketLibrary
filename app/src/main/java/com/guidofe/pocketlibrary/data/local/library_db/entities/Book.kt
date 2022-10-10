@@ -7,7 +7,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-enum class IndustryIdentifierType {ISBN_10, ISBN_13, ISSN, OTHER}
 enum class Progress {NOT_READ, SUSPENDED, IN_PROGRESS, READ}
 enum class Media {BOOK, EBOOK}
 
@@ -24,10 +23,9 @@ data class Book (
     @ColumnInfo var isFavorite: Boolean = false,
     @ColumnInfo var progress: Progress = Progress.NOT_READ,
     @ColumnInfo var coverURI: Uri? = null,
-    @ColumnInfo(name = "industry_identifier_type") var industryIdentifierType: IndustryIdentifierType = IndustryIdentifierType.ISBN_13,
     @ColumnInfo var identifier: String? = null,
     @ColumnInfo var media: Media = Media.BOOK,
     //TODO Set default language
-    @ColumnInfo var language: String = "en",
+    @ColumnInfo var language: String? = null,
 ) : Parcelable
  // BOOK ( **IdBook**, Title, Subtitle, Description, Publisher, Published, isEbook, ISBN, Score, PlacementURI)

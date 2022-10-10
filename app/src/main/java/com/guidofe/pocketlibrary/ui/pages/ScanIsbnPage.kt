@@ -1,11 +1,8 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import android.Manifest
-import android.util.Log
 import androidx.camera.core.ImageAnalysis
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -21,30 +18,37 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.AppBarState
 import com.guidofe.pocketlibrary.ui.modules.CameraView
 import com.guidofe.pocketlibrary.ui.modules.InsertIsbnDialog
+import com.guidofe.pocketlibrary.ui.pages.destinations.ChooseImportedBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
-import com.guidofe.pocketlibrary.viewmodels.IScanIsbnViewModel
-import com.guidofe.pocketlibrary.viewmodels.ScanIsbnViewModel
+import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
+import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
-import kotlinx.coroutines.flow.MutableStateFlow
 
-private fun submitIsbnEffect(viewModel: IScanIsbnViewModel, navigator: DestinationsNavigator) {
-    Log.d("debug", "Code != null")
-    viewModel.getImportedBookFromIsbn(
-        viewModel.code!!,
-        callback = { importedBook: ImportedBookData? ->
-            if (importedBook != null) {
-                //navigator.navigate(EditBookPageDestination(importedBookData = importedBook))
-            } else {
-                Log.w("debug", "Book not found")
-                viewModel.displayBookNotFoundDialog = true
+private fun submitIsbnEffect(scanVm: IScanIsbnVM, importedBookVm: IImportedBookVM, navigator: DestinationsNavigator) {
+    importedBookVm.getImportedBooksFromIsbn(
+        scanVm.code!!,
+        callback = { importedBooks: List<ImportedBookData> ->
+            when (importedBooks.size) {
+                0 -> scanVm.displayBookNotFoundDialog = true
+                1 -> {
+                    importedBookVm.saveImportedBookInDb(importedBooks[0]) { id ->
+                        navigator.navigate(ViewBookPageDestination(id))
+                    }
+                }
+                else -> {
+                    navigator.navigate(ChooseImportedBookPageDestination(importedBooks.toTypedArray()))
+                }
             }
         },
-        failureCallback = { code: Int, message: String ->
-            viewModel.errorMessage = "$code: $message"
+        failureCallback = { _: Int,_: String ->
+            scanVm.displayConnectionErrorDialog = true
         }
     )
 }
@@ -55,11 +59,12 @@ private fun submitIsbnEffect(viewModel: IScanIsbnViewModel, navigator: Destinati
 @Composable
 fun ScanIsbnPage(
     navigator: DestinationsNavigator,
-    viewModel: IScanIsbnViewModel = hiltViewModel<ScanIsbnViewModel>()
+    scanVm: IScanIsbnVM = hiltViewModel<ScanIsbnVM>(),
+    importedBookVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        viewModel.appBarDelegate.setAppBarContent(
+        scanVm.appBarDelegate.setAppBarContent(
             AppBarState(title=context.getString(R.string.scan_isbn)
             )
         )
@@ -70,12 +75,12 @@ fun ScanIsbnPage(
     when (cameraPermissionState.status) {
         // If the camera permission is granted, then show screen with the feature enabled
         PermissionStatus.Granted -> {
-            CameraView(additionalUseCases = arrayOf(viewModel.getImageAnalysis()))
-            if (viewModel.code != null) {
-                LaunchedEffect(key1 = viewModel.code) {
-                    submitIsbnEffect(viewModel = viewModel, navigator = navigator)
+            if (scanVm.code != null) {
+                LaunchedEffect(key1 = scanVm.code) {
+                    submitIsbnEffect(scanVm, importedBookVm, navigator)
                 }
             }
+            CameraView(additionalUseCases = arrayOf(scanVm.getImageAnalysis()))
         }
         is PermissionStatus.Denied -> {
             if ((cameraPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
@@ -107,13 +112,13 @@ fun ScanIsbnPage(
             }
         }
     }
-    if (viewModel.displayBookNotFoundDialog) {
+    if (scanVm.displayBookNotFoundDialog) {
         AlertDialog(
             title = { Text(stringResource(R.string.book_not_found)) },
             text = { Text(stringResource(R.string.book_not_found_message)) },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.displayBookNotFoundDialog = false
+                    scanVm.displayBookNotFoundDialog = false
                     //navigator.navigate(EditBookPageDestination())
                 }) {
                     Text(stringResource(R.string.ok))
@@ -131,27 +136,67 @@ fun ScanIsbnPage(
             }
         )
     }
-    if (viewModel.displayInsertIsbnDialog) {
+    if (scanVm.displayInsertIsbnDialog) {
         InsertIsbnDialog(onConfirm = { isbn ->
-            submitIsbnEffect(viewModel = viewModel, navigator = navigator)
-            viewModel.displayInsertIsbnDialog = false
+            scanVm.displayInsertIsbnDialog = false
+            scanVm.code = isbn
         }, onDismiss = {
-            viewModel.displayInsertIsbnDialog = false
+            scanVm.displayInsertIsbnDialog = false
         })
     }
-    if (viewModel.errorMessage != null) {
+    if (scanVm.displayConnectionErrorDialog || scanVm.displayBookNotFoundDialog) {
+        AlertDialog(
+            title = {
+                Text(stringResource(
+                    if(scanVm.displayConnectionErrorDialog)
+                        R.string.error_no_connection
+                    else
+                        R.string.book_not_found
+                ))},
+            text = {
+                Text(stringResource(
+                    if(scanVm.displayConnectionErrorDialog)
+                        R.string.no_connection_text
+                    else
+                        R.string.book_not_found_message
+                ))},
+            confirmButton = {
+                Button(
+                    content = {Text(stringResource(R.string.insert_manually))},
+                    onClick = {
+                        scanVm.displayConnectionErrorDialog = false
+                        navigator.navigate(EditBookPageDestination(isbn = scanVm.code))
+                    }
+                )
+            },
+            dismissButton = {
+                TextButton(
+                    content = {Text(stringResource(R.string.cancel))},
+                    onClick = {
+                        scanVm.displayConnectionErrorDialog = false
+                        navigator.popBackStack()
+                    }
+                )
+            },
+            onDismissRequest = {
+                scanVm.displayConnectionErrorDialog = false
+                navigator.navigateUp()
+            }
+        )
+    }
+    if (scanVm.errorMessage != null) {
         AlertDialog(
             title = { Text(stringResource(R.string.error)) },
-            text = { Text(viewModel.errorMessage?:"") },
+            text = { Text(scanVm.errorMessage?:"") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.errorMessage = null
+                    scanVm.errorMessage = null
                 }) {
                     Text(stringResource(R.string.ok))
                 }
             },
             onDismissRequest = {
-                viewModel.errorMessage = null
+                scanVm.errorMessage = null
                 navigator.navigateUp()
             }
         )
@@ -164,27 +209,32 @@ fun ScanIsbnPage(
 fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         navigator = EmptyDestinationsNavigator,
-        viewModel = object: IScanIsbnViewModel {
+        scanVm = object: IScanIsbnVM {
+            override var coverUrl: String = ""
             override var displayBookNotFoundDialog = false
             override var displayInsertIsbnDialog: Boolean = false
+            override var displayConnectionErrorDialog: Boolean = false
             override var errorMessage: String? = null
-
-            override fun getImportedBookFromIsbn(
-                isbn: String,
-                callback: (book: ImportedBookData?) -> Unit,
-                failureCallback: (code: Int, message: String) -> Unit
-            ) {
-            }
-
             override var code: String? = ""
-                private set
-
             override fun getImageAnalysis(): ImageAnalysis {
                 return ImageAnalysis.Builder().build()
             }
 
             override val appBarDelegate: AppBarStateDelegate =
                 PreviewUtils.fakeAppBarStateDelegate
+
+        },
+        importedBookVm = object: IImportedBookVM {
+            override fun getImportedBooksFromIsbn(
+                isbn: String,
+                callback: (books: List<ImportedBookData>) -> Unit,
+                failureCallback: (code: Int, message: String) -> Unit
+            ) {}
+
+            override fun saveImportedBookInDb(
+                importedBook: ImportedBookData,
+                callback: (Long) -> Unit
+            ) {}
 
         }
     )

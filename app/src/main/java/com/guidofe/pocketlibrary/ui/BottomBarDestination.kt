@@ -9,8 +9,8 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.StatsPageDestination
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
 enum class BottomBarDestination(val direction: DirectionDestinationSpec, val labelId: Int, @DrawableRes val iconId: Int) {
-    LandingPageScreen(LandingPageDestination, R.string.home, R.drawable.ic_baseline_home_24),
-    LibraryScreen(LibraryPageDestination, R.string.my_library, R.drawable.ic_baseline_collections_24),
-    FavoritesScreen(FavoritesPageDestination, R.string.favorites, R.drawable.ic_baseline_star_24),
-    StatsScreen(StatsPageDestination, R.string.stats, R.drawable.ic_baseline_chart_outlined_24)
+    LandingPageScreen(LandingPageDestination, R.string.home, R.drawable.home_24px),
+    LibraryScreen(LibraryPageDestination, R.string.my_library, R.drawable.collections_24px),
+    FavoritesScreen(FavoritesPageDestination, R.string.favorites, R.drawable.star_24px),
+    StatsScreen(StatsPageDestination, R.string.stats, R.drawable.chart_24px)
 }

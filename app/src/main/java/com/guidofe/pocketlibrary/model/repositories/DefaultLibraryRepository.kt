@@ -7,7 +7,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import javax.inject.Inject
 
 class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): LibraryRepository {
-    override suspend fun insertBookBundle(bundle: BookBundle): Long? {
+    override suspend fun insertBookBundle(bundle: BookBundle): Long {
         var bookId: Long = -1L
         withTransaction {
             bookId = insertBook(bundle.book)
@@ -72,7 +72,7 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         db.bookPlacementDao().upsert(bookPlacement)
     }
 
-    override suspend fun getBookBundles(pageNumber: Int, pageSize: Int): List<BookBundle> {
+    override suspend fun getBookBundles(pageNumber: Int, pageSize: Int): List<BookBundle?> {
         return db.bookBundleDao().getBookBundles(pageNumber, pageSize)
     }
 

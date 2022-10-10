@@ -5,7 +5,6 @@ import androidx.camera.core.ImageAnalysis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -13,17 +12,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.AppBarState
-import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
-import com.guidofe.pocketlibrary.viewmodels.IScanIsbnViewModel
-import com.guidofe.pocketlibrary.viewmodels.ScanIsbnViewModel
+import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
+import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 
@@ -33,13 +32,14 @@ import kotlinx.coroutines.launch
 @ExperimentalGetImage
 fun LandingPage(
     navigator: DestinationsNavigator,
-    viewModel: IScanIsbnViewModel = hiltViewModel<ScanIsbnViewModel>(),
+    scanVm: IScanIsbnVM = hiltViewModel<ScanIsbnVM>(),
+    importedBookVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
 ) {
     var isbnText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        viewModel.appBarDelegate.setAppBarContent(
+        scanVm.appBarDelegate.setAppBarContent(
             AppBarState(
                 title = context.getString(R.string.my_library)
             )
@@ -56,8 +56,8 @@ fun LandingPage(
         Button(
             onClick = {
                 scope.launch {
-                    viewModel.getImportedBookFromIsbn(isbnText, callback = { importedBook: ImportedBookData? ->
-                       if (importedBook != null) {
+                    importedBookVm.getImportedBooksFromIsbn(isbnText, callback = { importedBooks: List<ImportedBookData> ->
+                       if (importedBooks.isNotEmpty()) {
                            //navigator.navigate(EditBookPageDestination(importedBookData = importedBook))
                        }
                     },
@@ -88,17 +88,11 @@ fun  LandingPagePreview() {
     PocketLibraryTheme(darkTheme = true) {
         LandingPage(
             EmptyDestinationsNavigator,
-            object: IScanIsbnViewModel {
+            object: IScanIsbnVM {
                 override var displayBookNotFoundDialog: Boolean = false
                 override var displayInsertIsbnDialog: Boolean = false
+                override var displayConnectionErrorDialog: Boolean = false
                 override var errorMessage: String? = null
-
-                override fun getImportedBookFromIsbn(
-                    isbn: String,
-                    callback: (book: ImportedBookData?) -> Unit,
-                    failureCallback: (code: Int, message: String) -> Unit
-                ) {
-                }
 
                 override var code: String? = ""
 
@@ -106,8 +100,23 @@ fun  LandingPagePreview() {
                     return ImageAnalysis.Builder().build()
                 }
 
+                override var coverUrl: String = ""
+
                 override val appBarDelegate: AppBarStateDelegate =
                     PreviewUtils.fakeAppBarStateDelegate
+
+            },
+            object: IImportedBookVM {
+                override fun getImportedBooksFromIsbn(
+                    isbn: String,
+                    callback: (books: List<ImportedBookData>) -> Unit,
+                    failureCallback: (code: Int, message: String) -> Unit
+                ) {}
+
+                override fun saveImportedBookInDb(
+                    importedBook: ImportedBookData,
+                    callback: (Long) -> Unit
+                ) {}
 
             }
         )

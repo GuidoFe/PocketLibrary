@@ -19,7 +19,7 @@ class BookPagingSource @Inject constructor(val repo: LibraryRepository): PagingS
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, BookBundle> {
         return try {
             val pageNumber = params.key ?: 0
-            val response = repo.getBookBundles(pageNumber, params.loadSize)
+            val response = repo.getBookBundles(pageNumber, params.loadSize).requireNoNulls()
             val prevKey = if (pageNumber > 0) pageNumber - 1 else null
             val nextKey = if (response.size == params.loadSize) pageNumber + 1 else null
             LoadResult.Page(

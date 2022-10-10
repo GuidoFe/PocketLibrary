@@ -9,17 +9,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.OutlinedAutocomplete
-import com.guidofe.pocketlibrary.viewmodels.ILocationViewModel
-import com.guidofe.pocketlibrary.viewmodels.LocationViewModel
+import com.guidofe.pocketlibrary.viewmodels.interfaces.ILocationVM
+import com.guidofe.pocketlibrary.viewmodels.LocationVM
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationTab (
     bookId: Long,
-    vm: ILocationViewModel = viewModel<LocationViewModel>()
+    vm: ILocationVM = viewModel<LocationVM>()
 ) {
     val places by vm.places.collectAsState()
     val rooms by vm.possibleRooms.collectAsState()
@@ -79,7 +78,7 @@ fun LocationTab (
 fun LocationTabPreview() {
     MaterialTheme {
         Surface {
-            LocationTab(0L, object: ILocationViewModel {
+            LocationTab(0L, object: ILocationVM {
                 override var placeText: String = "Home"
                 override var roomText: String = "Bedroom"
                 override var bookshelfText: String = ""

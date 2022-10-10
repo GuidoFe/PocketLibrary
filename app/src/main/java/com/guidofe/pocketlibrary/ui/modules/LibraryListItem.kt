@@ -68,8 +68,8 @@ fun LibraryListItem(
                     var statusBadge: Int? = null
                     if (bookBundle.loan != null)
                         statusBadge = when (bookBundle.loan.type) {
-                            LoanType.LENT -> R.drawable.ic_baseline_lent_24
-                            LoanType.BORROWED -> R.drawable.ic_baseline_borrowed_24
+                            LoanType.LENT -> R.drawable.lent_24px
+                            LoanType.BORROWED -> R.drawable.borrowed_24px
                         }
                     if (statusBadge != null)
                         BadgeIcon(painter = painterResource(statusBadge),
@@ -105,7 +105,7 @@ fun LibraryListItem(
                 }
                 if (bookBundle.book.isFavorite) {
                     Image(
-                        painter = painterResource(R.drawable.ic_baseline_star_24),
+                        painter = painterResource(R.drawable.star_24px),
                         contentDescription = stringResource(R.string.favorite),
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                     )
@@ -122,7 +122,6 @@ var book = Book(
     description = "Opposing forces struggle for control of the universe when the archenemy of the cosmic emperor is banished to a barren world where savages fight for water",
     publisher = "Penguin",
     published = 1990,
-    industryIdentifierType = IndustryIdentifierType.ISBN_13,
     identifier = "9780441172719",
     language = "en",
     isFavorite = true

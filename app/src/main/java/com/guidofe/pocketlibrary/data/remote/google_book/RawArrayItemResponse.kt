@@ -1,25 +1,23 @@
 package com.guidofe.pocketlibrary.data.remote.google_book
 
-import com.guidofe.pocketlibrary.data.local.library_db.entities.IndustryIdentifierType
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
 
 data class RawArrayItemResponse (val volumeInfo: RawVolumeResponse, val saleInfo: RawSaleInfo) {
     fun toImportedBookData (): ImportedBookData {
-        var industryIdentifierType: IndustryIdentifierType? = null
-        var industryIdentifierValue: String? = null
+        var code13: String? = null
+        var code10: String? = null
+        var issn: String? = null
         volumeInfo.industryIdentifiers?.let {
             volumeInfo.industryIdentifiers.forEach {
-                if (it.type == "ISBN_13") {
-                    industryIdentifierType = IndustryIdentifierType.valueOf(it.type)
-                    industryIdentifierValue = it.identifier
-                    return@forEach
+                when (it.type) {
+                    "ISBN_13" -> {
+                        code13 = it.identifier
+                        return@forEach
+                    }
+                    "ISBN_10" -> code10 = it.identifier
+                    "ISSN" -> issn = it.identifier
                 }
-            }
-            if (industryIdentifierType == null && volumeInfo.industryIdentifiers.isNotEmpty()) {
-                industryIdentifierType =
-                    IndustryIdentifierType.valueOf(volumeInfo.industryIdentifiers[0].type)
-                industryIdentifierValue = volumeInfo.industryIdentifiers[0].identifier
             }
         }
 
@@ -54,8 +52,7 @@ data class RawArrayItemResponse (val volumeInfo: RawVolumeResponse, val saleInfo
             publisher = volumeInfo.publisher,
             published = published,
             coverUrl = coverUrl,
-            industryIdentifierType = industryIdentifierType,
-            identifier = industryIdentifierValue,
+            identifier = code13 ?: code10 ?: issn,
             media = mediaType,
             language = volumeInfo.language,
             authors = volumeInfo.authors ?: listOf(),

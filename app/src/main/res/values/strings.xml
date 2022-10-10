@@ -57,4 +57,11 @@
     <string name="note_placeholder">Opinions, reminders, annotations...</string>
     <string name="edit_details">Edit details</string>
     <string name="save">Save</string>
+    <string name="error_no_connection">Error: no connection</string>
+    <string name="no_connection_text">Impossible to connect to the internet. You can still insert the book data manually.</string>
+    <string name="back">Back</string>
+    <string name="year">Year</string>
+    <string name="choose_book_insertion_method">Choose how do you want to get the information about the book:</string>
+    <string name="search_title_online">Search for the book\'s title online</string>
+    <string name="select_current_book">Select current book</string>
 </resources>
