@@ -21,10 +21,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.destinations.LandingPageDestination
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
-import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import com.ramcosta.composedestinations.annotation.Destination
@@ -49,28 +49,34 @@ fun EditBookPage(
    val coroutineScope = rememberCoroutineScope()
    val context = LocalContext.current
    LaunchedEffect(key1 = true) {
-      viewModel.appBarDelegate.setAppBarContent(
-         AppBarState(
-            title=context.getString(R.string.edit_book),
-            actions = {
-               IconButton(
-                  onClick = {
-                     coroutineScope.launch(Dispatchers.IO) {
-                        val id = viewModel.submitBook()
-                        //TODO: check if id >= 0
+      viewModel.scaffoldState.refreshBar(
+         title=context.getString(R.string.edit_book),
+         actions = {
+            IconButton(
+               onClick = {
+                  coroutineScope.launch(Dispatchers.IO) {
+                     val id = viewModel.submitBook()
+                     if (id > 0L) {
                         withContext(Dispatchers.Main) {
                            navigator.navigate(LandingPageDestination)
                         }
+                     } else {
+                        viewModel.snackbarHostState.showSnackbar(
+                           CustomSnackbarVisuals(
+                              context.getString(R.string.error_cant_save_book),
+                              true
+                           )
+                        )
                      }
                   }
-               ) {
-                  Icon(
-                     painterResource(id = R.drawable.check_24px),
-                     stringResource(R.string.save)
-                  )
                }
+            ) {
+               Icon(
+                  painterResource(id = R.drawable.check_24px),
+                  stringResource(R.string.save)
+               )
             }
-         )
+         }
       )
       bookId?.let {viewModel.initialiseFromDatabase(it)}
       isbn?.let { Log.d("debug", "Setting isbn $it"); viewModel.formData.identifier = it}
@@ -153,13 +159,9 @@ fun EditBookPage(
                .weight(2f)
          )
          OutlinedTextField(
-            value = viewModel.formData.published.toString(),
+            value = viewModel.formData.published,
             onValueChange = {
-               try {
-                  viewModel.formData.published = it
-               } catch (e: NumberFormatException) {
-                  //TODO: Manage exception
-               }
+               viewModel.formData.published = it
             },
             label = { Text(stringResource(R.string.year)) },
             singleLine = true,
@@ -191,18 +193,19 @@ private object VMPreview: IEditBookVM {
            authors   = "Frank Herbert, Princess Irulan",
            genres    = listOf("Fantasy", "Sci-fi"),
         )
+   override val scaffoldState: ScaffoldState = ScaffoldState()
+   override val snackbarHostState: SnackbarHostState = SnackbarHostState()
 
 
    override suspend fun initialiseFromDatabase(id: Long) {
    }
 
-   override suspend fun submitBook() {}
-   override val appBarDelegate = PreviewUtils.fakeAppBarStateDelegate
+   override suspend fun submitBook(): Long {return 1L}
 }
 
 @Composable
 @Preview(showSystemUi = true)
-fun ImportedBookFormPagePreview() {
+private fun ImportedBookFormPagePreview() {
    EditBookPage(
       bookId = 0,
       navigator = EmptyDestinationsNavigator,

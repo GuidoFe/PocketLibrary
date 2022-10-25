@@ -57,7 +57,7 @@ fun RowWithIcon(
 
 @Composable
 @Preview
-fun RowWithIconPreview() {
+private fun RowWithIconPreview() {
     val lorem: Lorem = LoremIpsum.getInstance()
     MaterialTheme {
         Surface {

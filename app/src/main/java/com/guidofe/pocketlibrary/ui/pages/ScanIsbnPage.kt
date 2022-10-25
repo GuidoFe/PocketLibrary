@@ -15,14 +15,12 @@ import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.modules.CameraView
 import com.guidofe.pocketlibrary.ui.modules.InsertIsbnDialog
-import com.guidofe.pocketlibrary.ui.pages.destinations.ChooseImportedBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
-import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
-import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
@@ -34,6 +32,7 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 private fun submitIsbnEffect(scanVm: IScanIsbnVM, importedBookVm: IImportedBookVM, navigator: DestinationsNavigator) {
     importedBookVm.getImportedBooksFromIsbn(
         scanVm.code!!,
+        maxResults = 2,
         callback = { importedBooks: List<ImportedBookData> ->
             when (importedBooks.size) {
                 0 -> scanVm.displayBookNotFoundDialog = true
@@ -43,11 +42,11 @@ private fun submitIsbnEffect(scanVm: IScanIsbnVM, importedBookVm: IImportedBookV
                     }
                 }
                 else -> {
-                    navigator.navigate(ChooseImportedBookPageDestination(importedBooks.toTypedArray()))
+                    navigator.navigate(BookDisambiguationPageDestination(scanVm.code!!))
                 }
             }
         },
-        failureCallback = { _: Int,_: String ->
+        failureCallback = { _: String ->
             scanVm.displayConnectionErrorDialog = true
         }
     )
@@ -64,10 +63,7 @@ fun ScanIsbnPage(
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        scanVm.appBarDelegate.setAppBarContent(
-            AppBarState(title=context.getString(R.string.scan_isbn)
-            )
-        )
+        scanVm.scaffoldState.refreshBar(title=context.getString(R.string.scan_isbn))
     }
     val cameraPermissionState = rememberPermissionState(
         Manifest.permission.CAMERA
@@ -203,10 +199,9 @@ fun ScanIsbnPage(
     }
 }
 
-//TODO: detect double isbn
 @Composable
 @Preview(showSystemUi = true, device = Devices.PIXEL_4)
-fun ScanIsbnPagePreview() {
+private fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         navigator = EmptyDestinationsNavigator,
         scanVm = object: IScanIsbnVM {
@@ -220,16 +215,17 @@ fun ScanIsbnPagePreview() {
                 return ImageAnalysis.Builder().build()
             }
 
-            override val appBarDelegate: AppBarStateDelegate =
-                PreviewUtils.fakeAppBarStateDelegate
+            override val scaffoldState = ScaffoldState()
 
         },
         importedBookVm = object: IImportedBookVM {
             override fun getImportedBooksFromIsbn(
                 isbn: String,
                 callback: (books: List<ImportedBookData>) -> Unit,
-                failureCallback: (code: Int, message: String) -> Unit
-            ) {}
+                failureCallback: (message: String) -> Unit,
+                maxResults: Int
+            ) {
+            }
 
             override fun saveImportedBookInDb(
                 importedBook: ImportedBookData,

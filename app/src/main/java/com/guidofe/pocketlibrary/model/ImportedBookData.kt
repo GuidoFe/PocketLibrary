@@ -8,6 +8,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ImportedBookData(
+    val externalId: String,
     val title: String,
     val subtitle: String? = null,
     val description: String? = null,
@@ -30,7 +31,7 @@ data class ImportedBookData(
                 description = description,
                 publisher = publisher,
                 published = published,
-                coverURI = Uri.parse(coverUrl),
+                coverURI = coverUrl?.let{Uri.parse(it)},
                 identifier = identifier,
                 media = media,
                 language = language

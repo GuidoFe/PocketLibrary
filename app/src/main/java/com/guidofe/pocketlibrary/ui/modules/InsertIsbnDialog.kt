@@ -27,7 +27,7 @@ fun InsertIsbnDialog(onConfirm: (isbn: String) -> Unit, onDismiss: () -> Unit) {
             )
         },
         confirmButton = {
-            TextButton(onClick = {
+            Button(onClick = {
                 onConfirm(isbn)
             }) {
                 Text(stringResource(R.string.ok))
@@ -48,6 +48,6 @@ fun InsertIsbnDialog(onConfirm: (isbn: String) -> Unit, onDismiss: () -> Unit) {
 
 @Composable
 @Preview
-fun InsertIsbnDialogPreview() {
+private fun InsertIsbnDialogPreview() {
     InsertIsbnDialog(onConfirm = {}, {})
 }

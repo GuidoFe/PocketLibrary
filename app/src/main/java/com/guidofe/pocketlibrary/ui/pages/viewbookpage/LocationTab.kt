@@ -6,23 +6,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.OutlinedAutocomplete
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILocationVM
-import com.guidofe.pocketlibrary.viewmodels.LocationVM
-import kotlinx.coroutines.flow.MutableStateFlow
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationTab (
-    bookId: Long,
-    vm: ILocationVM = viewModel<LocationVM>()
+    vm: ILocationVM
 ) {
-    val places by vm.places.collectAsState()
-    val rooms by vm.possibleRooms.collectAsState()
-    val bookshelves by vm.possibleBookshelves.collectAsState()
     Column() {
         OutlinedAutocomplete(
             text = vm.placeText,
@@ -31,7 +23,7 @@ fun LocationTab (
                 vm.hasLocationBeenModified = true
                 vm.changedPlace()
             },
-            options = places,
+            options = vm.places,
             label = { Text(stringResource(R.string.place)) },
             onOptionSelected = {
                 vm.placeText = it
@@ -46,7 +38,7 @@ fun LocationTab (
                 vm.hasLocationBeenModified = true
                 vm.changedRoom()
             },
-            options = rooms,
+            options = vm.possibleRooms,
             label = { Text(stringResource(R.string.room)) },
             enabled = vm.placeText.isNotBlank(),
             onOptionSelected = {
@@ -61,7 +53,7 @@ fun LocationTab (
                 vm.bookshelfText = it
                 vm.hasLocationBeenModified = true
             },
-            options = bookshelves,
+            options = vm.possibleBookshelves,
             label = { Text(stringResource(R.string.bookshelf)) },
             enabled = vm.roomText.isNotBlank(),
             onOptionSelected = {
@@ -75,21 +67,26 @@ fun LocationTab (
 
 @Composable
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
-fun LocationTabPreview() {
+private fun LocationTabPreview() {
     MaterialTheme {
         Surface {
-            LocationTab(0L, object: ILocationVM {
-                override var placeText: String = "Home"
-                override var roomText: String = "Bedroom"
+            LocationTab(object: ILocationVM {
+                override var placeText: String = ""
+                override var roomText: String = ""
                 override var bookshelfText: String = ""
-                override val places = MutableStateFlow<List<String>>(listOf())
-                override val possibleRooms = MutableStateFlow<List<String>>(listOf())
-                override val possibleBookshelves = MutableStateFlow<List<String>>(listOf())
-                override var hasLocationBeenModified = true
-                override fun setValues(place: String, room: String, bookshelf: String) {}
-                override fun changedPlace() {}
+                override val places: List<String> = listOf()
+                override val possibleRooms: List<String> = listOf()
+                override val possibleBookshelves: List<String> = listOf()
+                override var hasLocationBeenModified: Boolean = false
+
+                override fun setPlaceValues(place: String, room: String, bookshelf: String) {}
+
+                override fun changedPlace() { }
+
                 override fun changedRoom() {}
+
                 override fun saveLocation(bookId: Long) {}
+
             })
         }
     }

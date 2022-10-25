@@ -1,37 +1,37 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import android.util.Log
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
-import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
     private val repo: LibraryRepository,
-    appBarState: MutableStateFlow<AppBarState?>
+    override val scaffoldState: ScaffoldState,
+    override val snackbarHostState: SnackbarHostState
 ) : ViewModel(), IEditBookVM {
     //var formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
     //    private set
-    var currentBookId = 0L
-        private set
+    private var currentBookId: Long = 0L
     override var formData: FormData = FormData()
 
     override suspend fun initialiseFromDatabase(
         id: Long
     ) {
         Log.d("Debug", "Initializing from database")
+        currentBookId = id
         val bundle = repo.getBookBundle(id)
         formData = if (bundle != null) FormData(bundle) else FormData()
     }
 
-    override suspend fun submitBook() {
+    override suspend fun submitBook(): Long {
         //TODO: Check for validity
         repo.withTransaction {
             val book = Book(
@@ -70,7 +70,6 @@ class EditBookVM @Inject constructor(
                repo.insertAllBookGenres(genresIds.map{ id -> BookGenre(currentBookId, id) })
             }
         }
+        return currentBookId
     }
-
-    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(appBarState)
 }

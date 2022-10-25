@@ -13,11 +13,9 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
-import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.math.abs
@@ -28,7 +26,7 @@ const val MIN_WIDTH = 1920
 @ExperimentalGetImage @HiltViewModel
 class ScanIsbnVM @Inject constructor(
     private val repo: BookMetaRepository,
-    private val appBarState: MutableStateFlow<AppBarState?>,
+    override val scaffoldState: ScaffoldState,
     ): ViewModel(), IScanIsbnVM {
     override var coverUrl: String by mutableStateOf("")
     private val scannerOptions = BarcodeScannerOptions.Builder()
@@ -93,7 +91,5 @@ class ScanIsbnVM @Inject constructor(
         })
         return imageAnalysis!!
     }
-
-    override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(appBarState)
 
 }

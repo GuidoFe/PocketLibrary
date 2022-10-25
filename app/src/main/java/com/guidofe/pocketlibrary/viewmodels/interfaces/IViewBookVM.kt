@@ -1,12 +1,13 @@
 package com.guidofe.pocketlibrary.viewmodels.interfaces
 
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ViewBookImmutableData
 
-interface IViewBookVM: IDestinationVM {
-    var bundle: StateFlow<BookBundle?>
-    var editedNoteFlow: MutableStateFlow<String>
-    fun initBundle(bookId: Long)
-    fun saveNote()
+interface IViewBookVM: ILocationVM {
+    var editedNote: String
+    val data: ViewBookImmutableData?
+    val scaffoldState: ScaffoldState
+    fun initFromLibraryBook(bookId: Long)
+    fun saveNote(bookId: Long)
 }

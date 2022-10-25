@@ -29,7 +29,6 @@ fun OutlinedAutocomplete(
             onValueChange = onTextChange,
             label = label,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
             enabled = enabled,
             modifier = Modifier.onFocusChanged { state ->
                 expanded = state.isFocused

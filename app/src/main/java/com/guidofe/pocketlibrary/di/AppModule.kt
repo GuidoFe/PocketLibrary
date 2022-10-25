@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.di
 
 import android.content.Context
+import androidx.compose.material3.SnackbarHostState
 import androidx.room.Room
 import coil.ImageLoader
 import coil.disk.DiskCache
@@ -10,7 +11,7 @@ import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.model.repositories.DefaultBookMetaRepository
 import com.guidofe.pocketlibrary.model.repositories.DefaultLibraryRepository
 import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Singleton
 
 
@@ -33,9 +33,17 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideAppBarState(): MutableStateFlow<AppBarState?> {
-        return MutableStateFlow(null)
+    fun provideSnackbarHostState(): SnackbarHostState {
+        return SnackbarHostState()
     }
+
+    @Singleton
+    @Provides
+    fun provideScaffoldState(): ScaffoldState {
+        return ScaffoldState()
+    }
+
+
     @Singleton
     @Provides
     fun provideImageLoader(@ApplicationContext context: Context): ImageLoader {

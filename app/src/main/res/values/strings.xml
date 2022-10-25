@@ -64,4 +64,20 @@
     <string name="choose_book_insertion_method">Choose how do you want to get the information about the book:</string>
     <string name="search_title_online">Search for the book\'s title online</string>
     <string name="select_current_book">Select current book</string>
+    <string name="author">Author</string>
+    <string name="search_online">Search online</string>
+    <string name="loading_dots">Loading...</string>
+    <string name="choose_book">Choose the book</string>
+    <string name="add_to_library">Add to library</string>
+    <string name="no_book_found">No book found</string>
+    <string name="error_cant_save_book">Couldn\'t save the book in the database</string>
+    <string name="error_sadface">Error :(</string>
+    <string name="network_error_sadface">Network error :(</string>
+    <string name="cover_absent">Cover absent</string>
+    <string name="selecting">Selecting</string>
+    <string name="clear_selection">Clear selection</string>
+    <string name="delete">Delete</string>
+    <string name="books_saved">Books saved</string>
+    <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="add_to_favorites">Add to favorites</string>
 </resources>

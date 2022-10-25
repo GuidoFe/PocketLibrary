@@ -64,4 +64,18 @@ class FormData(){
         this.authors = bundle.authors.joinToString(", ")
         this.genres = bundle.genres.map {it.name}
     }
+
+    constructor(book: ImportedBookData): this() {
+        this.title = book.title
+        this.subtitle = book.subtitle ?: ""
+        this.description = book.description ?: ""
+        this.publisher = book.publisher ?: ""
+        this.published = (book.published?.toString()) ?: ""
+        this.media = book.media
+        this.coverUri = book.coverUrl?.let{Uri.parse(it)}
+        this.identifier = book.identifier ?: ""
+        this.language = book.language ?: ""
+        this.authors = book.authors.joinToString(", ")
+        this.genres = book.genres
+    }
 }

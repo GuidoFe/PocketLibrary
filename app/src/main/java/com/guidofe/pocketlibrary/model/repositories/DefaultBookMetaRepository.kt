@@ -1,72 +1,108 @@
 package com.guidofe.pocketlibrary.model.repositories
 
 import android.util.Log
-import com.guidofe.pocketlibrary.data.remote.google_book.GoogleBooksServiceEndpoints
-import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
-import com.guidofe.pocketlibrary.data.remote.google_book.QueryFactory
-import com.guidofe.pocketlibrary.data.remote.google_book.RawVolumeListResponse
+import com.guidofe.pocketlibrary.data.remote.google_book.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.guidofe.pocketlibrary.utils.NetworkResponse
+import com.guidofe.pocketlibrary.utils.NetworkResponseAdapterFactory
+import com.guidofe.pocketlibrary.utils.Resource
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Integer.min
 
 class DefaultBookMetaRepository: BookMetaRepository {
-    sealed class Error {
-        class NoBookFound: Exception()
-    }
     private val retrofit = Retrofit.Builder()
         .baseUrl(GoogleBooksServiceEndpoints.baseUrl)
         .addConverterFactory(QueryFactory())
         .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(NetworkResponseAdapterFactory())
         .build()
 
-    private fun fetchListOfBooks(
-        call: Call<RawVolumeListResponse>,
-        onSuccessCallback: (List<ImportedBookData>) -> Unit,
-        onFailureCallback: (code: Int, message: String) -> Unit
-    ) {
-        call.enqueue(object: Callback<RawVolumeListResponse> {
-            override fun onResponse(
-                call: Call<RawVolumeListResponse>,
-                response: Response<RawVolumeListResponse>
-            ) {
-                if (response.isSuccessful) {
-                    if (response.code() == 200) {
-                        if (!response.body()?.items.isNullOrEmpty()) {
-                            onSuccessCallback(response.body()!!.items.map{it.toImportedBookData()})
-                        }
-                        else
-                            onSuccessCallback(listOf())
-                    } else {
-                        onFailureCallback(response.code(), response.message())
-                    }
-                } else {
-                    onFailureCallback(response.code(), response.message())
-                }
-
-            }
-
-            override fun onFailure(call: Call<RawVolumeListResponse>, t: Throwable) {
-                onFailureCallback(0, t.message ?: "Unknown error")
-            }
-        })
+    private fun <T>networkErrorResponseToResource(response: NetworkResponse<*, *>): Resource.Error<T> {
+        return when (response) {
+            is NetworkResponse.Success ->
+                Resource.Error("Trying to convert network Success to Resource Error")
+            is NetworkResponse.NetworkError ->
+                Resource.Error(response.error.message ?: "Network error")
+            is NetworkResponse.ApiError ->
+                Resource.Error("Api error ${response.code}: ${(response.body as RawErrorResponse).error.message}")
+            is NetworkResponse.UnknownError ->
+                Resource.Error("Unknown Error")
+        }
+    }
+    private fun <T, E>networkResponseToResource(response: NetworkResponse<T, E>): Resource<T> {
+        return if (response is NetworkResponse.Success)
+            Resource.Success(response.value)
+        else
+            networkErrorResponseToResource(response)
     }
     //successCallback(null) if no book found, failureCallback(code) if other types of error
-    override fun fetchVolumesByIsbn(isbn: String, onSuccessCallback: (List<ImportedBookData>) -> Unit, onFailureCallback: (code: Int, message: String) -> Unit) {
+    override suspend fun fetchVolumesByIsbn(isbn: String, maxResults: Int): Resource<List<ImportedBookData>> {
         val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
-        val call = service.getVolumesByQuery(QueryData(null, mapOf(QueryData.QueryKey.isbn to isbn)))
-        fetchListOfBooks(call, onSuccessCallback, onFailureCallback)
+        val response = service.getVolumesByQuery(
+            QueryData(null, mapOf(QueryData.QueryKey.isbn to isbn)),
+            pageSize = min(40, maxResults)
+        )
+        return if (response is NetworkResponse.Success) {
+            Resource.Success(
+                response.value.items?.mapNotNull{it.toImportedBookData()}?:listOf()
+            )
+        } else
+            networkErrorResponseToResource(response)
     }
 
-    override fun searchVolumesByTitle(
-        title: String,
-        onSuccessCallback: (List<ImportedBookData>) -> Unit,
-        onFailureCallback: (code: Int, message: String) -> Unit
-    ) {
+    override suspend fun searchVolumesByTitleOrAuthor(
+        title: String?,
+        author: String?,
+        startIndex: Int,
+        pageSize: Int
+    ): Resource<List<ImportedBookData>> {
+        if (title == null && author == null) {
+            Log.d("debug", "title and author are null")
+            return Resource.Success(listOf())
+        }
+        else {
+            val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
+            val query:  MutableMap<QueryData.QueryKey, String> = mutableMapOf()
+            title?.let{query[QueryData.QueryKey.intitle] = it}
+            author?.let{query[QueryData.QueryKey.inauthor] = it}
+            val response = service.getVolumesByQuery(
+                QueryData(
+                    null,
+                    query
+                ),
+                pageSize,
+                startIndex
+            )
+            return if (response is NetworkResponse.Success) {
+                Resource.Success(
+                    response.value.items?.mapNotNull { it.toImportedBookData() }?:listOf()
+                )
+            }
+            else
+                networkErrorResponseToResource(response)
+        }
+    }
+
+    override suspend fun searchVolumesByQuery(
+        query: QueryData?,
+        startIndex: Int,
+        pageSize: Int
+    ): Resource<List<ImportedBookData>> {
         val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
-        val call = service.getVolumesByQuery(QueryData(null, mapOf(QueryData.QueryKey.intitle to title)))
-        fetchListOfBooks(call, onSuccessCallback, onFailureCallback)
+        query?.let {
+            val response = service.getVolumesByQuery(
+                query,
+                pageSize,
+                startIndex
+            )
+            return if (response is NetworkResponse.Success) {
+                Resource.Success(
+                    response.value.items?.mapNotNull { it.toImportedBookData() }?:listOf()
+                )
+            }
+            else
+                networkErrorResponseToResource(response)
+        } ?: return Resource.Success(listOf())
     }
 }

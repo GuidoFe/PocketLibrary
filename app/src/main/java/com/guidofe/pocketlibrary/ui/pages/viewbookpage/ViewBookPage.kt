@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
-package com.guidofe.pocketlibrary.ui.pages
+package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -18,118 +18,120 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.modules.FAB
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.ui.pages.viewbookpage.DetailsTab
-import com.guidofe.pocketlibrary.ui.pages.viewbookpage.LocationTab
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
-import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
-import com.guidofe.pocketlibrary.viewmodels.interfaces.ILocationVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
-import com.guidofe.pocketlibrary.viewmodels.LocationVM
 import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
+private enum class LocalTab {SUMMARY, DETAILS, NOTE, LOCATION}
+private enum class DisplayedFab {NONE, EDIT_BOOK, SAVE_NOTE, SAVE_LOCATION}
 @Destination
 @Composable
 fun ViewBookPage (
-    bookId: Long,
+    bookId: Long? = null,
     vm: IViewBookVM = hiltViewModel<ViewBookVM>(),
-    locationVm: ILocationVM = hiltViewModel<LocationVM>(),
-    navigator: DestinationsNavigator,
-) {
-    val context = LocalContext.current
-    LaunchedEffect(key1 = true) {
-        vm.appBarDelegate.setTitle(context.getString(R.string.book_details))
-    }
-    LaunchedEffect(key1 = bookId) {
-        vm.initBundle(bookId)
-    }
-    val bundle by vm.bundle.collectAsState()
-    ViewBookContent(bundle?: BookBundle.EMPTY, vm, locationVm, navigator)
-}
-
-private enum class LocalTab {SUMMARY, DETAILS, NOTE, LOCATION}
-//IsOwned, isFavorite, progress
-@Composable
-private fun ViewBookContent(
-    bundle: BookBundle,
-    vm: IViewBookVM,
-    locationVm: ILocationVM,
     navigator: DestinationsNavigator,
     defaultTab: Int = 0,
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(key1 = true) {
+        vm.scaffoldState.refreshBar(context.getString(R.string.book_details))
+        vm.scaffoldState.fab = {}
+    }
+    LaunchedEffect(key1 = bookId) {
+        if (bookId != null)
+            vm.initFromLibraryBook(bookId)
+    }
+
     var tabState by remember { mutableStateOf(LocalTab.SUMMARY) }
-    val book = bundle.book
+    var localFabState by remember {mutableStateOf(DisplayedFab.NONE)}
     val detailsScrollState = rememberScrollState()
     val genreScrollState = rememberScrollState()
-    val editedNote = vm.editedNoteFlow.collectAsState()
     var notePosition by remember { mutableStateOf(0f)}
     var  hasNoteBeenModified by remember { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
-    LaunchedEffect(book.bookId) {
-        bundle.place?.let { place ->
-            locationVm.setValues(
-                place.name,
-                (bundle.room?.name) ?: "",
-                (bundle.bookshelf?.name) ?: ""
-            )
-        }
-    }
-    BoxWithConstraints(Modifier.fillMaxSize()) {
 
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val boxScope = this
         Surface() {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        Log.d("debug", "Clearing focus")
-                        localFocusManager.clearFocus()
-                    })
-                }
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                val coverURI = book.coverURI
-                if (coverURI != null) {
-                    //TODO: placeholder for book cover
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(coverURI)
-                            .build(),
-                        contentDescription = stringResource(id = R.string.cover),
-                        modifier = Modifier.fillMaxHeight(0.3f)
-                    )
-                } else {
-                    Image(
-                        //TODO: change large cover placeholder
-                        painterResource(id = R.drawable.large_cover),
-                        stringResource(R.string.cover),
-                        modifier = Modifier.fillMaxHeight(0.3f)
-                    )
-                }
-                Text(book.title, style = MaterialTheme.typography.titleLarge)
-                book.subtitle?.let { Text(it, style = MaterialTheme.typography.titleSmall) }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.horizontalScroll(genreScrollState)
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = min(300.dp, boxScope.maxHeight / 2 - 50.dp))
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    bundle.genres.forEach {
-                        SuggestionChip(
-                            onClick = {},
-                            label = { Text(it.name) },
+                    val coverURI = vm.data?.coverURI
+                    if (coverURI != null) {
+                        //TODO: placeholder for book cover
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(coverURI)
+                                .build(),
+                            contentDescription = stringResource(id = R.string.cover),
+                            modifier = Modifier.weight(1f)
                         )
+                    } else {
+                        Image(
+                            //TODO: change large cover placeholder
+                            painterResource(id = R.drawable.large_cover),
+                            stringResource(R.string.cover),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Box(modifier = Modifier) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                vm.data?.title ?: "",
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center
+                            )
+                            vm.data?.subtitle?.let {
+                                Text(
+                                    it,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                            vm.data?.authors?.let {
+                                Text(
+                                    it.joinToString(", "),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.labelSmall
+                                        .copy(fontStyle = FontStyle.Italic)
+                                )
+                            }
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.horizontalScroll(genreScrollState)
+                    ) {
+                        vm.data?.genres?.forEach {
+                            SuggestionChip(
+                                onClick = {},
+                                label = { Text(it) },
+                            )
+                        }
                     }
                 }
                 ScrollableTabRow(
@@ -166,27 +168,36 @@ private fun ViewBookContent(
                 ) {
                     when (tabState) {
                         LocalTab.SUMMARY -> {
-                            if (book.description.isNullOrBlank()) {
+                            localFabState = DisplayedFab.EDIT_BOOK
+                            if (vm.data?.description.isNullOrBlank()) {
                                 Text(
                                     stringResource(R.string.no_description),
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {
                                 Text(
-                                    book.description ?: stringResource(R.string.no_description),
+                                    vm.data?.description ?: stringResource(R.string.no_description),
                                 )
                             }
                         }
                         LocalTab.DETAILS -> {
-                            DetailsTab(book, modifier = Modifier.verticalScroll(detailsScrollState))
+                            localFabState = DisplayedFab.EDIT_BOOK
+                            DetailsTab(
+                                modifier = Modifier.verticalScroll(detailsScrollState),
+                                data = vm.data
+                            )
                         }
                         LocalTab.NOTE -> {
+                            localFabState = if(hasNoteBeenModified)
+                                DisplayedFab.SAVE_NOTE
+                            else
+                                DisplayedFab.NONE
                             OutlinedTextField(
-                                value = editedNote.value,
+                                value = vm.editedNote,
                                 placeholder = { Text(stringResource(R.string.note_placeholder)) },
 
                                 onValueChange = {
-                                    vm.editedNoteFlow.value = it
+                                    vm.editedNote = it
                                     hasNoteBeenModified = true
                                 },
                                 modifier = Modifier
@@ -195,9 +206,13 @@ private fun ViewBookContent(
 
                         }
                         LocalTab.LOCATION -> {
+                            localFabState = if(vm.hasLocationBeenModified)
+                                DisplayedFab.SAVE_LOCATION
+                            else
+                                DisplayedFab.NONE
                             Surface() {
                                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                    LocationTab(bookId = book.bookId, locationVm)
+                                    LocationTab(vm)
                                 }
                             }
                         }
@@ -209,49 +224,66 @@ private fun ViewBookContent(
             .align(Alignment.BottomEnd)
             .offset((-16).dp, (-16).dp)
         val iconModifier = Modifier
-        when (tabState) {
-            LocalTab.DETAILS, LocalTab.SUMMARY -> {
-                FAB(
-                    onClick = { navigator.navigate(EditBookPageDestination(book.bookId))},
-                    modifier = fabModifier
-                ) {
-                    Icon(
-                        painterResource(R.drawable.edit_24px),
-                        stringResource(R.string.edit_details),
-                        modifier = iconModifier
-                    )
-                }
-            }
-            LocalTab.NOTE -> {
-                if (hasNoteBeenModified) {
-                    FAB(
-                        onClick = {
-                            vm.saveNote()
-                            hasNoteBeenModified = false
-                        },
-                        modifier = fabModifier
+        LaunchedEffect(key1 = localFabState) {
+            Log.d("debug", "Changed tab: $tabState")
+            when (localFabState) {
+                DisplayedFab.EDIT_BOOK -> {
+                    vm.scaffoldState.fab = {
+                        FAB(
+                            onClick = {
+                                vm.data?.bookId?.let {
+                                    if (it > 0)
+                                        navigator.navigate(EditBookPageDestination(it))
+                                }
+                            },
+                            modifier = fabModifier
                         ) {
-                        Icon(
-                            painterResource(R.drawable.save_48px),
-                            stringResource(R.string.save),
-                        )
+                            Icon(
+                                painterResource(R.drawable.edit_24px),
+                                stringResource(R.string.edit_details),
+                                modifier = iconModifier
+                            )
+                        }
                     }
                 }
-            }
-            LocalTab.LOCATION -> {
-                if (locationVm.hasLocationBeenModified) {
-                    FAB(
-                        onClick = {
-                            locationVm.saveLocation(book.bookId)
-                            locationVm.hasLocationBeenModified = false
-                        },
-                        modifier = fabModifier
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.save_48px),
-                            stringResource(R.string.save),
-                        )
+                DisplayedFab.SAVE_NOTE -> {
+                    vm.scaffoldState.fab = {
+                        FAB(
+                            onClick = {
+                                vm.data?.bookId?.let {
+                                    vm.saveNote(it)
+                                    hasNoteBeenModified = false
+                                }
+                            },
+                            modifier = fabModifier
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.save_24px),
+                                stringResource(R.string.save),
+                            )
+                        }
                     }
+                }
+                DisplayedFab.SAVE_LOCATION -> {
+                    vm.scaffoldState.fab = {
+                        FAB(
+                            onClick = {
+                                vm.data?.bookId?.let {
+                                    vm.saveLocation(it)
+                                    vm.hasLocationBeenModified = false
+                                }
+                            },
+                            modifier = fabModifier
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.save_24px),
+                                stringResource(R.string.save),
+                            )
+                        }
+                    }
+                }
+                DisplayedFab.NONE -> {
+                    vm.scaffoldState.fab = {}
                 }
             }
         }
@@ -260,28 +292,26 @@ private fun ViewBookContent(
 
 @Composable
 @Preview(device = Devices.PIXEL_2, showSystemUi = true)
-fun ViewBookPagePreview() {
+private fun ViewBookPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
-        ViewBookContent(
-            PreviewUtils.exampleBookBundle,
+        ViewBookPage(
+            3,
             object: IViewBookVM {
-                override var bundle: StateFlow<BookBundle?> =
-                    MutableStateFlow(PreviewUtils.exampleBookBundle)
-                override var editedNoteFlow = MutableStateFlow("")
-                override fun initBundle(bookId: Long) {}
-                override fun saveNote() {}
-                override val appBarDelegate: AppBarStateDelegate = AppBarStateDelegate(MutableStateFlow(null))
-            },
-            object: ILocationVM {
-                override var placeText: String = "Place"
-                override var roomText: String = "Room"
-                override var bookshelfText: String = "Bookshelf"
-                override val places: StateFlow<List<String>> = MutableStateFlow(listOf())
-                override val possibleRooms: StateFlow<List<String>> = MutableStateFlow(listOf())
-                override val possibleBookshelves: StateFlow<List<String>> = MutableStateFlow(listOf())
-                override var hasLocationBeenModified: Boolean = true
-                override fun setValues(place: String, room: String, bookshelf: String) { }
-                override fun changedPlace() { }
+                override var editedNote = ""
+                override val data: ViewBookImmutableData? =
+                    ViewBookImmutableData(PreviewUtils.exampleBookBundle)
+                override fun initFromLibraryBook(bookId: Long) {}
+                override fun saveNote(bookId: Long) {}
+                override val scaffoldState: ScaffoldState = ScaffoldState()
+                override var placeText: String = ""
+                override var roomText: String = ""
+                override var bookshelfText: String = ""
+                override val places: List<String> = listOf()
+                override val possibleRooms: List<String> = listOf()
+                override val possibleBookshelves: List<String> = listOf()
+                override var hasLocationBeenModified: Boolean = false
+                override fun setPlaceValues(place: String, room: String, bookshelf: String) {}
+                override fun changedPlace() {}
                 override fun changedRoom() {}
                 override fun saveLocation(bookId: Long) { }
             },

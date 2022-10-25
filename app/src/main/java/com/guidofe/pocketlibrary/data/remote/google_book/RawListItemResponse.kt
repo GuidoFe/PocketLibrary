@@ -1,10 +1,15 @@
 package com.guidofe.pocketlibrary.data.remote.google_book
 
+import android.util.Log
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import org.json.JSONTokener
 
-data class RawArrayItemResponse (val volumeInfo: RawVolumeResponse, val saleInfo: RawSaleInfo) {
-    fun toImportedBookData (): ImportedBookData {
+data class RawListItemResponse (val id: String, val volumeInfo: RawVolumeResponse, val saleInfo: RawSaleInfo) {
+    fun toImportedBookData (): ImportedBookData? {
+        if (this.volumeInfo.title == null)
+            return null
+        Log.d("debug", "${this.volumeInfo.title}, ${this.volumeInfo.authors}")
         var code13: String? = null
         var code10: String? = null
         var issn: String? = null
@@ -38,14 +43,24 @@ data class RawArrayItemResponse (val volumeInfo: RawVolumeResponse, val saleInfo
             }
         }
         val mediaType: Media = if (saleInfo.isEbook) Media.EBOOK else Media.BOOK
-        var published: Int? = if (volumeInfo.publishedDate == null) null else {
+        val published: Int? = if (volumeInfo.publishedDate == null) null else {
             try {
                 volumeInfo.publishedDate.toInt()
             } catch (e: NumberFormatException) {
-                volumeInfo.publishedDate.split('-').first().toInt();
+                try {
+                    volumeInfo.publishedDate
+                        .replace("*", "")
+                        .split('-')
+                        .first()
+                        .toInt()
+                } catch(e: Exception) {
+                    Log.w("debug", "Data parsing failed for ${volumeInfo.publishedDate}")
+                    null
+                }
             }
         }
         return ImportedBookData(
+            externalId = id,
             title = volumeInfo.title,
             subtitle = volumeInfo.subtitle,
             description = volumeInfo.description,

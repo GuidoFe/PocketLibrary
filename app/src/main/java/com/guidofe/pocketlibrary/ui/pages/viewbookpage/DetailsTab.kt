@@ -13,12 +13,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.utils.FormattingUtils
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 
 @Composable
-fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
+fun DetailsTab(
+    modifier: Modifier = Modifier,
+    data: ViewBookImmutableData?
+) {
     val boxPadding = 10.dp
     val gap = 5.dp
     Column(
@@ -31,7 +35,7 @@ fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
                     null
                 )},
             title = stringResource(R.string.publisher),
-            text = book.publisher ?: "?",
+            text = data?.publisher ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -42,7 +46,7 @@ fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
                    null
                 )},
             title = stringResource(R.string.published_year),
-            text = (book.published?.toString()) ?: "?",
+            text = (data?.publishedYear?.toString()) ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -52,7 +56,7 @@ fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
                    null
             )},
             title = stringResource(R.string.isbn), 
-            text = book.identifier ?: "?",
+            text = data?.identifier ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -63,7 +67,9 @@ fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
                    null
                 )},
             title = stringResource(R.string.media_type), 
-            text = FormattingUtils.bookMediaToString(book.media),
+            text = FormattingUtils.bookMediaToString(
+                data?.media?: Media.BOOK
+            ),
             boxPadding = boxPadding,
             gap = gap
         )
@@ -74,7 +80,7 @@ fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
                    null
                 )},
             title = stringResource(R.string.language),
-            text = book.language ?: "?",
+            text = data?.language ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -83,10 +89,10 @@ fun DetailsTab(book: Book, modifier: Modifier = Modifier) {
 
 @Composable
 @Preview
-fun DetailsTabPreview () {
+private fun DetailsTabPreview () {
     MaterialTheme {
         Surface {
-            DetailsTab(book = PreviewUtils.exampleBookBundle.book)
+            DetailsTab(data = null)
         }
     }
 }

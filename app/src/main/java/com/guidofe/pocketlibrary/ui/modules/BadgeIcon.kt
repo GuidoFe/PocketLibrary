@@ -42,7 +42,7 @@ fun BadgeIcon(painter: Painter,
 
 @Preview
 @Composable
-fun BadgeIconPreview() {
+private fun BadgeIconPreview() {
     PocketLibraryTheme() {
         BadgeIcon(painterResource(R.drawable.star_24px), "Test", badgeBackground = Color.Red, badgeForeground = Color.White)
     }

@@ -2,9 +2,7 @@ package com.guidofe.pocketlibrary.ui.utils
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
-import com.guidofe.pocketlibrary.utils.AppBarStateDelegate
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.guidofe.pocketlibrary.model.ImportedBookData
 
 class PreviewUtils() {
     companion object {
@@ -33,7 +31,23 @@ class PreviewUtils() {
             note = Note(1, "It's a very good book")
         )
 
-        val fakeAppBarStateDelegate = AppBarStateDelegate(MutableStateFlow(AppBarState()))
+        val exampleImportedBook = ImportedBookData(
+            externalId = "id-234r2",
+            title = "Very Interesting Book",
+            description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed " +
+                    "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Suspendisse " +
+                    "sed nisi lacus sed. Risus in hendrerit gravida rutrum quisque. Vulputate " +
+                    "enim nulla aliquet porttitor lacus luctus accumsan tortor. Facilisis magna " +
+                    "etiam tempor orci eu lobortis elementum nibh tellus.",
+            subtitle = "Short subtitle",
+            publisher = "Adelphi",
+            published = 1998,
+            coverUrl = "https://m.media-amazon.com/images/I/51tAwFZt2XL.jpg",
+            identifier = "987-9999999999",
+            language = "en",
+            authors = listOf("Pinco Pallino", "Giulio Cesare"),
+            genres = listOf("Fantasy", "Humor")
+        )
 
     }
 }

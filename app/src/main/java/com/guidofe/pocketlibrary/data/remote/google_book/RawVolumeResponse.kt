@@ -1,7 +1,7 @@
 package com.guidofe.pocketlibrary.data.remote.google_book
 
 data class RawVolumeResponse(
-    val title: String,
+    val title: String?,
     val subtitle: String?,
     val authors: List<String>?,
     val publisher: String?,

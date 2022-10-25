@@ -2,11 +2,12 @@ package com.guidofe.pocketlibrary.model.repositories
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import kotlinx.coroutines.flow.Flow
 
 interface LibraryRepository {
     suspend fun insertBookBundle(bundle: BookBundle): Long
     suspend fun getBookBundle(bookId: Long): BookBundle?
-    suspend fun getBookBundles(pageNumber: Int = 0, pageSize: Int): List<BookBundle?>
+    fun getBookBundles(): Flow<List<BookBundle>>
     suspend fun <R: Any?> withTransaction(block: suspend () -> R): R
     suspend fun insertBook(book: Book): Long
     suspend fun updateBook(book: Book)
@@ -40,4 +41,15 @@ interface LibraryRepository {
     suspend fun insertAllBookGenres(bookGenres: List<BookGenre>)
 
     fun close()
+    suspend fun deleteBook(book: Book)
+    suspend fun deleteBooks(books: List<Book>)
+    suspend fun getBookBundlesWithSameIsbnOrTitle(
+        isbn: String? = null,
+        title: String? = null,
+        authors: List<String>? = null
+    ): List<BookBundle>
+
+    suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean)
+    suspend fun updateFavorite(bookId: Long, isFavorite: Boolean)
+    suspend fun deleteBooksByIds(ids: List<Long>)
 }

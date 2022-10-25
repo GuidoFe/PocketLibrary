@@ -2,46 +2,197 @@ package com.guidofe.pocketlibrary.ui.pages.librarypage
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.modules.AppBarState
-import com.guidofe.pocketlibrary.ui.modules.LibraryListItem
+import com.guidofe.pocketlibrary.ui.modules.AddBookFab
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.LibraryListRow
+import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import com.guidofe.pocketlibrary.viewmodels.LibraryVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun LibraryPage(
     navigator: DestinationsNavigator,
-    viewModel: ILibraryVM = hiltViewModel<LibraryVM>(),
+    vm: ILibraryVM = hiltViewModel<LibraryVM>(),
+    importedBookVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
 ) {
-    val lazyPagingItems = viewModel.pager.collectAsLazyPagingItems()
+    val bookListState = vm.bookListFlow.collectAsState(initial = listOf())
     val context = LocalContext.current
-    LaunchedEffect(key1 = true) {
-        viewModel.appBarDelegate.setAppBarContent(
-            AppBarState(title=context.getString(R.string.library)
+    var isExpanded: Boolean by remember{mutableStateOf(false)}
+    val scope = rememberCoroutineScope()
+    val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
+    var isStarButtonFilled by remember{mutableStateOf(false)}
+    LaunchedEffect(isMultipleSelecting) {
+        if (isMultipleSelecting) {
+            isStarButtonFilled = false
+            vm.scaffoldState.refreshBar(
+                title = context.getString(R.string.selecting),
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            vm.selectionManager.clearSelection()
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.arrow_back_24px),
+                            stringResource(R.string.clear_selection)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            vm.deleteSelectedBooks()
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.delete_24px),
+                            stringResource(R.string.delete)
+                        //TODO Ask For Confirm
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            isStarButtonFilled = !isStarButtonFilled
+                            vm.setFavorite(
+                                vm.selectionManager.selectedKeys,
+                                isStarButtonFilled
+                            )
+                        }
+                    ) {
+                        if(isStarButtonFilled)
+                            Icon(
+                                painterResource(R.drawable.star_filled_24px),
+                                stringResource(R.string.remove_from_favorites)
+                            )
+                        else
+                            Icon(
+                                painterResource(R.drawable.star_24px),
+                                stringResource(R.string.add_to_favorites)
+                            )
+                    }
+                }
             )
-        )
+        } else {
+            vm.scaffoldState.refreshBar(
+                title = context.getString(R.string.library)
+            )
+        }
+    }
+    LaunchedEffect(key1 = true) {
+        vm.scaffoldState.fab = {
+            AddBookFab(
+                navigator = navigator,
+                isExpanded = isExpanded,
+                onMainFabClick = { isExpanded = !isExpanded },
+                onDismissRequest = { isExpanded = false},
+                onSearchByIsbn = { isbn ->
+                    importedBookVm.getImportedBooksFromIsbn(
+                        isbn,
+                        maxResults = 2,
+                        callback = {
+                            when (it.size) {
+                                0 -> {
+                                    scope.launch {
+                                        vm.snackbarHostState.showSnackbar(
+                                            CustomSnackbarVisuals(
+                                                context.getString(R.string.no_book_found),
+                                                true
+                                            )
+                                        )
+                                    }
+                                }
+                                1 -> {
+                                    importedBookVm.saveImportedBookInDb(it[0]) { id ->
+                                        navigator.navigate(ViewBookPageDestination(id))
+                                    }
+                                }
+                                else -> navigator.navigate(
+                                    BookDisambiguationPageDestination(isbn)
+                                )
+                            }
+
+                        },
+                        failureCallback = {
+                            scope.launch {
+                                vm.snackbarHostState.showSnackbar(
+                                    CustomSnackbarVisuals(
+                                        it,
+                                        true
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
+            )
+        }
     }
     LazyColumn {
         items(
-            items = lazyPagingItems,
-            key = {bundle -> bundle.book.bookId}
-        ) { bundle ->
-            if(bundle != null)
-                LibraryListItem(bundle, onTap = {
-                    Log.d("debug", "Navigating to viewbook")
-                    navigator.navigate(ViewBookPageDestination(bundle.book.bookId))
-                })
-            //TODO: add placeholder if bundle != null
+            items = bookListState.value,
+            key = {it.value.book.bookId}
+        ) { item ->
+            LibraryListRow(
+                item,
+                onRowTap = {
+                    if (isMultipleSelecting) {
+                        Log.d("debug", "clicking")
+                        vm.selectionManager.multipleSelectToggle(item.value)
+                    }
+                    else
+                        navigator.navigate(ViewBookPageDestination(item.value.book.bookId))
+                },
+                onCoverLongPress = {
+                    if (!isMultipleSelecting) {
+                        vm.selectionManager.startMultipleSelection(item.value)
+                    }
+                },
+            )
         }
+/*        items(
+            items = bookListState.value,
+            key = {item -> item.value.book.bookId}
+        ) { i ->
+            i?.let { item ->
+                LibraryListRow(
+                    item.also {
+                        if(vm.selectionManager.selectedKeys.contains(item.value.book.bookId))
+                            it.isSelected.value = true
+                    },
+                    onRowTap = {
+                        if (isMultipleSelecting) {
+                            vm.selectionManager.multipleSelectToggle(item)
+                        }
+                        else
+                            navigator.navigate(ViewBookPageDestination(item.value.book.bookId))
+                    },
+                    onCoverLongPress = {
+                        if (!isMultipleSelecting)
+                            vm.selectionManager.startMultipleSelection(item)
+                    },
+                )
+            }
+            //TODO: add placeholder if bundle == null
+        }*/
     }
 }
