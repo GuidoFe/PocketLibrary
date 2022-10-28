@@ -2,17 +2,23 @@ package com.guidofe.pocketlibrary.viewmodels
 
 import android.util.Log
 import android.util.Size
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
+
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,19 +31,15 @@ const val MIN_WIDTH = 1920
 
 @ExperimentalGetImage @HiltViewModel
 class ScanIsbnVM @Inject constructor(
-    private val repo: BookMetaRepository,
     override val scaffoldState: ScaffoldState,
+    override val snackbarHostState: SnackbarHostState
     ): ViewModel(), IScanIsbnVM {
-    override var coverUrl: String by mutableStateOf("")
+    override var cameraProvider: ProcessCameraProvider? = null
     private val scannerOptions = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_EAN_13)
         .build()
-
     private var imageAnalysis: ImageAnalysis? = null
-    override var errorMessage: String? by mutableStateOf(null)
-    override var displayBookNotFoundDialog: Boolean by mutableStateOf(false)
-    override var displayInsertIsbnDialog: Boolean by mutableStateOf(false)
-    override var displayConnectionErrorDialog: Boolean by mutableStateOf(false)
+    private val scanner = BarcodeScanning.getClient(scannerOptions)
     override var code: String? by mutableStateOf(null)
         //private set
     override fun getImageAnalysis(): ImageAnalysis {
@@ -46,14 +48,45 @@ class ScanIsbnVM @Inject constructor(
                 .setTargetResolution(Size(MIN_WIDTH, MIN_HEIGHT))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
+            imageAnalysis?.let {
+                Log.d("debug", "setting analyzer")
+                it.setAnalyzer(
+                    Executors.newSingleThreadExecutor(),
+                    Analyzer(scanner) { isbn ->
+                        code = isbn
+                        Log.d("debug", "ISBN: $code")
+                        //cameraProvider?.unbind(imageAnalysis)
+                        imageAnalysis?.clearAnalyzer()
+                    }
+                )
+            }
         }
-        val scanner = BarcodeScanning.getClient(scannerOptions)
-        this.imageAnalysis?.setAnalyzer(Executors.newSingleThreadExecutor(), ImageAnalysis.Analyzer { imageProxy ->
+        return imageAnalysis!!
+    }
+
+    override fun restartAnalysis(lifecycleOwner: LifecycleOwner) {
+        Log.d("debug", "Restarting analyzer")
+
+        imageAnalysis?.setAnalyzer(
+            Executors.newSingleThreadExecutor(),
+            Analyzer(scanner) { isbn ->
+                code = isbn
+                Log.d("debug", "ISBN: $code")
+                imageAnalysis?.clearAnalyzer()
+            }
+        )
+    }
+
+    private class Analyzer(
+        val scanner: BarcodeScanner,
+        val onSuccess: (String) -> Unit
+    ): ImageAnalysis.Analyzer {
+        override fun analyze(imageProxy: ImageProxy) {
             val rotationDegrees = imageProxy.imageInfo.rotationDegrees
             val mediaImage = imageProxy.image
             if (mediaImage != null) {
                 val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
-                val result = scanner.process(image)
+                scanner.process(image)
                     .addOnSuccessListener { barcodes ->
                         var bestBarcode: Barcode? = null
                         var bestSize = -1
@@ -73,13 +106,11 @@ class ScanIsbnVM @Inject constructor(
                                 Log.w("debug", "Barcode ${barcode.displayValue} is not ISBN")
                             }
                         }
-                        if (bestBarcode != null) {
-                            code = bestBarcode.displayValue
-                            Log.d("debug", "ISBN: $code")
-                            imageAnalysis?.clearAnalyzer()
+                        bestBarcode?.displayValue?.let {
+                            onSuccess(it)
                         }
                     }
-                    .addOnFailureListener {  exception ->
+                    .addOnFailureListener { exception ->
                         Log.e("debug", "error in scanning barcode", exception)
 
                     }
@@ -88,8 +119,6 @@ class ScanIsbnVM @Inject constructor(
                     }
             } else
                 imageProxy.close()
-        })
-        return imageAnalysis!!
+        }
     }
-
 }

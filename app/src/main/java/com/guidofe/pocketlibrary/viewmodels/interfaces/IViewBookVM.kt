@@ -4,7 +4,7 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ViewBookImmutableData
 
-interface IViewBookVM: ILocationVM {
+interface IViewBookVM {
     var editedNote: String
     val data: ViewBookImmutableData?
     val scaffoldState: ScaffoldState

@@ -68,7 +68,6 @@ fun OnlineBookList(
                                 item,
                                 onRowTap = {
                                     if (isMutableSelecting) {
-                                        Log.d("debug", "Selecting")
                                         selectionManager.multipleSelectToggle(item.value)
                                     }
                                     else

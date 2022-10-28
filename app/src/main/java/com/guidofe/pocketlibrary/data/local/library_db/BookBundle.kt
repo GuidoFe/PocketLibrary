@@ -24,24 +24,6 @@ data class BookBundle (
     val genres: List<Genre> = listOf(),
     @Relation(
         parentColumn = "bookId",
-        entityColumn = "placeId",
-        associateBy = Junction(BookPlacement::class)
-    )
-    val place: Place? = null,
-    @Relation(
-        parentColumn = "bookId",
-        entityColumn = "roomId",
-        associateBy = Junction(BookPlacement::class)
-    )
-    val room: Room? = null,
-    @Relation(
-        parentColumn = "bookId",
-        entityColumn = "bookshelfId",
-        associateBy = Junction(BookPlacement::class)
-    )
-    val bookshelf: Bookshelf? = null,
-    @Relation(
-        parentColumn = "bookId",
         entityColumn = "bookId"
     )
     val note: Note? = null,

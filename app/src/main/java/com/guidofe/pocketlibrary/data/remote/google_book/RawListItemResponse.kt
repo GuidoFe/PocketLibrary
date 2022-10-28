@@ -9,7 +9,6 @@ data class RawListItemResponse (val id: String, val volumeInfo: RawVolumeRespons
     fun toImportedBookData (): ImportedBookData? {
         if (this.volumeInfo.title == null)
             return null
-        Log.d("debug", "${this.volumeInfo.title}, ${this.volumeInfo.authors}")
         var code13: String? = null
         var code10: String? = null
         var issn: String? = null

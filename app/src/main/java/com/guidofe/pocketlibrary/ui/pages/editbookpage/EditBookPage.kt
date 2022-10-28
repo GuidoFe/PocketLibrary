@@ -23,7 +23,6 @@ import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.pages.destinations.LandingPageDestination
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
@@ -32,7 +31,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
@@ -56,11 +54,7 @@ fun EditBookPage(
                onClick = {
                   coroutineScope.launch(Dispatchers.IO) {
                      val id = viewModel.submitBook()
-                     if (id > 0L) {
-                        withContext(Dispatchers.Main) {
-                           navigator.navigate(LandingPageDestination)
-                        }
-                     } else {
+                     if (id <= 0L) {
                         viewModel.snackbarHostState.showSnackbar(
                            CustomSnackbarVisuals(
                               context.getString(R.string.error_cant_save_book),
@@ -74,6 +68,14 @@ fun EditBookPage(
                Icon(
                   painterResource(id = R.drawable.check_24px),
                   stringResource(R.string.save)
+               )
+            }
+         },
+         navigationIcon = {
+            IconButton(onClick = {navigator.popBackStack()}) {
+               Icon(
+                  painterResource(R.drawable.arrow_back_24px),
+                  stringResource(R.string.back)
                )
             }
          }

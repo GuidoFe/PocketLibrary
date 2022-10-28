@@ -43,7 +43,6 @@ class SearchBookOnlineVM @Inject constructor(
         if (author.isNotBlank())
             map[QueryData.QueryKey.inauthor] = author
         queryData = QueryData(null, map)
-        Log.d("debug", "Created Pager")
     }
 
     override var queryData: QueryData? by mutableStateOf(null)

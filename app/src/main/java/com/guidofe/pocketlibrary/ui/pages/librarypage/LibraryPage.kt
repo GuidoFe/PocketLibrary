@@ -11,20 +11,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.destinations.BookDisambiguationPageDestination
+import com.guidofe.pocketlibrary.ui.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.DuplicateIsbnDialog
 import com.guidofe.pocketlibrary.ui.modules.LibraryListRow
-import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import com.guidofe.pocketlibrary.viewmodels.LibraryVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +41,7 @@ fun LibraryPage(
     val scope = rememberCoroutineScope()
     val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
     var isStarButtonFilled by remember{mutableStateOf(false)}
+    var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             isStarButtonFilled = false
@@ -98,7 +99,7 @@ fun LibraryPage(
             )
         }
     }
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(key1 = navigator) {
         vm.scaffoldState.fab = {
             AddBookFab(
                 navigator = navigator,
@@ -127,7 +128,7 @@ fun LibraryPage(
                                     }
                                 }
                                 else -> navigator.navigate(
-                                    BookDisambiguationPageDestination(isbn)
+                                    BookDisambiguationPageDestination(it.toTypedArray())
                                 )
                             }
 
@@ -141,9 +142,12 @@ fun LibraryPage(
                                     )
                                 )
                             }
-                        }
+                        },
                     )
-                }
+                },
+                insertIsbnRecipient = EmptyResultRecipient(),
+                scanIsbnRecipient = EmptyResultRecipient()
+
             )
         }
     }
@@ -156,7 +160,6 @@ fun LibraryPage(
                 item,
                 onRowTap = {
                     if (isMultipleSelecting) {
-                        Log.d("debug", "clicking")
                         vm.selectionManager.multipleSelectToggle(item.value)
                     }
                     else
@@ -169,30 +172,50 @@ fun LibraryPage(
                 },
             )
         }
-/*        items(
-            items = bookListState.value,
-            key = {item -> item.value.book.bookId}
-        ) { i ->
-            i?.let { item ->
-                LibraryListRow(
-                    item.also {
-                        if(vm.selectionManager.selectedKeys.contains(item.value.book.bookId))
-                            it.isSelected.value = true
-                    },
-                    onRowTap = {
-                        if (isMultipleSelecting) {
-                            vm.selectionManager.multipleSelectToggle(item)
+    }
+    if (showDoubleIsbnDialog) {
+        DuplicateIsbnDialog(
+            onAddAnyway = {
+                importedBookVm.getImportedBooksFromIsbn(
+                    vm.duplicateIsbn,
+                    maxResults = 2,
+                    callback = {
+                        showDoubleIsbnDialog = false
+                        when (it.size) {
+                            0 -> {
+                                scope.launch {
+                                    vm.snackbarHostState.showSnackbar(
+                                        CustomSnackbarVisuals(
+                                            context.getString(R.string.no_book_found),
+                                            true
+                                        )
+                                    )
+                                }
+                            }
+                            1 -> {
+                                importedBookVm.saveImportedBookInDb(it[0]) { id ->
+                                    navigator.navigate(ViewBookPageDestination(id))
+                                }
+                            }
+                            else -> navigator.navigate(
+                                BookDisambiguationPageDestination(it.toTypedArray())
+                            )
                         }
-                        else
-                            navigator.navigate(ViewBookPageDestination(item.value.book.bookId))
+
                     },
-                    onCoverLongPress = {
-                        if (!isMultipleSelecting)
-                            vm.selectionManager.startMultipleSelection(item)
+                    failureCallback = {
+                        scope.launch {
+                            vm.snackbarHostState.showSnackbar(
+                                CustomSnackbarVisuals(
+                                    it,
+                                    true
+                                )
+                            )
+                        }
+                        showDoubleIsbnDialog = false
                     },
                 )
-            }
-            //TODO: add placeholder if bundle == null
-        }*/
+            },
+            onCancel = {showDoubleIsbnDialog = false})
     }
 }

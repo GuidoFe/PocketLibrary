@@ -5,10 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -18,11 +14,15 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
+import com.guidofe.pocketlibrary.ui.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.destinations.InsertIsbnDialogDestination
+import com.guidofe.pocketlibrary.ui.destinations.ScanIsbnPageDestination
+import com.guidofe.pocketlibrary.ui.destinations.SearchBookOnlinePageDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultRecipient
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,8 +72,17 @@ fun AddBookFab(
     modifier: Modifier = Modifier,
     stepDelay: Int = 100,
     stepDuration: Int = 100,
+    insertIsbnRecipient: ResultRecipient<InsertIsbnDialogDestination, String>,
+    scanIsbnRecipient: ResultRecipient<ScanIsbnPageDestination, String>,
 ) {
-    var showIsbnDialog: Boolean by remember {mutableStateOf(false)}
+    insertIsbnRecipient.onNavResult {
+        if (it is NavResult.Value)
+            onSearchByIsbn(it.value)
+    }
+    scanIsbnRecipient.onNavResult {
+        if (it is NavResult.Value)
+            onSearchByIsbn(it.value)
+    }
     Column(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -117,7 +126,7 @@ fun AddBookFab(
                     }
                 ) {
                     onDismissRequest()
-                    showIsbnDialog = true
+                    navigator.navigate(InsertIsbnDialogDestination)
                 }
             }
             AnimatedVisibility(
@@ -166,15 +175,6 @@ fun AddBookFab(
             )
         }
     }
-    if (showIsbnDialog) {
-        InsertIsbnDialog(
-            onConfirm = {
-                showIsbnDialog = false
-                onSearchByIsbn(it)
-            },
-            onDismiss = { showIsbnDialog = false }
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,7 +189,9 @@ private fun AddBookFabPreview() {
                     isExpanded = true,
                     onMainFabClick = {},
                     onDismissRequest = {},
-                    onSearchByIsbn = {}
+                    onSearchByIsbn = {},
+                    insertIsbnRecipient = EmptyResultRecipient(),
+                    scanIsbnRecipient = EmptyResultRecipient()
                 )
             }
         ) {

@@ -1,5 +1,7 @@
 package com.guidofe.pocketlibrary.ui.pages
 
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -9,10 +11,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.ui.modules.ImportedBookListRow
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.librarypage.PreviewBookDialog
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
+import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.BasicPageVM
 import com.guidofe.pocketlibrary.viewmodels.BookDisambiguationVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBasicPageVM
@@ -20,6 +25,8 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookDisambiguationVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 
 
@@ -27,8 +34,8 @@ import dev.chrisbanes.snapper.ExperimentalSnapperApi
 @Composable
 @Destination
 fun BookDisambiguationPage(
-    navigator: DestinationsNavigator,
-    isbn: String,
+    navigator: ResultBackNavigator<ImportedBookData>,
+    bookList: Array<ImportedBookData>,
     vm: IBookDisambiguationVM = hiltViewModel<BookDisambiguationVM>()
 ) {
     var isDialogOpen: Boolean by remember{ mutableStateOf(false) }
@@ -37,24 +44,26 @@ fun BookDisambiguationPage(
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.title = context.getString(R.string.choose_book)
     }
-    OnlineBookList(
-        queryData = QueryData(null, mapOf(QueryData.QueryKey.isbn to isbn)),
-        multipleSelectionEnabled = false,
-        singleTapAction = {
-            vm.saveBook(it.value) { id ->
-                if (id > 0)
-                    navigator.navigate(ViewBookPageDestination(id))
-            }
+    LazyColumn {
+        items(
+            bookList.map{SelectableListItem(it, false)},
+            {it.value.externalId}
+        ) { item ->
+            ImportedBookListRow(
+                item = item,
+                onRowTap = {
+                    selectedBook = item.value
+                    isDialogOpen = true
+                }
+            )
         }
-    )
+    }
     if(isDialogOpen) {
         PreviewBookDialog(
             bookData = selectedBook,
             onSaveButtonClicked = {
                 selectedBook?.let { importedBook ->
-                    vm.saveBook(importedBook) {
-                        navigator.navigate(ViewBookPageDestination(bookId = it))
-                    }
+                    navigator.navigateBack(importedBook)
                 }
             },
             onDismissRequest = {isDialogOpen = false}
@@ -68,12 +77,11 @@ fun BookDisambiguationPage(
 private fun PreviewBookDisambiguationPage() {
     MaterialTheme{
         BookDisambiguationPage(
-            navigator = EmptyDestinationsNavigator,
-            isbn = "4325",
+            navigator = EmptyResultBackNavigator(),
+            bookList = arrayOf(PreviewUtils.exampleImportedBook),
             vm = object: IBookDisambiguationVM {
                 override val scaffoldState = ScaffoldState()
                 override val snackbarHostState = SnackbarHostState()
-                override fun saveBook(importedBook: ImportedBookData, callback: (Long) -> Unit) {}
             }
         )
     }

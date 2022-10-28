@@ -3,22 +3,23 @@
 package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
 import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,9 +29,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.modules.FAB
-import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
@@ -39,8 +40,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
-private enum class LocalTab {SUMMARY, DETAILS, NOTE, LOCATION}
-private enum class DisplayedFab {NONE, EDIT_BOOK, SAVE_NOTE, SAVE_LOCATION}
+private enum class LocalTab {SUMMARY, DETAILS, NOTE}
+private enum class DisplayedFab {NONE, EDIT_BOOK, SAVE_NOTE}
 @Destination
 @Composable
 fun ViewBookPage (
@@ -62,9 +63,10 @@ fun ViewBookPage (
     var tabState by remember { mutableStateOf(LocalTab.SUMMARY) }
     var localFabState by remember {mutableStateOf(DisplayedFab.NONE)}
     val detailsScrollState = rememberScrollState()
+    val summaryScrollState = rememberScrollState()
     val genreScrollState = rememberScrollState()
     var notePosition by remember { mutableStateOf(0f)}
-    var  hasNoteBeenModified by remember { mutableStateOf(false) }
+    var hasNoteBeenModified by remember { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -91,12 +93,21 @@ fun ViewBookPage (
                             modifier = Modifier.weight(1f)
                         )
                     } else {
-                        Image(
-                            //TODO: change large cover placeholder
-                            painterResource(id = R.drawable.large_cover),
-                            stringResource(R.string.cover),
-                            modifier = Modifier.weight(1f)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(0.67f)
+                                .weight(1f)
+                                .border(5.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
+                        ) {
+                            Text(
+                                stringResource(R.string.no_cover_sadface),
+                                color = MaterialTheme.colorScheme.outline,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                softWrap = true,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
                     }
                     Box(modifier = Modifier) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -154,11 +165,6 @@ fun ViewBookPage (
                         onClick = { tabState = LocalTab.NOTE },
                         text = { Text(stringResource(R.string.note)) }
                     )
-                    Tab(
-                        selected = tabState == LocalTab.LOCATION,
-                        onClick = { tabState = LocalTab.LOCATION },
-                        text = { Text(stringResource(R.string.location)) }
-                    )
                 }
                 Box(
                     Modifier
@@ -172,11 +178,17 @@ fun ViewBookPage (
                             if (vm.data?.description.isNullOrBlank()) {
                                 Text(
                                     stringResource(R.string.no_description),
-                                    modifier = Modifier.align(Alignment.Center)
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
                                 )
                             } else {
                                 Text(
                                     vm.data?.description ?: stringResource(R.string.no_description),
+                                    modifier = Modifier
+                                        .scrollable(
+                                            summaryScrollState,
+                                            orientation = Orientation.Vertical
+                                        )
                                 )
                             }
                         }
@@ -203,18 +215,6 @@ fun ViewBookPage (
                                 modifier = Modifier
                                     .fillMaxSize()
                             )
-
-                        }
-                        LocalTab.LOCATION -> {
-                            localFabState = if(vm.hasLocationBeenModified)
-                                DisplayedFab.SAVE_LOCATION
-                            else
-                                DisplayedFab.NONE
-                            Surface() {
-                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                    LocationTab(vm)
-                                }
-                            }
                         }
                     }
                 }
@@ -225,7 +225,6 @@ fun ViewBookPage (
             .offset((-16).dp, (-16).dp)
         val iconModifier = Modifier
         LaunchedEffect(key1 = localFabState) {
-            Log.d("debug", "Changed tab: $tabState")
             when (localFabState) {
                 DisplayedFab.EDIT_BOOK -> {
                     vm.scaffoldState.fab = {
@@ -264,24 +263,6 @@ fun ViewBookPage (
                         }
                     }
                 }
-                DisplayedFab.SAVE_LOCATION -> {
-                    vm.scaffoldState.fab = {
-                        FAB(
-                            onClick = {
-                                vm.data?.bookId?.let {
-                                    vm.saveLocation(it)
-                                    vm.hasLocationBeenModified = false
-                                }
-                            },
-                            modifier = fabModifier
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.save_24px),
-                                stringResource(R.string.save),
-                            )
-                        }
-                    }
-                }
                 DisplayedFab.NONE -> {
                     vm.scaffoldState.fab = {}
                 }
@@ -303,17 +284,6 @@ private fun ViewBookPagePreview() {
                 override fun initFromLibraryBook(bookId: Long) {}
                 override fun saveNote(bookId: Long) {}
                 override val scaffoldState: ScaffoldState = ScaffoldState()
-                override var placeText: String = ""
-                override var roomText: String = ""
-                override var bookshelfText: String = ""
-                override val places: List<String> = listOf()
-                override val possibleRooms: List<String> = listOf()
-                override val possibleBookshelves: List<String> = listOf()
-                override var hasLocationBeenModified: Boolean = false
-                override fun setPlaceValues(place: String, room: String, bookshelf: String) {}
-                override fun changedPlace() {}
-                override fun changedRoom() {}
-                override fun saveLocation(bookId: Long) { }
             },
             EmptyDestinationsNavigator
         )

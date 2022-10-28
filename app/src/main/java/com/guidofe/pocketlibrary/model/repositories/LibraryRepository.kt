@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.model.repositories
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.utils.TitleAuthors
 import kotlinx.coroutines.flow.Flow
 
 interface LibraryRepository {
@@ -16,22 +17,6 @@ interface LibraryRepository {
 
     suspend fun insertAllBookAuthors(bookAuthors: List<BookAuthor>)
 
-    suspend fun insertPlace(place: Place): Long
-    suspend fun getPlaceIdByName(name: String): Long?
-    suspend fun getAllPlaces(): List<Place>
-
-    suspend fun insertRoom(room: Room): Long
-    suspend fun getRoomIdByNameAndPlaceId(name: String, placeId: Long): Long?
-    suspend fun getRoomsByParentPlaceId(placeId: Long): List<Room>
-
-    suspend fun insertBookshelf(bookshelf: Bookshelf): Long
-    suspend fun getBookshelfIdByNameAndRoomId(name: String, roomId: Long): Long?
-    suspend fun getBookshelvesByParentRoomId(roomId: Long): List<Bookshelf>
-
-    suspend fun insertBookPlacement(bookPlacement: BookPlacement)
-    suspend fun upsertBookPlacement(bookPlacement: BookPlacement)
-    suspend fun deleteBookPlacement(bookId: Long)
-
     suspend fun upsertNote(note: Note)
     suspend fun deleteNote(note: Note)
 
@@ -43,13 +28,14 @@ interface LibraryRepository {
     fun close()
     suspend fun deleteBook(book: Book)
     suspend fun deleteBooks(books: List<Book>)
-    suspend fun getBookBundlesWithSameIsbnOrTitle(
-        isbn: String? = null,
-        title: String? = null,
+    suspend fun getBookBundlesWithSameTitle(
+        title: String,
         authors: List<String>? = null
     ): List<BookBundle>
 
     suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean)
     suspend fun updateFavorite(bookId: Long, isFavorite: Boolean)
     suspend fun deleteBooksByIds(ids: List<Long>)
+    suspend fun getBooksWithSameIsbn(isbn: String): List<BookBundle>
+    fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle>
 }

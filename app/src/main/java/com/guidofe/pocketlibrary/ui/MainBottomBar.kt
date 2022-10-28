@@ -9,8 +9,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.guidofe.pocketlibrary.ui.pages.appDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.Destination
+import com.guidofe.pocketlibrary.ui.destinations.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 
 @Composable

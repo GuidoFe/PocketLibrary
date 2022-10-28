@@ -17,16 +17,20 @@ interface BookBundleDao {
     fun getBookBundles(): Flow<List<BookBundle>>
 
     @Transaction
+    @Query("SELECT * FROM book LIMIT :offset,:limit")
+    fun getBookBundles(offset: Int, limit: Int): List<BookBundle>
+
+    @Transaction
     @Query("SELECT * FROM book WHERE identifier = :isbn")
     suspend fun getBookBundlesWithSameIsbn(isbn: String): List<BookBundle>
 
     @Transaction
-    @Query("SELECT * FROM book WHERE title = :title")
+    @Query("SELECT * FROM book WHERE LOWER(title) = LOWER(:title)")
     suspend fun getBookBundlesWithSameTitle(title: String): List<BookBundle>
 
     @Transaction
-    @Query("SELECT * FROM book WHERE ( title = :title AND identifier = :isbn )")
-    suspend fun getBookBundlesWithSameIsbnAndTitle(isbn: String, title: String): List<BookBundle>
+    @Query("SELECT * FROM book WHERE title IN ( :titles )")
+    suspend fun getBookBundlesWithSimilarTitles(titles: List<String>): List<BookBundle>
 
     //@Transaction
     //@Insert

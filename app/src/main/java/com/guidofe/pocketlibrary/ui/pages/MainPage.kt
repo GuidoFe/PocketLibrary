@@ -17,6 +17,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.compose.rememberNavController
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.MainBottomBar
+import com.guidofe.pocketlibrary.ui.NavGraphs
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM

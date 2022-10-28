@@ -9,8 +9,4 @@ import kotlinx.coroutines.launch
 interface IBookDisambiguationVM {
    val scaffoldState: ScaffoldState
    val snackbarHostState: SnackbarHostState
-   fun saveBook(
-        importedBook: ImportedBookData,
-        callback: (Long) -> Unit,
-    )
 }

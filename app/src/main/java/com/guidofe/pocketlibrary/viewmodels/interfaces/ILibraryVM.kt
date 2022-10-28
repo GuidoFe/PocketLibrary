@@ -18,4 +18,5 @@ interface ILibraryVM {
     fun deleteBook(book: Book)
     fun setFavorite(ids: List<Long>, favorite: Boolean)
     fun clearSelection()
+    var duplicateIsbn: String
 }

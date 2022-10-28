@@ -1,10 +1,10 @@
 package com.guidofe.pocketlibrary.model.repositories
 
-import androidx.room.Query
 import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.utils.getInitials
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -42,25 +42,6 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
             var placeId: Long? = null
             var roomId: Long? = null
             var bookshelfId: Long? = null
-            if(bundle.place != null)
-                placeId = if (bundle.place.placeId == 0L)
-                    insertPlace(bundle.place)
-                else
-                    bundle.place.placeId
-            if (bundle.room != null)
-                roomId = if (bundle.room.roomId == 0L)
-                    insertRoom(bundle.room)
-                else
-                    bundle.room.roomId
-            if (bundle.bookshelf != null)
-                bookshelfId = if (bundle.bookshelf.bookshelfId == 0L)
-                    insertBookshelf(bundle.bookshelf)
-                else
-                    bundle.bookshelf.bookshelfId
-            if(placeId != null) {
-                val placement = BookPlacement(bookId, placeId, roomId, bookshelfId)
-                insertBookPlacement(placement)
-            }
             if(bundle.note != null)
                 upsertNote(bundle.note.copy(bookId = bookId))
         }
@@ -83,12 +64,13 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return db.bookBundleDao().getBookBundle(bookId)
     }
 
-    override suspend fun upsertBookPlacement(bookPlacement: BookPlacement) {
-        db.bookPlacementDao().upsert(bookPlacement)
-    }
 
     override fun getBookBundles(): Flow<List<BookBundle>> {
         return db.bookBundleDao().getBookBundles()
+    }
+
+    override fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle> {
+        return db.bookBundleDao().getBookBundles(pageNumber * pageSize, pageSize)
     }
 
     override suspend fun <R> withTransaction(block: suspend () -> R): R {
@@ -115,47 +97,6 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         db.bookAuthorDao().insertAll(bookAuthors)
     }
 
-    override suspend fun insertPlace(place: Place): Long {
-        return db.placeDao().insert(place)
-    }
-
-    override suspend fun getPlaceIdByName(name: String): Long? {
-        return db.placeDao().getPlaceByName(name)
-    }
-
-    override suspend fun insertRoom(room: Room): Long {
-        return db.roomDao().insert(room)
-    }
-
-    override suspend fun getRoomsByParentPlaceId(placeId: Long): List<Room> {
-        return db.roomDao().getRoomsByParentPlaceId(placeId)
-    }
-
-
-    override suspend fun getRoomIdByNameAndPlaceId(name: String, placeId: Long): Long? {
-        return db.roomDao().getRoomIdByNameAndPlaceId(name, placeId)
-    }
-
-    override suspend fun insertBookshelf(bookshelf: Bookshelf): Long {
-        return db.bookshelfDao().insert(bookshelf)
-    }
-
-    override suspend fun getBookshelvesByParentRoomId(roomId: Long): List<Bookshelf> {
-        return db.bookshelfDao().getBookshelvesByParentRoomId(roomId)
-    }
-
-    override suspend fun getBookshelfIdByNameAndRoomId(name: String, roomId: Long): Long? {
-        return db.bookshelfDao().getBookshelfIdByNameAndRoomId(name, roomId)
-    }
-
-    override suspend fun insertBookPlacement(bookPlacement: BookPlacement) {
-        db.bookPlacementDao().insert(bookPlacement)
-    }
-
-    override suspend fun deleteBookPlacement(bookId: Long) {
-        db.bookPlacementDao().delete(bookId)
-    }
-
     override suspend fun upsertNote(note: Note) {
         db.noteDao().upsert(note)
     }
@@ -176,33 +117,33 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         db.bookGenreDao().insertAll(bookGenres)
     }
 
-    override suspend fun getAllPlaces(): List<Place> {
-        return db.placeDao().getAllPlaces()
-    }
-
     override fun close() {
         db.close()
     }
 
-    override suspend fun getBookBundlesWithSameIsbnOrTitle(
-        isbn: String?, title: String?, authors: List<String>?
+    override suspend fun getBookBundlesWithSameTitle(
+        title: String, authors: List<String>?
     ): List<BookBundle> {
-        if (isbn == null && title == null) return listOf()
-        var similar = mutableListOf<BookBundle>()
-        if (isbn == null) {
-            val l = db.bookBundleDao().getBookBundlesWithSameTitle(title!!)
-            if (authors.isNullOrEmpty()) {
-                return l
-            }
-            l.forEach { bundle ->
-                if(bundle.authors.size != authors.size)
-                    return@forEach
-
-            }
-            return l //<-------
+        val l = db.bookBundleDao().getBookBundlesWithSameTitle(title)
+        if (l.isEmpty() || authors.isNullOrEmpty()) {
+            return l
         }
-        //TODO
-        return listOf() //<-------
+        val similar = mutableListOf<BookBundle>()
+        val authorsInitials = authors.map{it.getInitials().joinToString()}.toSet()
+        l.forEach { bundle ->
+            if (
+                bundle.authors.map {
+                    it.name.getInitials().joinToString()
+                }.toSet() == authorsInitials
+            ) {
+                similar.add(bundle)
+            }
+        }
+        return similar
+    }
+
+    override suspend fun getBooksWithSameIsbn(isbn: String): List<BookBundle> {
+        return db.bookBundleDao().getBookBundlesWithSameIsbn(isbn)
     }
 
     override suspend fun updateFavorite(bookId: Long, isFavorite: Boolean) {

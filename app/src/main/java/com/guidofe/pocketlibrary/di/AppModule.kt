@@ -118,15 +118,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesPlaceDao(db: AppDatabase) = db.placeDao()
-
-    @Singleton
-    @Provides
-    fun providesRoomDao(db: AppDatabase) = db.roomDao()
-
-
-    @Singleton
-    @Provides
     fun providesWhishlistDao(db: AppDatabase) = db.wishlistDao()
 
     @Singleton

@@ -1,15 +1,18 @@
 package com.guidofe.pocketlibrary.viewmodels.interfaces
 
+import androidx.camera.core.CameraProvider
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.material3.SnackbarHostState
+import androidx.lifecycle.LifecycleOwner
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 
 interface IScanIsbnVM {
-    var displayBookNotFoundDialog: Boolean
-    var displayInsertIsbnDialog: Boolean
-    var displayConnectionErrorDialog: Boolean
-    var errorMessage: String?
     var code: String?
     fun getImageAnalysis(): ImageAnalysis
-    var coverUrl: String
     val scaffoldState: ScaffoldState
+    val snackbarHostState: SnackbarHostState
+    var cameraProvider: ProcessCameraProvider?
+    fun restartAnalysis(lifecycleOwner: LifecycleOwner)
 }

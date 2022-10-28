@@ -25,9 +25,6 @@ class PreviewUtils() {
                 Genre(1, "Fantasy"),
                 Genre(2, "Adventure")
             ),
-            place = Place(1, "Home"),
-            room = Room(1, "Bedroom", 1),
-            bookshelf = Bookshelf(1, "Bedside", 1),
             note = Note(1, "It's a very good book")
         )
 

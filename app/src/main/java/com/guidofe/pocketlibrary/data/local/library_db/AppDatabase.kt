@@ -11,20 +11,14 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
     Author::class,
     Book::class,
     BookAuthor::class,
-    BookPlacement::class,
     BookGenre::class,
     Genre::class,
     Loan::class,
     Note::class,
-    Place::class,
-    com.guidofe.pocketlibrary.data.local.library_db.entities.Room::class,
-    Bookshelf::class,
     Wishlist::class
-], version = 4,
+], version = 5,
     exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 3, to = 4, spec = AppDatabase.Migration3to4::class)
-    ])
+    autoMigrations = [])
 @TypeConverters(DateConverter::class, UriConverter::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun authorDao(): AuthorDao
@@ -32,12 +26,8 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun bookBundleDao(): BookBundleDao
     abstract fun bookDao(): BookDao
     abstract fun bookGenreDao(): BookGenreDao
-    abstract fun bookPlacementDao(): BookPlacementDao
     abstract fun genreDao(): GenreDao
     abstract fun noteDao(): NoteDao
-    abstract fun placeDao(): PlaceDao
-    abstract fun roomDao(): RoomDao
-    abstract fun bookshelfDao(): BookshelfDao
     abstract fun wishlistDao(): WishlistDao
 
     @DeleteColumn(tableName = "Book", columnName = "industry_identifier_type")

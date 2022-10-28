@@ -8,10 +8,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun InsertIsbnDialog(onConfirm: (isbn: String) -> Unit, onDismiss: () -> Unit) {
+fun InsertIsbnDialog(
+    resultNavigator: ResultBackNavigator<String>
+) {
     var isbn by remember { mutableStateOf("")}
     AlertDialog(
         title = { Text(
@@ -28,20 +35,20 @@ fun InsertIsbnDialog(onConfirm: (isbn: String) -> Unit, onDismiss: () -> Unit) {
         },
         confirmButton = {
             Button(onClick = {
-                onConfirm(isbn)
+                resultNavigator.navigateBack(isbn)
             }) {
                 Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = {
-                onDismiss()
+                resultNavigator.navigateBack()
             }) {
                 Text(stringResource(id = R.string.cancel))
             }
         },
         onDismissRequest = {
-            onDismiss()
+            resultNavigator.navigateBack()
         }
     )
 }
@@ -49,5 +56,5 @@ fun InsertIsbnDialog(onConfirm: (isbn: String) -> Unit, onDismiss: () -> Unit) {
 @Composable
 @Preview
 private fun InsertIsbnDialogPreview() {
-    InsertIsbnDialog(onConfirm = {}, {})
+    InsertIsbnDialog(EmptyResultBackNavigator())
 }

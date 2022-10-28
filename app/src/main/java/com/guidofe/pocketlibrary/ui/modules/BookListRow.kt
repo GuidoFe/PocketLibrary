@@ -107,9 +107,6 @@ private fun GenericListRow(
     onRowLongPress: (Offset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {}
 ) {
-    LaunchedEffect(isSelected) {
-        Log.d("debug", "isSelected changed")
-    }
     val selectionOffset: Dp by animateDpAsState(
         if (isSelected) (-5).dp else 0.dp,
         animationSpec = tween(durationMillis = 100, easing = LinearEasing)
@@ -303,9 +300,6 @@ var book = Book(
 )
 var authors = listOf(Author(1L, "Frank Herbert"), Author(2L, "Princess Irulan"))
 val genres: List<Genre> = listOf(Genre(1L, "Fantasy"), Genre(2L, "Sci-fi"))
-var place = Place(1L, "Home")
-var room = Room(1L, "Livingroom", 1L)
-var bookshelf = Bookshelf(1L, "Big library", 1L)
 var note =  Note(1L, "Very cool book")
 
 @Composable
@@ -314,7 +308,7 @@ private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
         LibraryListRow(
             item = SelectableListItem(
-                BookBundle(book, authors, genres, place, room, bookshelf, note, Loan(1, LoanType.BORROWED, "", Date(0L))),
+                BookBundle(book, authors, genres, note, Loan(1, LoanType.BORROWED, "", Date(0L))),
                 true
             )
         )

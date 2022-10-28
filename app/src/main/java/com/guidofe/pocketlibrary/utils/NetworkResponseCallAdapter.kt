@@ -13,7 +13,6 @@ class NetworkResponseCallAdapter<S: Any, E: Any>(
 ): CallAdapter<S, Call<NetworkResponse<S, E>>> {
     override fun responseType(): Type = successType
     override fun adapt(call: Call<S>): Call<NetworkResponse<S, E>> {
-        Log.d("debug", "Url: ${call.request().url}")
         return NetworkResponseCall(call, errorBodyConverter)
     }
 

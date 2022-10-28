@@ -29,7 +29,6 @@ class NetworkResponseCall<S : Any, E : Any>(
 
                 if (response.isSuccessful) {
                     if (body != null) {
-                        Log.d("debug", "Success")
                         callback.onResponse(
                             this@NetworkResponseCall,
                             Response.success(NetworkResponse.Success(body))
@@ -54,13 +53,11 @@ class NetworkResponseCall<S : Any, E : Any>(
                         }
                     }
                     if (errorBody != null) {
-                        Log.d("debug", "type ApiError")
                         callback.onResponse(
                             this@NetworkResponseCall,
                             Response.success(NetworkResponse.ApiError(errorBody, code))
                         )
                     } else {
-                        Log.d("debug", "type UnknownError")
                         callback.onResponse(
                             this@NetworkResponseCall,
                             Response.success(NetworkResponse.UnknownError(null))

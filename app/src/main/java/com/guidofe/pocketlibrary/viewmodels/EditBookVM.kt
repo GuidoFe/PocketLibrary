@@ -25,7 +25,6 @@ class EditBookVM @Inject constructor(
     override suspend fun initialiseFromDatabase(
         id: Long
     ) {
-        Log.d("Debug", "Initializing from database")
         currentBookId = id
         val bundle = repo.getBookBundle(id)
         formData = if (bundle != null) FormData(bundle) else FormData()

@@ -20,6 +20,7 @@ fun CameraView(
     cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
     scaleType: PreviewView.ScaleType = PreviewView.ScaleType.FILL_CENTER,
     additionalUseCases: Array<UseCase> = arrayOf(),
+    onCameraProviderSet: (ProcessCameraProvider) -> Unit = {}
 ) {
     // 1
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -41,7 +42,7 @@ fun CameraView(
 
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
-
+                onCameraProviderSet(cameraProvider)
                 // Preview
                 val preview = Preview.Builder()
                     .build()

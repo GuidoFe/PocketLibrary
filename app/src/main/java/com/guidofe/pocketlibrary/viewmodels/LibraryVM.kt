@@ -30,6 +30,7 @@ class LibraryVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
 ): ViewModel(), ILibraryVM {
+    override var duplicateIsbn: String = ""
     override val selectionManager = MultipleSelectionManager<Long, BookBundle>(
         getKey = {it.book.bookId}
     )
@@ -41,7 +42,6 @@ class LibraryVM @Inject constructor(
         }
 
     override fun onCleared() {
-        Log.d("debug", "cleared")
         super.onCleared()
     }
 

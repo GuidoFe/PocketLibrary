@@ -13,17 +13,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookDisambiguationVM @Inject constructor(
-    private val repo: LibraryRepository,
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
-): ViewModel(), IBookDisambiguationVM {
-    override fun saveBook(
-        importedBook: ImportedBookData,
-        callback: (Long) -> Unit,
-    ) {
-        viewModelScope.launch {
-            val id = importedBook.saveToDb(repo)
-            callback(id)
-        }
-    }
-}
+): ViewModel(), IBookDisambiguationVM
