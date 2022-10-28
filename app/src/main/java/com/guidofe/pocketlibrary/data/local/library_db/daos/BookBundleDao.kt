@@ -18,7 +18,7 @@ interface BookBundleDao {
 
     @Transaction
     @Query("SELECT * FROM book LIMIT :offset,:limit")
-    fun getBookBundles(offset: Int, limit: Int): List<BookBundle>
+    suspend fun getBookBundles(offset: Int, limit: Int): List<BookBundle>
 
     @Transaction
     @Query("SELECT * FROM book WHERE identifier = :isbn")

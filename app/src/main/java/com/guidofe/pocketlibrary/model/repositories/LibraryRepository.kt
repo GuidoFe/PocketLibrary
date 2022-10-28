@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface LibraryRepository {
     suspend fun insertBookBundle(bundle: BookBundle): Long
     suspend fun getBookBundle(bookId: Long): BookBundle?
-    fun getBookBundles(): Flow<List<BookBundle>>
+    suspend fun getBookBundles(): Flow<List<BookBundle>>
     suspend fun <R: Any?> withTransaction(block: suspend () -> R): R
     suspend fun insertBook(book: Book): Long
     suspend fun updateBook(book: Book)
@@ -37,5 +37,5 @@ interface LibraryRepository {
     suspend fun updateFavorite(bookId: Long, isFavorite: Boolean)
     suspend fun deleteBooksByIds(ids: List<Long>)
     suspend fun getBooksWithSameIsbn(isbn: String): List<BookBundle>
-    fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle>
+    suspend fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle>
 }

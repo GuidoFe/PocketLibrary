@@ -65,11 +65,11 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
     }
 
 
-    override fun getBookBundles(): Flow<List<BookBundle>> {
+    override suspend fun getBookBundles(): Flow<List<BookBundle>> {
         return db.bookBundleDao().getBookBundles()
     }
 
-    override fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle> {
+    override suspend fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle> {
         return db.bookBundleDao().getBookBundles(pageNumber * pageSize, pageSize)
     }
 

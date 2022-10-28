@@ -2,7 +2,6 @@ package com.guidofe.pocketlibrary.ui.pages.librarypage
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -11,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.destinations.ViewBookPageDestination
@@ -26,6 +26,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import kotlinx.coroutines.launch
+import androidx.paging.compose.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
@@ -35,7 +36,7 @@ fun LibraryPage(
     vm: ILibraryVM = hiltViewModel<LibraryVM>(),
     importedBookVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
 ) {
-    val bookListState = vm.bookListFlow.collectAsState(initial = listOf())
+    val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
     var isExpanded: Boolean by remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
@@ -153,9 +154,11 @@ fun LibraryPage(
     }
     LazyColumn {
         items(
-            items = bookListState.value,
+            items = lazyPagingItems,
             key = {it.value.book.bookId}
         ) { item ->
+            if (item == null)
+                return@items
             LibraryListRow(
                 item,
                 onRowTap = {

@@ -13,10 +13,10 @@ interface ILibraryVM {
     val scaffoldState: ScaffoldState
     val snackbarHostState: SnackbarHostState
     val selectionManager: MultipleSelectionManager<Long, BookBundle>
-    val bookListFlow: Flow<List<SelectableListItem<BookBundle>>>
     fun deleteSelectedBooks()
     fun deleteBook(book: Book)
     fun setFavorite(ids: List<Long>, favorite: Boolean)
     fun clearSelection()
     var duplicateIsbn: String
+    val pager: Flow<PagingData<SelectableListItem<BookBundle>>>
 }
