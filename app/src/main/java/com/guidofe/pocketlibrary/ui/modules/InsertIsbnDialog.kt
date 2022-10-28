@@ -14,10 +14,10 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination(style = DestinationStyle.Dialog::class)
 @Composable
 fun InsertIsbnDialog(
-    resultNavigator: ResultBackNavigator<String>
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
 ) {
     var isbn by remember { mutableStateOf("")}
     AlertDialog(
@@ -35,20 +35,20 @@ fun InsertIsbnDialog(
         },
         confirmButton = {
             Button(onClick = {
-                resultNavigator.navigateBack(isbn)
+                onConfirm(isbn)
             }) {
                 Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = {
-                resultNavigator.navigateBack()
+                onDismiss()
             }) {
                 Text(stringResource(id = R.string.cancel))
             }
         },
         onDismissRequest = {
-            resultNavigator.navigateBack()
+            onDismiss()
         }
     )
 }
@@ -56,5 +56,5 @@ fun InsertIsbnDialog(
 @Composable
 @Preview
 private fun InsertIsbnDialogPreview() {
-    InsertIsbnDialog(EmptyResultBackNavigator())
+    InsertIsbnDialog({}, {})
 }

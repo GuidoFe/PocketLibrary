@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.ui.modules
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ fun RowWithIcon(
     gap: Dp = 0.dp,
     boxPadding: Dp = 0.dp,
     boxWidth: Dp = 50.dp,
+    selectable: Boolean = false
 ) {
     val padding: Dp = 10.dp
     Row(modifier = modifier
@@ -46,11 +48,20 @@ fun RowWithIcon(
         Spacer(modifier = Modifier.width(gap))
         Column() {
             Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(
-                text,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                maxLines = 1)
+            if (selectable)
+                SelectionContainer {
+                    Text(
+                        text,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        maxLines = 1)
+                }
+            else
+                Text(
+                    text,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    maxLines = 1)
         }
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import com.guidofe.pocketlibrary.R
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -16,12 +15,16 @@ class Snackbars {
             hostState: SnackbarHostState,
             context: Context,
             scope: CoroutineScope,
+            areMultipleBooks: Boolean = false,
             onDismiss: () -> Unit
         ) {
             scope.launch {
                 val res = hostState.showSnackbar(
                     CustomSnackbarVisuals(
-                        message = context.getString(R.string.books_saved),
+                        message = if (areMultipleBooks)
+                            context.getString(R.string.books_saved)
+                        else
+                            context.getString(R.string.book_saved),
                         isError = false
                     )
                 )
@@ -50,7 +53,7 @@ class Snackbars {
             hostState: SnackbarHostState,
             context: Context,
             scope: CoroutineScope,
-            onActionPerformed: () -> Unit
+            onInsertManuallyAction: () -> Unit
         ) {
             scope.launch {
                 val res = hostState.showSnackbar(
@@ -61,7 +64,7 @@ class Snackbars {
                     )
                 )
                 if (res == SnackbarResult.ActionPerformed) {
-                    onActionPerformed()
+                    onInsertManuallyAction()
                 }
             }
         }
@@ -77,7 +80,32 @@ class Snackbars {
                 val res = hostState.showSnackbar(
                     CustomSnackbarVisuals(
                         message = context.getString(R.string.book_alredy_present_message),
-                        isError = false,
+                        isError = true,
+                        actionLabel = context.getString(R.string.add_anyway)
+                    )
+                )
+                when (res) {
+                    SnackbarResult.ActionPerformed -> onActionPerformed()
+                    SnackbarResult.Dismissed -> onDismiss()
+                }
+            }
+        }
+
+        fun bookAlreadyPresentSnackbarWithTitle(
+            hostState: SnackbarHostState,
+            context: Context,
+            scope: CoroutineScope,
+            bookTitle: String,
+            onDismiss: () -> Unit,
+            onActionPerformed: () -> Unit,
+        ) {
+            scope.launch {
+                val res = hostState.showSnackbar(
+                    CustomSnackbarVisuals(
+                        message = context.getString(
+                                R.string.book_alredy_present_message_with_title
+                        ).format(bookTitle),
+                        isError = true,
                         actionLabel = context.getString(R.string.add_anyway)
                     )
                 )

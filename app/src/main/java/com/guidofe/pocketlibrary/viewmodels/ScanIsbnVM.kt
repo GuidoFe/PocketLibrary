@@ -2,7 +2,6 @@ package com.guidofe.pocketlibrary.viewmodels
 
 import android.util.Log
 import android.util.Size
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -40,7 +39,7 @@ class ScanIsbnVM @Inject constructor(
         .build()
     private var imageAnalysis: ImageAnalysis? = null
     private val scanner = BarcodeScanning.getClient(scannerOptions)
-    override var code: String? by mutableStateOf(null)
+    override var scannedCode: String? by mutableStateOf(null)
         //private set
     override fun getImageAnalysis(): ImageAnalysis {
         if (imageAnalysis == null) {
@@ -53,8 +52,8 @@ class ScanIsbnVM @Inject constructor(
                 it.setAnalyzer(
                     Executors.newSingleThreadExecutor(),
                     Analyzer(scanner) { isbn ->
-                        code = isbn
-                        Log.d("debug", "ISBN: $code")
+                        scannedCode = isbn
+                        Log.d("debug", "ISBN: $scannedCode")
                         //cameraProvider?.unbind(imageAnalysis)
                         imageAnalysis?.clearAnalyzer()
                     }
@@ -70,8 +69,8 @@ class ScanIsbnVM @Inject constructor(
         imageAnalysis?.setAnalyzer(
             Executors.newSingleThreadExecutor(),
             Analyzer(scanner) { isbn ->
-                code = isbn
-                Log.d("debug", "ISBN: $code")
+                scannedCode = isbn
+                Log.d("debug", "ISBN: $scannedCode")
                 imageAnalysis?.clearAnalyzer()
             }
         )

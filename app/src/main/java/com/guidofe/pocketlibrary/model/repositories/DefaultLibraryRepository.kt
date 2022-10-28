@@ -73,6 +73,10 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return db.bookBundleDao().getBookBundles(pageNumber * pageSize, pageSize)
     }
 
+    override suspend fun getBookBundlesWithSameIsbns(isbnList: List<String>): List<BookBundle> {
+        return db.bookBundleDao().getBookBundlesWithSameIsbns(isbnList)
+    }
+
     override suspend fun <R> withTransaction(block: suspend () -> R): R {
         return db.withTransaction(block)
     }

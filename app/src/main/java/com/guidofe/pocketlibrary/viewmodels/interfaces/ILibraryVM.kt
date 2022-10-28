@@ -19,4 +19,5 @@ interface ILibraryVM {
     fun clearSelection()
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<BookBundle>>>
+    fun invalidate()
 }

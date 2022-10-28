@@ -52,6 +52,10 @@ class LibraryVM @Inject constructor(
         super.onCleared()
     }
 
+    override fun invalidate() {
+        currentPagingSource?.invalidate()
+    }
+
     override fun deleteSelectedBooks() {
 
         viewModelScope.launch {

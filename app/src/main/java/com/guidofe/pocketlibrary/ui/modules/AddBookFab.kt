@@ -1,28 +1,21 @@
 package com.guidofe.pocketlibrary.ui.modules
 
+import android.provider.ContactsContract.Intents.Insert
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.InsertIsbnDialogDestination
-import com.guidofe.pocketlibrary.ui.destinations.ScanIsbnPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.SearchBookOnlinePageDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
-import com.ramcosta.composedestinations.result.EmptyResultRecipient
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,25 +57,18 @@ fun exitTransition(duration: Int, delay: Int): ExitTransition {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AddBookFab(
-    navigator: DestinationsNavigator,
     isExpanded: Boolean,
     onMainFabClick: () -> Unit,
     onDismissRequest: () -> Unit,
-    onSearchByIsbn: (isbn: String) -> Unit,
+    onInsertManually: () -> Unit,
+    onIsbnTyped: (String) -> Unit,
+    onScanIsbn: () -> Unit,
+    onSearchOnline: () -> Unit,
     modifier: Modifier = Modifier,
     stepDelay: Int = 100,
     stepDuration: Int = 100,
-    insertIsbnRecipient: ResultRecipient<InsertIsbnDialogDestination, String>,
-    scanIsbnRecipient: ResultRecipient<ScanIsbnPageDestination, String>,
 ) {
-    insertIsbnRecipient.onNavResult {
-        if (it is NavResult.Value)
-            onSearchByIsbn(it.value)
-    }
-    scanIsbnRecipient.onNavResult {
-        if (it is NavResult.Value)
-            onSearchByIsbn(it.value)
-    }
+    var showInsertIsbnDialog by remember{mutableStateOf(false)}
     Column(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -108,7 +94,7 @@ fun AddBookFab(
                     }
                 ) {
                     onDismissRequest()
-                    navigator.navigate(EditBookPageDestination())
+                    onInsertManually()
                 }
             }
             AnimatedVisibility(
@@ -126,7 +112,7 @@ fun AddBookFab(
                     }
                 ) {
                     onDismissRequest()
-                    navigator.navigate(InsertIsbnDialogDestination)
+                    showInsertIsbnDialog = true
                 }
             }
             AnimatedVisibility(
@@ -144,7 +130,7 @@ fun AddBookFab(
                     }
                 ) {
                     onDismissRequest()
-                    navigator.navigate(SearchBookOnlinePageDestination)
+                    onSearchOnline()
                 }
             }
             AnimatedVisibility(
@@ -162,7 +148,7 @@ fun AddBookFab(
                     }
                 ) {
                     onDismissRequest()
-                    navigator.navigate(ScanIsbnPageDestination())
+                    onScanIsbn()
                 }
             }
         }
@@ -175,6 +161,12 @@ fun AddBookFab(
             )
         }
     }
+    if (showInsertIsbnDialog) {
+        InsertIsbnDialog(onDismiss = {showInsertIsbnDialog = false}) {
+            showInsertIsbnDialog = false
+            onIsbnTyped(it)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -185,13 +177,8 @@ private fun AddBookFabPreview() {
         Scaffold(
             floatingActionButton = {
                 AddBookFab(
-                    navigator = EmptyDestinationsNavigator,
                     isExpanded = true,
-                    onMainFabClick = {},
-                    onDismissRequest = {},
-                    onSearchByIsbn = {},
-                    insertIsbnRecipient = EmptyResultRecipient(),
-                    scanIsbnRecipient = EmptyResultRecipient()
+                    {}, {}, {}, {}, {}, {}
                 )
             }
         ) {

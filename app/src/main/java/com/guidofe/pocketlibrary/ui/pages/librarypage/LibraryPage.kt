@@ -12,21 +12,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.destinations.BookDisambiguationPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.ViewBookPageDestination
-import com.guidofe.pocketlibrary.ui.modules.AddBookFab
-import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
-import com.guidofe.pocketlibrary.ui.modules.DuplicateIsbnDialog
-import com.guidofe.pocketlibrary.ui.modules.LibraryListRow
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import com.guidofe.pocketlibrary.viewmodels.LibraryVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import kotlinx.coroutines.launch
 import androidx.paging.compose.items
+import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.modules.*
+import com.guidofe.pocketlibrary.ui.pages.destinations.*
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
@@ -34,7 +32,8 @@ import androidx.paging.compose.items
 fun LibraryPage(
     navigator: DestinationsNavigator,
     vm: ILibraryVM = hiltViewModel<LibraryVM>(),
-    importedBookVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
+    importVm: IImportedBookVM = hiltViewModel<ImportedBookVM>(),
+    disambiguationRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>,
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
@@ -43,6 +42,7 @@ fun LibraryPage(
     val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
     var isStarButtonFilled by remember{mutableStateOf(false)}
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
+    var isbnToSearch: String? by remember{mutableStateOf(null)}
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             isStarButtonFilled = false
@@ -100,55 +100,48 @@ fun LibraryPage(
             )
         }
     }
-    LaunchedEffect(key1 = navigator) {
+    LaunchedEffect(isbnToSearch) {
+        isbnToSearch?.let {
+            importVm.getAndSaveBookFromIsbnFlow(
+                it,
+                onNetworkError = {
+                    Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, scope)
+                },
+                onNoBookFound = {
+                    Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
+                        navigator.navigate(EditBookPageDestination())
+                    }
+                },
+                onOneBookSaved = {
+                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope){
+                        vm.invalidate()
+                    }
+                },
+                onMultipleBooksFound = { list ->
+                    navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
+                }
+            )
+        }
+    }
+    LaunchedEffect(Unit) {
+        Log.d("debug", "Drawing fab")
         vm.scaffoldState.fab = {
             AddBookFab(
-                navigator = navigator,
                 isExpanded = isExpanded,
                 onMainFabClick = { isExpanded = !isExpanded },
                 onDismissRequest = { isExpanded = false},
-                onSearchByIsbn = { isbn ->
-                    importedBookVm.getImportedBooksFromIsbn(
-                        isbn,
-                        maxResults = 2,
-                        callback = {
-                            when (it.size) {
-                                0 -> {
-                                    scope.launch {
-                                        vm.snackbarHostState.showSnackbar(
-                                            CustomSnackbarVisuals(
-                                                context.getString(R.string.no_book_found),
-                                                true
-                                            )
-                                        )
-                                    }
-                                }
-                                1 -> {
-                                    importedBookVm.saveImportedBookInDb(it[0]) { id ->
-                                        navigator.navigate(ViewBookPageDestination(id))
-                                    }
-                                }
-                                else -> navigator.navigate(
-                                    BookDisambiguationPageDestination(it.toTypedArray())
-                                )
-                            }
-
-                        },
-                        failureCallback = {
-                            scope.launch {
-                                vm.snackbarHostState.showSnackbar(
-                                    CustomSnackbarVisuals(
-                                        it,
-                                        true
-                                    )
-                                )
-                            }
-                        },
-                    )
+                onIsbnTyped = {
+                    isbnToSearch = it
                 },
-                insertIsbnRecipient = EmptyResultRecipient(),
-                scanIsbnRecipient = EmptyResultRecipient()
-
+                onInsertManually = {
+                    navigator.navigate(EditBookPageDestination())
+                },
+                onScanIsbn = {
+                    navigator.navigate(ScanIsbnPageDestination())
+                },
+                onSearchOnline = {
+                    navigator.navigate(SearchBookOnlinePageDestination())
+                }
             )
         }
     }
@@ -179,7 +172,7 @@ fun LibraryPage(
     if (showDoubleIsbnDialog) {
         DuplicateIsbnDialog(
             onAddAnyway = {
-                importedBookVm.getImportedBooksFromIsbn(
+                importVm.getImportedBooksFromIsbn(
                     vm.duplicateIsbn,
                     maxResults = 2,
                     callback = {
@@ -196,7 +189,7 @@ fun LibraryPage(
                                 }
                             }
                             1 -> {
-                                importedBookVm.saveImportedBookInDb(it[0]) { id ->
+                                importVm.saveImportedBookInDb(it[0]) { id ->
                                     navigator.navigate(ViewBookPageDestination(id))
                                 }
                             }
@@ -220,5 +213,17 @@ fun LibraryPage(
                 )
             },
             onCancel = {showDoubleIsbnDialog = false})
+    }
+    disambiguationRecipient.onNavResult { navResult ->
+        if (navResult is NavResult.Value) {
+            importVm.saveImportedBookInDb(navResult.value) {
+                Snackbars.bookSavedSnackbar(
+                    importVm.snackbarHostState,
+                    context,
+                    scope,
+                ) {}
+                vm.invalidate()
+            }
+        }
     }
 }

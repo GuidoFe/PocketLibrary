@@ -1,20 +1,13 @@
 package com.guidofe.pocketlibrary.viewmodels
 
-import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
-import com.guidofe.pocketlibrary.ui.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
-import com.guidofe.pocketlibrary.utils.Resource
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -25,6 +18,7 @@ import javax.inject.Inject
 class ImportedBookVM @Inject constructor(
     private val libraryRepo: LibraryRepository,
     private val metaRepo: BookMetaRepository,
+    override val snackbarHostState: SnackbarHostState
 ): ViewModel(), IImportedBookVM {
     override fun getImportedBooksFromIsbn(
         isbn: String,
@@ -55,6 +49,14 @@ class ImportedBookVM @Inject constructor(
         }
     }
 
+    override fun saveImportedBooksInDb(importedBooks: List<ImportedBookData>, callback: () -> Unit) {
+        viewModelScope.launch {
+            importedBooks.forEach {
+                it.saveToDb(libraryRepo)
+            }
+            callback()
+        }
+    }
     override fun getAndSaveBookFromIsbnFlow(
         isbn: String,
         onNetworkError: () -> Unit,
@@ -82,6 +84,32 @@ class ImportedBookVM @Inject constructor(
                     onMultipleBooksFound(importedList)
                 }
             }
+        }
+    }
+
+    override fun checkIfImportedBooksAreAlreadyInLibrary(
+        list: List<ImportedBookData>,
+        onAllOk: () -> Unit,
+        onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
+    ) {
+        viewModelScope.launch {
+            val conflictBooks = libraryRepo.getBookBundlesWithSameIsbns(
+                list.mapNotNull { it.identifier }
+            )
+            val conflictIsbn = conflictBooks.map{it.book.identifier!!}
+            if (conflictIsbn.isEmpty()) {
+                onAllOk()
+                return@launch
+            }
+            val booksOk = mutableListOf<ImportedBookData>()
+            val duplicateBooks = mutableListOf<ImportedBookData>()
+            list.forEach {
+                if (conflictIsbn.contains(it.identifier))
+                    duplicateBooks.add(it)
+                else
+                    booksOk.add(it)
+            }
+            onConflict(booksOk, duplicateBooks)
         }
     }
 }

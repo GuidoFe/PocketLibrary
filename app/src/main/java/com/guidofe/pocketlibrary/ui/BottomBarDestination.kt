@@ -2,10 +2,10 @@ package com.guidofe.pocketlibrary.ui
 
 import androidx.annotation.DrawableRes
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.destinations.FavoritesPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.LandingPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.LibraryPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.StatsPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.FavoritesPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.LandingPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.LibraryPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.StatsPageDestination
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
 enum class BottomBarDestination(val direction: DirectionDestinationSpec, val labelId: Int, @DrawableRes val iconId: Int) {

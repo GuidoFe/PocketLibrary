@@ -38,4 +38,5 @@ interface LibraryRepository {
     suspend fun deleteBooksByIds(ids: List<Long>)
     suspend fun getBooksWithSameIsbn(isbn: String): List<BookBundle>
     suspend fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle>
+    suspend fun getBookBundlesWithSameIsbns(isbnList: List<String>): List<BookBundle>
 }

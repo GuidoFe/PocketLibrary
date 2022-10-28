@@ -14,11 +14,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
+import com.guidofe.pocketlibrary.ui.modules.Snackbars
+import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.librarypage.PreviewBookDialog
+import com.guidofe.pocketlibrary.ui.pages.navtype.importedBookDataArrayNavType
+import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -30,6 +34,7 @@ import kotlinx.coroutines.launch
 fun SearchBookOnlinePage(
     navigator: DestinationsNavigator,
     vm: ISearchBookOnlineVM = hiltViewModel<SearchBookOnlineVM>(),
+    importedVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -60,16 +65,36 @@ fun SearchBookOnlinePage(
                 actions = {
                     IconButton(
                         onClick = {
-                            vm.saveSelectedBooks {
-                                vm.selectionManager.clearSelection()
-                                coroutineScope.launch {
-                                    vm.snackbarHostState.showSnackbar(
-                                        CustomSnackbarVisuals(
-                                            message = context.getString(R.string.books_saved)
-                                        )
-                                    )
+                            val selectedItems = vm.selectionManager.selectedItems
+                                .value.values.toList()
+                            importedVm.checkIfImportedBooksAreAlreadyInLibrary(
+                                selectedItems,
+                                onAllOk = {
+                                    importedVm.saveImportedBooksInDb(selectedItems) {
+                                        Snackbars.bookSavedSnackbar(
+                                            vm.snackbarHostState,
+                                            context,
+                                            coroutineScope
+                                        ) {}
+                                        vm.selectionManager.clearSelection()
+                                    }
+                                },
+                                onConflict = { ok, duplicate ->
+                                    importedVm.saveImportedBooksInDb(ok) {}
+                                    duplicate.forEach {
+                                        Snackbars.bookAlreadyPresentSnackbarWithTitle(
+                                            vm.snackbarHostState,
+                                            context,
+                                            coroutineScope,
+                                            it.title,
+                                            onDismiss = {}
+                                        ) {
+                                            importedVm.saveImportedBookInDb(it) {}
+                                        }
+                                    }
+                                    vm.selectionManager.clearSelection()
                                 }
-                            }
+                            )
                         }
                     ) {
                         Icon(

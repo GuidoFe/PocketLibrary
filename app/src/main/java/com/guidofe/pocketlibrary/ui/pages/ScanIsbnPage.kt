@@ -18,9 +18,9 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.destinations.BookDisambiguationPageDestination
-import com.guidofe.pocketlibrary.ui.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.modules.*
+import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
@@ -46,7 +46,7 @@ fun ScanIsbnPage(
     val context = LocalContext.current
     val coroutine = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
-    var startSavingFlow by remember{mutableStateOf(false)}
+    var isbnToSearch: String? by remember{mutableStateOf(null)}
     var showBookNotFoundDialog by remember{mutableStateOf(false)}
     LaunchedEffect(key1 = true) {
         scanVm.scaffoldState.refreshBar(title=context.getString(R.string.scan_isbn))
@@ -93,11 +93,11 @@ fun ScanIsbnPage(
         }
     }
 
-    LaunchedEffect(scanVm.code) {
-        scanVm.code?.let { isbn ->
+    LaunchedEffect(scanVm.scannedCode) {
+        scanVm.scannedCode?.let { isbn ->
             importVm.getLibraryBooksWithSameIsbn(isbn) { ownedList ->
                 if (ownedList.isEmpty()) {
-                    startSavingFlow = true
+                    isbnToSearch = isbn
                 } else {
                     Snackbars.bookAlreadyPresentSnackbar(
                         scanVm.snackbarHostState,
@@ -105,16 +105,15 @@ fun ScanIsbnPage(
                         coroutine,
                         onDismiss = {scanVm.restartAnalysis(lifecycleOwner)}
                     ) {
-                        startSavingFlow = true
+                        isbnToSearch = isbn
                     }
                 }
             }
         }
     }
 
-    LaunchedEffect(startSavingFlow) {
-        if (!startSavingFlow) return@LaunchedEffect
-        scanVm.code?.let { isbn ->
+    LaunchedEffect(isbnToSearch) {
+        isbnToSearch?.let { isbn ->
             importVm.getAndSaveBookFromIsbnFlow(
                 isbn = isbn,
                 onNetworkError = {
@@ -143,7 +142,6 @@ fun ScanIsbnPage(
                     )
                 }
             )
-            startSavingFlow = false
         }
     }
 
@@ -174,7 +172,7 @@ private fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         EmptyDestinationsNavigator,
         object: IScanIsbnVM {
-            override var code: String? = ""
+            override var scannedCode: String? = ""
             override fun getImageAnalysis(): ImageAnalysis {
                 return ImageAnalysis.Builder().build()
             }
@@ -185,6 +183,8 @@ private fun ScanIsbnPagePreview() {
 
         },
         object: IImportedBookVM {
+            override val snackbarHostState = SnackbarHostState()
+
             override fun getImportedBooksFromIsbn(
                 isbn: String,
                 failureCallback: (message: String) -> Unit,
@@ -208,6 +208,17 @@ private fun ScanIsbnPagePreview() {
                 onNoBookFound: () -> Unit,
                 onOneBookSaved: () -> Unit,
                 onMultipleBooksFound: (List<ImportedBookData>) -> Unit
+            ) {}
+
+            override fun checkIfImportedBooksAreAlreadyInLibrary(
+                list: List<ImportedBookData>,
+                onAllOk: () -> Unit,
+                onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
+            ) {}
+
+            override fun saveImportedBooksInDb(
+                importedBooks: List<ImportedBookData>,
+                callback: () -> Unit
             ) {}
         },
         EmptyResultRecipient()

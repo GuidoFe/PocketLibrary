@@ -58,7 +58,8 @@ fun DetailsTab(
             title = stringResource(R.string.isbn), 
             text = data?.identifier ?: "?",
             boxPadding = boxPadding,
-            gap = gap
+            gap = gap,
+            selectable = true
         )
         RowWithIcon(
             icon = {

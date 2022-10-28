@@ -25,6 +25,10 @@ interface BookBundleDao {
     suspend fun getBookBundlesWithSameIsbn(isbn: String): List<BookBundle>
 
     @Transaction
+    @Query("SELECT * FROM book WHERE identifier IN ( :isbnList )")
+    suspend fun getBookBundlesWithSameIsbns(isbnList: List<String>): List<BookBundle>
+
+    @Transaction
     @Query("SELECT * FROM book WHERE LOWER(title) = LOWER(:title)")
     suspend fun getBookBundlesWithSameTitle(title: String): List<BookBundle>
 
