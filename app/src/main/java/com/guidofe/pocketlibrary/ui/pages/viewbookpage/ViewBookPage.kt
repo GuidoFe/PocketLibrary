@@ -2,6 +2,7 @@
 
 package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -227,6 +228,7 @@ fun ViewBookPage (
                         FAB(
                             onClick = {
                                 vm.data?.bookId?.let {
+                                    Log.d("debug", "Navigating to EditPage with id $it")
                                     if (it > 0)
                                         navigator.navigate(EditBookPageDestination(it))
                                 }

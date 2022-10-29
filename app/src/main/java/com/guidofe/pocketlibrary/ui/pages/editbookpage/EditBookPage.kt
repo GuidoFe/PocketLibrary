@@ -31,6 +31,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
@@ -61,6 +62,10 @@ fun EditBookPage(
                               true
                            )
                         )
+                     } else {
+                        withContext(Dispatchers.Main) {
+                           navigator.navigateUp()
+                        }
                      }
                   }
                }

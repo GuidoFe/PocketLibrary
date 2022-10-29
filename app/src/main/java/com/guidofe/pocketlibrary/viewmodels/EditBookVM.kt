@@ -1,6 +1,9 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.repositories.LocalRepository
@@ -19,7 +22,7 @@ class EditBookVM @Inject constructor(
     //var formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
     //    private set
     private var currentBookId: Long = 0L
-    override var formData: FormData = FormData()
+    override var formData: FormData by mutableStateOf(FormData())
 
     override suspend fun initialiseFromDatabase(
         id: Long
