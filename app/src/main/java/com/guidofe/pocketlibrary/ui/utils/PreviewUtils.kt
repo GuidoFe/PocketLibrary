@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.ui.utils
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
 
@@ -14,9 +15,6 @@ class PreviewUtils() {
                 description = "A great story about hobbits",
                 publisher = "Penguin",
                 published = 1934,
-                isOwned = true,
-                isFavorite = false,
-                progress = Progress.READ,
                 coverURI = null,
                 identifier = "3245235423"
             ),
@@ -28,6 +26,15 @@ class PreviewUtils() {
             note = Note(1, "It's a very good book")
         )
 
+        val exampleLibraryBook = LibraryBook(
+            1L,
+            false,
+        )
+
+        val exampleLibraryBundle = LibraryBundle(
+            exampleLibraryBook,
+            exampleBookBundle
+        )
         val exampleImportedBook = ImportedBookData(
             externalId = "id-234r2",
             title = "Very Interesting Book",

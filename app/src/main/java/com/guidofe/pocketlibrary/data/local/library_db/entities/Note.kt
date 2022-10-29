@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity(foreignKeys = [ForeignKey(entity = Book::class,
+@Entity(foreignKeys = [ForeignKey(
+    entity = Book::class,
     parentColumns = arrayOf("bookId"),
     childColumns = arrayOf("bookId"),
     onDelete = ForeignKey.CASCADE)]

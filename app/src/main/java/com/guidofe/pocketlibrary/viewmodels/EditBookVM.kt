@@ -1,10 +1,9 @@
 package com.guidofe.pocketlibrary.viewmodels
 
-import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
+import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
@@ -13,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
-    private val repo: LibraryRepository,
+    private val repo: LocalRepository,
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
 ) : ViewModel(), IEditBookVM {

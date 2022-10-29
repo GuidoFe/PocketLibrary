@@ -148,7 +148,7 @@ fun LibraryPage(
     LazyColumn {
         items(
             items = lazyPagingItems,
-            key = {it.value.book.bookId}
+            key = {it.value.libraryInfo.bookId}
         ) { item ->
             if (item == null)
                 return@items
@@ -159,7 +159,7 @@ fun LibraryPage(
                         vm.selectionManager.multipleSelectToggle(item.value)
                     }
                     else
-                        navigator.navigate(ViewBookPageDestination(item.value.book.bookId))
+                        navigator.navigate(ViewBookPageDestination(item.value.libraryInfo.bookId))
                 },
                 onCoverLongPress = {
                     if (!isMultipleSelecting) {
@@ -189,7 +189,7 @@ fun LibraryPage(
                                 }
                             }
                             1 -> {
-                                importVm.saveImportedBookInDb(it[0]) { id ->
+                                importVm.saveImportedBookToLibrary(it[0]) { id ->
                                     navigator.navigate(ViewBookPageDestination(id))
                                 }
                             }
@@ -216,7 +216,7 @@ fun LibraryPage(
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBookInDb(navResult.value) {
+            importVm.saveImportedBookToLibrary(navResult.value) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,

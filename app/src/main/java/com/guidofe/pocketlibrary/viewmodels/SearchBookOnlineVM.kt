@@ -1,20 +1,15 @@
 package com.guidofe.pocketlibrary.viewmodels
 
-import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
-import com.guidofe.pocketlibrary.model.repositories.pagingsources.OnlineBooksPagingSource
+import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
@@ -26,7 +21,7 @@ import javax.inject.Inject
 class SearchBookOnlineVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState,
-    private val repo: LibraryRepository,
+    private val repo: LocalRepository,
     metaRepo: BookMetaRepository
 ): ViewModel(), ISearchBookOnlineVM {
     override val selectionManager = MultipleSelectionManager<String, ImportedBookData>(
@@ -53,7 +48,7 @@ class SearchBookOnlineVM @Inject constructor(
         callback: (Long) -> Unit,
     ) {
         viewModelScope.launch {
-            val id = importedBook.saveToDb(repo)
+            val id = importedBook.saveToDbAsBookBundle(repo)
             callback(id)
         }
     }
@@ -61,7 +56,7 @@ class SearchBookOnlineVM @Inject constructor(
     override fun saveSelectedBooks(callback: () -> Unit) {
         viewModelScope.launch {
             selectionManager.selectedItems.value.values.forEach {
-                it.saveToDb(repo)
+                it.saveToDbAsBookBundle(repo)
             }
             callback()
         }

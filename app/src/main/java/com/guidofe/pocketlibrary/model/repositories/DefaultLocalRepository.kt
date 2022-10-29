@@ -3,12 +3,13 @@ package com.guidofe.pocketlibrary.model.repositories
 import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.utils.getInitials
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): LibraryRepository {
+class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepository {
     override suspend fun insertBookBundle(bundle: BookBundle): Long {
         var bookId: Long = -1L
         withTransaction {
@@ -48,6 +49,10 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return bookId
     }
 
+    override suspend fun insertLibraryBook(libraryBook: LibraryBook) {
+        db.libraryBookDao().insert(libraryBook)
+    }
+
     override suspend fun deleteBooks(books: List<Book>) {
         db.bookDao().delete(books)
     }
@@ -69,12 +74,20 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         return db.bookBundleDao().getBookBundles()
     }
 
-    override suspend fun getBookBundles(pageSize: Int, pageNumber: Int): List<BookBundle> {
-        return db.bookBundleDao().getBookBundles(pageNumber * pageSize, pageSize)
+    override suspend fun getLibraryBundles(pageSize: Int, pageNumber: Int): List<LibraryBundle> {
+        return db.libraryBundleDao().getLibraryBundles(pageNumber * pageSize, pageSize)
     }
 
-    override suspend fun getBookBundlesWithSameIsbns(isbnList: List<String>): List<BookBundle> {
-        return db.bookBundleDao().getBookBundlesWithSameIsbns(isbnList)
+    override suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle> {
+        return db.libraryBundleDao().getLibraryBundlesWithSameIsbns(isbnList)
+    }
+
+    override suspend fun getBooksInLibraryWithSameIsbn(isbn: String): List<Book> {
+        return db.libraryBookDao().getBooksInLibraryWithSameIsbn(isbn)
+    }
+
+    override suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book> {
+        return db.libraryBookDao().getBooksInLibraryWithSameIsbns(isbns)
     }
 
     override suspend fun <R> withTransaction(block: suspend () -> R): R {
@@ -125,36 +138,15 @@ class DefaultLibraryRepository @Inject constructor(val db: AppDatabase): Library
         db.close()
     }
 
-    override suspend fun getBookBundlesWithSameTitle(
-        title: String, authors: List<String>?
-    ): List<BookBundle> {
-        val l = db.bookBundleDao().getBookBundlesWithSameTitle(title)
-        if (l.isEmpty() || authors.isNullOrEmpty()) {
-            return l
-        }
-        val similar = mutableListOf<BookBundle>()
-        val authorsInitials = authors.map{it.getInitials().joinToString()}.toSet()
-        l.forEach { bundle ->
-            if (
-                bundle.authors.map {
-                    it.name.getInitials().joinToString()
-                }.toSet() == authorsInitials
-            ) {
-                similar.add(bundle)
-            }
-        }
-        return similar
-    }
-
-    override suspend fun getBooksWithSameIsbn(isbn: String): List<BookBundle> {
+    override suspend fun getBookBundlesWithSameIsbn(isbn: String): List<BookBundle> {
         return db.bookBundleDao().getBookBundlesWithSameIsbn(isbn)
     }
 
     override suspend fun updateFavorite(bookId: Long, isFavorite: Boolean) {
-        db.bookDao().updateFavorite(bookId, isFavorite)
+        db.libraryBookDao().updateFavorite(bookId, isFavorite)
     }
 
     override suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean) {
-        db.bookDao().updateFavorite(bookIds, isFavorite)
+        db.libraryBookDao().updateFavorite(bookIds, isFavorite)
     }
 }

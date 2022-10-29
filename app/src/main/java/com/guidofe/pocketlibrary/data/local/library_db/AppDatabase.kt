@@ -10,13 +10,14 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 @Database(entities = [
     Author::class,
     Book::class,
+    LibraryBook::class,
     BookAuthor::class,
     BookGenre::class,
     Genre::class,
     Loan::class,
     Note::class,
     Wishlist::class
-], version = 5,
+], version = 6,
     exportSchema = true,
     autoMigrations = [])
 @TypeConverters(DateConverter::class, UriConverter::class)
@@ -25,10 +26,12 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun bookAuthorDao(): BookAuthorDao
     abstract fun bookBundleDao(): BookBundleDao
     abstract fun bookDao(): BookDao
+    abstract fun libraryBundleDao(): LibraryBundleDao
     abstract fun bookGenreDao(): BookGenreDao
     abstract fun genreDao(): GenreDao
     abstract fun noteDao(): NoteDao
     abstract fun wishlistDao(): WishlistDao
+    abstract fun libraryBookDao(): LibraryBookDao
 
     @DeleteColumn(tableName = "Book", columnName = "industry_identifier_type")
     class Migration3to4: AutoMigrationSpec

@@ -16,7 +16,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
@@ -95,7 +95,7 @@ fun ScanIsbnPage(
 
     LaunchedEffect(scanVm.scannedCode) {
         scanVm.scannedCode?.let { isbn ->
-            importVm.getLibraryBooksWithSameIsbn(isbn) { ownedList ->
+            importVm.getBooksInLibraryWithSameIsbn(isbn) { ownedList ->
                 if (ownedList.isEmpty()) {
                     isbnToSearch = isbn
                 } else {
@@ -147,7 +147,7 @@ fun ScanIsbnPage(
 
     resultRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBookInDb(navResult.value) {
+            importVm.saveImportedBookToLibrary(navResult.value) {
                 Snackbars.bookSavedSnackbar(scanVm.snackbarHostState, context, coroutine) {}
             }
         }
@@ -192,12 +192,7 @@ private fun ScanIsbnPagePreview() {
                 callback: (books: List<ImportedBookData>) -> Unit
             ) {}
 
-            override fun getLibraryBooksWithSameIsbn(
-                isbn: String,
-                callback: (List<BookBundle>) -> Unit
-            ) {}
-
-            override fun saveImportedBookInDb(
+            override fun saveImportedBookAsBookBundle(
                 importedBook: ImportedBookData,
                 callback: (Long) -> Unit
             ) {}
@@ -216,9 +211,24 @@ private fun ScanIsbnPagePreview() {
                 onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
             ) {}
 
-            override fun saveImportedBooksInDb(
+            override fun saveImportedBooksAsBookBundles(
                 importedBooks: List<ImportedBookData>,
                 callback: () -> Unit
+            ) {}
+
+            override fun getBooksInLibraryWithSameIsbn(
+                isbn: String,
+                callback: (List<Book>) -> Unit
+            ) {}
+
+            override fun saveImportedBooksToLibrary(
+                importedBooks: List<ImportedBookData>,
+                callback: () -> Unit
+            ) {}
+
+            override fun saveImportedBookToLibrary(
+                importedBook: ImportedBookData,
+                callback: (Long) -> Unit
             ) {}
         },
         EmptyResultRecipient()

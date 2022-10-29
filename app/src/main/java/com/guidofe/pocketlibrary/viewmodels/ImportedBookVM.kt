@@ -4,10 +4,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
+import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterial3Api::class)
 @HiltViewModel
 class ImportedBookVM @Inject constructor(
-    private val libraryRepo: LibraryRepository,
+    private val libraryRepo: LocalRepository,
     private val metaRepo: BookMetaRepository,
     override val snackbarHostState: SnackbarHostState
 ): ViewModel(), IImportedBookVM {
@@ -35,28 +35,47 @@ class ImportedBookVM @Inject constructor(
         }
     }
 
-    override fun getLibraryBooksWithSameIsbn(isbn: String, callback: (List<BookBundle>) -> Unit) {
+    override fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
         viewModelScope.launch {
-            val list = libraryRepo.getBooksWithSameIsbn(isbn)
+            val list = libraryRepo.getBooksInLibraryWithSameIsbn(isbn)
             callback(list)
         }
     }
 
-    override fun saveImportedBookInDb(importedBook: ImportedBookData, callback: (Long) -> Unit) {
+    override fun saveImportedBookAsBookBundle(importedBook: ImportedBookData, callback: (Long) -> Unit) {
         viewModelScope.launch {
-            val id = importedBook.saveToDb(libraryRepo)
+            val id = importedBook.saveToDbAsBookBundle(libraryRepo)
             callback(id)
         }
     }
 
-    override fun saveImportedBooksInDb(importedBooks: List<ImportedBookData>, callback: () -> Unit) {
+
+    override fun saveImportedBooksAsBookBundles(importedBooks: List<ImportedBookData>, callback: () -> Unit) {
         viewModelScope.launch {
             importedBooks.forEach {
-                it.saveToDb(libraryRepo)
+                it.saveToDbAsBookBundle(libraryRepo)
             }
             callback()
         }
     }
+
+    override fun saveImportedBookToLibrary(importedBook: ImportedBookData, callback: (Long) -> Unit) {
+        viewModelScope.launch {
+            val id = importedBook.saveToLibrary(libraryRepo)
+            callback(id)
+        }
+    }
+
+    override fun saveImportedBooksToLibrary(importedBooks: List<ImportedBookData>, callback: () -> Unit) {
+        viewModelScope.launch {
+            importedBooks.forEach {
+                it.saveToLibrary(libraryRepo)
+            }
+            callback()
+        }
+    }
+
+
     override fun getAndSaveBookFromIsbnFlow(
         isbn: String,
         onNetworkError: () -> Unit,
@@ -76,7 +95,7 @@ class ImportedBookVM @Inject constructor(
                     onNoBookFound()
                 }
                 1 -> {
-                    saveImportedBookInDb(importedList[0]) {
+                    saveImportedBookToLibrary(importedList[0]) {
                         onOneBookSaved()
                     }
                 }
@@ -93,10 +112,10 @@ class ImportedBookVM @Inject constructor(
         onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
     ) {
         viewModelScope.launch {
-            val conflictBooks = libraryRepo.getBookBundlesWithSameIsbns(
+            val conflictBooks = libraryRepo.getLibraryBundlesWithSameIsbns(
                 list.mapNotNull { it.identifier }
             )
-            val conflictIsbn = conflictBooks.map{it.book.identifier!!}
+            val conflictIsbn = conflictBooks.map{it.bookBundle.book.identifier!!}
             if (conflictIsbn.isEmpty()) {
                 onAllOk()
                 return@launch

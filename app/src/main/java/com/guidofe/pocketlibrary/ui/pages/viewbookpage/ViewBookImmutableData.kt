@@ -4,7 +4,6 @@ import android.net.Uri
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import retrofit2.http.Url
 
 data class ViewBookImmutableData(
     val bookId: Long,

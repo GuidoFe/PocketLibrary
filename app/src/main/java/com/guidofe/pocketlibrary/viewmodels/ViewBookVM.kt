@@ -1,13 +1,12 @@
 package com.guidofe.pocketlibrary.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
+import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ViewBookImmutableData
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
@@ -17,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewBookVM @Inject constructor(
-    val repo: LibraryRepository,
+    val repo: LocalRepository,
     override val scaffoldState: ScaffoldState
 ): ViewModel(), IViewBookVM {
     private var oldNote: Note? = null

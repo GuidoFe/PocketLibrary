@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.viewmodels.interfaces
 
 import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 
 interface IImportedBookVM {
@@ -13,9 +14,7 @@ interface IImportedBookVM {
         callback: (books: List<ImportedBookData>) -> Unit,
     )
 
-    fun getLibraryBooksWithSameIsbn(isbn: String, callback: (List<BookBundle>) -> Unit)
-
-    fun saveImportedBookInDb(importedBook: ImportedBookData, callback: (Long) -> Unit = {})
+    fun saveImportedBookAsBookBundle(importedBook: ImportedBookData, callback: (Long) -> Unit = {})
     fun getAndSaveBookFromIsbnFlow(
         isbn: String,
         onNetworkError: () -> Unit,
@@ -30,5 +29,8 @@ interface IImportedBookVM {
         onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
     )
 
-    fun saveImportedBooksInDb(importedBooks: List<ImportedBookData>, callback: () -> Unit)
+    fun saveImportedBooksAsBookBundles(importedBooks: List<ImportedBookData>, callback: () -> Unit)
+    fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
+    fun saveImportedBooksToLibrary(importedBooks: List<ImportedBookData>, callback: () -> Unit)
+    fun saveImportedBookToLibrary(importedBook: ImportedBookData, callback: (Long) -> Unit)
 }

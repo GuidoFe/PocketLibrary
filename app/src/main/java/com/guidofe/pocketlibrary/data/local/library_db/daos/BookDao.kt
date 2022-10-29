@@ -30,10 +30,4 @@ interface BookDao {
     @Query("SELECT * FROM Author WHERE authorId IN (SELECT authorId FROM bookAuthor WHERE bookId = :bookId)")
     suspend fun getBookAuthors(bookId: Long): List<Author>
 
-    @Query("UPDATE book SET isFavorite = :isFavorite WHERE bookId = :bookId")
-    suspend fun updateFavorite(bookId: Long, isFavorite: Boolean)
-
-    @Query("UPDATE book SET isFavorite = :isFavorite WHERE bookId IN (:bookIds)")
-    suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean)
-
 }

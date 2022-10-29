@@ -9,8 +9,8 @@ import coil.memory.MemoryCache
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
 import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.model.repositories.DefaultBookMetaRepository
-import com.guidofe.pocketlibrary.model.repositories.DefaultLibraryRepository
-import com.guidofe.pocketlibrary.model.repositories.LibraryRepository
+import com.guidofe.pocketlibrary.model.repositories.DefaultLocalRepository
+import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module
@@ -122,7 +122,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesLibraryRepository(db: AppDatabase): LibraryRepository = DefaultLibraryRepository(db)
+    fun providesLibraryRepository(db: AppDatabase): LocalRepository = DefaultLocalRepository(db)
 
     @Singleton
     @Provides

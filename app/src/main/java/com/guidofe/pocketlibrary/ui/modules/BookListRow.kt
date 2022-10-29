@@ -1,13 +1,9 @@
 package com.guidofe.pocketlibrary.ui.modules
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -20,12 +16,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,28 +32,31 @@ import androidx.compose.ui.unit.em
 import coil.compose.AsyncImage
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
 
 @Composable
 fun LibraryListRow(
-    item: SelectableListItem<BookBundle>,
+    item: SelectableListItem<LibraryBundle>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
     onRowLongPress: (Offset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {}
 ) {
+    val bundle = item.value.bookBundle
     GenericListRow(
-        item.value.book.title,
-        item.value.authors.joinToString(", ") { it.name },
+        bundle.book.title,
+        bundle.authors.joinToString(", ") { it.name },
         modifier,
-        item.value.book.subtitle,
-        item.value.book.coverURI,
-        item.value.loan,
-        item.value.book.isFavorite,
+        bundle.book.subtitle,
+        bundle.book.coverURI,
+        bundle.loan,
+        item.value.libraryInfo.isFavorite,
         item.isSelected,
         onRowTap,
         onRowLongPress,
@@ -296,7 +293,6 @@ var book = Book(
     published = 1990,
     identifier = "9780441172719",
     language = "en",
-    isFavorite = true
 )
 var authors = listOf(Author(1L, "Frank Herbert"), Author(2L, "Princess Irulan"))
 val genres: List<Genre> = listOf(Genre(1L, "Fantasy"), Genre(2L, "Sci-fi"))
@@ -308,8 +304,7 @@ private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
         LibraryListRow(
             item = SelectableListItem(
-                BookBundle(book, authors, genres, note, Loan(1, LoanType.BORROWED, "", Date(0L))),
-                true
+                PreviewUtils.exampleLibraryBundle
             )
         )
     }

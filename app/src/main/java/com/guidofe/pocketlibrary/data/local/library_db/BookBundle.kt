@@ -32,8 +32,4 @@ data class BookBundle (
         entityColumn = "bookId",
     )
     val loan: Loan? = null
-): Parcelable {
-    companion object {
-        val EMPTY = BookBundle(book = Book(-1, ""))
-    }
-}
+): Parcelable

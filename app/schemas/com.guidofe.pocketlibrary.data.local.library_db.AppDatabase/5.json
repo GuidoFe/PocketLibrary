@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "96a2b9203730bf69a81e6176a6d35c74",
+    "identityHash": "b026f3ab49037db2f5bc59a52d28e2e8",
     "entities": [
       {
         "tableName": "Author",
@@ -42,7 +42,7 @@
       },
       {
         "tableName": "Book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `subtitle` TEXT, `description` TEXT, `publisher` TEXT, `published` INTEGER, `isOwned` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL, `progress` TEXT NOT NULL, `coverURI` TEXT, `identifier` TEXT, `media` TEXT NOT NULL, `language` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `subtitle` TEXT, `description` TEXT, `publisher` TEXT, `published` INTEGER, `coverURI` TEXT, `identifier` TEXT, `media` TEXT NOT NULL, `language` TEXT)",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -81,24 +81,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "isOwned",
-            "columnName": "isOwned",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isFavorite",
-            "columnName": "isFavorite",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "progress",
-            "columnName": "progress",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
             "fieldPath": "coverURI",
             "columnName": "coverURI",
             "affinity": "TEXT",
@@ -131,6 +113,50 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "library_book",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL, `progress` TEXT NOT NULL, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookId`) REFERENCES `Book`(`bookId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "bookId",
+            "columnName": "bookId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isFavorite",
+            "columnName": "isFavorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "bookId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "Book",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bookId"
+            ],
+            "referencedColumns": [
+              "bookId"
+            ]
+          }
+        ]
       },
       {
         "tableName": "BookAuthor",
@@ -430,7 +456,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '96a2b9203730bf69a81e6176a6d35c74')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b026f3ab49037db2f5bc59a52d28e2e8')"
     ]
   }
 }

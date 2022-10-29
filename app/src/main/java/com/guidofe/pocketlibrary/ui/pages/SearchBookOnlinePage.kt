@@ -14,19 +14,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.librarypage.PreviewBookDialog
-import com.guidofe.pocketlibrary.ui.pages.navtype.importedBookDataArrayNavType
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -70,17 +67,18 @@ fun SearchBookOnlinePage(
                             importedVm.checkIfImportedBooksAreAlreadyInLibrary(
                                 selectedItems,
                                 onAllOk = {
-                                    importedVm.saveImportedBooksInDb(selectedItems) {
+                                    importedVm.saveImportedBooksToLibrary(selectedItems) {
                                         Snackbars.bookSavedSnackbar(
                                             vm.snackbarHostState,
                                             context,
-                                            coroutineScope
+                                            coroutineScope,
+                                            areMultipleBooks = true
                                         ) {}
                                         vm.selectionManager.clearSelection()
                                     }
                                 },
                                 onConflict = { ok, duplicate ->
-                                    importedVm.saveImportedBooksInDb(ok) {}
+                                    importedVm.saveImportedBooksToLibrary(ok) {}
                                     duplicate.forEach {
                                         Snackbars.bookAlreadyPresentSnackbarWithTitle(
                                             vm.snackbarHostState,
@@ -89,7 +87,7 @@ fun SearchBookOnlinePage(
                                             it.title,
                                             onDismiss = {}
                                         ) {
-                                            importedVm.saveImportedBookInDb(it) {}
+                                            importedVm.saveImportedBookToLibrary(it) {}
                                         }
                                     }
                                     vm.selectionManager.clearSelection()

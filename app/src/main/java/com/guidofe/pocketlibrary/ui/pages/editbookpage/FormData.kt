@@ -2,13 +2,10 @@ package com.guidofe.pocketlibrary.ui.pages.editbookpage
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Progress
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 
 class FormData(){
