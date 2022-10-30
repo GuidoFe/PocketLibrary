@@ -61,10 +61,6 @@ class LibraryVM @Inject constructor(
         }
     }
 
-    override fun clearSelection() {
-        selectionManager.clearSelection()
-    }
-
     override fun deleteSelectedBookAndRefresh() {
         viewModelScope.launch {
             selectedBook?.let{

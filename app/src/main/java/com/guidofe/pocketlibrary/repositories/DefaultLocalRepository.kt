@@ -6,7 +6,6 @@ import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepository {
@@ -95,6 +94,11 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
     override suspend fun moveBookFromWishlistToLibrary(bookId: Long) {
         db.wishlistBookDao().delete(bookId)
         db.libraryBookDao().insert(LibraryBook(bookId))
+    }
+
+    override suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>) {
+        db.wishlistBookDao().deleteAll(bookIds)
+        db.libraryBookDao().insertAll(bookIds.map{LibraryBook(it)})
     }
 
     override suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book> {

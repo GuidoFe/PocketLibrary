@@ -115,5 +115,23 @@ class Snackbars {
                 }
             }
         }
+
+        fun bookMovedToLibrary(
+            hostState: SnackbarHostState,
+            context: Context,
+            scope: CoroutineScope,
+            areMultipleBooks: Boolean = false,
+        ) {
+            scope.launch {
+                hostState.showSnackbar(
+                    CustomSnackbarVisuals(
+                        message = if (areMultipleBooks)
+                            context.getString(R.string.books_moved_to_library)
+                        else
+                            context.getString(R.string.book_moved_to_library)
+                    )
+                )
+            }
+        }
     }
 }

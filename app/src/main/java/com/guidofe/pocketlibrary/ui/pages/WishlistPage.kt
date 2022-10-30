@@ -65,13 +65,29 @@ fun WishlistPage(
                 actions = {
                     IconButton(
                         onClick = {
+                            vm.moveSelectedBooksToLibraryAndRefresh() {
+                                Snackbars.bookMovedToLibrary(
+                                    vm.snackbarHostState,
+                                    context,
+                                    scope,
+                                    vm.selectionManager.count > 1
+                                )
+                            }
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.place_item_24px),
+                            stringResource(R.string.add_to_library)
+                        )
+                    }
+                    IconButton(
+                        onClick = {
                             showConfirmDeleteBook = true
                         }
                     ) {
                         Icon(
                             painterResource(R.drawable.delete_24px),
                             stringResource(R.string.delete)
-                        //TODO Ask For Confirm
                         )
                     }
                 }
@@ -165,7 +181,16 @@ fun WishlistPage(
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.add_to_library)) },
-                        onClick = {vm.moveBookToLibraryAndRefresh(item.value.wishlist.bookId)}
+                        onClick = {
+                            vm.moveBookToLibraryAndRefresh(item.value.wishlist.bookId) {
+                                Snackbars.bookMovedToLibrary(
+                                    vm.snackbarHostState,
+                                    context,
+                                    scope,
+                                    false
+                                )
+                            }
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.edit_details)) },
@@ -239,7 +264,7 @@ fun WishlistPage(
                 if (isMultipleSelecting)
                     vm.selectionManager.clearSelection()
             },
-            isPlural = isMultipleSelecting && vm.selectionManager.selectedKeys.size > 1
+            isPlural = isMultipleSelecting && vm.selectionManager.count > 1
         ) {
             if(isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()

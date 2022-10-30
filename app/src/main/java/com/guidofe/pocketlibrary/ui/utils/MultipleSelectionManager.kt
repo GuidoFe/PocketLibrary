@@ -42,4 +42,10 @@ class MultipleSelectionManager<K, V>(
         _selectedItems.value = mapOf()
     }
 
+    val count: Int
+        get() =
+            if (_isMultipleSelecting.value)
+                _selectedItems.value.size
+            else
+                0
 }

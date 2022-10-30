@@ -1,7 +1,6 @@
 package com.guidofe.pocketlibrary.data.local.library_db.daos
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
@@ -23,4 +22,7 @@ interface WishlistBookDao {
 
     @Query("DELETE FROM wishlist_book WHERE bookId = :bookId")
     suspend fun delete(bookId: Long)
+
+    @Query("DELETE FROM wishlist_book WHERE bookId IN ( :bookIds )")
+    suspend fun deleteAll(bookIds: List<Long>)
 }

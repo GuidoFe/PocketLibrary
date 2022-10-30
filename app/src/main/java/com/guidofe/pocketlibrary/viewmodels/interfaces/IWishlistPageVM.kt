@@ -13,12 +13,12 @@ interface IWishlistPageVM {
     val scaffoldState: ScaffoldState
     val snackbarHostState: SnackbarHostState
     val selectionManager: MultipleSelectionManager<Long, WishlistBundle>
-    fun clearSelection()
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<WishlistBundle>>>
     fun invalidate()
     fun deleteSelectedBookAndRefresh()
     fun deleteSelectedBooksAndRefresh()
-    fun moveBookToLibraryAndRefresh(bookId: Long)
+    fun moveBookToLibraryAndRefresh(bookId: Long, callback: () -> Unit)
     var selectedBook: Book?
+    fun moveSelectedBooksToLibraryAndRefresh(callback: () -> Unit)
 }

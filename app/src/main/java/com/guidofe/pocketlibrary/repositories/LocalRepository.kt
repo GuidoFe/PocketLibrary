@@ -45,4 +45,5 @@ interface LocalRepository {
     suspend fun insertWishlistBook(wishlistBook: WishlistBook)
     suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book>
     suspend fun moveBookFromWishlistToLibrary(bookId: Long)
+    suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>)
 }

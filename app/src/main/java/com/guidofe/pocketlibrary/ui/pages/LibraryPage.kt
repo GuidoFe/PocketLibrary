@@ -251,7 +251,7 @@ fun LibraryPage(
                 if (isMultipleSelecting)
                     vm.selectionManager.clearSelection()
             },
-            isPlural = isMultipleSelecting && vm.selectionManager.selectedKeys.size > 1
+            isPlural = isMultipleSelecting && vm.selectionManager.count > 1
         ) {
             if(isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()

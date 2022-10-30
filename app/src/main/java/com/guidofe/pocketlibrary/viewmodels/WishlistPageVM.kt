@@ -61,10 +61,6 @@ class WishlistPageVM @Inject constructor(
         }
     }
 
-    override fun clearSelection() {
-        selectionManager.clearSelection()
-    }
-
     override fun deleteSelectedBookAndRefresh() {
         viewModelScope.launch {
             selectedBook?.let {
@@ -74,10 +70,20 @@ class WishlistPageVM @Inject constructor(
         }
     }
 
-    override fun moveBookToLibraryAndRefresh(bookId: Long) {
+    override fun moveBookToLibraryAndRefresh(bookId: Long, callback: () -> Unit) {
         viewModelScope.launch {
             repo.moveBookFromWishlistToLibrary(bookId)
             currentPagingSource?.invalidate()
+            callback()
+        }
+    }
+
+    override fun moveSelectedBooksToLibraryAndRefresh(callback: () -> Unit) {
+        viewModelScope.launch {
+            repo.moveBooksFromWishlistToLibrary(selectionManager.selectedKeys)
+            currentPagingSource?.invalidate()
+            selectionManager.clearSelection()
+            callback()
         }
     }
 }
