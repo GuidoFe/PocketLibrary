@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.model.repositories.pagingsources.OnlineBooksPagingSource
+import com.guidofe.pocketlibrary.repositories.BookMetaRepository
+import com.guidofe.pocketlibrary.repositories.pagingsources.OnlineBooksPagingSource
 import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM

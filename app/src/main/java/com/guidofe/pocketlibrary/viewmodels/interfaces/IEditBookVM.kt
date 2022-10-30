@@ -13,5 +13,5 @@ interface IEditBookVM {
 
     suspend fun initialiseFromDatabase(id: Long)
 
-    suspend fun submitBook(destination: BookDestination): Long
+    suspend fun submitBook(newBookDestination: BookDestination?): Long
 }

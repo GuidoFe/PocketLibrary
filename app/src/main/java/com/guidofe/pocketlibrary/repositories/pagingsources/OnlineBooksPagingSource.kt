@@ -1,12 +1,11 @@
-package com.guidofe.pocketlibrary.model.repositories.pagingsources
+package com.guidofe.pocketlibrary.repositories.pagingsources
 
 import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 
 class OnlineBooksPagingSource(
     val queryData: QueryData?,

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.model.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ViewBookImmutableData
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM

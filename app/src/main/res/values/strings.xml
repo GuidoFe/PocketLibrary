@@ -90,5 +90,9 @@
     <string name="book_alredy_present_message_with_title">The ISBN of "%s" is already present</string>
     <string name="book_saved">Book saved</string>
     <string name="wishlist">Wishlist</string>
+    <string name="remove_from_wishlist">Remove from wishlist</string>
+    <string name="confirm">Confirm</string>
+    <string name="confirm_delete_books">Do you really want to delete these books?</string>
+    <string name="confirm_delete_book">Do you really want to delete this book?</string>
 
 </resources>

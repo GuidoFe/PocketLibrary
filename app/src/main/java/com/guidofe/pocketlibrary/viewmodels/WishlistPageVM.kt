@@ -4,12 +4,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
-import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
-import com.guidofe.pocketlibrary.model.repositories.LocalRepository
-import com.guidofe.pocketlibrary.model.repositories.pagingsources.LibraryPagingSource
-import com.guidofe.pocketlibrary.model.repositories.pagingsources.WishlistPagingSource
+import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.pagingsources.WishlistPagingSource
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
@@ -27,6 +25,7 @@ class WishlistPageVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
 ): ViewModel(), IWishlistPageVM {
+    override var selectedBook: Book? = null
     override var duplicateIsbn: String = ""
     override val selectionManager = MultipleSelectionManager<Long, WishlistBundle>(
         getKey = {it.wishlist.bookId}
@@ -53,7 +52,7 @@ class WishlistPageVM @Inject constructor(
         currentPagingSource?.invalidate()
     }
 
-    override fun deleteSelectedBooks() {
+    override fun deleteSelectedBooksAndRefresh() {
 
         viewModelScope.launch {
             repo.deleteBooksByIds(selectionManager.selectedKeys)
@@ -66,9 +65,18 @@ class WishlistPageVM @Inject constructor(
         selectionManager.clearSelection()
     }
 
-    override fun deleteBook(book: Book) {
+    override fun deleteSelectedBookAndRefresh() {
         viewModelScope.launch {
-            repo.deleteBook(book)
+            selectedBook?.let {
+                repo.deleteBook(it)
+                currentPagingSource?.invalidate()
+            }
+        }
+    }
+
+    override fun moveBookToLibraryAndRefresh(bookId: Long) {
+        viewModelScope.launch {
+            repo.moveBookFromWishlistToLibrary(bookId)
             currentPagingSource?.invalidate()
         }
     }

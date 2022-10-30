@@ -42,7 +42,7 @@ val horizontalSpace = 5.dp
 fun EditBookPage(
    bookId: Long? = null,
    isbn: String? = null,
-   destination: BookDestination = BookDestination.LIBRARY,
+   newBookDestination: BookDestination? = null,
    navigator: DestinationsNavigator,
    viewModel: IEditBookVM = hiltViewModel<EditBookVM>()
 ) {
@@ -56,7 +56,7 @@ fun EditBookPage(
             IconButton(
                onClick = {
                   coroutineScope.launch(Dispatchers.IO) {
-                     val id = viewModel.submitBook(destination)
+                     val id = viewModel.submitBook(newBookDestination)
                      if (id <= 0L) {
                         viewModel.snackbarHostState.showSnackbar(
                            CustomSnackbarVisuals(
@@ -209,7 +209,7 @@ private object VMPreview: IEditBookVM {
    override suspend fun initialiseFromDatabase(id: Long) {
    }
 
-   override suspend fun submitBook(destination: BookDestination): Long {return 1L}
+   override suspend fun submitBook(newBookDestination: BookDestination?): Long {return 1L}
 }
 
 @Composable

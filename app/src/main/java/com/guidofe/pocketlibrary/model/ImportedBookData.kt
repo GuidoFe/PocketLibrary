@@ -3,7 +3,7 @@ package com.guidofe.pocketlibrary.model
 import android.net.Uri
 import android.os.Parcelable
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.model.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.utils.BookDestination
 import kotlinx.parcelize.Parcelize
 

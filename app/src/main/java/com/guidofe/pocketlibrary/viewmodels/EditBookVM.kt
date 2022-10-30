@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.model.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
 import com.guidofe.pocketlibrary.utils.BookDestination
@@ -33,7 +33,7 @@ class EditBookVM @Inject constructor(
         formData = if (bundle != null) FormData(bundle) else FormData()
     }
 
-    override suspend fun submitBook(destination: BookDestination): Long {
+    override suspend fun submitBook(newBookDestination: BookDestination?): Long {
         //TODO: Check for validity
         repo.withTransaction {
             val book = Book(
@@ -51,9 +51,10 @@ class EditBookVM @Inject constructor(
             if (book.bookId == 0L) {
                 currentBookId = repo.insertBook(book)
                 //TODO check for insert error
-                when (destination) {
+                when (newBookDestination) {
                     BookDestination.LIBRARY -> repo.insertLibraryBook(LibraryBook(currentBookId))
                     BookDestination.WISHLIST -> repo.insertWishlistBook(WishlistBook(currentBookId))
+                    else -> {}
                 }
             } else {
                 repo.updateBook(book)

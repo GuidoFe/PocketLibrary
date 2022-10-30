@@ -166,7 +166,9 @@ fun ScanIsbnPage(
                 scanVm.restartAnalysis(lifecycleOwner)
             },
             onAddManually = {
-                navigator.navigate(EditBookPageDestination())
+                navigator.navigate(EditBookPageDestination(
+                    newBookDestination = destination
+                ))
             }
         )
     }

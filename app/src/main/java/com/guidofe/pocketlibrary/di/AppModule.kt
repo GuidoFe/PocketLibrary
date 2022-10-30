@@ -7,10 +7,10 @@ import coil.ImageLoader
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
-import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.model.repositories.DefaultBookMetaRepository
-import com.guidofe.pocketlibrary.model.repositories.DefaultLocalRepository
-import com.guidofe.pocketlibrary.model.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.BookMetaRepository
+import com.guidofe.pocketlibrary.repositories.DefaultBookMetaRepository
+import com.guidofe.pocketlibrary.repositories.DefaultLocalRepository
+import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module

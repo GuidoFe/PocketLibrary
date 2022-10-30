@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.model.repositories
+package com.guidofe.pocketlibrary.repositories
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
@@ -8,10 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
     suspend fun <R: Any?> withTransaction(block: suspend () -> R): R
-
+    fun close()
     suspend fun insertBookBundle(bundle: BookBundle): Long
     suspend fun getBookBundle(bookId: Long): BookBundle?
-    suspend fun getBookBundles(): Flow<List<BookBundle>>
 
     suspend fun getLibraryBundles(pageSize: Int, pageNumber: Int): List<LibraryBundle>
     suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle>
@@ -32,7 +31,6 @@ interface LocalRepository {
 
     suspend fun insertAllBookGenres(bookGenres: List<BookGenre>)
 
-    fun close()
     suspend fun deleteBook(book: Book)
     suspend fun deleteBooks(books: List<Book>)
 
@@ -46,4 +44,5 @@ interface LocalRepository {
     suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle>
     suspend fun insertWishlistBook(wishlistBook: WishlistBook)
     suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book>
+    suspend fun moveBookFromWishlistToLibrary(bookId: Long)
 }

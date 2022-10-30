@@ -27,7 +27,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
     val navController = rememberNavController()
     val scaffoldState = viewModel.scaffoldState
-    val refreshFabBlacklist = listOf("library_page")
+    val refreshFabBlacklist = listOf("library_page", "wishlist_page")
     LaunchedEffect(key1 = true) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if(!refreshFabBlacklist.contains(destination.route))

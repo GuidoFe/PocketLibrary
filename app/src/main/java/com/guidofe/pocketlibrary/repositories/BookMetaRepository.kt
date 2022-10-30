@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.model.repositories
+package com.guidofe.pocketlibrary.repositories
 
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData

@@ -1,10 +1,9 @@
 package com.guidofe.pocketlibrary.ui.pages.librarypage
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,6 +26,8 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 
+//TODO: Undo delete action
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
@@ -44,6 +45,7 @@ fun LibraryPage(
     var isFavoriteButtonFilled by remember{mutableStateOf(false)}
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
+    var showConfirmDeleteBook by remember{mutableStateOf(false)}
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             isFavoriteButtonFilled = false
@@ -64,19 +66,18 @@ fun LibraryPage(
                 actions = {
                     IconButton(
                         onClick = {
-                            vm.deleteSelectedBooks()
+                            showConfirmDeleteBook = true
                         }
                     ) {
                         Icon(
                             painterResource(R.drawable.delete_24px),
                             stringResource(R.string.delete)
-                        //TODO Ask For Confirm
                         )
                     }
                     IconButton(
                         onClick = {
                             isFavoriteButtonFilled = !isFavoriteButtonFilled
-                            vm.setFavorite(
+                            vm.setFavoriteAndRefresh(
                                 vm.selectionManager.selectedKeys,
                                 isFavoriteButtonFilled
                             )
@@ -111,7 +112,9 @@ fun LibraryPage(
                 },
                 onNoBookFound = {
                     Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
-                        navigator.navigate(EditBookPageDestination())
+                        navigator.navigate(
+                            EditBookPageDestination(newBookDestination = BookDestination.LIBRARY)
+                        )
                     }
                 },
                 onOneBookSaved = {
@@ -136,7 +139,9 @@ fun LibraryPage(
                     isbnToSearch = it
                 },
                 onInsertManually = {
-                    navigator.navigate(EditBookPageDestination())
+                    navigator.navigate(
+                        EditBookPageDestination(newBookDestination = BookDestination.LIBRARY)
+                    )
                 },
                 onScanIsbn = {
                     navigator.navigate(ScanIsbnPageDestination())
@@ -154,21 +159,43 @@ fun LibraryPage(
         ) { item ->
             if (item == null)
                 return@items
-            LibraryListRow(
-                item,
-                onRowTap = {
-                    if (isMultipleSelecting) {
-                        vm.selectionManager.multipleSelectToggle(item.value)
-                    }
-                    else
-                        navigator.navigate(ViewBookPageDestination(item.value.libraryInfo.bookId))
-                },
-                onCoverLongPress = {
-                    if (!isMultipleSelecting) {
-                        vm.selectionManager.startMultipleSelection(item.value)
-                    }
-                },
-            )
+            Box {
+                var itemDropdownOpen by remember { mutableStateOf(false) }
+                LibraryListRow(
+                    item,
+                    onRowTap = {
+                        if (isMultipleSelecting) {
+                            vm.selectionManager.multipleSelectToggle(item.value)
+                        } else
+                            navigator.navigate(ViewBookPageDestination(item.value.libraryInfo.bookId))
+                    },
+                    onCoverLongPress = {
+                        if (!isMultipleSelecting) {
+                            vm.selectionManager.startMultipleSelection(item.value)
+                        }
+                    },
+                    onRowLongPress = {itemDropdownOpen = true}
+                )
+                DropdownMenu(
+                    expanded = itemDropdownOpen,
+                    onDismissRequest = { itemDropdownOpen = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.edit_details)) },
+                        onClick = {
+                            navigator.navigate(EditBookPageDestination(item.value.libraryInfo.bookId))
+                        }
+                    )
+                    //TODO allow for undo
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.delete)) },
+                        onClick = {
+                            vm.selectedBook = item.value.bookBundle.book
+                            showConfirmDeleteBook = true
+                        }
+                    )
+                }
+            }
         }
     }
     if (showDoubleIsbnDialog) {
@@ -215,6 +242,23 @@ fun LibraryPage(
                 )
             },
             onCancel = {showDoubleIsbnDialog = false})
+    }
+
+    if(showConfirmDeleteBook) {
+        ConfirmDeleteBookDialog(
+            onDismiss = {
+                showConfirmDeleteBook = false
+                if (isMultipleSelecting)
+                    vm.selectionManager.clearSelection()
+            },
+            isPlural = isMultipleSelecting && vm.selectionManager.selectedKeys.size > 1
+        ) {
+            if(isMultipleSelecting)
+                vm.deleteSelectedBooksAndRefresh()
+            else
+                vm.deleteSelectedBookAndRefresh()
+            showConfirmDeleteBook = false
+        }
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {

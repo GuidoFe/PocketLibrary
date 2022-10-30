@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +26,8 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 
+//TODO: Undo delete action
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
@@ -41,6 +44,8 @@ fun WishlistPage(
     val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
+    var showConfirmDeleteBook by remember{mutableStateOf(false)}
+
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
@@ -60,7 +65,7 @@ fun WishlistPage(
                 actions = {
                     IconButton(
                         onClick = {
-                            vm.deleteSelectedBooks()
+                            showConfirmDeleteBook = true
                         }
                     ) {
                         Icon(
@@ -87,7 +92,9 @@ fun WishlistPage(
                 },
                 onNoBookFound = {
                     Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
-                        navigator.navigate(EditBookPageDestination(destination = BookDestination.WISHLIST))
+                        navigator.navigate(
+                            EditBookPageDestination(newBookDestination = BookDestination.WISHLIST)
+                        )
                     }
                 },
                 onOneBookSaved = {
@@ -112,7 +119,9 @@ fun WishlistPage(
                     isbnToSearch = it
                 },
                 onInsertManually = {
-                    navigator.navigate(EditBookPageDestination(destination = BookDestination.WISHLIST))
+                    navigator.navigate(
+                        EditBookPageDestination(newBookDestination = BookDestination.WISHLIST)
+                    )
                 },
                 onScanIsbn = {
                     navigator.navigate(ScanIsbnPageDestination(BookDestination.WISHLIST))
@@ -130,32 +139,52 @@ fun WishlistPage(
         ) { item ->
             if (item == null)
                 return@items
-            var openDropdown by remember{ mutableStateOf(false) }
-            WishlistRow(
-                item,
-                onRowTap = {
-                    if (isMultipleSelecting) {
-                        vm.selectionManager.multipleSelectToggle(item.value)
-                    }
-                },
-                onCoverLongPress = {
-                    if (!isMultipleSelecting) {
-                        vm.selectionManager.startMultipleSelection(item.value)
-                    }
-                },
-                onRowLongPress = {
-                    if (isMultipleSelecting) return@WishlistRow
+            Box {
+                var itemDropdownOpen by remember { mutableStateOf(false) }
+                WishlistRow(
+                    item,
+                    onRowTap = {
+                        if (isMultipleSelecting) {
+                            vm.selectionManager.multipleSelectToggle(item.value)
+                        }
+                    },
+                    onCoverLongPress = {
+                        if (!isMultipleSelecting) {
+                            vm.selectionManager.startMultipleSelection(item.value)
+                        }
+                    },
+                    onRowLongPress = {
+                        if (isMultipleSelecting) return@WishlistRow
+                        itemDropdownOpen = true
 
+                    }
+                )
+                DropdownMenu(
+                    expanded = itemDropdownOpen,
+                    onDismissRequest = { itemDropdownOpen = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.add_to_library)) },
+                        onClick = {vm.moveBookToLibraryAndRefresh(item.value.wishlist.bookId)}
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.edit_details)) },
+                        onClick = {
+                            navigator.navigate(EditBookPageDestination(item.value.wishlist.bookId))
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.remove_from_wishlist)) },
+                        onClick = {
+                            vm.selectedBook = item.value.bookBundle.book
+                            showConfirmDeleteBook = true
+                        }
+                    )
                 }
-            )
-            DropdownMenu(
-                expanded = openDropdown,
-                onDismissRequest = { openDropdown = false }
-            ) {
-                DropdownMenuItem(text = { Text(item.value.bookBundle.book.title) }, onClick = {})
             }
 
         }
+        //TODO manage what happens when added library book is in wishlist
     }
     if (showDoubleIsbnDialog) {
         DuplicateIsbnDialog(
@@ -202,6 +231,24 @@ fun WishlistPage(
             },
             onCancel = {showDoubleIsbnDialog = false})
     }
+
+    if(showConfirmDeleteBook) {
+        ConfirmDeleteBookDialog(
+            onDismiss = {
+                showConfirmDeleteBook = false
+                if (isMultipleSelecting)
+                    vm.selectionManager.clearSelection()
+            },
+            isPlural = isMultipleSelecting && vm.selectionManager.selectedKeys.size > 1
+        ) {
+            if(isMultipleSelecting)
+                vm.deleteSelectedBooksAndRefresh()
+            else
+                vm.deleteSelectedBookAndRefresh()
+            showConfirmDeleteBook = false
+        }
+    }
+
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
             importVm.saveImportedBook(navResult.value, BookDestination.WISHLIST) {
