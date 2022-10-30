@@ -18,6 +18,7 @@ import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.librarypage.PreviewBookDialog
+import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -29,6 +30,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 @Destination(route = "search_book_online")
 fun SearchBookOnlinePage(
+    destination: BookDestination,
     navigator: DestinationsNavigator,
     vm: ISearchBookOnlineVM = hiltViewModel<SearchBookOnlineVM>(),
     importedVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
@@ -67,7 +69,7 @@ fun SearchBookOnlinePage(
                             importedVm.checkIfImportedBooksAreAlreadyInLibrary(
                                 selectedItems,
                                 onAllOk = {
-                                    importedVm.saveImportedBooksToLibrary(selectedItems) {
+                                    importedVm.saveImportedBooks(selectedItems, destination) {
                                         Snackbars.bookSavedSnackbar(
                                             vm.snackbarHostState,
                                             context,
@@ -78,7 +80,7 @@ fun SearchBookOnlinePage(
                                     }
                                 },
                                 onConflict = { ok, duplicate ->
-                                    importedVm.saveImportedBooksToLibrary(ok) {}
+                                    importedVm.saveImportedBooks(ok, destination) {}
                                     duplicate.forEach {
                                         Snackbars.bookAlreadyPresentSnackbarWithTitle(
                                             vm.snackbarHostState,
@@ -87,7 +89,7 @@ fun SearchBookOnlinePage(
                                             it.title,
                                             onDismiss = {}
                                         ) {
-                                            importedVm.saveImportedBookToLibrary(it) {}
+                                            importedVm.saveImportedBook(it, destination) {}
                                         }
                                     }
                                     vm.selectionManager.clearSelection()
@@ -153,8 +155,11 @@ fun SearchBookOnlinePage(
             bookData = selectedBook,
             onSaveButtonClicked = {
                 selectedBook?.let { importedBook ->
-                    vm.saveBook(importedBook) {
-                        navigator.navigate(ViewBookPageDestination(bookId = it))
+                    vm.saveBook(importedBook, destination) {
+                        if (destination == BookDestination.LIBRARY)
+                            navigator.navigate(ViewBookPageDestination(bookId = it))
+                        else
+                            vm.selectionManager.clearSelection()
                     }
                 }
             },

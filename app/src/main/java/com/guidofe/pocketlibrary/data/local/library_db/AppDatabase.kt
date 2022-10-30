@@ -16,8 +16,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
     Genre::class,
     Loan::class,
     Note::class,
-    Wishlist::class
-], version = 6,
+    WishlistBook::class
+], version = 7,
     exportSchema = true,
     autoMigrations = [])
 @TypeConverters(DateConverter::class, UriConverter::class)
@@ -30,8 +30,9 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun bookGenreDao(): BookGenreDao
     abstract fun genreDao(): GenreDao
     abstract fun noteDao(): NoteDao
-    abstract fun wishlistDao(): WishlistDao
     abstract fun libraryBookDao(): LibraryBookDao
+    abstract fun wishlistBookDao(): WishlistBookDao
+    abstract fun wishlistBundleDao(): WishlistBundleDao
 
     @DeleteColumn(tableName = "Book", columnName = "industry_identifier_type")
     class Migration3to4: AutoMigrationSpec

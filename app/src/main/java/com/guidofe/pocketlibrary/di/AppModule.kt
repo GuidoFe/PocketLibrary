@@ -118,10 +118,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesWhishlistDao(db: AppDatabase) = db.wishlistDao()
-
-    @Singleton
-    @Provides
     fun providesLibraryRepository(db: AppDatabase): LocalRepository = DefaultLocalRepository(db)
 
     @Singleton

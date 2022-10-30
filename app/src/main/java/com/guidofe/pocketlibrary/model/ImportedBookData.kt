@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Parcelable
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.repositories.LocalRepository
+import com.guidofe.pocketlibrary.utils.BookDestination
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -65,11 +66,16 @@ data class ImportedBookData(
         return bookId
     }
 
-    suspend fun saveToLibrary(localRepo: LocalRepository): Long {
+    suspend fun saveToDestination(destination: BookDestination, localRepo: LocalRepository): Long {
         var bookId = -1L
         localRepo.withTransaction {
             bookId = _saveToDb(localRepo)
-            localRepo.insertLibraryBook(LibraryBook(bookId))
+            if (bookId > 0) {
+                when (destination) {
+                    BookDestination.LIBRARY -> localRepo.insertLibraryBook(LibraryBook(bookId))
+                    BookDestination.WISHLIST -> localRepo.insertWishlistBook(WishlistBook(bookId))
+                }
+            }
         }
         return bookId
     }

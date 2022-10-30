@@ -82,12 +82,13 @@
     <string name="add_to_favorites">Add to favorites</string>
     <string name="add_anyway">Add anyway</string>
     <string name="isbn_already_present">Book already present</string>
-    <string name="isbn_already_present_specific_book_dialog_text">A book with the same isbn of %s by %s is already present in your library.</string>
-    <string name="isbn_already_present_specific_title_dialog_text">A book with the same isbn as %s is already present in your library.</string>
-    <string name="isbn_already_present_generic_dialog_text">A book with the same isbn is already present in your library.</string>
+    <string name="isbn_already_present_specific_book_dialog_text">A book with the same isbn of %s by %s is already present.</string>
+    <string name="isbn_already_present_specific_title_dialog_text">A book with the same isbn as %s is already present.</string>
+    <string name="isbn_already_present_generic_dialog_text">A book with the same isbn is already present.</string>
     <string name="no_cover_sadface">No cover :(</string>
-    <string name="book_alredy_present_message">A book with the same isbn is already present in your library</string>
-    <string name="book_alredy_present_message_with_title">The ISBN of "%s" is already present in your library</string>
+    <string name="book_alredy_present_message">A book with the same isbn is already present</string>
+    <string name="book_alredy_present_message_with_title">The ISBN of "%s" is already present</string>
     <string name="book_saved">Book saved</string>
+    <string name="wishlist">Wishlist</string>
 
 </resources>

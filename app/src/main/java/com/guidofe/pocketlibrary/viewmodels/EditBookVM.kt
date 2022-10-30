@@ -9,6 +9,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
+import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -32,7 +33,7 @@ class EditBookVM @Inject constructor(
         formData = if (bundle != null) FormData(bundle) else FormData()
     }
 
-    override suspend fun submitBook(): Long {
+    override suspend fun submitBook(destination: BookDestination): Long {
         //TODO: Check for validity
         repo.withTransaction {
             val book = Book(
@@ -49,6 +50,11 @@ class EditBookVM @Inject constructor(
             )
             if (book.bookId == 0L) {
                 currentBookId = repo.insertBook(book)
+                //TODO check for insert error
+                when (destination) {
+                    BookDestination.LIBRARY -> repo.insertLibraryBook(LibraryBook(currentBookId))
+                    BookDestination.WISHLIST -> repo.insertWishlistBook(WishlistBook(currentBookId))
+                }
             } else {
                 repo.updateBook(book)
             }

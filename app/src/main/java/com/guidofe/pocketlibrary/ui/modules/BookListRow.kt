@@ -33,6 +33,7 @@ import coil.compose.AsyncImage
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
+import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
@@ -57,6 +58,30 @@ fun LibraryListRow(
         bundle.book.coverURI,
         bundle.loan,
         item.value.libraryInfo.isFavorite,
+        item.isSelected,
+        onRowTap,
+        onRowLongPress,
+        onCoverLongPress
+    )
+}
+
+@Composable
+fun WishlistRow(
+    item: SelectableListItem<WishlistBundle>,
+    modifier: Modifier = Modifier,
+    onRowTap: (Offset) -> Unit = {},
+    onRowLongPress: (Offset) -> Unit = {},
+    onCoverLongPress: (Offset) -> Unit = {}
+) {
+    val bundle = item.value.bookBundle
+    GenericListRow(
+        bundle.book.title,
+        bundle.authors.joinToString(", ") { it.name },
+        modifier,
+        bundle.book.subtitle,
+        bundle.book.coverURI,
+        bundle.loan,
+        false,
         item.isSelected,
         onRowTap,
         onRowLongPress,
@@ -263,7 +288,7 @@ private fun GenericListRow(
                         }
                         if (isFavorite) {
                             Icon(
-                                painter = painterResource(R.drawable.star_filled_24px),
+                                painter = painterResource(R.drawable.heart_filled_24px),
                                 contentDescription = stringResource(R.string.favorite),
                             )
                         }

@@ -12,6 +12,7 @@ import com.guidofe.pocketlibrary.model.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.model.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -45,18 +46,19 @@ class SearchBookOnlineVM @Inject constructor(
 
     override fun saveBook(
         importedBook: ImportedBookData,
+        destination: BookDestination,
         callback: (Long) -> Unit,
     ) {
         viewModelScope.launch {
-            val id = importedBook.saveToDbAsBookBundle(repo)
+            val id = importedBook.saveToDestination(destination, repo)
             callback(id)
         }
     }
 
-    override fun saveSelectedBooks(callback: () -> Unit) {
+    override fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit) {
         viewModelScope.launch {
             selectionManager.selectedItems.value.values.forEach {
-                it.saveToDbAsBookBundle(repo)
+                it.saveToDestination(destination, repo)
             }
             callback()
         }

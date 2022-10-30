@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.utils.BookDestination
 
 interface IImportedBookVM {
     val snackbarHostState: SnackbarHostState
@@ -17,10 +18,11 @@ interface IImportedBookVM {
     fun saveImportedBookAsBookBundle(importedBook: ImportedBookData, callback: (Long) -> Unit = {})
     fun getAndSaveBookFromIsbnFlow(
         isbn: String,
+        destination: BookDestination,
         onNetworkError: () -> Unit,
         onNoBookFound: () -> Unit,
         onOneBookSaved: () -> Unit,
-        onMultipleBooksFound: (List<ImportedBookData>) -> Unit
+        onMultipleBooksFound: (List<ImportedBookData>) -> Unit,
     )
 
     fun checkIfImportedBooksAreAlreadyInLibrary(
@@ -31,6 +33,15 @@ interface IImportedBookVM {
 
     fun saveImportedBooksAsBookBundles(importedBooks: List<ImportedBookData>, callback: () -> Unit)
     fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
-    fun saveImportedBooksToLibrary(importedBooks: List<ImportedBookData>, callback: () -> Unit)
-    fun saveImportedBookToLibrary(importedBook: ImportedBookData, callback: (Long) -> Unit)
+    fun saveImportedBook(
+        importedBook: ImportedBookData,
+        destination: BookDestination,
+        callback: (Long) -> Unit
+    )
+    fun saveImportedBooks(
+        importedBooks: List<ImportedBookData>,
+        destination: BookDestination,
+        callback: () -> Unit
+    )
+    fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
 }

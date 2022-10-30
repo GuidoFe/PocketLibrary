@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.model.repositories
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
+import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import kotlinx.coroutines.flow.Flow
 
@@ -42,4 +43,7 @@ interface LocalRepository {
     suspend fun insertLibraryBook(libraryBook: LibraryBook)
     suspend fun getBooksInLibraryWithSameIsbn(isbn: String): List<Book>
     suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book>
+    suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle>
+    suspend fun insertWishlistBook(wishlistBook: WishlistBook)
+    suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book>
 }

@@ -6,6 +6,7 @@ import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.OnlineBookListVM
 import kotlinx.coroutines.flow.Flow
 
@@ -17,7 +18,7 @@ interface ISearchBookOnlineVM {
     fun search()
     val queryData: QueryData?
     val selectionManager: MultipleSelectionManager<String, ImportedBookData>
-    fun saveBook(importedBook: ImportedBookData, callback: (Long) -> Unit)
-    fun saveSelectedBooks(callback: () -> Unit)
+    fun saveBook(importedBook: ImportedBookData, destination: BookDestination, callback: (Long) -> Unit)
+    fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit)
     val listVM: OnlineBookListVM
 }

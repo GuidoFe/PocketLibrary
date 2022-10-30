@@ -21,6 +21,7 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
@@ -39,6 +40,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 @Composable
 fun ScanIsbnPage(
     navigator: DestinationsNavigator,
+    destination: BookDestination = BookDestination.LIBRARY,
     scanVm: IScanIsbnVM = hiltViewModel<ScanIsbnVM>(),
     importVm: IImportedBookVM = hiltViewModel<ImportedBookVM>(),
     resultRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>
@@ -95,7 +97,7 @@ fun ScanIsbnPage(
 
     LaunchedEffect(scanVm.scannedCode) {
         scanVm.scannedCode?.let { isbn ->
-            importVm.getBooksInLibraryWithSameIsbn(isbn) { ownedList ->
+            val callback = { ownedList: List<Book> ->
                 if (ownedList.isEmpty()) {
                     isbnToSearch = isbn
                 } else {
@@ -109,6 +111,10 @@ fun ScanIsbnPage(
                     }
                 }
             }
+            when (destination) {
+                BookDestination.LIBRARY -> importVm.getBooksInLibraryWithSameIsbn(isbn, callback)
+                BookDestination.WISHLIST -> importVm.getBooksInWishlistWithSameIsbn(isbn, callback)
+            }
         }
     }
 
@@ -116,6 +122,7 @@ fun ScanIsbnPage(
         isbnToSearch?.let { isbn ->
             importVm.getAndSaveBookFromIsbnFlow(
                 isbn = isbn,
+                destination = destination,
                 onNetworkError = {
                     Snackbars.connectionErrorSnackbar(
                         scanVm.snackbarHostState,
@@ -147,7 +154,7 @@ fun ScanIsbnPage(
 
     resultRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBookToLibrary(navResult.value) {
+            importVm.saveImportedBook(navResult.value, destination) {
                 Snackbars.bookSavedSnackbar(scanVm.snackbarHostState, context, coroutine) {}
             }
         }
@@ -171,6 +178,7 @@ fun ScanIsbnPage(
 private fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         EmptyDestinationsNavigator,
+        BookDestination.LIBRARY,
         object: IScanIsbnVM {
             override var scannedCode: String? = ""
             override fun getImageAnalysis(): ImageAnalysis {
@@ -199,6 +207,7 @@ private fun ScanIsbnPagePreview() {
 
             override fun getAndSaveBookFromIsbnFlow(
                 isbn: String,
+                destination: BookDestination,
                 onNetworkError: () -> Unit,
                 onNoBookFound: () -> Unit,
                 onOneBookSaved: () -> Unit,
@@ -221,14 +230,21 @@ private fun ScanIsbnPagePreview() {
                 callback: (List<Book>) -> Unit
             ) {}
 
-            override fun saveImportedBooksToLibrary(
+            override fun saveImportedBook(
+                importedBook: ImportedBookData,
+                destination: BookDestination,
+                callback: (Long) -> Unit
+            ) {            }
+
+            override fun saveImportedBooks(
                 importedBooks: List<ImportedBookData>,
+                destination: BookDestination,
                 callback: () -> Unit
             ) {}
 
-            override fun saveImportedBookToLibrary(
-                importedBook: ImportedBookData,
-                callback: (Long) -> Unit
+            override fun getBooksInWishlistWithSameIsbn(
+                isbn: String,
+                callback: (List<Book>) -> Unit
             ) {}
         },
         EmptyResultRecipient()

@@ -1,10 +1,8 @@
-package com.guidofe.pocketlibrary.ui.pages.librarypage
+package com.guidofe.pocketlibrary.ui.pages
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -13,8 +11,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
-import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
-import com.guidofe.pocketlibrary.viewmodels.LibraryVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -23,15 +19,18 @@ import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
+import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.viewmodels.WishlistPageVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun LibraryPage(
+fun WishlistPage(
     navigator: DestinationsNavigator,
-    vm: ILibraryVM = hiltViewModel<LibraryVM>(),
+    vm: IWishlistPageVM = hiltViewModel<WishlistPageVM>(),
     importVm: IImportedBookVM = hiltViewModel<ImportedBookVM>(),
     disambiguationRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>,
 ) {
@@ -40,12 +39,10 @@ fun LibraryPage(
     var isExpanded: Boolean by remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
     val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
-    var isStarButtonFilled by remember{mutableStateOf(false)}
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
-            isStarButtonFilled = false
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
@@ -72,31 +69,11 @@ fun LibraryPage(
                         //TODO Ask For Confirm
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            isStarButtonFilled = !isStarButtonFilled
-                            vm.setFavorite(
-                                vm.selectionManager.selectedKeys,
-                                isStarButtonFilled
-                            )
-                        }
-                    ) {
-                        if(isStarButtonFilled)
-                            Icon(
-                                painterResource(R.drawable.star_filled_24px),
-                                stringResource(R.string.remove_from_favorites)
-                            )
-                        else
-                            Icon(
-                                painterResource(R.drawable.star_24px),
-                                stringResource(R.string.add_to_favorites)
-                            )
-                    }
                 }
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.library)
+                title = context.getString(R.string.wishlist)
             )
         }
     }
@@ -104,12 +81,13 @@ fun LibraryPage(
         isbnToSearch?.let {
             importVm.getAndSaveBookFromIsbnFlow(
                 it,
+                BookDestination.WISHLIST,
                 onNetworkError = {
                     Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, scope)
                 },
                 onNoBookFound = {
                     Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
-                        navigator.navigate(EditBookPageDestination())
+                        navigator.navigate(EditBookPageDestination(destination = BookDestination.WISHLIST))
                     }
                 },
                 onOneBookSaved = {
@@ -134,13 +112,13 @@ fun LibraryPage(
                     isbnToSearch = it
                 },
                 onInsertManually = {
-                    navigator.navigate(EditBookPageDestination())
+                    navigator.navigate(EditBookPageDestination(destination = BookDestination.WISHLIST))
                 },
                 onScanIsbn = {
-                    navigator.navigate(ScanIsbnPageDestination())
+                    navigator.navigate(ScanIsbnPageDestination(BookDestination.WISHLIST))
                 },
                 onSearchOnline = {
-                    navigator.navigate(SearchBookOnlinePageDestination())
+                    navigator.navigate(SearchBookOnlinePageDestination(BookDestination.WISHLIST))
                 }
             )
         }
@@ -148,25 +126,35 @@ fun LibraryPage(
     LazyColumn {
         items(
             items = lazyPagingItems,
-            key = {it.value.libraryInfo.bookId}
+            key = {it.value.wishlist.bookId}
         ) { item ->
             if (item == null)
                 return@items
-            LibraryListRow(
+            var openDropdown by remember{ mutableStateOf(false) }
+            WishlistRow(
                 item,
                 onRowTap = {
                     if (isMultipleSelecting) {
                         vm.selectionManager.multipleSelectToggle(item.value)
                     }
-                    else
-                        navigator.navigate(ViewBookPageDestination(item.value.libraryInfo.bookId))
                 },
                 onCoverLongPress = {
                     if (!isMultipleSelecting) {
                         vm.selectionManager.startMultipleSelection(item.value)
                     }
                 },
+                onRowLongPress = {
+                    if (isMultipleSelecting) return@WishlistRow
+
+                }
             )
+            DropdownMenu(
+                expanded = openDropdown,
+                onDismissRequest = { openDropdown = false }
+            ) {
+                DropdownMenuItem(text = { Text(item.value.bookBundle.book.title) }, onClick = {})
+            }
+
         }
     }
     if (showDoubleIsbnDialog) {
@@ -189,8 +177,8 @@ fun LibraryPage(
                                 }
                             }
                             1 -> {
-                                importVm.saveImportedBookToLibrary(it[0]) { id ->
-                                    navigator.navigate(ViewBookPageDestination(id))
+                                importVm.saveImportedBook(it[0], BookDestination.WISHLIST) { id ->
+                                    vm.invalidate()
                                 }
                             }
                             else -> navigator.navigate(
@@ -216,7 +204,7 @@ fun LibraryPage(
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBookToLibrary(navResult.value) {
+            importVm.saveImportedBook(navResult.value, BookDestination.WISHLIST) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,

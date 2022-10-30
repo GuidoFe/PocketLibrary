@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
+import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.utils.getInitials
 import kotlinx.coroutines.flow.Flow
@@ -53,6 +54,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
         db.libraryBookDao().insert(libraryBook)
     }
 
+    override suspend fun insertWishlistBook(wishlistBook: WishlistBook) {
+        db.wishlistBookDao().insert(wishlistBook)
+    }
+
     override suspend fun deleteBooks(books: List<Book>) {
         db.bookDao().delete(books)
     }
@@ -78,12 +83,19 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
         return db.libraryBundleDao().getLibraryBundles(pageNumber * pageSize, pageSize)
     }
 
+    override suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle> {
+        return db.wishlistBundleDao().getWishlistBundles(pageNumber * pageSize, pageSize)
+    }
     override suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle> {
         return db.libraryBundleDao().getLibraryBundlesWithSameIsbns(isbnList)
     }
 
     override suspend fun getBooksInLibraryWithSameIsbn(isbn: String): List<Book> {
         return db.libraryBookDao().getBooksInLibraryWithSameIsbn(isbn)
+    }
+
+    override suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book> {
+        return db.wishlistBookDao().getBooksInWishlistWithSameIsbn(isbn)
     }
 
     override suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book> {
