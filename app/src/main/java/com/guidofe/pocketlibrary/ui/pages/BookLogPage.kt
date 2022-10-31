@@ -6,6 +6,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 
 @Destination
 @Composable
-fun StatsPage() {
-    Text("Stats Page")
+fun BookLogPage() {
+    Text("Book Log Page")
 }

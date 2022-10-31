@@ -171,6 +171,7 @@ fun ViewBookPage (
                 ) {
                     when (tabState) {
                         LocalTab.SUMMARY -> {
+                            //TODO Fix unscrollable long summaries
                             localFabState = DisplayedFab.EDIT_BOOK
                             if (vm.data?.description.isNullOrBlank()) {
                                 Text(
