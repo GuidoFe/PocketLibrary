@@ -155,7 +155,7 @@ fun LibraryPage(
     LazyColumn {
         items(
             items = lazyPagingItems,
-            key = {it.value.libraryInfo.bookId}
+            key = {it.value.info.bookId}
         ) { item ->
             if (item == null)
                 return@items
@@ -167,7 +167,7 @@ fun LibraryPage(
                         if (isMultipleSelecting) {
                             vm.selectionManager.multipleSelectToggle(item.value)
                         } else
-                            navigator.navigate(ViewBookPageDestination(item.value.libraryInfo.bookId))
+                            navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
                     },
                     onCoverLongPress = {
                         if (!isMultipleSelecting) {
@@ -183,7 +183,7 @@ fun LibraryPage(
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.edit_details)) },
                         onClick = {
-                            navigator.navigate(EditBookPageDestination(item.value.libraryInfo.bookId))
+                            navigator.navigate(EditBookPageDestination(item.value.info.bookId))
                         }
                     )
                     //TODO allow for undo

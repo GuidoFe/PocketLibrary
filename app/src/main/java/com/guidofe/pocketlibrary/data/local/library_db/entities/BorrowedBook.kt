@@ -8,17 +8,15 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 import java.sql.Date
 
-enum class LoanType {BORROWED, LENT}
-
 @Parcelize
 @Entity(foreignKeys = [ForeignKey(entity = Book::class,
     parentColumns = arrayOf("bookId"),
     childColumns = arrayOf("bookId"),
     onDelete = ForeignKey.CASCADE)]
 )
-data class Loan(
-    @PrimaryKey(autoGenerate = true) val bookId: Long,
-    @ColumnInfo val type: LoanType,
+data class BorrowedBook(
+    @PrimaryKey val bookId: Long,
     @ColumnInfo val who: String,
-    @ColumnInfo val start: Date
+    @ColumnInfo val start: Date,
+    @ColumnInfo val end: Date?
 ): Parcelable

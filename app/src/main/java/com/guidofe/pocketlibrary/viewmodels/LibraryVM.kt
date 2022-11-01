@@ -28,7 +28,7 @@ class LibraryVM @Inject constructor(
     override var selectedBook: Book? = null
     override var duplicateIsbn: String = ""
     override val selectionManager = MultipleSelectionManager<Long, LibraryBundle>(
-        getKey = {it.libraryInfo.bookId}
+        getKey = {it.info.bookId}
     )
     private var currentPagingSource: LibraryPagingSource? = null
 
@@ -38,7 +38,7 @@ class LibraryVM @Inject constructor(
         items.map {
             SelectableListItem(
                 it,
-                selected.containsKey(it.libraryInfo.bookId)
+                selected.containsKey(it.info.bookId)
             )
         }
     }

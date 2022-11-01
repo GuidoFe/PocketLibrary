@@ -28,7 +28,7 @@ class WishlistPageVM @Inject constructor(
     override var selectedBook: Book? = null
     override var duplicateIsbn: String = ""
     override val selectionManager = MultipleSelectionManager<Long, WishlistBundle>(
-        getKey = {it.wishlist.bookId}
+        getKey = {it.info.bookId}
     )
     private var currentPagingSource: WishlistPagingSource? = null
 
@@ -38,7 +38,7 @@ class WishlistPageVM @Inject constructor(
         items.map {
             SelectableListItem(
                 it,
-                selected.containsKey(it.wishlist.bookId)
+                selected.containsKey(it.info.bookId)
             )
         }
     }

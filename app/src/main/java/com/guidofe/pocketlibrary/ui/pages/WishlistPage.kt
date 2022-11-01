@@ -151,7 +151,7 @@ fun WishlistPage(
     LazyColumn {
         items(
             items = lazyPagingItems,
-            key = {it.value.wishlist.bookId}
+            key = {it.value.info.bookId}
         ) { item ->
             if (item == null)
                 return@items
@@ -182,7 +182,7 @@ fun WishlistPage(
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.add_to_library)) },
                         onClick = {
-                            vm.moveBookToLibraryAndRefresh(item.value.wishlist.bookId) {
+                            vm.moveBookToLibraryAndRefresh(item.value.info.bookId) {
                                 Snackbars.bookMovedToLibrary(
                                     vm.snackbarHostState,
                                     context,
@@ -195,7 +195,7 @@ fun WishlistPage(
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.edit_details)) },
                         onClick = {
-                            navigator.navigate(EditBookPageDestination(item.value.wishlist.bookId))
+                            navigator.navigate(EditBookPageDestination(item.value.info.bookId))
                         }
                     )
                     DropdownMenuItem(

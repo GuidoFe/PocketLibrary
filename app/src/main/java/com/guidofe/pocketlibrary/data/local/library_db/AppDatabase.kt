@@ -14,7 +14,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
     BookAuthor::class,
     BookGenre::class,
     Genre::class,
-    Loan::class,
+    LentBook::class,
+    BorrowedBook::class,
     Note::class,
     WishlistBook::class
 ], version = 7,

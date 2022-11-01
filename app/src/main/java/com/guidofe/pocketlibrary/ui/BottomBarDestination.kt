@@ -12,7 +12,6 @@ enum class BottomBarDestination(
 ) {
     LandingPageScreen(LandingPageDestination, R.string.home, R.drawable.home_24px),
     LibraryScreen(LibraryPageDestination, R.string.my_library, R.drawable.collections_24px),
-    // ICON <a href="https://www.flaticon.com/free-icons/wish-list" title="wish list icons">Wish list icons created by SBTS2018 - Flaticon</a>
     WishlistScreen(WishlistPageDestination, R.string.wishlist, R.drawable.star_24px),
     BookLogScreen(BookLogPageDestination, R.string.book_log, R.drawable.borrow_book_24px)
 }

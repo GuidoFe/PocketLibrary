@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.repositories
 
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
@@ -46,4 +47,6 @@ interface LocalRepository {
     suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book>
     suspend fun moveBookFromWishlistToLibrary(bookId: Long)
     suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>)
+
+    fun getBorrowedBundles(): Flow<List<BorrowedBundle>>
 }

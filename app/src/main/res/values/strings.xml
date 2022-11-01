@@ -97,5 +97,6 @@
     <string name="books_moved_to_library">Books moved to your library</string>
     <string name="book_moved_to_library">Book moved to your library</string>
     <string name="book_log">Book Log</string>
+    <string name="borrowed">Borrowed</string>
 
 </resources>

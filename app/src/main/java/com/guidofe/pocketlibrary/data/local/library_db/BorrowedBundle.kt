@@ -7,8 +7,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class WishlistBundle (
-    @Embedded val info: WishlistBook,
+data class BorrowedBundle (
+    @Embedded val info: BorrowedBook,
     @Relation(
         entity = Book::class,
         parentColumn = "bookId",

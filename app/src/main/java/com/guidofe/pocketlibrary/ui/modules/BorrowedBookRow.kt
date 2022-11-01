@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import coil.compose.AsyncImage
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
@@ -38,90 +39,17 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import java.sql.Date
 
 @Composable
-fun LibraryListRow(
-    item: SelectableListItem<LibraryBundle>,
+private fun BorrowedBookRow(
+    item: SelectableListItem<BorrowedBundle>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
     onRowLongPress: (Offset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {}
 ) {
-    val bundle = item.value.bookBundle
-    GenericListRow(
-        bundle.book.title,
-        bundle.authors.joinToString(", ") { it.name },
-        modifier,
-        bundle.book.subtitle,
-        bundle.book.coverURI,
-        item.value.info.isFavorite,
-        item.isSelected,
-        onRowTap,
-        onRowLongPress,
-        onCoverLongPress
-    )
-}
-
-@Composable
-fun WishlistRow(
-    item: SelectableListItem<WishlistBundle>,
-    modifier: Modifier = Modifier,
-    onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {}
-) {
-    val bundle = item.value.bookBundle
-    GenericListRow(
-        bundle.book.title,
-        bundle.authors.joinToString(", ") { it.name },
-        modifier,
-        bundle.book.subtitle,
-        bundle.book.coverURI,
-        false,
-        item.isSelected,
-        onRowTap,
-        onRowLongPress,
-        onCoverLongPress
-    )
-}
-
-@Composable
-fun ImportedBookListRow(
-    item: SelectableListItem<ImportedBookData>,
-    modifier: Modifier = Modifier,
-    onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {},
-) {
-    GenericListRow(
-        item.value.title,
-        item.value.authors.joinToString(", "),
-        modifier,
-        item.value.subtitle,
-        item.value.coverUrl?.let {
-            Uri.parse(item.value.coverUrl)
-        },
-        isFavorite = false,
-        isSelected = item.isSelected,
-        onRowTap = onRowTap,
-        onRowLongPress = onRowLongPress,
-        onCoverLongPress = onCoverLongPress
-    )
-}
-
-@Composable
-private fun GenericListRow(
-    title: String,
-    authors: String,
-    modifier: Modifier = Modifier,
-    subtitle: String? = null,
-    coverURI: Uri? = null,
-    isFavorite: Boolean = false,
-    isSelected: Boolean = false,
-    onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {}
-) {
+    val bookBundle = item.value.bookBundle
     BoxWithConstraints(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
@@ -135,8 +63,8 @@ private fun GenericListRow(
                     .padding(5.dp)
             ) {
                 SelectableBookCover(
-                    coverURI,
-                    isSelected,
+                    bookBundle.book.coverURI,
+                    item.isSelected,
                     onRowTap,
                     onCoverLongPress
                 )
@@ -153,29 +81,17 @@ private fun GenericListRow(
                                 .padding(5.dp)
                         ) {
                             Text(
-                                text = title,
+                                text = bookBundle.book.title,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 5.em,
                                 overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
+                                maxLines = 2,
                             )
-                            if (subtitle != null)
-                                Text(
-                                    text = subtitle,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                )
                             Text(
-                                text = authors,
+                                text = bookBundle.authors.joinToString(", "){it.name},
                                 fontStyle = FontStyle.Italic,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
-                            )
-                        }
-                        if (isFavorite) {
-                            Icon(
-                                painter = painterResource(R.drawable.heart_filled_24px),
-                                contentDescription = stringResource(R.string.favorite),
                             )
                         }
                     }
@@ -199,9 +115,16 @@ private fun GenericListRow(
 @Preview(showSystemUi = true, device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
-        LibraryListRow(
+        BorrowedBookRow(
             item = SelectableListItem(
-                PreviewUtils.exampleLibraryBundle
+                BorrowedBundle(
+                    BorrowedBook(
+                        1,
+                        "Tim Minchin",
+                        Date.valueOf("2022-03-11"),
+                        Date.valueOf("2022-12-25")),
+                    PreviewUtils.exampleBookBundle
+                )
             )
         )
     }
