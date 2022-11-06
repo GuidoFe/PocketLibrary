@@ -1,56 +1,72 @@
 package com.guidofe.pocketlibrary.ui.modules
 
-import android.net.Uri
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import coil.compose.AsyncImage
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
-import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
 
 @Composable
-private fun BorrowedBookRow(
+fun BorrowedBookRow(
     item: SelectableListItem<BorrowedBundle>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {}
+    onDelete: (BorrowedBundle) -> Unit = {},
+    onCoverLongPress: (Offset) -> Unit = {},
+    onLenderTap: () -> Unit = {},
+    onStartTap: () -> Unit = {},
+    onReturnByTap: () -> Unit = {},
 ) {
     val bookBundle = item.value.bookBundle
-    BoxWithConstraints(modifier = modifier) {
+    val lenderString = stringResource(R.string.lender_colon)
+    val density = LocalDensity.current
+    var isMenuOpen by remember{mutableStateOf(false)}
+    var tapOffset by remember{mutableStateOf(Offset.Zero)}
+    val lenderBuilder = AnnotatedString.Builder(
+        lenderString + "\n" + (item.value.info.who ?: "???")
+    )
+    lenderBuilder.addStyle(
+        SpanStyle(fontWeight = FontWeight.Bold), 0, lenderString.length
+    )
+    val startString = stringResource(R.string.start_colon)
+    val startBuilder = AnnotatedString.Builder(
+        startString + "\n" + (item.value.info.start)
+    )
+    startBuilder.addStyle(
+        SpanStyle(fontWeight = FontWeight.Bold), 0, startString.length
+    )
+    val returnByString = stringResource(R.string.return_by_colon)
+    val returnByBuilder = AnnotatedString.Builder(
+        returnByString + "\n" + (item.value.info.end ?: "???")
+    )
+    returnByBuilder.addStyle(
+        SpanStyle(fontWeight = FontWeight.Bold), 0, returnByString.length
+    )
+
+    Box(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 4.dp,
@@ -59,7 +75,7 @@ private fun BorrowedBookRow(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .height(100.dp)
-                    .width(maxWidth)
+                    .fillMaxWidth()
                     .padding(5.dp)
             ) {
                 SelectableBookCover(
@@ -77,34 +93,78 @@ private fun BorrowedBookRow(
                     ) {
                         Column(
                             modifier = Modifier
-                                .weight(1f)
-                                .padding(5.dp)
+                                .weight(3f)
+                                .padding(5.dp, 0.dp)
                         ) {
-                            Text(
-                                text = bookBundle.book.title,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 5.em,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 2,
-                            )
-                            Text(
-                                text = bookBundle.authors.joinToString(", "){it.name},
-                                fontStyle = FontStyle.Italic,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = onRowLongPress,
-                                    onTap = onRowTap
+
+                            BoxWithConstraints() {
+                                Column(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(onLongPress = {
+                                            tapOffset = it
+                                            isMenuOpen = true
+                                        })
+                                    }
+                                ) {
+                                    Text(
+                                        text = bookBundle.book.title,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 5.em,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                    )
+                                    Text(
+                                        text = bookBundle.authors.joinToString(", ") { it.name },
+                                        fontStyle = FontStyle.Italic,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                    )
+                                }
+                                /*val (xDp, yDp) = with(density) {
+                                    (tapOffset.x.toDp() - maxHeight) to (tapOffset.y.toDp())
+                                }*/
+                                DropdownMenu(
+                                    expanded = isMenuOpen,
+                                    onDismissRequest = {isMenuOpen = false},
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.mark_as_returned)) },
+                                        onClick = { isMenuOpen = false; onDelete(item.value) }
+                                    )
+                                }
+                            }
+                            Divider()
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxHeight()
+                            ) {
+                                Text(
+                                    lenderBuilder.toAnnotatedString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .clickable { onLenderTap() }
+                                )
+                                Text(
+                                    startBuilder.toAnnotatedString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .clickable { onStartTap() }
+                                )
+                                Text(
+                                    returnByBuilder.toAnnotatedString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .clickable { onReturnByTap() }
                                 )
                             }
-                    )
+                        }
+                    }
                 }
             }
         }

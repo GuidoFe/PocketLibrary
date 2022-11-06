@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.modules
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,7 +33,7 @@ fun OnlineBookList(
     vm: IOnlineBookListVM = hiltViewModel<OnlineBookListVM>()
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
-    val isMutableSelecting by selectionManager.isMutableSelecting.collectAsState()
+    val isMutableSelecting by selectionManager.isMultipleSelecting.collectAsState()
 
     LaunchedEffect(queryData) {
         vm.query = queryData

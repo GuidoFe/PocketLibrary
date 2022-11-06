@@ -98,5 +98,30 @@
     <string name="book_moved_to_library">Book moved to your library</string>
     <string name="book_log">Book Log</string>
     <string name="borrowed">Borrowed</string>
+    <string name="mark_as_returned">Mark as returned</string>
+    <string name="more">More</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirm_return_message_plural">Are you sure you want to return these books?</string>
+    <string name="confirm_return_message">Are you sure you want to return this book?</string>
+    <string name="return_books">Return books</string>
+    <string name="lender_colon">Lender:</string>
+    <string name="start_colon">Start:</string>
+    <string name="return_by_colon">Return by:</string>
+    <string name="select_date">Select date</string>
+    <string name="edit">Edit</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="ok">OK</string>
+    <string name="enter_date">Enter date</string>
+    <string name="date">Date</string>
+    <string name="yyyymmdd">yyyy-mm-dd</string>
+    <string name="error_date_not_valid">Error: date not valid</string>
+    <string name="clear">Clear</string>
+    <string name="lend_book">Lend book</string>
+    <string name="to_whom">To whom</string>
+    <string name="lent_on">Lent on:</string>
+    <string name="please_enter_value">Please enter a value</string>
+    <string name="change_lender">Change lender</string>
 
 </resources>

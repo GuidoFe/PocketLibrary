@@ -74,6 +74,13 @@ class ImportedBookVM @Inject constructor(
         }
     }
 
+    override fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
+        viewModelScope.launch {
+            val list = localRepo.getBooksInBorrowedWithSameIsbn(isbn)
+            callback(list)
+        }
+    }
+
     override fun saveImportedBookAsBookBundle(importedBook: ImportedBookData, callback: (Long) -> Unit) {
         viewModelScope.launch {
             val id = importedBook.saveToDbAsBookBundle(localRepo)

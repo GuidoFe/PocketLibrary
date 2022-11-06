@@ -41,11 +41,11 @@ fun WishlistPage(
     val context = LocalContext.current
     var isExpanded: Boolean by remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
-    val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
+    val isMultipleSelecting by vm.selectionManager.isMultipleSelecting.collectAsState()
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
     var showConfirmDeleteBook by remember{mutableStateOf(false)}
-
+//TODO add to borrowed
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             vm.scaffoldState.refreshBar(

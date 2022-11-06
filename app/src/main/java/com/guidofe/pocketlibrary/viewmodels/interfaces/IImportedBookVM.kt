@@ -44,4 +44,5 @@ interface IImportedBookVM {
         callback: () -> Unit
     )
     fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
+    fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
 }

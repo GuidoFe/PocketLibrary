@@ -9,15 +9,21 @@ import androidx.compose.ui.res.stringResource
 import com.guidofe.pocketlibrary.R
 
 @Composable
-fun ConfirmDeleteBookDialog(isPlural: Boolean = false, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+fun ConfirmDeleteBookDialog(
+    isPlural: Boolean = false,
+    onDismiss: () -> Unit,
+    messageSingular: String = stringResource(R.string.confirm_delete_book),
+    messagePlural: String = stringResource(R.string.confirm_delete_books),
+    onConfirm: () -> Unit,
+) {
     AlertDialog(
         text = {
-            Text(stringResource(
-                id = if(isPlural)
-                    R.string.confirm_delete_books
-                else
-                    R.string.confirm_delete_book
-            ))
+            Text(
+                if (isPlural)
+                    messagePlural
+                 else
+                    messageSingular
+            )
         },
         confirmButton = {
             Button(onClick = onConfirm) {

@@ -1,11 +1,12 @@
 package com.guidofe.pocketlibrary.repositories
 
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import androidx.room.withTransaction
-import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
-import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
+import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepository {
@@ -56,6 +57,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
         db.wishlistBookDao().insert(wishlistBook)
     }
 
+    override suspend fun insertBorrowedBook(borrowedBook: BorrowedBook) {
+        db.borrowedBookDao().insert(borrowedBook)
+    }
+
     override suspend fun deleteBooks(books: List<Book>) {
         db.bookDao().delete(books)
     }
@@ -91,6 +96,9 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
         return db.wishlistBookDao().getBooksInWishlistWithSameIsbn(isbn)
     }
 
+    override suspend fun getBooksInBorrowedWithSameIsbn(isbn: String): List<Book> {
+        return db.borrowedBookDao().getBooksInBorrowedWithSameIsbn(isbn)
+    }
     override suspend fun moveBookFromWishlistToLibrary(bookId: Long) {
         db.wishlistBookDao().delete(bookId)
         db.libraryBookDao().insert(LibraryBook(bookId))
@@ -99,6 +107,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
     override suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>) {
         db.wishlistBookDao().deleteAll(bookIds)
         db.libraryBookDao().insertAll(bookIds.map{LibraryBook(it)})
+    }
+
+    override fun getBorrowedBundles(): Flow<List<BorrowedBundle>> {
+        return db.borrowedBundleDao().getBorrowedBundles()
     }
 
     override suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book> {
@@ -163,5 +175,29 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
 
     override suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean) {
         db.libraryBookDao().updateFavorite(bookIds, isFavorite)
+    }
+
+    override suspend fun updateBorrowedBook(borrowedBook: BorrowedBook) {
+        db.borrowedBookDao().update(borrowedBook)
+    }
+
+    override suspend fun insertLentBook(lentBook: LentBook) {
+        db.lentBookDao().insert(lentBook)
+    }
+
+    override suspend fun insertAllLentBooks(lentBooks: List<LentBook>) {
+        db.lentBookDao().insertAll(lentBooks)
+    }
+
+    override suspend fun updateLentBook(lentBook: LentBook) {
+        db.lentBookDao().update(lentBook)
+    }
+
+    override suspend fun deleteLentBook(lentBook: LentBook) {
+        db.lentBookDao().delete(lentBook)
+    }
+
+    override suspend fun deleteLentBooks(lentBooks: List<LentBook>) {
+        db.lentBookDao().delete(lentBooks)
     }
 }

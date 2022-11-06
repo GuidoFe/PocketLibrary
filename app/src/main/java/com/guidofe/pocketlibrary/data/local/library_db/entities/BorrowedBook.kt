@@ -9,14 +9,16 @@ import kotlinx.parcelize.Parcelize
 import java.sql.Date
 
 @Parcelize
-@Entity(foreignKeys = [ForeignKey(entity = Book::class,
-    parentColumns = arrayOf("bookId"),
-    childColumns = arrayOf("bookId"),
-    onDelete = ForeignKey.CASCADE)]
+@Entity(
+    tableName = "borrowed_book",
+    foreignKeys = [ForeignKey(entity = Book::class,
+        parentColumns = arrayOf("bookId"),
+        childColumns = arrayOf("bookId"),
+        onDelete = ForeignKey.CASCADE)]
 )
 data class BorrowedBook(
     @PrimaryKey val bookId: Long,
-    @ColumnInfo val who: String,
-    @ColumnInfo val start: Date,
-    @ColumnInfo val end: Date?
+    @ColumnInfo val who: String? = null,
+    @ColumnInfo val start: Date = Date(System.currentTimeMillis()),
+    @ColumnInfo val end: Date? = null
 ): Parcelable

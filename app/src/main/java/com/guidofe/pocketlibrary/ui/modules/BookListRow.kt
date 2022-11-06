@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,6 +57,7 @@ fun LibraryListRow(
         bundle.book.coverURI,
         item.value.info.isFavorite,
         item.isSelected,
+        item.value.lent != null,
         onRowTap,
         onRowLongPress,
         onCoverLongPress
@@ -79,6 +81,7 @@ fun WishlistRow(
         bundle.book.coverURI,
         false,
         item.isSelected,
+        false,
         onRowTap,
         onRowLongPress,
         onCoverLongPress
@@ -118,6 +121,7 @@ private fun GenericListRow(
     coverURI: Uri? = null,
     isFavorite: Boolean = false,
     isSelected: Boolean = false,
+    isLent: Boolean = false,
     onRowTap: (Offset) -> Unit = {},
     onRowLongPress: (Offset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {}
@@ -138,19 +142,22 @@ private fun GenericListRow(
                     coverURI,
                     isSelected,
                     onRowTap,
-                    onCoverLongPress
+                    onCoverLongPress,
+                    isLent
                 )
                 Box(
                     modifier = Modifier
                         .weight(1f, true)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxHeight()
                     ) {
                         Column(
+                            verticalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(5.dp)
+                                .padding(5.dp, 0.dp)
                         ) {
                             Text(
                                 text = title,

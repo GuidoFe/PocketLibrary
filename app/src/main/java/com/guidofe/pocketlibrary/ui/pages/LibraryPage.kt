@@ -1,13 +1,18 @@
 package com.guidofe.pocketlibrary.ui.pages.librarypage
 
 import android.util.Log
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
@@ -20,11 +25,15 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 //TODO: Undo delete action
 
@@ -41,11 +50,14 @@ fun LibraryPage(
     val context = LocalContext.current
     var isExpanded: Boolean by remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
-    val isMultipleSelecting by vm.selectionManager.isMutableSelecting.collectAsState()
+    val isMultipleSelecting by vm.selectionManager.isMultipleSelecting.collectAsState()
     var isFavoriteButtonFilled by remember{mutableStateOf(false)}
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
     var showConfirmDeleteBook by remember{mutableStateOf(false)}
+    var showLendBookDialog by remember{mutableStateOf(false)}
+    var offset by remember{mutableStateOf(Offset.Zero)}
+    val screenDensity = LocalDensity.current
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             isFavoriteButtonFilled = false
@@ -174,7 +186,10 @@ fun LibraryPage(
                             vm.selectionManager.startMultipleSelection(item.value)
                         }
                     },
-                    onRowLongPress = {itemDropdownOpen = true}
+                    onRowLongPress = {
+                        offset = it
+                        itemDropdownOpen = true
+                    }
                 )
                 DropdownMenu(
                     expanded = itemDropdownOpen,
@@ -186,10 +201,26 @@ fun LibraryPage(
                             navigator.navigate(EditBookPageDestination(item.value.info.bookId))
                         }
                     )
-                    //TODO allow for undo
+                    if (item.value.lent == null)
+                        DropdownMenuItem(
+                            text = {Text(stringResource(R.string.lend_book))},
+                            onClick = {
+                                vm.selectedBook = item.value.bookBundle.book
+                                itemDropdownOpen = false
+                                showLendBookDialog = true
+                            }
+                        )
+                    else
+                        DropdownMenuItem(
+                            text = {Text(stringResource(R.string.mark_as_returned))},
+                            onClick = {
+                                itemDropdownOpen = false
+                                vm.markLentBookAsReturned(item.value.lent)
+                            })
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.delete)) },
                         onClick = {
+                            itemDropdownOpen = false
                             vm.selectedBook = item.value.bookBundle.book
                             showConfirmDeleteBook = true
                         }
@@ -259,6 +290,66 @@ fun LibraryPage(
                 vm.deleteSelectedBookAndRefresh()
             showConfirmDeleteBook = false
         }
+    }
+    var whoString by remember{mutableStateOf("")}
+    var lentDate by remember{mutableStateOf(LocalDate.now())}
+    var whoError by remember{mutableStateOf(false)}
+    var showCalendar by remember{mutableStateOf(false)}
+    if(showLendBookDialog) {
+        AlertDialog(
+            onDismissRequest = {vm.selectedBook = null; showLendBookDialog = false},
+            confirmButton = {
+                Button(onClick = {
+                    if (whoString.isBlank()){
+                        whoError = true
+                        return@Button
+                    }
+                    if (isMultipleSelecting)
+                        vm.markSelectedItemsAsLent(whoString, lentDate)
+                    else {
+                        vm.markSelectedBookAsLent(whoString, lentDate)
+                    }
+                    showLendBookDialog = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {vm.selectedBook = null; showLendBookDialog = false}) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = whoString,
+                        onValueChange = {whoString = it},
+                        label = {Text(stringResource(R.string.to_whom))},
+                        isError = whoError,
+                        supportingText = {if (whoError) Text(stringResource(R.string.please_enter_value))}
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Text(stringResource(R.string.lent_on))
+                        AssistChip(
+                            onClick = {showCalendar = true; showLendBookDialog = false; },
+                            label = {Text(lentDate.format(
+                                    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                            )}
+                        )
+                    }
+                }
+            }
+        )
+    }
+    if(showCalendar) {
+        CalendarDialog(
+            onDismissed = {showLendBookDialog = true; showCalendar = false; },
+            onDaySelected = {lentDate = it; showLendBookDialog = true; showCalendar = false;},
+            startingDate = lentDate,
+        )
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {

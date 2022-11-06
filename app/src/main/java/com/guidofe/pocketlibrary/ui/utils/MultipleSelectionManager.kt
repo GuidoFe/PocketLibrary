@@ -1,14 +1,12 @@
 package com.guidofe.pocketlibrary.ui.utils
 
-import android.util.Log
 import kotlinx.coroutines.flow.*
-import java.util.*
 
 class MultipleSelectionManager<K, V>(
     val getKey: (V) -> K
 ) {
     private var _isMultipleSelecting: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isMutableSelecting: StateFlow<Boolean> = _isMultipleSelecting.asStateFlow()
+    val isMultipleSelecting: StateFlow<Boolean> = _isMultipleSelecting.asStateFlow()
     private val _selectedItems: MutableStateFlow<Map<K, V>> = MutableStateFlow(mapOf())
     val selectedItems: StateFlow<Map<K, V>> = _selectedItems.asStateFlow()
     val selectedKeys: List<K>

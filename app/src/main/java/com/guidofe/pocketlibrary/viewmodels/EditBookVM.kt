@@ -12,6 +12,7 @@ import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.sql.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,6 +55,9 @@ class EditBookVM @Inject constructor(
                 when (newBookDestination) {
                     BookDestination.LIBRARY -> repo.insertLibraryBook(LibraryBook(currentBookId))
                     BookDestination.WISHLIST -> repo.insertWishlistBook(WishlistBook(currentBookId))
+                    BookDestination.BORROWED -> repo.insertBorrowedBook(
+                        BorrowedBook(currentBookId)
+                    )
                     else -> {}
                 }
             } else {

@@ -6,6 +6,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.utils.BookDestination
 import kotlinx.parcelize.Parcelize
+import java.sql.Date
+import java.time.Instant
 
 @Parcelize
 data class ImportedBookData(
@@ -74,6 +76,9 @@ data class ImportedBookData(
                 when (destination) {
                     BookDestination.LIBRARY -> localRepo.insertLibraryBook(LibraryBook(bookId))
                     BookDestination.WISHLIST -> localRepo.insertWishlistBook(WishlistBook(bookId))
+                    BookDestination.BORROWED -> localRepo.insertBorrowedBook(
+                        BorrowedBook(bookId)
+                    )
                 }
             }
         }

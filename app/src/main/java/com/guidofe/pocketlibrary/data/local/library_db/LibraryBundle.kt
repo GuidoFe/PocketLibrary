@@ -15,4 +15,9 @@ data class LibraryBundle (
         entityColumn = "bookId"
     )
     val bookBundle: BookBundle,
+    @Relation(
+        parentColumn = "bookId",
+        entityColumn = "bookId"
+    )
+    val lent: LentBook? = null
 ): Parcelable

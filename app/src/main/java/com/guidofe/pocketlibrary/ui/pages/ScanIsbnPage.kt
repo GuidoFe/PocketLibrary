@@ -114,6 +114,7 @@ fun ScanIsbnPage(
             when (destination) {
                 BookDestination.LIBRARY -> importVm.getBooksInLibraryWithSameIsbn(isbn, callback)
                 BookDestination.WISHLIST -> importVm.getBooksInWishlistWithSameIsbn(isbn, callback)
+                BookDestination.BORROWED -> importVm.getBooksInBorrowedWithSameIsbn(isbn, callback)
             }
         }
     }
@@ -245,6 +246,11 @@ private fun ScanIsbnPagePreview() {
             ) {}
 
             override fun getBooksInWishlistWithSameIsbn(
+                isbn: String,
+                callback: (List<Book>) -> Unit
+            ) {}
+
+            override fun getBooksInBorrowedWithSameIsbn(
                 isbn: String,
                 callback: (List<Book>) -> Unit
             ) {}

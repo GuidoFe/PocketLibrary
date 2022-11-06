@@ -49,4 +49,12 @@ interface LocalRepository {
     suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>)
 
     fun getBorrowedBundles(): Flow<List<BorrowedBundle>>
+    suspend fun insertBorrowedBook(borrowedBook: BorrowedBook)
+    suspend fun getBooksInBorrowedWithSameIsbn(isbn: String): List<Book>
+    suspend fun updateBorrowedBook(borrowedBook: BorrowedBook)
+    suspend fun insertLentBook(lentBook: LentBook)
+    suspend fun insertAllLentBooks(lentBooks: List<LentBook>)
+    suspend fun updateLentBook(lentBook: LentBook)
+    suspend fun deleteLentBook(lentBook: LentBook)
+    suspend fun deleteLentBooks(lentBooks: List<LentBook>)
 }

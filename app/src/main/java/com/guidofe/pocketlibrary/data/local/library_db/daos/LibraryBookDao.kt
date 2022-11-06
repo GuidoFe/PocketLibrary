@@ -17,6 +17,7 @@ interface LibraryBookDao {
 
     @Insert
     suspend fun insertAll(libraryBooks: List<LibraryBook>)
+
     @Query("SELECT book.* FROM library_book NATURAL JOIN book WHERE book.identifier = :isbn")
     suspend fun getBooksInLibraryWithSameIsbn(isbn: String): List<Book>
 

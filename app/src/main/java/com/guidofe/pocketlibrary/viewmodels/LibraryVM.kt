@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
+import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.LibraryPagingSource
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
@@ -16,6 +17,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.sql.Date
+import java.time.LocalDate
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -76,6 +79,38 @@ class LibraryVM @Inject constructor(
             if (ids.isEmpty()) return@launch
             repo.updateFavorite(ids, favorite)
             currentPagingSource?.invalidate()
+        }
+    }
+
+    override fun markSelectedBookAsLent(who: String, start: LocalDate) {
+        viewModelScope.launch {
+            selectedBook?.let {
+                repo.insertLentBook(LentBook(it.bookId, who, Date.valueOf(start.toString())))
+                currentPagingSource?.invalidate()
+            }
+        }
+    }
+
+    override fun markSelectedItemsAsLent(who: String, start: LocalDate) {
+        viewModelScope.launch {
+            val lentBooks = selectionManager.selectedKeys.map{
+                LentBook(it, who, Date.valueOf(start.toString()))
+            }
+            repo.insertAllLentBooks(lentBooks)
+            currentPagingSource?.invalidate()
+        }
+    }
+
+    override fun markLentBookAsReturned(lentBook: LentBook) {
+        viewModelScope.launch {
+            repo.deleteLentBook(lentBook)
+            currentPagingSource?.invalidate()
+        }
+    }
+
+    override fun markSelectedLentBooksAsReturned() {
+        viewModelScope.launch {
+            repo.deleteLentBooks(selectionManager.selectedItems.value.mapNotNull{it.value.lent})
         }
     }
 }

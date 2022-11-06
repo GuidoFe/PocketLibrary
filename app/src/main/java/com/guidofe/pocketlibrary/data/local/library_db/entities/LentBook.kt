@@ -9,10 +9,12 @@ import kotlinx.parcelize.Parcelize
 import java.sql.Date
 
 @Parcelize
-@Entity(foreignKeys = [ForeignKey(entity = Book::class,
-    parentColumns = arrayOf("bookId"),
-    childColumns = arrayOf("bookId"),
-    onDelete = ForeignKey.CASCADE)]
+@Entity(
+    tableName = "lent_book",
+    foreignKeys = [ForeignKey(entity = Book::class,
+        parentColumns = arrayOf("bookId"),
+        childColumns = arrayOf("bookId"),
+        onDelete = ForeignKey.CASCADE)]
 )
 data class LentBook(
     @PrimaryKey val bookId: Long,

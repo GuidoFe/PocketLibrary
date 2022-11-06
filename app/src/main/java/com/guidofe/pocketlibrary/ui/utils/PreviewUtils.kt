@@ -4,6 +4,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import java.sql.Date
 
 class PreviewUtils() {
     companion object {
@@ -33,7 +34,8 @@ class PreviewUtils() {
 
         val exampleLibraryBundle = LibraryBundle(
             exampleLibraryBook,
-            exampleBookBundle
+            exampleBookBundle,
+            LentBook(1, "Mario", Date(System.currentTimeMillis()))
         )
         val exampleImportedBook = ImportedBookData(
             externalId = "id-234r2",

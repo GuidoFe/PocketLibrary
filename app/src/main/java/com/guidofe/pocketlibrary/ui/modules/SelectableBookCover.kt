@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.google.android.material.color.MaterialColors
 import com.guidofe.pocketlibrary.R
 
 private enum class CoverStatus {LOADED, LOADING, ERROR, EMPTY}
@@ -37,7 +39,8 @@ fun SelectableBookCover(
     coverURI: Uri?,
     isSelected: Boolean,
     onTap: (Offset) -> Unit = {},
-    onLongPress: (Offset) -> Unit = {}
+    onLongPress: (Offset) -> Unit = {},
+    isLent: Boolean = false
 ) {
     val selectionOffset: Dp by animateDpAsState(
         if (isSelected) (-5).dp else 0.dp,
@@ -62,6 +65,11 @@ fun SelectableBookCover(
                 )
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surface)
+                .border(
+                    width = 3.dp,
+                    color = if (isLent) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    shape = MaterialTheme.shapes.medium
+                )
         ) {
             if (coverURI == null) {
                 Box(
@@ -111,6 +119,16 @@ fun SelectableBookCover(
                     }
                 }
             }
+            if (isLent)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(stringResource(R.string.lent), color = MaterialTheme.colorScheme.onPrimary)
+                }
             if (isSelected) {
                 Box(
                     modifier = Modifier
