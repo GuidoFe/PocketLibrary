@@ -11,7 +11,7 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +25,7 @@ class SearchBookOnlineVM @Inject constructor(
     private val repo: LocalRepository,
     metaRepo: BookMetaRepository
 ): ViewModel(), ISearchBookOnlineVM {
-    override val selectionManager = MultipleSelectionManager<String, ImportedBookData>(
+    override val selectionManager = SelectionManager<String, ImportedBookData>(
         getKey = {it.externalId}
     )
     override val listVM: OnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)

@@ -57,4 +57,7 @@ interface LocalRepository {
     suspend fun updateLentBook(lentBook: LentBook)
     suspend fun deleteLentBook(lentBook: LentBook)
     suspend fun deleteLentBooks(lentBooks: List<LentBook>)
+    suspend fun updateAllBorrowedBooks(borrowedBooks: List<BorrowedBook>)
+    fun getLentLibraryBundles(): Flow<List<LibraryBundle>>
+    suspend fun updateAllLentBooks(lentBooks: List<LentBook>)
 }

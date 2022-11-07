@@ -3,12 +3,12 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
+import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedTabState
+import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,38 +22,42 @@ class BookLogVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarState: SnackbarHostState
 ): ViewModel(), IBookLogVM {
-    override var selectedBorrowedBook: Book? = null
-    override val borrowedSelectionManager = MultipleSelectionManager<Long, BorrowedBundle>(
-        getKey = {it.info.bookId}
-    )
-
+    override val borrowedTabState = BorrowedTabState()
+    override val lentTabState = LentTabState()
     override val borrowedItems = repo.getBorrowedBundles()
-        .combine(borrowedSelectionManager.selectedItems) { books, selected ->
+        .combine(borrowedTabState.selectionManager.selectedItems) { books, selected ->
+            books.map{
+                SelectableListItem(it, selected.containsKey(it.info.bookId))
+            }
+        }
+    override val lentItems = repo.getLentLibraryBundles()
+        .combine(lentTabState.selectionManager.selectedItems) { books, selected ->
             books.map{
                 SelectableListItem(it, selected.containsKey(it.info.bookId))
             }
         }
 
-    override fun deleteSelectedBorrowedBooks(callback: () -> Unit) {
+    override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
         viewModelScope.launch {
-            repo.deleteBooksByIds(borrowedSelectionManager.selectedKeys)
-            borrowedSelectionManager.clearSelection()
+            repo.deleteBooksByIds(bookIds)
             callback()
         }
     }
 
-    override fun deleteSelectedBorrowedBook(callback: () -> Unit) {
+    override fun updateBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
         viewModelScope.launch {
-            selectedBorrowedBook?.let {
-                repo.deleteBook(it)
-                callback()
-            }
+            repo.updateAllBorrowedBooks(borrowedBooks)
         }
     }
 
-    override fun updateBorrowed(borrowedBook: BorrowedBook) {
+    override fun updateLent(list: List<LentBook>){
         viewModelScope.launch {
-            repo.updateBorrowedBook(borrowedBook)
+            repo.updateAllLentBooks(list)
+        }
+    }
+    override fun removeLentStatus(books: List<LentBook>, callback: () -> Unit){
+        viewModelScope.launch {
+            repo.deleteLentBooks(books)
         }
     }
 

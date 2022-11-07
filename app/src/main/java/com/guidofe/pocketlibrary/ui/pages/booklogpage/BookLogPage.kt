@@ -14,9 +14,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
-import com.guidofe.pocketlibrary.ui.modules.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
+import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedField
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedTab
+import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentField
+import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTab
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
@@ -43,19 +45,24 @@ fun BookLogPage(
     val scope = rememberCoroutineScope()
     var tabIndex: Int by remember{mutableStateOf(0)}
     val borrowedList by vm.borrowedItems.collectAsState(initial = listOf())
-    var isExpanded: Boolean by remember{mutableStateOf(false)}
-    val isBorrowedMultipleSelecting by vm.borrowedSelectionManager.isMultipleSelecting.collectAsState()
+    val lentList by vm.lentItems.collectAsState(initial = listOf())
+    var isFabExpanded: Boolean by remember{mutableStateOf(false)}
+    var isBorrowTabMenuExpanded: Boolean by remember{mutableStateOf(false)}
+    var isLentTabMenuExpanded: Boolean by remember{mutableStateOf(false)}
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
-    var showConfirmReturnBook by remember{mutableStateOf(false)}
-    LaunchedEffect(tabIndex, isBorrowedMultipleSelecting) {
-        if (tabIndex == 0 && isBorrowedMultipleSelecting) {
+    LaunchedEffect(
+        tabIndex,
+        vm.borrowedTabState.selectionManager.isMultipleSelecting,
+        vm.lentTabState.selectionManager.isMultipleSelecting
+    ) {
+        if (tabIndex == 0 && vm.borrowedTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            vm.borrowedSelectionManager.clearSelection()
+                            vm.borrowedTabState.selectionManager.clearSelection()
                         }
                     ) {
                         Icon(
@@ -67,7 +74,7 @@ fun BookLogPage(
                 actions = {
                     IconButton(
                         onClick = {
-                            showConfirmReturnBook = true
+                            vm.borrowedTabState.showConfirmReturnBook = true
                         }
                     ) {
                         Icon(
@@ -76,10 +83,8 @@ fun BookLogPage(
                         )
                     }
                     Box() {
-                        var isMoreMenuOpen by remember{mutableStateOf(false)}
                         IconButton(
-                            onClick = {
-                            }
+                            onClick = {isBorrowTabMenuExpanded = true}
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -87,12 +92,94 @@ fun BookLogPage(
                             )
                         }
                         DropdownMenu(
-                            expanded = isMoreMenuOpen,
-                            onDismissRequest = { isMoreMenuOpen = false}
+                            expanded = isBorrowTabMenuExpanded,
+                            onDismissRequest = { isBorrowTabMenuExpanded = false}
                         ) {
                             DropdownMenuItem(
-                                {Text(stringResource(R.string.change_lender))},
-                                {})
+                                text = {Text(stringResource(R.string.change_lender))},
+                                onClick = {
+                                    isBorrowTabMenuExpanded = false
+                                    vm.borrowedTabState.isLenderDialogVisible = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {Text(stringResource(R.string.change_start_date))},
+                                onClick = {
+                                    isBorrowTabMenuExpanded = false
+                                    vm.borrowedTabState.fieldToChange = BorrowedField.START
+                                    vm.borrowedTabState.isCalendarVisible = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {Text(stringResource(R.string.change_return_by_date))},
+                                onClick = {
+                                    isBorrowTabMenuExpanded = false
+                                    vm.borrowedTabState.fieldToChange = BorrowedField.RETURN_BY
+                                    vm.borrowedTabState.isCalendarVisible = true
+                                }
+                            )
+                        }
+                    }
+                }
+            )
+        } else if (tabIndex == 1 && vm.lentTabState.selectionManager.isMultipleSelecting) {
+            vm.scaffoldState.refreshBar(
+                title = context.getString(R.string.selecting),
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            vm.lentTabState.selectionManager.clearSelection()
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.arrow_back_24px),
+                            stringResource(R.string.clear_selection)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            vm.removeLentStatus(
+                                vm.lentTabState.selectionManager.selectedItems.value.values.mapNotNull {
+                                    it.lent
+                                }
+                            ) {}
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.return_book_24px),
+                            stringResource(R.string.mark_as_returned),
+                        )
+                    }
+                    Box() {
+                        IconButton(
+                            onClick = {isLentTabMenuExpanded = true}
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.more_vert_24px),
+                                stringResource(R.string.more)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isLentTabMenuExpanded,
+                            onDismissRequest = { isLentTabMenuExpanded = false}
+                        ) {
+                            DropdownMenuItem(
+                                text = {Text(stringResource(R.string.change_borrower))},
+                                onClick = {
+                                    isLentTabMenuExpanded = false
+                                    vm.lentTabState.isBorrowerDialogVisible = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {Text(stringResource(R.string.change_start_date))},
+                                onClick = {
+                                    isLentTabMenuExpanded = false
+                                    vm.lentTabState.fieldToChange = LentField.START
+                                    vm.lentTabState.isCalendarVisible = true
+                                }
+                            )
                         }
                     }
                 }
@@ -131,9 +218,9 @@ fun BookLogPage(
         if (tabIndex == 0) {
             vm.scaffoldState.fab = {
                 AddBookFab(
-                    isExpanded = isExpanded,
-                    onMainFabClick = { isExpanded = !isExpanded },
-                    onDismissRequest = { isExpanded = false },
+                    isExpanded = isFabExpanded,
+                    onMainFabClick = { isFabExpanded = !isFabExpanded },
+                    onDismissRequest = { isFabExpanded = false },
                     onIsbnTyped = {
                         isbnToSearch = it
                     },
@@ -174,36 +261,32 @@ fun BookLogPage(
                 text = { Text(stringResource(R.string.lent)) }
             )
         }
-        if (tabIndex == 0)
-            BorrowedTab(
-                borrowedList,
-                vm.borrowedSelectionManager,
-                updateBorrowed = {vm.updateBorrowed(it)},
-                returnBorrowedBundle = {
-                    vm.selectedBorrowedBook = it.bookBundle.book
-                    showConfirmReturnBook = true
-                }
-            )
+        when (tabIndex) {
+            0 -> {
+                BorrowedTab(
+                    borrowedList,
+                    updateBorrowed = { vm.updateBorrowedBooks(it) },
+                    deleteBorrowedBooks = { ids, callback ->
+                        vm.deleteBorrowedBooks(ids, callback)
+                    },
+                    state = vm.borrowedTabState
+                )
+            }
+            1 -> {
+                LentTab(
+                    lentItems = lentList,
+                    updateLent = {vm.updateLent(it)},
+                    removeLentStatus = { list, callback ->
+                        vm.removeLentStatus(list, callback)
+                    },
+                    state = vm.lentTabState
+                )
+            }
+        }
+
     }
 
-    if(showConfirmReturnBook) {
-        ConfirmDeleteBookDialog(
-            onDismiss = {
-                showConfirmReturnBook = false
-                if (isBorrowedMultipleSelecting)
-                    vm.borrowedSelectionManager.clearSelection()
-            },
-            isPlural = isBorrowedMultipleSelecting && vm.borrowedSelectionManager.count > 1,
-            messageSingular = stringResource(R.string.confirm_return_message),
-            messagePlural = stringResource(R.string.confirm_return_message_plural),
-        ) {
-            if(isBorrowedMultipleSelecting)
-                vm.deleteSelectedBorrowedBooks {}
-            else
-                vm.deleteSelectedBorrowedBook {}
-            showConfirmReturnBook = false
-        }
-    }
+
 
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {

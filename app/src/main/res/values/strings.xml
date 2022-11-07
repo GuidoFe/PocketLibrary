@@ -123,5 +123,11 @@
     <string name="lent_on">Lent on:</string>
     <string name="please_enter_value">Please enter a value</string>
     <string name="change_lender">Change lender</string>
+    <string name="change_start_date">Change start date</string>
+    <string name="change_return_by_date">Change the return date</string>
+    <string name="empty_library_text">It\'s a bit empty here :(</string>
+    <string name="lend_books">Lend books</string>
+    <string name="lent_to_colon">Lent to:</string>
+    <string name="change_borrower">Change borrower</string>
 
 </resources>

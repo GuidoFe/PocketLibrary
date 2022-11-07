@@ -7,14 +7,14 @@ import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.OnlineBooksPagingSource
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 class OnlineBookListVM(
-    override val selectionManager: MultipleSelectionManager<String, ImportedBookData>,
+    override val selectionManager: SelectionManager<String, ImportedBookData>,
     private val metaRepo: BookMetaRepository
 ): ViewModel(), IOnlineBookListVM {
     override var query: QueryData? = null

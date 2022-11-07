@@ -9,7 +9,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.WishlistPagingSource
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +27,7 @@ class WishlistPageVM @Inject constructor(
 ): ViewModel(), IWishlistPageVM {
     override var selectedBook: Book? = null
     override var duplicateIsbn: String = ""
-    override val selectionManager = MultipleSelectionManager<Long, WishlistBundle>(
+    override val selectionManager = SelectionManager<Long, WishlistBundle>(
         getKey = {it.info.bookId}
     )
     private var currentPagingSource: WishlistPagingSource? = null

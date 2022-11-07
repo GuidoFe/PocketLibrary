@@ -6,7 +6,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -14,16 +14,15 @@ import java.time.LocalDate
 interface ILibraryVM {
     val scaffoldState: ScaffoldState
     val snackbarHostState: SnackbarHostState
-    val selectionManager: MultipleSelectionManager<Long, LibraryBundle>
+    val selectionManager: SelectionManager<Long, LibraryBundle>
     fun deleteSelectedBooksAndRefresh()
     fun deleteSelectedBookAndRefresh()
     fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean)
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<LibraryBundle>>>
     fun invalidate()
-    var selectedBook: Book?
-    fun markSelectedItemsAsLent(who: String, start: LocalDate)
-    fun markSelectedLentBooksAsReturned()
+    fun markSelectedItemsAsLent(who: String, start: LocalDate, callback: () -> Unit)
+    fun markSelectedLentBooksAsReturned(callback: () -> Unit)
     fun markLentBookAsReturned(lentBook: LentBook)
-    fun markSelectedBookAsLent(who: String, start: LocalDate)
+    fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit)
 }

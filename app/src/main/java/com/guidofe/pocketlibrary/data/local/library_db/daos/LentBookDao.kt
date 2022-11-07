@@ -20,6 +20,9 @@ interface LentBookDao {
     @Update
     suspend fun update(lentBook: LentBook)
 
+    @Update
+    suspend fun updateAll(lentBooks: List<LentBook>)
+
     @Delete
     suspend fun delete(lentBook: LentBook)
 

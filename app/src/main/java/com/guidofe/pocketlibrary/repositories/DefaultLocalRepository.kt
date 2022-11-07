@@ -1,8 +1,5 @@
 package com.guidofe.pocketlibrary.repositories
 
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
 import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
@@ -113,6 +110,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
         return db.borrowedBundleDao().getBorrowedBundles()
     }
 
+    override fun getLentLibraryBundles(): Flow<List<LibraryBundle>> {
+        return db.libraryBundleDao().getLentLibraryBundlesFlow()
+    }
+
     override suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book> {
         return db.libraryBookDao().getBooksInLibraryWithSameIsbns(isbns)
     }
@@ -181,6 +182,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
         db.borrowedBookDao().update(borrowedBook)
     }
 
+    override suspend fun updateAllBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
+        db.borrowedBookDao().updateAll(borrowedBooks)
+    }
+
     override suspend fun insertLentBook(lentBook: LentBook) {
         db.lentBookDao().insert(lentBook)
     }
@@ -191,6 +196,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
 
     override suspend fun updateLentBook(lentBook: LentBook) {
         db.lentBookDao().update(lentBook)
+    }
+
+    override suspend fun updateAllLentBooks(lentBooks: List<LentBook>) {
+        db.lentBookDao().updateAll(lentBooks)
     }
 
     override suspend fun deleteLentBook(lentBook: LentBook) {

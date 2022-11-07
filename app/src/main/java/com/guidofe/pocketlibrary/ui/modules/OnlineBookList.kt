@@ -15,7 +15,7 @@ import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.OnlineBookListVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
@@ -26,14 +26,13 @@ fun OnlineBookList(
     modifier: Modifier = Modifier,
     singleTapAction: (SelectableListItem<ImportedBookData>) -> Unit = {},
     longPressAction: (SelectableListItem<ImportedBookData>) -> Unit = {},
-    selectionManager: MultipleSelectionManager<String, ImportedBookData> = MultipleSelectionManager(
+    selectionManager: SelectionManager<String, ImportedBookData> = SelectionManager(
         getKey = {it.externalId}
     ),
     multipleSelectionEnabled: Boolean = true,
     vm: IOnlineBookListVM = hiltViewModel<OnlineBookListVM>()
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
-    val isMutableSelecting by selectionManager.isMultipleSelecting.collectAsState()
 
     LaunchedEffect(queryData) {
         vm.query = queryData
@@ -65,19 +64,19 @@ fun OnlineBookList(
                             ImportedBookListRow(
                                 item,
                                 onRowTap = {
-                                    if (isMutableSelecting) {
+                                    if (selectionManager.isMultipleSelecting) {
                                         selectionManager.multipleSelectToggle(item.value)
                                     }
                                     else
                                         singleTapAction(item)
                                 },
                                 onRowLongPress = {
-                                    if (!isMutableSelecting)
+                                    if (!selectionManager.isMultipleSelecting)
                                         longPressAction(item)
                                 },
                                 onCoverLongPress = {
                                     if (multipleSelectionEnabled) {
-                                        if (!isMutableSelecting) {
+                                        if (!selectionManager.isMultipleSelecting) {
                                             selectionManager.startMultipleSelection(item.value)
                                         }
                                     } else {

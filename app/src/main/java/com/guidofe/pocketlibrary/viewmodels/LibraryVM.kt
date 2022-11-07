@@ -10,7 +10,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.LibraryPagingSource
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,9 +28,8 @@ class LibraryVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
 ): ViewModel(), ILibraryVM {
-    override var selectedBook: Book? = null
     override var duplicateIsbn: String = ""
-    override val selectionManager = MultipleSelectionManager<Long, LibraryBundle>(
+    override val selectionManager = SelectionManager<Long, LibraryBundle>(
         getKey = {it.info.bookId}
     )
     private var currentPagingSource: LibraryPagingSource? = null
@@ -66,11 +65,11 @@ class LibraryVM @Inject constructor(
 
     override fun deleteSelectedBookAndRefresh() {
         viewModelScope.launch {
-            selectedBook?.let{
-                repo.deleteBook(it)
+            selectionManager.singleSelectedItem?.let{
+                repo.deleteBook(it.bookBundle.book)
                 currentPagingSource?.invalidate()
             }
-            selectedBook = null
+            selectionManager.singleSelectedItem = null
         }
     }
 
@@ -82,22 +81,24 @@ class LibraryVM @Inject constructor(
         }
     }
 
-    override fun markSelectedBookAsLent(who: String, start: LocalDate) {
+    override fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit) {
         viewModelScope.launch {
-            selectedBook?.let {
-                repo.insertLentBook(LentBook(it.bookId, who, Date.valueOf(start.toString())))
+            selectionManager.singleSelectedItem?.let {
+                repo.insertLentBook(LentBook(it.info.bookId, who, Date.valueOf(start.toString())))
                 currentPagingSource?.invalidate()
             }
+            callback()
         }
     }
 
-    override fun markSelectedItemsAsLent(who: String, start: LocalDate) {
+    override fun markSelectedItemsAsLent(who: String, start: LocalDate, callback: () -> Unit) {
         viewModelScope.launch {
             val lentBooks = selectionManager.selectedKeys.map{
                 LentBook(it, who, Date.valueOf(start.toString()))
             }
             repo.insertAllLentBooks(lentBooks)
             currentPagingSource?.invalidate()
+            callback()
         }
     }
 
@@ -108,9 +109,11 @@ class LibraryVM @Inject constructor(
         }
     }
 
-    override fun markSelectedLentBooksAsReturned() {
+    override fun markSelectedLentBooksAsReturned(callback: () -> Unit) {
         viewModelScope.launch {
             repo.deleteLentBooks(selectionManager.selectedItems.value.mapNotNull{it.value.lent})
+            currentPagingSource?.invalidate()
+            callback()
         }
     }
 }

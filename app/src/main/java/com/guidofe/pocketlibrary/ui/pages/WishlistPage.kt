@@ -41,7 +41,7 @@ fun WishlistPage(
     val context = LocalContext.current
     var isExpanded: Boolean by remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
-    val isMultipleSelecting by vm.selectionManager.isMultipleSelecting.collectAsState()
+    val isMultipleSelecting = vm.selectionManager.isMultipleSelecting
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
     var showConfirmDeleteBook by remember{mutableStateOf(false)}

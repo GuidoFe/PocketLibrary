@@ -6,14 +6,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
@@ -48,9 +49,8 @@ fun LibraryPage(
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
-    var isExpanded: Boolean by remember{mutableStateOf(false)}
+    var isFabExpanded: Boolean by remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
-    val isMultipleSelecting by vm.selectionManager.isMultipleSelecting.collectAsState()
     var isFavoriteButtonFilled by remember{mutableStateOf(false)}
     var showDoubleIsbnDialog by remember{mutableStateOf(false)}
     var isbnToSearch: String? by remember{mutableStateOf(null)}
@@ -58,15 +58,18 @@ fun LibraryPage(
     var showLendBookDialog by remember{mutableStateOf(false)}
     var offset by remember{mutableStateOf(Offset.Zero)}
     val screenDensity = LocalDensity.current
-    LaunchedEffect(isMultipleSelecting) {
-        if (isMultipleSelecting) {
+    val selectionManager = vm.selectionManager
+    var isMenuOpen by remember{mutableStateOf(false)}
+
+    LaunchedEffect(selectionManager.isMultipleSelecting) {
+        if (selectionManager.isMultipleSelecting) {
             isFavoriteButtonFilled = false
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            vm.selectionManager.clearSelection()
+                            selectionManager.clearSelection()
                         }
                     ) {
                         Icon(
@@ -90,7 +93,7 @@ fun LibraryPage(
                         onClick = {
                             isFavoriteButtonFilled = !isFavoriteButtonFilled
                             vm.setFavoriteAndRefresh(
-                                vm.selectionManager.selectedKeys,
+                                selectionManager.selectedKeys,
                                 isFavoriteButtonFilled
                             )
                         }
@@ -105,6 +108,31 @@ fun LibraryPage(
                                 painterResource(R.drawable.heart_24px),
                                 stringResource(R.string.add_to_favorites)
                             )
+                    }
+                    Box {
+                        IconButton(
+                            onClick = {isMenuOpen = true}
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.more_vert_24px),
+                                stringResource(R.string.more)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isMenuOpen,
+                            onDismissRequest = { isMenuOpen = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {Text(stringResource(R.string.lend_books))},
+                                onClick = {showLendBookDialog = true}
+                            )
+                            DropdownMenuItem(
+                                text = {Text(stringResource(R.string.mark_as_returned))},
+                                onClick = {vm.markSelectedLentBooksAsReturned  {
+                                    selectionManager.clearSelection()
+                                }}
+                            )
+                        }
                     }
                 }
             )
@@ -144,9 +172,9 @@ fun LibraryPage(
         Log.d("debug", "Drawing fab")
         vm.scaffoldState.fab = {
             AddBookFab(
-                isExpanded = isExpanded,
-                onMainFabClick = { isExpanded = !isExpanded },
-                onDismissRequest = { isExpanded = false},
+                isExpanded = isFabExpanded,
+                onMainFabClick = { isFabExpanded = !isFabExpanded },
+                onDismissRequest = { isFabExpanded = false},
                 onIsbnTyped = {
                     isbnToSearch = it
                 },
@@ -165,6 +193,16 @@ fun LibraryPage(
         }
     }
     LazyColumn {
+        if (lazyPagingItems.loadState.refresh != LoadState.Loading && lazyPagingItems.itemCount == 0)
+            item {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        stringResource(R.string.empty_library_text),
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
         items(
             items = lazyPagingItems,
             key = {it.value.info.bookId}
@@ -176,14 +214,14 @@ fun LibraryPage(
                 LibraryListRow(
                     item,
                     onRowTap = {
-                        if (isMultipleSelecting) {
-                            vm.selectionManager.multipleSelectToggle(item.value)
+                        if (selectionManager.isMultipleSelecting) {
+                            selectionManager.multipleSelectToggle(item.value)
                         } else
                             navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
                     },
                     onCoverLongPress = {
-                        if (!isMultipleSelecting) {
-                            vm.selectionManager.startMultipleSelection(item.value)
+                        if (!selectionManager.isMultipleSelecting) {
+                            selectionManager.startMultipleSelection(item.value)
                         }
                     },
                     onRowLongPress = {
@@ -205,7 +243,7 @@ fun LibraryPage(
                         DropdownMenuItem(
                             text = {Text(stringResource(R.string.lend_book))},
                             onClick = {
-                                vm.selectedBook = item.value.bookBundle.book
+                                selectionManager.singleSelectedItem = item.value
                                 itemDropdownOpen = false
                                 showLendBookDialog = true
                             }
@@ -221,7 +259,7 @@ fun LibraryPage(
                         text = { Text(stringResource(R.string.delete)) },
                         onClick = {
                             itemDropdownOpen = false
-                            vm.selectedBook = item.value.bookBundle.book
+                            selectionManager.singleSelectedItem = item.value
                             showConfirmDeleteBook = true
                         }
                     )
@@ -279,12 +317,12 @@ fun LibraryPage(
         ConfirmDeleteBookDialog(
             onDismiss = {
                 showConfirmDeleteBook = false
-                if (isMultipleSelecting)
-                    vm.selectionManager.clearSelection()
+                if (selectionManager.isMultipleSelecting)
+                    selectionManager.clearSelection()
             },
-            isPlural = isMultipleSelecting && vm.selectionManager.count > 1
+            isPlural = selectionManager.isMultipleSelecting && selectionManager.count > 1
         ) {
-            if(isMultipleSelecting)
+            if(selectionManager.isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()
             else
                 vm.deleteSelectedBookAndRefresh()
@@ -297,17 +335,21 @@ fun LibraryPage(
     var showCalendar by remember{mutableStateOf(false)}
     if(showLendBookDialog) {
         AlertDialog(
-            onDismissRequest = {vm.selectedBook = null; showLendBookDialog = false},
+            onDismissRequest = {selectionManager.clearSelection(); showLendBookDialog = false},
             confirmButton = {
                 Button(onClick = {
                     if (whoString.isBlank()){
                         whoError = true
                         return@Button
                     }
-                    if (isMultipleSelecting)
-                        vm.markSelectedItemsAsLent(whoString, lentDate)
+                    if (selectionManager.isMultipleSelecting)
+                        vm.markSelectedItemsAsLent(whoString, lentDate) {
+                            selectionManager.clearSelection()
+                        }
                     else {
-                        vm.markSelectedBookAsLent(whoString, lentDate)
+                        vm.markSelectedBookAsLent(whoString, lentDate) {
+                            selectionManager.clearSelection()
+                        }
                     }
                     showLendBookDialog = false
                 }) {
@@ -315,7 +357,7 @@ fun LibraryPage(
                 }
             },
             dismissButton = {
-                TextButton(onClick = {vm.selectedBook = null; showLendBookDialog = false}) {
+                TextButton(onClick = {selectionManager.clearSelection(); showLendBookDialog = false}) {
                     Text(stringResource(R.string.cancel))
                 }
             },

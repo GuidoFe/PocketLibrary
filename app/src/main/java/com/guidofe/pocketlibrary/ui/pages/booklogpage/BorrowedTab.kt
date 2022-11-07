@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,155 +7,206 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.modules.BorrowedBookRow
-import com.guidofe.pocketlibrary.ui.utils.MultipleSelectionManager
+import com.guidofe.pocketlibrary.ui.modules.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
 import java.time.LocalDate
 
-private enum class BorrowedField{LENDER, START, RETURN_BY}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BorrowedTab(
     borrowedItems: List<SelectableListItem<BorrowedBundle>>,
-    selectionManager: MultipleSelectionManager<Long, BorrowedBundle>,
-    updateBorrowed: (BorrowedBook) -> Unit,
-    returnBorrowedBundle: (BorrowedBundle) -> Unit,
+    updateBorrowed: (List<BorrowedBook>) -> Unit,
+    deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
+    state: BorrowedTabState,
     modifier: Modifier = Modifier
 ) {
-    var isLenderDialogVisible by remember{mutableStateOf(false)}
-    var clickedField: BorrowedField? by remember{ mutableStateOf(null) }
-    var clickedItem: BorrowedBundle? by remember{ mutableStateOf(null) }
-
+    val selectionManager = state.selectionManager
     Column(modifier = modifier) {
         LazyColumn() {
+            if (borrowedItems.isEmpty())
+                item {Text(stringResource(R.string.empty_library_text))}
             items(borrowedItems, key = {it.value.info.bookId}) {item ->
                 Box(
                 ) {
                     BorrowedBookRow(
                         item,
                         onRowTap = {
-                            if (selectionManager.isMultipleSelecting.value)
+                            if (selectionManager.isMultipleSelecting)
                                 selectionManager.multipleSelectToggle(item.value)
                         },
                         onCoverLongPress = {
-                            if (!selectionManager.isMultipleSelecting.value)
+                            if (!selectionManager.isMultipleSelecting)
                                 selectionManager.startMultipleSelection(item.value)
                         },
                         onLenderTap = {
-                            clickedField = BorrowedField.LENDER
-                            clickedItem = item.value
-                            isLenderDialogVisible = true
+                            state.fieldToChange = BorrowedField.LENDER
+                            selectionManager.singleSelectedItem = item.value
+                            state.isLenderDialogVisible = true
                         },
                         onStartTap = {
-                            clickedField = BorrowedField.START
-                            clickedItem = item.value
-                            isLenderDialogVisible = true
+                            state.fieldToChange = BorrowedField.START
+                            selectionManager.singleSelectedItem = item.value
+                            state.isCalendarVisible = true
                         },
                         onReturnByTap = {
-                            clickedField = BorrowedField.RETURN_BY
-                            clickedItem = item.value
-                            isLenderDialogVisible = true
+                            state.fieldToChange = BorrowedField.RETURN_BY
+                            selectionManager.singleSelectedItem = item.value
+                            state.isCalendarVisible = true
                         },
                         onDelete = {
-                            returnBorrowedBundle(it)
-                        }
+                            selectionManager.singleSelectedItem = item.value
+                            state.showConfirmReturnBook = true
+                        },
+                        areButtonsActive = !selectionManager.isMultipleSelecting
                     )
                 }
             }
         }
     }
 
-    if (isLenderDialogVisible) {
-        if (clickedField == BorrowedField.LENDER) {
-            var textInput by remember { mutableStateOf("") }
-            AlertDialog(
-                onDismissRequest = {
-                    clickedField = null
-                    clickedItem = null
-                    isLenderDialogVisible = false
-                },
-                confirmButton = {
-                    Button(onClick = {
-                        clickedItem?.let {
-                            isLenderDialogVisible = false
-                            updateBorrowed(it.info.copy(
+    if (state.isLenderDialogVisible) {
+        var textInput by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = {
+                state.fieldToChange = null
+                selectionManager.clearSelection()
+                state.isLenderDialogVisible = false
+            },
+            confirmButton = {
+                Button(onClick = {
+                    if(selectionManager.isMultipleSelecting) {
+                        updateBorrowed(selectionManager.selectedItems.value.values.map{
+                            it.info.copy(who = textInput.ifBlank { null })
+                        })
+                    } else {
+                        selectionManager.singleSelectedItem?.let {
+                            state.isLenderDialogVisible = false
+                            val newBorrowed = it.info.copy(
                                 who = textInput.ifBlank { null }
-                            ))
+                            )
+                            updateBorrowed(listOf(newBorrowed))
                         }
-                    }) { Text(stringResource(R.string.save)) }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        clickedField = null
-                        clickedItem = null
-                        isLenderDialogVisible = false
-                    }) {
-                        Text(stringResource(R.string.cancel))
                     }
-                },
-                title = { Text(clickedItem?.bookBundle?.book?.title ?: "???") },
-                text = {
-                    Column {
-                        val description = when (clickedField) {
-                            BorrowedField.LENDER -> stringResource(R.string.lender_colon)
-                            BorrowedField.START -> stringResource(R.string.start_colon)
-                            BorrowedField.RETURN_BY -> stringResource(R.string.return_by_colon)
-                            else -> "???"
-                        }
-                        Text(description)
-                        OutlinedTextField(
-                            value = textInput,
-                            onValueChange = { textInput = it },
-                        )
+                    selectionManager.clearSelection()
+                    state.fieldToChange = null
+                    state.isLenderDialogVisible = false
+                }) { Text(stringResource(R.string.save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    state.fieldToChange = null
+                    selectionManager.clearSelection()
+                    state.isLenderDialogVisible = false
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            title = {
+                if (!state.selectionManager.isMultipleSelecting)
+                    Text(selectionManager.singleSelectedItem?.bookBundle?.book?.title ?: "???")
+            },
+            text = {
+                Column {
+                    val description = when (state.fieldToChange) {
+                        BorrowedField.LENDER -> stringResource(R.string.lender_colon)
+                        BorrowedField.START -> stringResource(R.string.start_colon)
+                        BorrowedField.RETURN_BY -> stringResource(R.string.return_by_colon)
+                        else -> "???"
+                    }
+                    Text(stringResource(R.string.lender_colon))
+                    OutlinedTextField(
+                        value = textInput,
+                        onValueChange = { textInput = it },
+                    )
+                }
+            }
+        )
+    }
+    if (state.isCalendarVisible) {
+        CalendarDialog(
+            onDismissed = { 
+                state.isCalendarVisible = false
+                selectionManager.clearSelection()
+                state.fieldToChange = null
+            },
+            hasClearOption = state.fieldToChange == BorrowedField.RETURN_BY,
+            startingDate = when (state.fieldToChange) {
+                BorrowedField.START -> selectionManager.singleSelectedItem?.info?.start?.let {
+                    return@let LocalDate.parse(it.toString())
+                }?: LocalDate.now()
+                BorrowedField.RETURN_BY -> selectionManager.singleSelectedItem?.info?.end?.let {
+                    return@let LocalDate.parse(it.toString())
+                }?: selectionManager.singleSelectedItem?.info?.start?.let{return@let LocalDate.parse(it.toString())}?: LocalDate.now()
+                else -> LocalDate.now()
+            }
+        ) { newDate ->
+            val convertedDate = newDate?.let{Date.valueOf(newDate.toString())}
+            if (state.fieldToChange == BorrowedField.START && convertedDate == null) {
+                state.fieldToChange = null
+                selectionManager.clearSelection()
+                return@CalendarDialog
+            }
+
+            if (state.isMultipleSelecting) {
+                val list = if (state.fieldToChange == BorrowedField.START) {
+                    selectionManager.selectedItems.value.values.map {
+                        it.info.copy(start = convertedDate!!)
+                    }
+                } else {
+                    selectionManager.selectedItems.value.values.map {
+                        it.info.copy(end = convertedDate)
                     }
                 }
-            )
-        } else {
-            CalendarDialog(
-                onDismissed = {isLenderDialogVisible = false},
-                hasClearOption = clickedField == BorrowedField.RETURN_BY,
-                onClear = {
-                    if (clickedField == BorrowedField.RETURN_BY) {
-                        val info = clickedItem?.info?.copy(end = null)
-                        info?.let{updateBorrowed(it)}
-                    }
-                    isLenderDialogVisible = false
-                },
-                startingDate = when (clickedField) {
-                    BorrowedField.START -> clickedItem?.info?.start?.let {
-                        return@let LocalDate.parse(it.toString())
-                    }?: LocalDate.now()
-                    BorrowedField.RETURN_BY -> clickedItem?.info?.end?.let {
-                        return@let LocalDate.parse(it.toString())
-                    }?: clickedItem?.info?.start?.let{return@let LocalDate.parse(it.toString())}?: LocalDate.now()
-                    else -> LocalDate.now()
-                }
-            ) { newDate ->
-                val info = when (clickedField) {
-                    BorrowedField.START -> clickedItem?.info?.copy(start = Date.valueOf(newDate.toString()))
-                    BorrowedField.RETURN_BY -> clickedItem?.info?.copy(end = Date.valueOf(newDate.toString()))
+                updateBorrowed(list)
+            } else {
+                val info = when (state.fieldToChange) {
+                    BorrowedField.START -> selectionManager.singleSelectedItem?.info?.copy(
+                        start = convertedDate!!
+                    )
+                    BorrowedField.RETURN_BY -> selectionManager.singleSelectedItem?.info?.copy(
+                        end = convertedDate
+                    )
                     else -> null
                 }
-                info?.let{updateBorrowed(it)}
-                isLenderDialogVisible = false
+                info?.let { updateBorrowed(listOf(it)) }
             }
+            state.isCalendarVisible = false
+            selectionManager.clearSelection()
+            state.fieldToChange = null
         }
     }
 
+    if(state.showConfirmReturnBook) {
+        ConfirmDeleteBookDialog(
+            onDismiss = {
+                state.showConfirmReturnBook = false
+                if (state.isMultipleSelecting)
+                    selectionManager.clearSelection()
+            },
+            isPlural = state.isMultipleSelecting && selectionManager.count > 1,
+            messageSingular = stringResource(R.string.confirm_return_message),
+            messagePlural = stringResource(R.string.confirm_return_message_plural),
+        ) {
+            if(state.isMultipleSelecting)
+                deleteBorrowedBooks(selectionManager.selectedKeys) {
+                    selectionManager.clearSelection()
+                }
+            else {
+                selectionManager.singleSelectedItem?.let {
+                    deleteBorrowedBooks(listOf(it.info.bookId)) {}
+                }
+            }
+            state.showConfirmReturnBook = false
+        }
+    }
 
 }

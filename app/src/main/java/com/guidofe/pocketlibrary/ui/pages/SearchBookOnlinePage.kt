@@ -39,14 +39,14 @@ fun SearchBookOnlinePage(
     val context = LocalContext.current
     var isDialogOpen: Boolean by remember{mutableStateOf(false)}
     var selectedBook: ImportedBookData? by remember{mutableStateOf(null)}
-    val isMutableSelecting by vm.selectionManager.isMultipleSelecting.collectAsState()
+    val selectionManager = vm.selectionManager
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(context.getString(R.string.search_online))
     }
 
-    LaunchedEffect(isMutableSelecting) {
-        if (isMutableSelecting) {
+    LaunchedEffect(selectionManager.isMultipleSelecting) {
+        if (selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar (
                 title = "",
                 navigationIcon = {

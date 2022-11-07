@@ -202,9 +202,8 @@ private fun CalendarPicker(
 fun CalendarDialog(
     onDismissed: () -> Unit,
     hasClearOption: Boolean = false,
-    onClear: () -> Unit = {},
     startingDate: LocalDate = LocalDate.now(),
-    onDaySelected: (LocalDate) -> Unit,
+    onDaySelected: (LocalDate?) -> Unit,
 ) {
     var selectedDay: LocalDate by remember{mutableStateOf(startingDate)}
     var isPickerOpen by remember{mutableStateOf(true)}
@@ -296,7 +295,7 @@ fun CalendarDialog(
                     }
                     Spacer(Modifier.width(16.dp))
                     if (hasClearOption) {
-                        TextButton(onClick = onClear) {
+                        TextButton(onClick = {onDaySelected(null)}) {
                             Text(stringResource(R.string.clear))
                         }
                     }

@@ -19,6 +19,10 @@ interface LibraryBundleDao {
     fun getLibraryBundlesFlow(): Flow<List<LibraryBundle>>
 
     @Transaction
+    @Query("SELECT library_book.* FROM library_book NATURAL JOIN lent_book")
+    fun getLentLibraryBundlesFlow(): Flow<List<LibraryBundle>>
+
+    @Transaction
     @Query("SELECT * FROM library_book")
     suspend fun getLibraryBundles(): List<LibraryBundle>
 

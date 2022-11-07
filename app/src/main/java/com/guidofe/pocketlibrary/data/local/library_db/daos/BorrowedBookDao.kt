@@ -19,6 +19,9 @@ interface BorrowedBookDao {
     @Update
     suspend fun update(borrowedBook: BorrowedBook)
 
+    @Update
+    suspend fun updateAll(borrowedBooks: List<BorrowedBook>)
+
     @Query("DELETE FROM borrowed_book WHERE bookId = :bookId")
     suspend fun delete(bookId: Long)
 

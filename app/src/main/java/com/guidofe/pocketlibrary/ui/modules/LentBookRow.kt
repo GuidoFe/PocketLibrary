@@ -18,53 +18,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
+import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
+import java.time.Instant
 
 @Composable
-fun BorrowedBookRow(
-    item: SelectableListItem<BorrowedBundle>,
+fun LentBookRow(
+    item: SelectableListItem<LibraryBundle>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
-    onDelete: (BorrowedBundle) -> Unit = {},
+    onMarkAsReturned: (LibraryBundle) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {},
-    onLenderTap: () -> Unit = {},
+    onBorrowerTap: () -> Unit = {},
     onStartTap: () -> Unit = {},
-    onReturnByTap: () -> Unit = {},
     areButtonsActive: Boolean = true
 ) {
     val bookBundle = item.value.bookBundle
-    val lenderString = stringResource(R.string.lender_colon)
+    val lentInfo = item.value.lent
+    val lenderString = stringResource(R.string.lent_to_colon)
     val density = LocalDensity.current
     var isMenuOpen by remember{mutableStateOf(false)}
     var tapOffset by remember{mutableStateOf(Offset.Zero)}
     val lenderBuilder = AnnotatedString.Builder(
-        lenderString + "\n" + (item.value.info.who ?: "???")
+        lenderString + "\n" + (lentInfo?.who ?: "???")
     )
     lenderBuilder.addStyle(
         SpanStyle(fontWeight = FontWeight.Bold), 0, lenderString.length
     )
     val startString = stringResource(R.string.start_colon)
     val startBuilder = AnnotatedString.Builder(
-        startString + "\n" + (item.value.info.start)
+        startString + "\n" + (lentInfo?.start ?: "???")
     )
     startBuilder.addStyle(
         SpanStyle(fontWeight = FontWeight.Bold), 0, startString.length
-    )
-    val returnByString = stringResource(R.string.return_by_colon)
-    val returnByBuilder = AnnotatedString.Builder(
-        returnByString + "\n" + (item.value.info.end ?: "-")
-    )
-    returnByBuilder.addStyle(
-        SpanStyle(fontWeight = FontWeight.Bold), 0, returnByString.length
     )
 
     Box(modifier = modifier) {
@@ -131,7 +125,7 @@ fun BorrowedBookRow(
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.mark_as_returned)) },
-                                        onClick = { isMenuOpen = false; onDelete(item.value) }
+                                        onClick = { isMenuOpen = false; onMarkAsReturned(item.value) }
                                     )
                                 }
                             }
@@ -146,7 +140,7 @@ fun BorrowedBookRow(
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
-                                        .clickable(areButtonsActive) { onLenderTap() }
+                                        .clickable(areButtonsActive) { onBorrowerTap() }
                                 )
                                 Text(
                                     startBuilder.toAnnotatedString(),
@@ -155,13 +149,6 @@ fun BorrowedBookRow(
                                         .weight(1f)
                                         .fillMaxHeight()
                                         .clickable(areButtonsActive) { onStartTap() }
-                                )
-                                Text(
-                                    returnByBuilder.toAnnotatedString(),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .clickable(areButtonsActive) { onReturnByTap() }
                                 )
                             }
                         }
@@ -176,16 +163,11 @@ fun BorrowedBookRow(
 @Preview(showSystemUi = true, device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
-        BorrowedBookRow(
+        LentBookRow(
             item = SelectableListItem(
-                BorrowedBundle(
-                    BorrowedBook(
-                        1,
-                        "Tim Minchin",
-                        Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25")),
-                    PreviewUtils.exampleBookBundle
-                )
+                PreviewUtils.exampleLibraryBundle.copy(lent = LentBook(1, "Pinco",
+                    Date.from(Instant.now()) as Date
+                ))
             )
         )
     }
