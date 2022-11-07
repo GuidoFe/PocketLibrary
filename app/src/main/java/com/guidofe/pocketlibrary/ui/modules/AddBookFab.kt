@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.modules
 
-import android.provider.ContactsContract.Intents.Insert
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -9,13 +8,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.dialogs.InsertIsbnDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +27,7 @@ private fun SmallFabWithLabel(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Card(onClick = onClick) { Text(label, modifier = Modifier.padding(5.dp))}
+        Card(onClick = onClick) { Text(label, modifier = Modifier.padding(5.dp)) }
         SmallFloatingActionButton(onClick = onClick) {
             Box(Modifier.size(24.dp)) {
                 icon()
@@ -53,8 +52,6 @@ fun exitTransition(duration: Int, delay: Int): ExitTransition {
     ) + fadeOut(tween(duration, delay))
 }
 
-
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AddBookFab(
     isExpanded: Boolean,
@@ -68,7 +65,7 @@ fun AddBookFab(
     stepDelay: Int = 100,
     stepDuration: Int = 100,
 ) {
-    var showInsertIsbnDialog by remember{mutableStateOf(false)}
+    var showInsertIsbnDialog by remember { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -153,7 +150,7 @@ fun AddBookFab(
             }
         }
         FAB(
-            onClick = {onMainFabClick()}
+            onClick = { onMainFabClick() }
         ) {
             Icon(
                 painterResource(R.drawable.add_24px),
@@ -162,7 +159,7 @@ fun AddBookFab(
         }
     }
     if (showInsertIsbnDialog) {
-        InsertIsbnDialog(onDismiss = {showInsertIsbnDialog = false}) {
+        InsertIsbnDialog(onDismiss = { showInsertIsbnDialog = false }) {
             showInsertIsbnDialog = false
             onIsbnTyped(it)
         }
@@ -173,7 +170,7 @@ fun AddBookFab(
 @Composable
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
 private fun AddBookFabPreview() {
-    MaterialTheme() {
+    MaterialTheme {
         Scaffold(
             floatingActionButton = {
                 AddBookFab(

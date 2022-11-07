@@ -5,7 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-//TODO: Support material3 system colors
+// TODO: Support material3 system colors
 private val DarkColorPalette = darkColorScheme(
     primary = Purple200,
     secondary = Teal200
@@ -20,7 +20,7 @@ private val LightColorPalette = lightColorScheme(
 fun PocketLibraryTheme(
     darkTheme: Boolean = false,
     // darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) {
         DarkColorPalette

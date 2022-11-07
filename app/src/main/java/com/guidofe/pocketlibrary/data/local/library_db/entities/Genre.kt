@@ -7,10 +7,9 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-
 @Entity(indices = [Index("name", unique = true)])
 @Parcelize
 data class Genre(
     @PrimaryKey(autoGenerate = true) val genreId: Long,
     @ColumnInfo val name: String,
-): Parcelable
+) : Parcelable

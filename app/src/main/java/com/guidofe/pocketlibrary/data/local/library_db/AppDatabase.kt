@@ -1,28 +1,32 @@
 package com.guidofe.pocketlibrary.data.local.library_db
 
-import androidx.room.*
-import androidx.room.migration.AutoMigrationSpec
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.guidofe.pocketlibrary.data.local.library_db.converters.DateConverter
 import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.data.local.library_db.daos.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 
-@Database(entities = [
-    Author::class,
-    Book::class,
-    LibraryBook::class,
-    BookAuthor::class,
-    BookGenre::class,
-    Genre::class,
-    LentBook::class,
-    BorrowedBook::class,
-    Note::class,
-    WishlistBook::class
-], version = 9,
+@Database(
+    entities = [
+        Author::class,
+        Book::class,
+        LibraryBook::class,
+        BookAuthor::class,
+        BookGenre::class,
+        Genre::class,
+        LentBook::class,
+        BorrowedBook::class,
+        Note::class,
+        WishlistBook::class
+    ],
+    version = 9,
     exportSchema = true,
-    autoMigrations = [])
+    autoMigrations = []
+)
 @TypeConverters(DateConverter::class, UriConverter::class)
-abstract class AppDatabase: RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
     abstract fun authorDao(): AuthorDao
     abstract fun bookAuthorDao(): BookAuthorDao
     abstract fun bookBundleDao(): BookBundleDao
@@ -37,7 +41,4 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun wishlistBookDao(): WishlistBookDao
     abstract fun wishlistBundleDao(): WishlistBundleDao
     abstract fun lentBookDao(): LentBookDao
-
-    @DeleteColumn(tableName = "Book", columnName = "industry_identifier_type")
-    class Migration3to4: AutoMigrationSpec
 }

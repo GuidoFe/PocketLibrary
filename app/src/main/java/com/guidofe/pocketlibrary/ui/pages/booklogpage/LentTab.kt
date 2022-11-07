@@ -9,19 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
-import com.guidofe.pocketlibrary.ui.modules.BorrowedBookRow
-import com.guidofe.pocketlibrary.ui.modules.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.LentBookRow
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
 import java.time.LocalDate
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,12 +28,11 @@ fun LentTab(
 ) {
     val selectionManager = state.selectionManager
     Column(modifier = modifier) {
-        LazyColumn() {
+        LazyColumn {
             if (lentItems.isEmpty())
-                item {Text(stringResource(R.string.empty_library_text))}
-            items(lentItems, key = {it.value.info.bookId}) {item ->
-                Box(
-                ) {
+                item { Text(stringResource(R.string.empty_library_text)) }
+            items(lentItems, key = { it.value.info.bookId }) { item ->
+                Box {
                     LentBookRow(
                         item,
                         onRowTap = {
@@ -61,7 +54,7 @@ fun LentTab(
                             state.isCalendarVisible = true
                         },
                         onMarkAsReturned = {
-                            it.lent?.let{ lent ->
+                            it.lent?.let { lent ->
                                 removeLentStatus(listOf(lent)) {}
                             }
                         },
@@ -74,7 +67,7 @@ fun LentTab(
 
     if (state.isBorrowerDialogVisible) {
         var textInput by remember { mutableStateOf("") }
-        var isError by remember {mutableStateOf(false)}
+        var isError by remember { mutableStateOf(false) }
         AlertDialog(
             onDismissRequest = {
                 state.fieldToChange = null
@@ -87,17 +80,19 @@ fun LentTab(
                         isError = true
                         return@Button
                     }
-                    if(selectionManager.isMultipleSelecting) {
-                        updateLent(selectionManager.selectedItems.value.values.mapNotNull{
-                            it.lent?.copy(who = textInput)
-                        })
+                    if (selectionManager.isMultipleSelecting) {
+                        updateLent(
+                            selectionManager.selectedItems.value.values.mapNotNull {
+                                it.lent?.copy(who = textInput)
+                            }
+                        )
                     } else {
-                        selectionManager.singleSelectedItem?.let {
+                        selectionManager.singleSelectedItem?.let { selected ->
                             state.isBorrowerDialogVisible = false
-                            val newLent = it.lent?.copy(
+                            val newLent = selected.lent?.copy(
                                 who = textInput
                             )
-                            newLent?.let{updateLent(listOf(it))}
+                            newLent?.let { updateLent(listOf(it)) }
                         }
                     }
                     selectionManager.clearSelection()
@@ -125,7 +120,9 @@ fun LentTab(
                         value = textInput,
                         onValueChange = { textInput = it },
                         isError = isError,
-                        supportingText = {if (isError) Text(stringResource(R.string.please_enter_value))}
+                        supportingText = {
+                            if (isError) Text(stringResource(R.string.please_enter_value))
+                        }
                     )
                 }
             }
@@ -133,18 +130,18 @@ fun LentTab(
     }
     if (state.isCalendarVisible) {
         CalendarDialog(
-            onDismissed = { 
+            onDismissed = {
                 state.isCalendarVisible = false
                 selectionManager.clearSelection()
                 state.fieldToChange = null
             },
-            startingDate = if(!state.isMultipleSelecting) {
+            startingDate = if (!state.isMultipleSelecting) {
                 state.selectionManager.singleSelectedItem?.lent?.start?.let {
                     LocalDate.parse(it.toString())
-                }?: LocalDate.now()
+                } ?: LocalDate.now()
             } else LocalDate.now()
         ) { newDate ->
-            val convertedDate = newDate?.let{Date.valueOf(newDate.toString())}
+            val convertedDate = newDate?.let { Date.valueOf(newDate.toString()) }
             if (convertedDate == null) {
                 state.fieldToChange = null
                 selectionManager.clearSelection()
@@ -158,8 +155,8 @@ fun LentTab(
                 updateLent(list)
             } else {
                 val info = selectionManager.singleSelectedItem?.lent?.copy(
-                        start = convertedDate
-                    )
+                    start = convertedDate
+                )
                 info?.let { updateLent(listOf(it)) }
             }
             state.isCalendarVisible = false
@@ -167,5 +164,4 @@ fun LentTab(
             state.fieldToChange = null
         }
     }
-
 }

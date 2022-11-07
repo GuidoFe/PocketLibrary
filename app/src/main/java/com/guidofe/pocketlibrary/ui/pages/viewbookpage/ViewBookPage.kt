@@ -3,10 +3,13 @@
 package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
 import android.util.Log
-import androidx.compose.foundation.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,22 +29,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.modules.FAB
+import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
-private enum class LocalTab {SUMMARY, DETAILS, NOTE}
-private enum class DisplayedFab {NONE, EDIT_BOOK, SAVE_NOTE}
+private enum class LocalTab { SUMMARY, DETAILS, NOTE }
+private enum class DisplayedFab { NONE, EDIT_BOOK, SAVE_NOTE }
 @Destination
 @Composable
-fun ViewBookPage (
+fun ViewBookPage(
     bookId: Long? = null,
     vm: IViewBookVM = hiltViewModel<ViewBookVM>(),
     navigator: DestinationsNavigator,
@@ -58,17 +61,17 @@ fun ViewBookPage (
     }
 
     var tabState by remember { mutableStateOf(LocalTab.SUMMARY) }
-    var localFabState by remember {mutableStateOf(DisplayedFab.NONE)}
+    var localFabState by remember { mutableStateOf(DisplayedFab.NONE) }
     val detailsScrollState = rememberScrollState()
     val summaryScrollState = rememberScrollState()
     val genreScrollState = rememberScrollState()
-    var notePosition by remember { mutableStateOf(0f)}
+    var notePosition by remember { mutableStateOf(0f) }
     var hasNoteBeenModified by remember { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val boxScope = this
-        Surface() {
+        Surface {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -81,7 +84,7 @@ fun ViewBookPage (
                 ) {
                     val coverURI = vm.data?.coverURI
                     if (coverURI != null) {
-                        //TODO: placeholder for book cover
+                        // TODO: placeholder for book cover
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(coverURI)
@@ -94,7 +97,11 @@ fun ViewBookPage (
                             modifier = Modifier
                                 .aspectRatio(0.67f)
                                 .weight(1f)
-                                .border(5.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
+                                .border(
+                                    5.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    MaterialTheme.shapes.medium
+                                )
                         ) {
                             Text(
                                 stringResource(R.string.no_cover_sadface),
@@ -171,7 +178,7 @@ fun ViewBookPage (
                 ) {
                     when (tabState) {
                         LocalTab.SUMMARY -> {
-                            //TODO Fix unscrollable long summaries
+                            // TODO Fix unscrollable long summaries
                             localFabState = DisplayedFab.EDIT_BOOK
                             if (vm.data?.description.isNullOrBlank()) {
                                 Text(
@@ -198,7 +205,7 @@ fun ViewBookPage (
                             )
                         }
                         LocalTab.NOTE -> {
-                            localFabState = if(hasNoteBeenModified)
+                            localFabState = if (hasNoteBeenModified)
                                 DisplayedFab.SAVE_NOTE
                             else
                                 DisplayedFab.NONE
@@ -276,9 +283,9 @@ private fun ViewBookPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
         ViewBookPage(
             3,
-            object: IViewBookVM {
+            object : IViewBookVM {
                 override var editedNote = ""
-                override val data: ViewBookImmutableData? =
+                override val data: ViewBookImmutableData =
                     ViewBookImmutableData(PreviewUtils.exampleBookBundle)
                 override fun initFromLibraryBook(bookId: Long) {}
                 override fun saveNote(bookId: Long) {}

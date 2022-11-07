@@ -12,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 data class Author(
     @PrimaryKey(autoGenerate = true) val authorId: Long,
     @ColumnInfo val name: String,
-): Parcelable {
+) : Parcelable {
     override fun toString(): String {
         return name
     }

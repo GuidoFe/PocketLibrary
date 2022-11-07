@@ -2,11 +2,13 @@ package com.guidofe.pocketlibrary.repositories
 
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.utils.NetworkResponse
 import com.guidofe.pocketlibrary.utils.Resource
 
 interface BookMetaRepository {
-    suspend fun fetchVolumesByIsbn(isbn: String, maxResults: Int = 40): Resource<List<ImportedBookData>>
+    suspend fun fetchVolumesByIsbn(
+        isbn: String,
+        maxResults: Int = 40
+    ): Resource<List<ImportedBookData>>
     suspend fun searchVolumesByTitleOrAuthor(
         title: String? = null,
         author: String? = null,

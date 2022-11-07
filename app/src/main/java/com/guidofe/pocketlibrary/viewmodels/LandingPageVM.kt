@@ -9,5 +9,4 @@ import javax.inject.Inject
 @HiltViewModel
 class LandingPageVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
-): ViewModel(), ILandingPageVM {
-}
+) : ViewModel(), ILandingPageVM

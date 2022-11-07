@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -14,10 +13,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.PreviewBookDialog
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
-import com.guidofe.pocketlibrary.ui.pages.librarypage.PreviewBookDialog
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
@@ -26,7 +25,7 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Destination(route = "search_book_online")
 fun SearchBookOnlinePage(
@@ -37,8 +36,8 @@ fun SearchBookOnlinePage(
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
-    var isDialogOpen: Boolean by remember{mutableStateOf(false)}
-    var selectedBook: ImportedBookData? by remember{mutableStateOf(null)}
+    var isDialogOpen: Boolean by remember { mutableStateOf(false) }
+    var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
     val selectionManager = vm.selectionManager
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(true) {
@@ -47,7 +46,7 @@ fun SearchBookOnlinePage(
 
     LaunchedEffect(selectionManager.isMultipleSelecting) {
         if (selectionManager.isMultipleSelecting) {
-            vm.scaffoldState.refreshBar (
+            vm.scaffoldState.refreshBar(
                 title = "",
                 navigationIcon = {
                     IconButton(
@@ -129,7 +128,7 @@ fun SearchBookOnlinePage(
                 onClick = {
                     focusManager.clearFocus()
                     vm.search()
-                    //lazyPagingItems.refresh()
+                    // lazyPagingItems.refresh()
                 },
             ) {
                 Icon(
@@ -150,7 +149,7 @@ fun SearchBookOnlinePage(
             )
         }
     }
-    if(isDialogOpen) {
+    if (isDialogOpen) {
         PreviewBookDialog(
             bookData = selectedBook,
             onSaveButtonClicked = {
@@ -163,7 +162,7 @@ fun SearchBookOnlinePage(
                     }
                 }
             },
-            onDismissRequest = {isDialogOpen = false}
+            onDismissRequest = { isDialogOpen = false }
         )
     }
 }

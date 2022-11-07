@@ -19,7 +19,7 @@ fun OutlinedAutocomplete(
     enabled: Boolean = true,
     onDismissRequest: () -> Unit = {},
 ) {
-    var expanded by remember{ mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     val filteredOptions = if (text.isBlank()) options else options.filter {
         it.contains(text, true)
     }

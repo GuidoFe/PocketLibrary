@@ -3,7 +3,7 @@ package com.guidofe.pocketlibrary.ui.modules
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.*
 
-class ScaffoldState() {
+class ScaffoldState {
     var title: String by mutableStateOf("")
     var navigationIcon: @Composable () -> Unit by mutableStateOf({})
     var actions: @Composable RowScope.() -> Unit by mutableStateOf({})

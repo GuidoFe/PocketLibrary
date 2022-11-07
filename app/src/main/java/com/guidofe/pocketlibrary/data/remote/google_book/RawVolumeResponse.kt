@@ -13,7 +13,7 @@ data class RawVolumeResponse(
     val imageLinks: ImageLinks?,
     val language: String?,
 
-    ) {
+) {
     data class IndustryIdentifier(
         val type: String,
         val identifier: String
@@ -21,13 +21,10 @@ data class RawVolumeResponse(
 
     data class ImageLinks(
         val smallThumbnail: String? = null,
-        val thumbnail:String? = null,
+        val thumbnail: String? = null,
         val small: String? = null,
         val medium: String? = null,
         val large: String? = null,
         val extraLarge: String? = null
     )
-
-
-
 }

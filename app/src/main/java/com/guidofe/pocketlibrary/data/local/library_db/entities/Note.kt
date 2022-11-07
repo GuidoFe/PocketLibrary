@@ -8,13 +8,17 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity(foreignKeys = [ForeignKey(
-    entity = Book::class,
-    parentColumns = arrayOf("bookId"),
-    childColumns = arrayOf("bookId"),
-    onDelete = ForeignKey.CASCADE)]
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Book::class,
+            parentColumns = arrayOf("bookId"),
+            childColumns = arrayOf("bookId"),
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
 )
 data class Note(
     @PrimaryKey val bookId: Long,
     @ColumnInfo val note: String
-): Parcelable
+) : Parcelable

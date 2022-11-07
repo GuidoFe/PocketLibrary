@@ -5,18 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -33,30 +28,33 @@ import com.guidofe.pocketlibrary.R
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
-import java.time.chrono.Chronology
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
 import java.time.format.DateTimeParseException
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import java.util.*
 
-private enum class DayState{NORMAL, TODAY, SELECTED}
+private enum class DayState { NORMAL, TODAY, SELECTED }
 
 @Composable
-private fun DayCell(text: String, cellStatus: DayState = DayState.NORMAL, date: LocalDate? = null,
-                    onClick: (LocalDate?) -> Unit = {}) {
+private fun DayCell(
+    text: String,
+    cellStatus: DayState = DayState.NORMAL,
+    date: LocalDate? = null,
+    onClick: (LocalDate?) -> Unit = {}
+) {
     var m = Modifier.size(40.dp)
     when (cellStatus) {
         DayState.TODAY -> m = m.border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
-        DayState.SELECTED -> m = m
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary)
+        DayState.SELECTED ->
+            m = m
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
         else -> {}
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = m.clickable{onClick(date)}
+        modifier = m.clickable { onClick(date) }
     ) {
         Text(
             text,
@@ -89,11 +87,12 @@ private fun CalendarPicker(
     locale: Locale,
     selectedDate: LocalDate,
     modifier: Modifier = Modifier,
-    setSelectedDate: (LocalDate) -> Unit) {
+    setSelectedDate: (LocalDate) -> Unit
+) {
     val today = LocalDate.now()
-    var year by remember{mutableStateOf(selectedDate.year)}
-    var month by remember{mutableStateOf(selectedDate.month)}
-    var isYearSelectionExpanded by remember{mutableStateOf(false)}
+    var year by remember { mutableStateOf(selectedDate.year) }
+    var month by remember { mutableStateOf(selectedDate.month) }
+    var isYearSelectionExpanded by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -106,7 +105,7 @@ private fun CalendarPicker(
             }
             Spacer(Modifier.weight(1f))
             if (!isYearSelectionExpanded) {
-                Row() {
+                Row {
                     IconButton(onClick = {
                         month = month.minus(1)
                         if (month == Month.DECEMBER)
@@ -133,7 +132,7 @@ private fun CalendarPicker(
         Spacer(modifier = Modifier.height(16.dp))
         if (isYearSelectionExpanded) {
             LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                items(100){ index ->
+                items(100) { index ->
                     val y = index + today.year - 4
                     Box(
                         modifier = Modifier
@@ -163,16 +162,16 @@ private fun CalendarPicker(
                 }
             }
         } else {
-            Row() {
-                for(i in 1..7) {
+            Row {
+                for (i in 1..7) {
                     TextCell(DayOfWeek.of(i).getDisplayName(TextStyle.SHORT, locale))
                 }
             }
-            var firstMonthDay = LocalDate.of(year, month, 1)
+            val firstMonthDay = LocalDate.of(year, month, 1)
             var i = LocalDate.of(year, month, 1)
                 .minusDays((firstMonthDay.dayOfWeek.value - DayOfWeek.MONDAY.value).toLong())
-            while(i.month == month || i < firstMonthDay) {
-                Row() {
+            while (i.month == month || i < firstMonthDay) {
+                Row {
                     for (j in 1..7) {
                         val dayState = when (i) {
                             selectedDate -> DayState.SELECTED
@@ -196,7 +195,6 @@ private fun CalendarPicker(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CalendarDialog(
@@ -205,10 +203,10 @@ fun CalendarDialog(
     startingDate: LocalDate = LocalDate.now(),
     onDaySelected: (LocalDate?) -> Unit,
 ) {
-    var selectedDay: LocalDate by remember{mutableStateOf(startingDate)}
-    var isPickerOpen by remember{mutableStateOf(true)}
-    var dateInput by remember{mutableStateOf("")}
-    var isDateInputError by remember{mutableStateOf(false)}
+    var selectedDay: LocalDate by remember { mutableStateOf(startingDate) }
+    var isPickerOpen by remember { mutableStateOf(true) }
+    var dateInput by remember { mutableStateOf("") }
+    var isDateInputError by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         context.resources.configuration.locales[0]
@@ -216,14 +214,14 @@ fun CalendarDialog(
         context.resources.configuration.locale
     }
     Dialog(
-        onDismissRequest = {onDismissed()},
+        onDismissRequest = { onDismissed() },
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             modifier = Modifier.width(304.dp)
         ) {
-            Column() {
+            Column {
                 Column(
                     modifier = Modifier.padding(24.dp, 16.dp)
 
@@ -234,10 +232,12 @@ fun CalendarDialog(
                         style = MaterialTheme.typography.labelMedium
                     )
                     Spacer(modifier = Modifier.height(36.dp))
-                    Row() {
+                    Row {
                         Text(
                             if (isPickerOpen)
-                                selectedDay.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                                selectedDay.format(
+                                    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                                )
                             else
                                 stringResource(R.string.enter_date),
                             style = MaterialTheme.typography.headlineLarge,
@@ -249,7 +249,7 @@ fun CalendarDialog(
                         }) {
                             Icon(
                                 painterResource(
-                                    if(isPickerOpen)
+                                    if (isPickerOpen)
                                         R.drawable.edit_24px
                                     else
                                         R.drawable.calendar_today_24px
@@ -264,8 +264,9 @@ fun CalendarDialog(
                     CalendarPicker(
                         locale,
                         selectedDay,
-                        setSelectedDate = {selectedDay = it},
-                        modifier = Modifier.padding(12.dp, 0.dp, 12.dp, 12.dp) )
+                        setSelectedDate = { selectedDay = it },
+                        modifier = Modifier.padding(12.dp, 0.dp, 12.dp, 12.dp)
+                    )
                 else {
                     OutlinedTextField(
                         value = dateInput,
@@ -276,7 +277,7 @@ fun CalendarDialog(
                         label = { Text(stringResource(R.string.date)) },
                         placeholder = { Text(stringResource(R.string.yyyymmdd)) },
                         supportingText = {
-                            if(isDateInputError)
+                            if (isDateInputError)
                                 Text(stringResource(R.string.error_date_not_valid))
                         },
                         modifier = Modifier.padding(24.dp, 6.dp, 24.dp, 16.dp)
@@ -287,7 +288,7 @@ fun CalendarDialog(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.align(Alignment.End).padding(12.dp, 0.dp, 12.dp, 12.dp)
-                ){
+                ) {
                     TextButton(
                         onClick = onDismissed
                     ) {
@@ -295,21 +296,22 @@ fun CalendarDialog(
                     }
                     Spacer(Modifier.width(16.dp))
                     if (hasClearOption) {
-                        TextButton(onClick = {onDaySelected(null)}) {
+                        TextButton(onClick = { onDaySelected(null) }) {
                             Text(stringResource(R.string.clear))
                         }
                     }
                     TextButton(
                         onClick = {
-                            if(isPickerOpen) {
+                            if (isPickerOpen) {
                                 onDaySelected(selectedDay)
-                            }
-                            else {
+                            } else {
                                 try {
-                                    val date = LocalDate.parse(dateInput, DateTimeFormatter.ISO_DATE)
+                                    val date = LocalDate.parse(
+                                        dateInput, DateTimeFormatter.ISO_DATE
+                                    )
                                     onDaySelected(date)
                                     isDateInputError = false
-                                } catch(e: DateTimeParseException) {
+                                } catch (e: DateTimeParseException) {
                                     dateInput = ""
                                     isDateInputError = true
                                 }

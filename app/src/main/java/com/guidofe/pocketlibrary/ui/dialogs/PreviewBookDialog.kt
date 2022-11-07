@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.librarypage
+package com.guidofe.pocketlibrary.ui.dialogs
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -24,7 +23,7 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PreviewBookDialog(
     bookData: ImportedBookData?,
@@ -58,7 +57,7 @@ fun PreviewBookDialog(
             ) {
                 bookData?.let { data ->
                     if (data.coverUrl != null) {
-                        //TODO: placeholder for book cover
+                        // TODO: placeholder for book cover
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(data.coverUrl)
@@ -68,7 +67,7 @@ fun PreviewBookDialog(
                         )
                     } else {
                         Image(
-                            //TODO: change large cover placeholder
+                            // TODO: change large cover placeholder
                             painterResource(id = R.drawable.large_cover),
                             stringResource(R.string.cover),
                             modifier = Modifier.height(200.dp)
@@ -105,7 +104,7 @@ fun PreviewBookDialog(
 @Composable
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
 private fun PreviewPreviewBookDialog() {
-    MaterialTheme() {
+    MaterialTheme {
         Box(
             modifier = Modifier.background(Color.Gray)
         ) {

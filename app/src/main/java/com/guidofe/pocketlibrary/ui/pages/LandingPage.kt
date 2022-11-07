@@ -1,8 +1,8 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import androidx.camera.core.ExperimentalGetImage
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -13,10 +13,12 @@ import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.viewmodels.LandingPageVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILandingPageVM
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
-@Destination(start = true)
+@RootNavGraph(start = true)
+@Destination
 @Composable
 @ExperimentalGetImage
 fun LandingPage(
@@ -36,9 +38,9 @@ private fun LandingPagePreview() {
     PocketLibraryTheme(darkTheme = true) {
         LandingPage(
             EmptyDestinationsNavigator,
-            object: ILandingPageVM {
-                override val scaffoldState: ScaffoldState
-                    = ScaffoldState()
+            object : ILandingPageVM {
+                override val scaffoldState: ScaffoldState =
+                    ScaffoldState()
             }
         )
     }

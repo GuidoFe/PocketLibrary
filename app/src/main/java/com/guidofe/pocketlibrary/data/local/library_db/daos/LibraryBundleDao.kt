@@ -3,9 +3,7 @@ package com.guidofe.pocketlibrary.data.local.library_db.daos
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -31,6 +29,9 @@ interface LibraryBundleDao {
     suspend fun getLibraryBundles(offset: Int, limit: Int): List<LibraryBundle>
 
     @Transaction
-    @Query("SELECT library_book.* FROM library_book NATURAL JOIN book WHERE book.identifier IN ( :isbnList )")
+    @Query(
+        "SELECT library_book.* FROM library_book NATURAL JOIN book " +
+            "WHERE book.identifier IN ( :isbnList )"
+    )
     suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle>
 }

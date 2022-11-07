@@ -8,7 +8,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class BookBundle (
+data class BookBundle(
     @Embedded val book: Book,
     @Relation(
         parentColumn = "bookId",
@@ -27,4 +27,4 @@ data class BookBundle (
         entityColumn = "bookId"
     )
     val note: Note? = null,
-): Parcelable
+) : Parcelable

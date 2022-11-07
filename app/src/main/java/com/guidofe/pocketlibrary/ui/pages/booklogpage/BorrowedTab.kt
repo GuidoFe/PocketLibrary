@@ -12,13 +12,11 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
+import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.BorrowedBookRow
-import com.guidofe.pocketlibrary.ui.modules.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
 import java.time.LocalDate
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +29,11 @@ fun BorrowedTab(
 ) {
     val selectionManager = state.selectionManager
     Column(modifier = modifier) {
-        LazyColumn() {
+        LazyColumn {
             if (borrowedItems.isEmpty())
-                item {Text(stringResource(R.string.empty_library_text))}
-            items(borrowedItems, key = {it.value.info.bookId}) {item ->
-                Box(
-                ) {
+                item { Text(stringResource(R.string.empty_library_text)) }
+            items(borrowedItems, key = { it.value.info.bookId }) { item ->
+                Box {
                     BorrowedBookRow(
                         item,
                         onRowTap = {
@@ -83,10 +80,12 @@ fun BorrowedTab(
             },
             confirmButton = {
                 Button(onClick = {
-                    if(selectionManager.isMultipleSelecting) {
-                        updateBorrowed(selectionManager.selectedItems.value.values.map{
-                            it.info.copy(who = textInput.ifBlank { null })
-                        })
+                    if (selectionManager.isMultipleSelecting) {
+                        updateBorrowed(
+                            selectionManager.selectedItems.value.values.map {
+                                it.info.copy(who = textInput.ifBlank { null })
+                            }
+                        )
                     } else {
                         selectionManager.singleSelectedItem?.let {
                             state.isLenderDialogVisible = false
@@ -133,7 +132,7 @@ fun BorrowedTab(
     }
     if (state.isCalendarVisible) {
         CalendarDialog(
-            onDismissed = { 
+            onDismissed = {
                 state.isCalendarVisible = false
                 selectionManager.clearSelection()
                 state.fieldToChange = null
@@ -142,14 +141,16 @@ fun BorrowedTab(
             startingDate = when (state.fieldToChange) {
                 BorrowedField.START -> selectionManager.singleSelectedItem?.info?.start?.let {
                     return@let LocalDate.parse(it.toString())
-                }?: LocalDate.now()
+                } ?: LocalDate.now()
                 BorrowedField.RETURN_BY -> selectionManager.singleSelectedItem?.info?.end?.let {
                     return@let LocalDate.parse(it.toString())
-                }?: selectionManager.singleSelectedItem?.info?.start?.let{return@let LocalDate.parse(it.toString())}?: LocalDate.now()
+                } ?: selectionManager.singleSelectedItem?.info?.start?.let {
+                    return@let LocalDate.parse(it.toString())
+                } ?: LocalDate.now()
                 else -> LocalDate.now()
             }
         ) { newDate ->
-            val convertedDate = newDate?.let{Date.valueOf(newDate.toString())}
+            val convertedDate = newDate?.let { Date.valueOf(newDate.toString()) }
             if (state.fieldToChange == BorrowedField.START && convertedDate == null) {
                 state.fieldToChange = null
                 selectionManager.clearSelection()
@@ -185,7 +186,7 @@ fun BorrowedTab(
         }
     }
 
-    if(state.showConfirmReturnBook) {
+    if (state.showConfirmReturnBook) {
         ConfirmDeleteBookDialog(
             onDismiss = {
                 state.showConfirmReturnBook = false
@@ -196,7 +197,7 @@ fun BorrowedTab(
             messageSingular = stringResource(R.string.confirm_return_message),
             messagePlural = stringResource(R.string.confirm_return_message_plural),
         ) {
-            if(state.isMultipleSelecting)
+            if (state.isMultipleSelecting)
                 deleteBorrowedBooks(selectionManager.selectedKeys) {
                     selectionManager.clearSelection()
                 }
@@ -208,5 +209,4 @@ fun BorrowedTab(
             state.showConfirmReturnBook = false
         }
     }
-
 }

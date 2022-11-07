@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,10 +28,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.google.android.material.color.MaterialColors
 import com.guidofe.pocketlibrary.R
 
-private enum class CoverStatus {LOADED, LOADING, ERROR, EMPTY}
+private enum class CoverStatus { LOADED, LOADING, ERROR, EMPTY }
 
 @Composable
 fun SelectableBookCover(
@@ -46,7 +44,7 @@ fun SelectableBookCover(
         if (isSelected) (-5).dp else 0.dp,
         animationSpec = tween(durationMillis = 100, easing = LinearEasing)
     )
-    var coverStatus: CoverStatus by remember{ mutableStateOf(CoverStatus.LOADING) }
+    var coverStatus: CoverStatus by remember { mutableStateOf(CoverStatus.LOADING) }
     Box(
         modifier = Modifier
             .width(67.dp)
@@ -90,7 +88,6 @@ fun SelectableBookCover(
                         softWrap = true
                     )
                 }
-
             } else {
                 AsyncImage(
                     model = coverURI,

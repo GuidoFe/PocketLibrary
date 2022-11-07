@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.modules
+package com.guidofe.pocketlibrary.ui.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -21,7 +21,7 @@ fun ConfirmDeleteBookDialog(
             Text(
                 if (isPlural)
                     messagePlural
-                 else
+                else
                     messageSingular
             )
         },

@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
+    id "org.jlleitschuh.gradle.ktlint" version "11.0.0"
 }
 
 apply plugin: 'kotlin-kapt'
@@ -16,6 +17,19 @@ kotlin {
         release {
             kotlin.srcDir("build/generated/ksp/release/kotlin")
         }
+    }
+}
+
+tasks.getByPath("preBuild").dependsOn("ktlintFormat")
+
+ktlint {
+    android = true
+    ignoreFailures = false
+    disabledRules = ["final-newline", "no-wildcard-imports", "no-unused-imports"]
+    reporters {
+        reporter "plain"
+        reporter "checkstyle"
+        reporter "sarif"
     }
 }
 

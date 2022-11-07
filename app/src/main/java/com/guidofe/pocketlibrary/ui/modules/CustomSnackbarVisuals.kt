@@ -3,7 +3,7 @@ package com.guidofe.pocketlibrary.ui.modules
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarVisuals
 
-class CustomSnackbarVisuals (
+class CustomSnackbarVisuals(
     override val message: String,
     val isError: Boolean = false,
     override val actionLabel: String? = null,

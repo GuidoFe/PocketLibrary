@@ -17,7 +17,10 @@ interface WishlistBookDao {
     @Query("SELECT book.* FROM wishlist_book NATURAL JOIN book WHERE book.identifier = :isbn")
     suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book>
 
-    @Query("SELECT book.* FROM wishlist_book NATURAL JOIN book WHERE book.identifier IN ( :isbnList )")
+    @Query(
+        "SELECT book.* FROM wishlist_book NATURAL JOIN book " +
+            "WHERE book.identifier IN ( :isbnList )"
+    )
     suspend fun getBooksInWishlistWithSameIsbns(isbnList: List<String>): List<Book>
 
     @Query("DELETE FROM wishlist_book WHERE bookId = :bookId")

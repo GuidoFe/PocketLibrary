@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.*
 class SelectionManager<K, V>(
     val getKey: (V) -> K
 ) {
-    //private var _isMultipleSelecting: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    //val isMultipleSelecting: StateFlow<Boolean> = _isMultipleSelecting.asStateFlow()
+    // private var _isMultipleSelecting: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    // val isMultipleSelecting: StateFlow<Boolean> = _isMultipleSelecting.asStateFlow()
     var isMultipleSelecting by mutableStateOf(false)
         private set
     var singleSelectedItem: V? = null
@@ -27,7 +27,7 @@ class SelectionManager<K, V>(
         if (!isMultipleSelecting) return
         if (selectedItems.value.contains(getKey(value))) {
             _selectedItems.value -= getKey(value)
-            if(selectedItems.value.isEmpty())
+            if (selectedItems.value.isEmpty())
                 isMultipleSelecting = false
         } else {
             _selectedItems.value += Pair(getKey(value), value)

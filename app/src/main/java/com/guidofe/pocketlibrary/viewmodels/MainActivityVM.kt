@@ -7,10 +7,9 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-//TODO: check if it's necessary
+// TODO: check if it's necessary
 @HiltViewModel
 class MainActivityVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
-) : ViewModel(), IMainActivityVM {
-}
+) : ViewModel(), IMainActivityVM

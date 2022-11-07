@@ -16,7 +16,11 @@ interface ISearchBookOnlineVM {
     fun search()
     val queryData: QueryData?
     val selectionManager: SelectionManager<String, ImportedBookData>
-    fun saveBook(importedBook: ImportedBookData, destination: BookDestination, callback: (Long) -> Unit)
+    fun saveBook(
+        importedBook: ImportedBookData,
+        destination: BookDestination,
+        callback: (Long) -> Unit
+    )
     fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit)
     val listVM: OnlineBookListVM
 }

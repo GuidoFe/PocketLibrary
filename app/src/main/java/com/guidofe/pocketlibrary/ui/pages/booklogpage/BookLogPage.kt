@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages
+package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,10 +15,6 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
-import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedField
-import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedTab
-import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentField
-import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTab
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
@@ -43,14 +39,14 @@ fun BookLogPage(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var tabIndex: Int by remember{mutableStateOf(0)}
+    var tabIndex: Int by remember { mutableStateOf(0) }
     val borrowedList by vm.borrowedItems.collectAsState(initial = listOf())
     val lentList by vm.lentItems.collectAsState(initial = listOf())
-    var isFabExpanded: Boolean by remember{mutableStateOf(false)}
-    var isBorrowTabMenuExpanded: Boolean by remember{mutableStateOf(false)}
-    var isLentTabMenuExpanded: Boolean by remember{mutableStateOf(false)}
-    var showDoubleIsbnDialog by remember{mutableStateOf(false)}
-    var isbnToSearch: String? by remember{mutableStateOf(null)}
+    var isFabExpanded: Boolean by remember { mutableStateOf(false) }
+    var isBorrowTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
+    var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
+    var showDoubleIsbnDialog by remember { mutableStateOf(false) }
+    var isbnToSearch: String? by remember { mutableStateOf(null) }
     LaunchedEffect(
         tabIndex,
         vm.borrowedTabState.selectionManager.isMultipleSelecting,
@@ -82,9 +78,9 @@ fun BookLogPage(
                             stringResource(R.string.return_books)
                         )
                     }
-                    Box() {
+                    Box {
                         IconButton(
-                            onClick = {isBorrowTabMenuExpanded = true}
+                            onClick = { isBorrowTabMenuExpanded = true }
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -93,17 +89,17 @@ fun BookLogPage(
                         }
                         DropdownMenu(
                             expanded = isBorrowTabMenuExpanded,
-                            onDismissRequest = { isBorrowTabMenuExpanded = false}
+                            onDismissRequest = { isBorrowTabMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.change_lender))},
+                                text = { Text(stringResource(R.string.change_lender)) },
                                 onClick = {
                                     isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.isLenderDialogVisible = true
                                 }
                             )
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.change_start_date))},
+                                text = { Text(stringResource(R.string.change_start_date)) },
                                 onClick = {
                                     isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.fieldToChange = BorrowedField.START
@@ -111,7 +107,7 @@ fun BookLogPage(
                                 }
                             )
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.change_return_by_date))},
+                                text = { Text(stringResource(R.string.change_return_by_date)) },
                                 onClick = {
                                     isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.fieldToChange = BorrowedField.RETURN_BY
@@ -141,9 +137,10 @@ fun BookLogPage(
                     IconButton(
                         onClick = {
                             vm.removeLentStatus(
-                                vm.lentTabState.selectionManager.selectedItems.value.values.mapNotNull {
-                                    it.lent
-                                }
+                                vm.lentTabState.selectionManager.selectedItems.value.values
+                                    .mapNotNull {
+                                        it.lent
+                                    }
                             ) {}
                         }
                     ) {
@@ -152,9 +149,9 @@ fun BookLogPage(
                             stringResource(R.string.mark_as_returned),
                         )
                     }
-                    Box() {
+                    Box {
                         IconButton(
-                            onClick = {isLentTabMenuExpanded = true}
+                            onClick = { isLentTabMenuExpanded = true }
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -163,17 +160,17 @@ fun BookLogPage(
                         }
                         DropdownMenu(
                             expanded = isLentTabMenuExpanded,
-                            onDismissRequest = { isLentTabMenuExpanded = false}
+                            onDismissRequest = { isLentTabMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.change_borrower))},
+                                text = { Text(stringResource(R.string.change_borrower)) },
                                 onClick = {
                                     isLentTabMenuExpanded = false
                                     vm.lentTabState.isBorrowerDialogVisible = true
                                 }
                             )
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.change_start_date))},
+                                text = { Text(stringResource(R.string.change_start_date)) },
                                 onClick = {
                                     isLentTabMenuExpanded = false
                                     vm.lentTabState.fieldToChange = LentField.START
@@ -199,14 +196,16 @@ fun BookLogPage(
                     Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, scope)
                 },
                 onNoBookFound = {
-                    Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
+                    Snackbars.noBookFoundForIsbnSnackbar(
+                        importVm.snackbarHostState, context, scope
+                    ) {
                         navigator.navigate(
                             EditBookPageDestination(newBookDestination = BookDestination.BORROWED)
                         )
                     }
                 },
                 onOneBookSaved = {
-                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope){}
+                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope) {}
                 },
                 onMultipleBooksFound = { list ->
                     navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
@@ -233,12 +232,13 @@ fun BookLogPage(
                         navigator.navigate(ScanIsbnPageDestination(BookDestination.BORROWED))
                     },
                     onSearchOnline = {
-                        navigator.navigate(SearchBookOnlinePageDestination(BookDestination.BORROWED))
+                        navigator.navigate(
+                            SearchBookOnlinePageDestination(BookDestination.BORROWED)
+                        )
                     }
                 )
             }
-        }
-        else {
+        } else {
             vm.scaffoldState.fab = {}
         }
     }
@@ -275,7 +275,7 @@ fun BookLogPage(
             1 -> {
                 LentTab(
                     lentItems = lentList,
-                    updateLent = {vm.updateLent(it)},
+                    updateLent = { vm.updateLent(it) },
                     removeLentStatus = { list, callback ->
                         vm.removeLentStatus(list, callback)
                     },
@@ -283,10 +283,7 @@ fun BookLogPage(
                 )
             }
         }
-
     }
-
-
 
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {

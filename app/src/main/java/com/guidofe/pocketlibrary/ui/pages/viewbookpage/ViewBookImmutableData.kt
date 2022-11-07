@@ -23,8 +23,8 @@ data class ViewBookImmutableData(
         bookId = bundle.book.bookId,
         title = bundle.book.title,
         subtitle = bundle.book.subtitle,
-        genres = bundle.genres.map{it.name},
-        authors = bundle.authors.map{it.name},
+        genres = bundle.genres.map { it.name },
+        authors = bundle.authors.map { it.name },
         coverURI = bundle.book.coverURI,
         description = bundle.book.description,
         publisher = bundle.book.publisher,
@@ -33,13 +33,13 @@ data class ViewBookImmutableData(
         media = bundle.book.media,
         language = bundle.book.language
     )
-    constructor(imported: ImportedBookData): this(
+    constructor(imported: ImportedBookData) : this(
         bookId = 0L,
         title = imported.title,
         subtitle = imported.subtitle,
         genres = imported.genres,
         authors = imported.authors,
-        coverURI = imported.coverUrl?.let{Uri.parse(it)},
+        coverURI = imported.coverUrl?.let { Uri.parse(it) },
         description = imported.description,
         publisher = imported.publisher,
         publishedYear = imported.published,

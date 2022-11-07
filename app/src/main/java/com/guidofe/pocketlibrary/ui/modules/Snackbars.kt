@@ -103,7 +103,7 @@ class Snackbars {
                 val res = hostState.showSnackbar(
                     CustomSnackbarVisuals(
                         message = context.getString(
-                                R.string.book_alredy_present_message_with_title
+                            R.string.book_alredy_present_message_with_title
                         ).format(bookTitle),
                         isError = true,
                         actionLabel = context.getString(R.string.add_anyway)

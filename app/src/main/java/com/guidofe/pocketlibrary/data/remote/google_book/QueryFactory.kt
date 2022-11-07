@@ -1,10 +1,10 @@
 package com.guidofe.pocketlibrary.data.remote.google_book
 
+import java.lang.reflect.Type
 import retrofit2.Converter
 import retrofit2.Retrofit
-import java.lang.reflect.Type
 
-class QueryFactory: Converter.Factory() {
+class QueryFactory : Converter.Factory() {
     override fun stringConverter(
         type: Type,
         annotations: Array<out Annotation>,
@@ -12,8 +12,7 @@ class QueryFactory: Converter.Factory() {
     ): Converter<*, String>? {
         if (type != QueryData::class.java) {
             return null
-        }
-        else {
+        } else {
             return Converter<QueryData, String> { value ->
                 var response = ""
                 if (value.text != null) {

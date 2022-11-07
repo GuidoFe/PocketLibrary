@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.modules
+package com.guidofe.pocketlibrary.ui.dialogs
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -8,10 +8,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,13 +15,15 @@ fun InsertIsbnDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
-    var isbn by remember { mutableStateOf("")}
+    var isbn by remember { mutableStateOf("") }
     AlertDialog(
-        title = { Text(
-            stringResource(R.string.type_the_isbn),
-            modifier = Modifier.padding(bottom = 10.dp)
+        title = {
+            Text(
+                stringResource(R.string.type_the_isbn),
+                modifier = Modifier.padding(bottom = 10.dp)
 
-        ) },
+            )
+        },
         text = {
             OutlinedTextField(
                 value = isbn,

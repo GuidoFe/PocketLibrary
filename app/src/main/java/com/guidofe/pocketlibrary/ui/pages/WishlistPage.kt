@@ -10,23 +10,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
+import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
+import com.guidofe.pocketlibrary.ui.modules.AddBookFab
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.Snackbars
+import com.guidofe.pocketlibrary.ui.modules.WishlistRow
+import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
+import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.WishlistPageVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.launch
-import androidx.paging.compose.items
-import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.modules.*
-import com.guidofe.pocketlibrary.ui.pages.destinations.*
-import com.guidofe.pocketlibrary.utils.BookDestination
-import com.guidofe.pocketlibrary.viewmodels.WishlistPageVM
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 
-//TODO: Undo delete action
+// TODO: Undo delete action
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
@@ -39,13 +47,13 @@ fun WishlistPage(
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
-    var isExpanded: Boolean by remember{mutableStateOf(false)}
+    var isExpanded: Boolean by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val isMultipleSelecting = vm.selectionManager.isMultipleSelecting
-    var showDoubleIsbnDialog by remember{mutableStateOf(false)}
-    var isbnToSearch: String? by remember{mutableStateOf(null)}
-    var showConfirmDeleteBook by remember{mutableStateOf(false)}
-//TODO add to borrowed
+    var showDoubleIsbnDialog by remember { mutableStateOf(false) }
+    var isbnToSearch: String? by remember { mutableStateOf(null) }
+    var showConfirmDeleteBook by remember { mutableStateOf(false) }
+// TODO add to borrowed
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
@@ -65,7 +73,7 @@ fun WishlistPage(
                 actions = {
                     IconButton(
                         onClick = {
-                            vm.moveSelectedBooksToLibraryAndRefresh() {
+                            vm.moveSelectedBooksToLibraryAndRefresh {
                                 Snackbars.bookMovedToLibrary(
                                     vm.snackbarHostState,
                                     context,
@@ -107,14 +115,16 @@ fun WishlistPage(
                     Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, scope)
                 },
                 onNoBookFound = {
-                    Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
+                    Snackbars.noBookFoundForIsbnSnackbar(
+                        vm.snackbarHostState, context, scope
+                    ) {
                         navigator.navigate(
                             EditBookPageDestination(newBookDestination = BookDestination.WISHLIST)
                         )
                     }
                 },
                 onOneBookSaved = {
-                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope){
+                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope) {
                         vm.invalidate()
                     }
                 },
@@ -130,7 +140,7 @@ fun WishlistPage(
             AddBookFab(
                 isExpanded = isExpanded,
                 onMainFabClick = { isExpanded = !isExpanded },
-                onDismissRequest = { isExpanded = false},
+                onDismissRequest = { isExpanded = false },
                 onIsbnTyped = {
                     isbnToSearch = it
                 },
@@ -151,7 +161,7 @@ fun WishlistPage(
     LazyColumn {
         items(
             items = lazyPagingItems,
-            key = {it.value.info.bookId}
+            key = { it.value.info.bookId }
         ) { item ->
             if (item == null)
                 return@items
@@ -172,7 +182,6 @@ fun WishlistPage(
                     onRowLongPress = {
                         if (isMultipleSelecting) return@WishlistRow
                         itemDropdownOpen = true
-
                     }
                 )
                 DropdownMenu(
@@ -207,9 +216,8 @@ fun WishlistPage(
                     )
                 }
             }
-
         }
-        //TODO manage what happens when added library book is in wishlist
+        // TODO manage what happens when added library book is in wishlist
     }
     if (showDoubleIsbnDialog) {
         DuplicateIsbnDialog(
@@ -231,7 +239,7 @@ fun WishlistPage(
                                 }
                             }
                             1 -> {
-                                importVm.saveImportedBook(it[0], BookDestination.WISHLIST) { id ->
+                                importVm.saveImportedBook(it[0], BookDestination.WISHLIST) {
                                     vm.invalidate()
                                 }
                             }
@@ -239,7 +247,6 @@ fun WishlistPage(
                                 BookDisambiguationPageDestination(it.toTypedArray())
                             )
                         }
-
                     },
                     failureCallback = {
                         scope.launch {
@@ -254,10 +261,11 @@ fun WishlistPage(
                     },
                 )
             },
-            onCancel = {showDoubleIsbnDialog = false})
+            onCancel = { showDoubleIsbnDialog = false }
+        )
     }
 
-    if(showConfirmDeleteBook) {
+    if (showConfirmDeleteBook) {
         ConfirmDeleteBookDialog(
             onDismiss = {
                 showConfirmDeleteBook = false
@@ -266,7 +274,7 @@ fun WishlistPage(
             },
             isPlural = isMultipleSelecting && vm.selectionManager.count > 1
         ) {
-            if(isMultipleSelecting)
+            if (isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()
             else
                 vm.deleteSelectedBookAndRefresh()

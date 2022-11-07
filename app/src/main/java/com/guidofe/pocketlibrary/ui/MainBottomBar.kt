@@ -14,21 +14,24 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 
 @Composable
-fun MainBottomBar(navController: NavController){
-    val currentDestination: Destination? = navController.currentBackStackEntryAsState().value?.appDestination()
-    NavigationBar{
+fun MainBottomBar(navController: NavController) {
+    val currentDestination: Destination? =
+        navController.currentBackStackEntryAsState().value?.appDestination()
+    NavigationBar {
         BottomBarDestination.values().forEach { screen ->
-            NavigationBarItem(selected = currentDestination == screen.direction,
+            NavigationBarItem(
+                selected = currentDestination == screen.direction,
                 icon = { Icon(painterResource(screen.iconId), contentDescription = null) },
                 onClick = {
                     try {
                         navController.navigate(screen.direction, fun NavOptionsBuilder.() {
                             launchSingleTop = true
                         })
-                    } catch(e: IllegalStateException){
+                    } catch (e: IllegalStateException) {
                         Log.e("test", "Illegal state exception at bottom menu")
                     }
-                })
+                }
+            )
         }
     }
 }

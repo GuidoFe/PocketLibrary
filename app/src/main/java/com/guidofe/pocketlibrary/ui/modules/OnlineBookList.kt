@@ -15,8 +15,8 @@ import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.OnlineBookListVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
 
@@ -27,7 +27,7 @@ fun OnlineBookList(
     singleTapAction: (SelectableListItem<ImportedBookData>) -> Unit = {},
     longPressAction: (SelectableListItem<ImportedBookData>) -> Unit = {},
     selectionManager: SelectionManager<String, ImportedBookData> = SelectionManager(
-        getKey = {it.externalId}
+        getKey = { it.externalId }
     ),
     multipleSelectionEnabled: Boolean = true,
     vm: IOnlineBookListVM = hiltViewModel<OnlineBookListVM>()
@@ -66,8 +66,7 @@ fun OnlineBookList(
                                 onRowTap = {
                                     if (selectionManager.isMultipleSelecting) {
                                         selectionManager.multipleSelectToggle(item.value)
-                                    }
-                                    else
+                                    } else
                                         singleTapAction(item)
                                 },
                                 onRowLongPress = {

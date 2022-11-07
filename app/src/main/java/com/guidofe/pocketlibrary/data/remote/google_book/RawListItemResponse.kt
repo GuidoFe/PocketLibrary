@@ -3,10 +3,13 @@ package com.guidofe.pocketlibrary.data.remote.google_book
 import android.util.Log
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import org.json.JSONTokener
 
-data class RawListItemResponse (val id: String, val volumeInfo: RawVolumeResponse, val saleInfo: RawSaleInfo) {
-    fun toImportedBookData (): ImportedBookData? {
+data class RawListItemResponse(
+    val id: String,
+    val volumeInfo: RawVolumeResponse,
+    val saleInfo: RawSaleInfo
+) {
+    fun toImportedBookData(): ImportedBookData? {
         if (this.volumeInfo.title == null)
             return null
         var code13: String? = null
@@ -52,7 +55,7 @@ data class RawListItemResponse (val id: String, val volumeInfo: RawVolumeRespons
                         .split('-')
                         .first()
                         .toInt()
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     Log.w("debug", "Data parsing failed for ${volumeInfo.publishedDate}")
                     null
                 }

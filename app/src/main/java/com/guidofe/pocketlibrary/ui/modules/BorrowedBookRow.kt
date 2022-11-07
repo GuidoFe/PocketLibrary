@@ -18,12 +18,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
@@ -44,8 +43,8 @@ fun BorrowedBookRow(
     val bookBundle = item.value.bookBundle
     val lenderString = stringResource(R.string.lender_colon)
     val density = LocalDensity.current
-    var isMenuOpen by remember{mutableStateOf(false)}
-    var tapOffset by remember{mutableStateOf(Offset.Zero)}
+    var isMenuOpen by remember { mutableStateOf(false) }
+    var tapOffset by remember { mutableStateOf(Offset.Zero) }
     val lenderBuilder = AnnotatedString.Builder(
         lenderString + "\n" + (item.value.info.who ?: "???")
     )
@@ -98,15 +97,16 @@ fun BorrowedBookRow(
                                 .padding(5.dp, 0.dp)
                         ) {
 
-                            BoxWithConstraints() {
-                                Column(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(onLongPress = {
-                                            tapOffset = it
-                                            isMenuOpen = true
-                                        })
-                                    }
+                            BoxWithConstraints {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(onLongPress = {
+                                                tapOffset = it
+                                                isMenuOpen = true
+                                            })
+                                        }
                                 ) {
                                     Text(
                                         text = bookBundle.book.title,
@@ -127,7 +127,7 @@ fun BorrowedBookRow(
                                 }*/
                                 DropdownMenu(
                                     expanded = isMenuOpen,
-                                    onDismissRequest = {isMenuOpen = false},
+                                    onDismissRequest = { isMenuOpen = false },
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.mark_as_returned)) },
@@ -183,7 +183,8 @@ private fun LibraryListRowPreview() {
                         1,
                         "Tim Minchin",
                         Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25")),
+                        Date.valueOf("2022-12-25")
+                    ),
                     PreviewUtils.exampleBookBundle
                 )
             )

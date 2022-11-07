@@ -7,11 +7,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-enum class Media {BOOK, EBOOK}
+enum class Media { BOOK, EBOOK }
 
 @Entity
 @Parcelize
-data class Book (
+data class Book(
     @PrimaryKey(autoGenerate = true) val bookId: Long,
     @ColumnInfo var title: String,
     @ColumnInfo var subtitle: String? = null,

@@ -7,7 +7,7 @@ import com.guidofe.pocketlibrary.repositories.LocalRepository
 
 class LibraryPagingSource(
     val repo: LocalRepository
-    ): PagingSource<Int, LibraryBundle>() {
+) : PagingSource<Int, LibraryBundle>() {
     override fun getRefreshKey(state: PagingState<Int, LibraryBundle>): Int? {
         return state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)

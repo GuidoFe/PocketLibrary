@@ -6,7 +6,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import java.sql.Date
 
-class PreviewUtils() {
+class PreviewUtils {
     companion object {
         val exampleBookBundle = BookBundle(
             Book(
@@ -41,10 +41,10 @@ class PreviewUtils() {
             externalId = "id-234r2",
             title = "Very Interesting Book",
             description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed " +
-                    "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Suspendisse " +
-                    "sed nisi lacus sed. Risus in hendrerit gravida rutrum quisque. Vulputate " +
-                    "enim nulla aliquet porttitor lacus luctus accumsan tortor. Facilisis magna " +
-                    "etiam tempor orci eu lobortis elementum nibh tellus.",
+                "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Suspendisse " +
+                "sed nisi lacus sed. Risus in hendrerit gravida rutrum quisque. Vulputate " +
+                "enim nulla aliquet porttitor lacus luctus accumsan tortor. Facilisis magna " +
+                "etiam tempor orci eu lobortis elementum nibh tellus.",
             subtitle = "Short subtitle",
             publisher = "Adelphi",
             published = 1998,
@@ -54,6 +54,5 @@ class PreviewUtils() {
             authors = listOf("Pinco Pallino", "Giulio Cesare"),
             genres = listOf("Fantasy", "Humor")
         )
-
     }
 }

@@ -3,10 +3,10 @@ package com.guidofe.pocketlibrary.repositories
 import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
-class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepository {
+class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRepository {
     override suspend fun insertBookBundle(bundle: BookBundle): Long {
         var bookId: Long = -1L
         withTransaction {
@@ -19,11 +19,11 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
                 else
                     authorsId.add(author.authorId)
             }
-            if(authorsToInsert.isNotEmpty()) {
+            if (authorsToInsert.isNotEmpty()) {
                 val newIds = insertAllAuthors(authorsToInsert)
                 authorsId.addAll(newIds)
             }
-            insertAllBookAuthors(authorsId.map{id -> BookAuthor(bookId, id) })
+            insertAllBookAuthors(authorsId.map { id -> BookAuthor(bookId, id) })
             val genresToInsert: ArrayList<Genre> = arrayListOf()
             val genresId = arrayListOf<Long>()
             bundle.genres.forEach { genre ->
@@ -32,15 +32,15 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
                 else
                     genresId.add(genre.genreId)
             }
-            if(genresToInsert.isNotEmpty()) {
+            if (genresToInsert.isNotEmpty()) {
                 val newIds = insertAllGenres(genresToInsert)
                 genresId.addAll(newIds)
             }
-            insertAllBookGenres(genresId.map{id -> BookGenre(bookId, id) })
+            insertAllBookGenres(genresId.map { id -> BookGenre(bookId, id) })
             var placeId: Long? = null
             var roomId: Long? = null
             var bookshelfId: Long? = null
-            if(bundle.note != null)
+            if (bundle.note != null)
                 upsertNote(bundle.note.copy(bookId = bookId))
         }
         return bookId
@@ -81,7 +81,9 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
     override suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle> {
         return db.wishlistBundleDao().getWishlistBundles(pageNumber * pageSize, pageSize)
     }
-    override suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle> {
+    override suspend fun getLibraryBundlesWithSameIsbns(
+        isbnList: List<String>
+    ): List<LibraryBundle> {
         return db.libraryBundleDao().getLibraryBundlesWithSameIsbns(isbnList)
     }
 
@@ -103,7 +105,7 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase): LocalRepo
 
     override suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>) {
         db.wishlistBookDao().deleteAll(bookIds)
-        db.libraryBookDao().insertAll(bookIds.map{LibraryBook(it)})
+        db.libraryBookDao().insertAll(bookIds.map { LibraryBook(it) })
     }
 
     override fun getBorrowedBundles(): Flow<List<BorrowedBundle>> {

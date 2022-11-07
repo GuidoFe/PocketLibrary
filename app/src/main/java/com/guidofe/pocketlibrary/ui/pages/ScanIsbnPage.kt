@@ -5,8 +5,8 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,14 +18,15 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.NoBookFoundForIsbnDialog
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -33,8 +34,7 @@ import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 
-
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Destination(route = "isbn_scan")
 @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @Composable
@@ -48,10 +48,10 @@ fun ScanIsbnPage(
     val context = LocalContext.current
     val coroutine = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
-    var isbnToSearch: String? by remember{mutableStateOf(null)}
-    var showBookNotFoundDialog by remember{mutableStateOf(false)}
+    var isbnToSearch: String? by remember { mutableStateOf(null) }
+    var showBookNotFoundDialog by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {
-        scanVm.scaffoldState.refreshBar(title=context.getString(R.string.scan_isbn))
+        scanVm.scaffoldState.refreshBar(title = context.getString(R.string.scan_isbn))
     }
     val cameraPermissionState = rememberPermissionState(
         Manifest.permission.CAMERA
@@ -61,14 +61,14 @@ fun ScanIsbnPage(
         PermissionStatus.Granted -> {
             CameraView(
                 additionalUseCases = arrayOf(scanVm.getImageAnalysis()),
-                onCameraProviderSet = {scanVm.cameraProvider = it}
+                onCameraProviderSet = { scanVm.cameraProvider = it }
             )
         }
         is PermissionStatus.Denied -> {
             if ((cameraPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
                 AlertDialog(
-                    title = {Text(stringResource(R.string.permission_required))},
-                    text = {Text(stringResource(R.string.isbn_camera_rationale))},
+                    title = { Text(stringResource(R.string.permission_required)) },
+                    text = { Text(stringResource(R.string.isbn_camera_rationale)) },
                     confirmButton = {
                         TextButton(onClick = {
                             cameraPermissionState.launchPermissionRequest()
@@ -105,7 +105,7 @@ fun ScanIsbnPage(
                         scanVm.snackbarHostState,
                         context,
                         coroutine,
-                        onDismiss = {scanVm.restartAnalysis(lifecycleOwner)}
+                        onDismiss = { scanVm.restartAnalysis(lifecycleOwner) }
                     ) {
                         isbnToSearch = isbn
                     }
@@ -167,13 +167,14 @@ fun ScanIsbnPage(
                 scanVm.restartAnalysis(lifecycleOwner)
             },
             onAddManually = {
-                navigator.navigate(EditBookPageDestination(
-                    newBookDestination = destination
-                ))
+                navigator.navigate(
+                    EditBookPageDestination(
+                        newBookDestination = destination
+                    )
+                )
             }
         )
     }
-
 }
 
 @Composable
@@ -182,7 +183,7 @@ private fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         EmptyDestinationsNavigator,
         BookDestination.LIBRARY,
-        object: IScanIsbnVM {
+        object : IScanIsbnVM {
             override var scannedCode: String? = ""
             override fun getImageAnalysis(): ImageAnalysis {
                 return ImageAnalysis.Builder().build()
@@ -191,9 +192,8 @@ private fun ScanIsbnPagePreview() {
             override val snackbarHostState = SnackbarHostState()
             override fun restartAnalysis(lifecycleOwner: LifecycleOwner) {}
             override var cameraProvider: ProcessCameraProvider? = null
-
         },
-        object: IImportedBookVM {
+        object : IImportedBookVM {
             override val snackbarHostState = SnackbarHostState()
 
             override fun getImportedBooksFromIsbn(
@@ -220,7 +220,10 @@ private fun ScanIsbnPagePreview() {
             override fun checkIfImportedBooksAreAlreadyInLibrary(
                 list: List<ImportedBookData>,
                 onAllOk: () -> Unit,
-                onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
+                onConflict: (
+                    booksOk: List<ImportedBookData>,
+                    duplicateBooks: List<ImportedBookData>
+                ) -> Unit
             ) {}
 
             override fun saveImportedBooksAsBookBundles(
@@ -237,7 +240,7 @@ private fun ScanIsbnPagePreview() {
                 importedBook: ImportedBookData,
                 destination: BookDestination,
                 callback: (Long) -> Unit
-            ) {            }
+            ) { }
 
             override fun saveImportedBooks(
                 importedBooks: List<ImportedBookData>,

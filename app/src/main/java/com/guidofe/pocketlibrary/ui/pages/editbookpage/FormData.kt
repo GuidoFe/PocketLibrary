@@ -3,12 +3,12 @@ package com.guidofe.pocketlibrary.ui.pages.editbookpage
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import androidx.compose.runtime.setValue
 
-class FormData(){
+class FormData() {
     var title: String by mutableStateOf("")
     var subtitle: String by mutableStateOf("")
     var description: String by mutableStateOf("")
@@ -33,7 +33,7 @@ class FormData(){
         authors: String = "",
         genres: List<String> = listOf()
 
-    ): this() {
+    ) : this() {
         this.title = title
         this.subtitle = subtitle
         this.description = description
@@ -47,7 +47,7 @@ class FormData(){
         this.genres = genres
     }
 
-    constructor(bundle: BookBundle): this() {
+    constructor(bundle: BookBundle) : this() {
         val book = bundle.book
         this.title = book.title
         this.subtitle = book.subtitle ?: ""
@@ -59,17 +59,17 @@ class FormData(){
         this.identifier = book.identifier ?: ""
         this.language = book.language ?: ""
         this.authors = bundle.authors.joinToString(", ")
-        this.genres = bundle.genres.map {it.name}
+        this.genres = bundle.genres.map { it.name }
     }
 
-    constructor(book: ImportedBookData): this() {
+    constructor(book: ImportedBookData) : this() {
         this.title = book.title
         this.subtitle = book.subtitle ?: ""
         this.description = book.description ?: ""
         this.publisher = book.publisher ?: ""
         this.published = (book.published?.toString()) ?: ""
         this.media = book.media
-        this.coverUri = book.coverUrl?.let{Uri.parse(it)}
+        this.coverUri = book.coverUrl?.let { Uri.parse(it) }
         this.identifier = book.identifier ?: ""
         this.language = book.language ?: ""
         this.authors = book.authors.joinToString(", ")

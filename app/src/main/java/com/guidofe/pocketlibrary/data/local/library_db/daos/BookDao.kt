@@ -27,7 +27,9 @@ interface BookDao {
     @Query("SELECT * FROM book")
     suspend fun getAll(): List<Book>
 
-    @Query("SELECT * FROM Author WHERE authorId IN (SELECT authorId FROM bookAuthor WHERE bookId = :bookId)")
+    @Query(
+        "SELECT * FROM Author WHERE authorId IN " +
+            "(SELECT authorId FROM bookAuthor WHERE bookId = :bookId)"
+    )
     suspend fun getBookAuthors(bookId: Long): List<Author>
-
 }

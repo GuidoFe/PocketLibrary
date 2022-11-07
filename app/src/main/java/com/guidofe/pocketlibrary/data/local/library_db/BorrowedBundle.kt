@@ -3,11 +3,12 @@ package com.guidofe.pocketlibrary.data.local.library_db
 import android.os.Parcelable
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
+import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class BorrowedBundle (
+data class BorrowedBundle(
     @Embedded val info: BorrowedBook,
     @Relation(
         entity = Book::class,
@@ -15,4 +16,4 @@ data class BorrowedBundle (
         entityColumn = "bookId"
     )
     val bookBundle: BookBundle,
-): Parcelable
+) : Parcelable

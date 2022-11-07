@@ -11,4 +11,4 @@ import javax.inject.Inject
 class BookDisambiguationVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
-): ViewModel(), IBookDisambiguationVM
+) : ViewModel(), IBookDisambiguationVM

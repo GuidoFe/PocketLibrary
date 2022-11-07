@@ -22,7 +22,7 @@ import androidx.room.Index
     ],
     indices = [Index("bookId"), Index("genreId")]
 )
-data class BookGenre (
+data class BookGenre(
     val bookId: Long,
     val genreId: Long
 )

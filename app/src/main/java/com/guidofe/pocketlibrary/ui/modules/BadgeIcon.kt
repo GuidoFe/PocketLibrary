@@ -18,32 +18,40 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 
 @Composable
-fun BadgeIcon(painter: Painter,
-              contentDescription: String,
-              modifier: Modifier = Modifier,
-              badgeBackground: Color = MaterialTheme.colorScheme.primary,
-              badgeForeground: Color = MaterialTheme.colorScheme.onPrimary,
-              badgeDiameter: Dp = 20.dp,
-              iconProportion: Float = 0.75f,
+fun BadgeIcon(
+    painter: Painter,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    badgeBackground: Color = MaterialTheme.colorScheme.primary,
+    badgeForeground: Color = MaterialTheme.colorScheme.onPrimary,
+    badgeDiameter: Dp = 20.dp,
+    iconProportion: Float = 0.75f,
 ) {
-    Surface(shape = CircleShape,
-            color = badgeBackground,
-            modifier = modifier
-                .size(badgeDiameter)
-        ) {
-       Icon(painter = painter,
-           tint = badgeForeground,
-           contentDescription = contentDescription,
-           modifier = Modifier
-               .padding((badgeDiameter - badgeDiameter * iconProportion) / 2)
-           )
+    Surface(
+        shape = CircleShape,
+        color = badgeBackground,
+        modifier = modifier
+            .size(badgeDiameter)
+    ) {
+        Icon(
+            painter = painter,
+            tint = badgeForeground,
+            contentDescription = contentDescription,
+            modifier = Modifier
+                .padding((badgeDiameter - badgeDiameter * iconProportion) / 2)
+        )
     }
 }
 
 @Preview
 @Composable
 private fun BadgeIconPreview() {
-    PocketLibraryTheme() {
-        BadgeIcon(painterResource(R.drawable.star_24px), "Test", badgeBackground = Color.Red, badgeForeground = Color.White)
+    PocketLibraryTheme {
+        BadgeIcon(
+            painterResource(R.drawable.star_24px),
+            "Test",
+            badgeBackground = Color.Red,
+            badgeForeground = Color.White
+        )
     }
 }

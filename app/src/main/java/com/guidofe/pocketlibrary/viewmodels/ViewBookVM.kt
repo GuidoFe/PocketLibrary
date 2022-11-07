@@ -11,20 +11,20 @@ import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ViewBookImmutableData
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ViewBookVM @Inject constructor(
     val repo: LocalRepository,
     override val scaffoldState: ScaffoldState
-): ViewModel(), IViewBookVM {
+) : ViewModel(), IViewBookVM {
     private var oldNote: Note? = null
     override var editedNote: String by mutableStateOf("")
     override var data: ViewBookImmutableData? by mutableStateOf(null)
         private set
     override fun initFromLibraryBook(bookId: Long) {
-        //TODO: What to do if book doesn't exist?
+        // TODO: What to do if book doesn't exist?
         viewModelScope.launch {
             val bookBundle = repo.getBookBundle(bookId)
             bookBundle?.let { bundle ->
@@ -37,15 +37,14 @@ class ViewBookVM @Inject constructor(
 
     override fun saveNote(bookId: Long) {
         viewModelScope.launch {
-            if(bookId > 0) {
+            if (bookId > 0) {
                 if (editedNote.isBlank() && oldNote != null) {
                     repo.deleteNote(oldNote!!)
                 } else {
-                    if(editedNote.isNotBlank())
+                    if (editedNote.isNotBlank())
                         repo.upsertNote(Note(bookId, editedNote))
                 }
             }
         }
     }
-
 }

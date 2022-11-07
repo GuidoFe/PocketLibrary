@@ -1,7 +1,6 @@
 package com.guidofe.pocketlibrary.viewmodels.interfaces
 
 import androidx.compose.material3.SnackbarHostState
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.utils.BookDestination
@@ -28,7 +27,10 @@ interface IImportedBookVM {
     fun checkIfImportedBooksAreAlreadyInLibrary(
         list: List<ImportedBookData>,
         onAllOk: () -> Unit,
-        onConflict: (booksOk: List<ImportedBookData>, duplicateBooks: List<ImportedBookData>) -> Unit
+        onConflict: (
+            booksOk: List<ImportedBookData>,
+            duplicateBooks: List<ImportedBookData>
+        ) -> Unit
     )
 
     fun saveImportedBooksAsBookBundles(importedBooks: List<ImportedBookData>, callback: () -> Unit)

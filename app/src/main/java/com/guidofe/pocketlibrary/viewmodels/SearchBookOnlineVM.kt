@@ -15,8 +15,8 @@ import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SearchBookOnlineVM @Inject constructor(
@@ -24,9 +24,9 @@ class SearchBookOnlineVM @Inject constructor(
     override val snackbarHostState: SnackbarHostState,
     private val repo: LocalRepository,
     metaRepo: BookMetaRepository
-): ViewModel(), ISearchBookOnlineVM {
+) : ViewModel(), ISearchBookOnlineVM {
     override val selectionManager = SelectionManager<String, ImportedBookData>(
-        getKey = {it.externalId}
+        getKey = { it.externalId }
     )
     override val listVM: OnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)
     override var title: String by mutableStateOf("")

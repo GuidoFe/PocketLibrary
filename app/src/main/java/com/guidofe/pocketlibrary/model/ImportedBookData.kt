@@ -6,8 +6,6 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.utils.BookDestination
 import kotlinx.parcelize.Parcelize
-import java.sql.Date
-import java.time.Instant
 
 @Parcelize
 data class ImportedBookData(
@@ -23,9 +21,9 @@ data class ImportedBookData(
     val language: String? = null,
     val authors: List<String> = listOf(),
     val genres: List<String> = listOf()
-): Parcelable {
+) : Parcelable {
 
-    private suspend fun _saveToDb(localRepo: LocalRepository): Long {
+    private suspend fun saveToDb(localRepo: LocalRepository): Long {
         var bookId = -1L
         val book = Book(
             bookId = 0L,
@@ -34,7 +32,7 @@ data class ImportedBookData(
             description = description,
             publisher = publisher,
             published = published,
-            coverURI = coverUrl?.let{Uri.parse(it)},
+            coverURI = coverUrl?.let { Uri.parse(it) },
             identifier = identifier,
             media = media,
             language = language
@@ -42,28 +40,34 @@ data class ImportedBookData(
         bookId = localRepo.insertBook(book)
         val authorsList = authors
         val existingAuthors = localRepo.getExistingAuthors(authorsList)
-        val existingAuthorsNames = existingAuthors.map{a -> a.name}
-        val newAuthorsNames = authorsList.filter{a -> !existingAuthorsNames.contains(a)}
-        val newAuthorsIds = localRepo.insertAllAuthors(newAuthorsNames.map{ name -> Author(0L, name) })
-        val authorsIds = newAuthorsIds.plus(existingAuthors.map{a -> a.authorId})
-        val bookAuthorList = authorsIds.map{id -> BookAuthor(bookId, id) }
+        val existingAuthorsNames = existingAuthors.map { a -> a.name }
+        val newAuthorsNames = authorsList.filter { a -> !existingAuthorsNames.contains(a) }
+        val newAuthorsIds = localRepo.insertAllAuthors(
+            newAuthorsNames.map { name ->
+                Author(0L, name)
+            }
+        )
+        val authorsIds = newAuthorsIds.plus(existingAuthors.map { a -> a.authorId })
+        val bookAuthorList = authorsIds.map { id -> BookAuthor(bookId, id) }
         localRepo.insertAllBookAuthors(bookAuthorList)
         if (genres.isNotEmpty()) {
             val existingGenres = localRepo.getGenresByNames(genres)
-            val existingGenresNames = existingGenres.map{g -> g.name}
-            val newGenresNames= genres.filter{ g -> !existingGenresNames.contains(g)}
-            val newGenresIds = localRepo.insertAllGenres(newGenresNames.map{ name ->
-                Genre(0L, name)
-            })
-            val genresIds = newGenresIds.plus(existingGenres.map{g -> g.genreId})
-            localRepo.insertAllBookGenres(genresIds.map{ id -> BookGenre(bookId, id) })
+            val existingGenresNames = existingGenres.map { g -> g.name }
+            val newGenresNames = genres.filter { g -> !existingGenresNames.contains(g) }
+            val newGenresIds = localRepo.insertAllGenres(
+                newGenresNames.map { name ->
+                    Genre(0L, name)
+                }
+            )
+            val genresIds = newGenresIds.plus(existingGenres.map { g -> g.genreId })
+            localRepo.insertAllBookGenres(genresIds.map { id -> BookGenre(bookId, id) })
         }
         return bookId
     }
     suspend fun saveToDbAsBookBundle(localRepo: LocalRepository): Long {
         var bookId = -1L
         localRepo.withTransaction {
-            bookId = _saveToDb(localRepo)
+            bookId = saveToDb(localRepo)
         }
         return bookId
     }
@@ -71,7 +75,7 @@ data class ImportedBookData(
     suspend fun saveToDestination(destination: BookDestination, localRepo: LocalRepository): Long {
         var bookId = -1L
         localRepo.withTransaction {
-            bookId = _saveToDb(localRepo)
+            bookId = saveToDb(localRepo)
             if (bookId > 0) {
                 when (destination) {
                     BookDestination.LIBRARY -> localRepo.insertLibraryBook(LibraryBook(bookId))
@@ -85,4 +89,3 @@ data class ImportedBookData(
         return bookId
     }
 }
-

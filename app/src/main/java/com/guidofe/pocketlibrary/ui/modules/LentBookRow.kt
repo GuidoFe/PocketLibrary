@@ -21,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
@@ -45,8 +44,8 @@ fun LentBookRow(
     val lentInfo = item.value.lent
     val lenderString = stringResource(R.string.lent_to_colon)
     val density = LocalDensity.current
-    var isMenuOpen by remember{mutableStateOf(false)}
-    var tapOffset by remember{mutableStateOf(Offset.Zero)}
+    var isMenuOpen by remember { mutableStateOf(false) }
+    var tapOffset by remember { mutableStateOf(Offset.Zero) }
     val lenderBuilder = AnnotatedString.Builder(
         lenderString + "\n" + (lentInfo?.who ?: "???")
     )
@@ -92,15 +91,16 @@ fun LentBookRow(
                                 .padding(5.dp, 0.dp)
                         ) {
 
-                            BoxWithConstraints() {
-                                Column(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(onLongPress = {
-                                            tapOffset = it
-                                            isMenuOpen = true
-                                        })
-                                    }
+                            BoxWithConstraints {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(onLongPress = {
+                                                tapOffset = it
+                                                isMenuOpen = true
+                                            })
+                                        }
                                 ) {
                                     Text(
                                         text = bookBundle.book.title,
@@ -121,11 +121,14 @@ fun LentBookRow(
                                 }*/
                                 DropdownMenu(
                                     expanded = isMenuOpen,
-                                    onDismissRequest = {isMenuOpen = false},
+                                    onDismissRequest = { isMenuOpen = false },
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.mark_as_returned)) },
-                                        onClick = { isMenuOpen = false; onMarkAsReturned(item.value) }
+                                        onClick = {
+                                            isMenuOpen = false
+                                            onMarkAsReturned(item.value)
+                                        }
                                     )
                                 }
                             }
@@ -165,9 +168,12 @@ private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
         LentBookRow(
             item = SelectableListItem(
-                PreviewUtils.exampleLibraryBundle.copy(lent = LentBook(1, "Pinco",
-                    Date.from(Instant.now()) as Date
-                ))
+                PreviewUtils.exampleLibraryBundle.copy(
+                    lent = LentBook(
+                        1, "Pinco",
+                        Date.from(Instant.now()) as Date
+                    )
+                )
             )
         )
     }

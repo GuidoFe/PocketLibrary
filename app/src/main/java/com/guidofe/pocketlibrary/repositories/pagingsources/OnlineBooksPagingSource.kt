@@ -10,7 +10,7 @@ import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 class OnlineBooksPagingSource(
     val queryData: QueryData?,
     val repo: BookMetaRepository
-    ): PagingSource<Int, ImportedBookData>() {
+) : PagingSource<Int, ImportedBookData>() {
     override fun getRefreshKey(state: PagingState<Int, ImportedBookData>): Int? {
         return state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)
@@ -21,25 +21,29 @@ class OnlineBooksPagingSource(
     override suspend fun load(
         params: LoadParams<Int>
     ): LoadResult<Int, ImportedBookData> {
-        //try {
-            val pageNumber = params.key ?: 0
-            val res = repo.searchVolumesByQuery(
-                query = queryData,
-                startIndex = pageNumber * params.loadSize,
-                pageSize = params.loadSize
+        // try {
+        val pageNumber = params.key ?: 0
+        val res = repo.searchVolumesByQuery(
+            query = queryData,
+            startIndex = pageNumber * params.loadSize,
+            pageSize = params.loadSize
+        )
+        if (!res.isSuccess()) {
+            Log.e(
+                "debug",
+                "OnlineBookPagingSource: Res is not success: " +
+                    (res.message ?: "loading error")
             )
-            if (!res.isSuccess()) {
-                Log.e("debug", "OnlineBookPagingSource: Res is not success: ${res.message ?: "loading error"}")
-                return LoadResult.Error(Exception(res.message))
-            }
-            val response = res.data ?: listOf()
-            val prevKey = if (pageNumber > 0) pageNumber - 1 else null
-            val nextKey = if (response.isNotEmpty()) pageNumber + 1 else null
-            return LoadResult.Page(
-                data = response,
-                prevKey = prevKey,
-                nextKey = nextKey
-            )
+            return LoadResult.Error(Exception(res.message))
+        }
+        val response = res.data ?: listOf()
+        val prevKey = if (pageNumber > 0) pageNumber - 1 else null
+        val nextKey = if (response.isNotEmpty()) pageNumber + 1 else null
+        return LoadResult.Page(
+            data = response,
+            prevKey = prevKey,
+            nextKey = nextKey
+        )
         /*}
         catch (e: Exception) {
             Log.e("debug", "OnlineBookPagingSource: Failed loading: ${e.message}")

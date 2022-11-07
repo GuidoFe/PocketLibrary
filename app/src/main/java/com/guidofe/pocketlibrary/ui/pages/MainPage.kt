@@ -1,7 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages
 
-import android.os.Bundle
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -18,11 +16,11 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.MainBottomBar
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import com.guidofe.pocketlibrary.viewmodels.MainActivityVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import com.ramcosta.composedestinations.DestinationsNavHost
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
     val navController = rememberNavController()
@@ -30,7 +28,7 @@ fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
     val refreshFabBlacklist = listOf("library_page", "wishlist_page")
     LaunchedEffect(key1 = true) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if(!refreshFabBlacklist.contains(destination.route))
+            if (!refreshFabBlacklist.contains(destination.route))
                 scaffoldState.fab = {}
             scaffoldState.actions = {}
         }
@@ -75,15 +73,15 @@ fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
                             }
                         }
                     },
-                    containerColor = if(custom?.isError == true) {
+                    containerColor = if (custom?.isError == true) {
                         MaterialTheme.colorScheme.errorContainer
                     } else {
                         SnackbarDefaults.color
                     },
                     contentColor = if (custom?.isError == true)
-                            MaterialTheme.colorScheme.onErrorContainer
-                        else
-                            SnackbarDefaults.contentColor
+                        MaterialTheme.colorScheme.onErrorContainer
+                    else
+                        SnackbarDefaults.contentColor
                 ) {
                     Text(data.visuals.message)
                 }
@@ -93,14 +91,14 @@ fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
         topBar = {
             if (!scaffoldState.hiddenBar) {
                 TopAppBar(
-                    title = {Text(scaffoldState.title)},
+                    title = { Text(scaffoldState.title) },
                     actions = scaffoldState.actions,
                     navigationIcon = scaffoldState.navigationIcon
                 )
             }
         },
         floatingActionButton = {
-            //TODO: Animate fab changing
+            // TODO: Animate fab changing
             viewModel.scaffoldState.fab()
         }
     ) { paddingValues ->
@@ -113,7 +111,7 @@ fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
 @Composable
 @Preview
 private fun MainPagePreview() {
-    PocketLibraryTheme() {
+    PocketLibraryTheme {
         MainPage()
     }
 }

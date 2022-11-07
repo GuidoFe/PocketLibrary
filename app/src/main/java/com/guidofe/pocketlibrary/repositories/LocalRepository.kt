@@ -8,7 +8,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
-    suspend fun <R: Any?> withTransaction(block: suspend () -> R): R
+    suspend fun <R : Any?> withTransaction(block: suspend () -> R): R
     fun close()
     suspend fun insertBookBundle(bundle: BookBundle): Long
     suspend fun getBookBundle(bookId: Long): BookBundle?

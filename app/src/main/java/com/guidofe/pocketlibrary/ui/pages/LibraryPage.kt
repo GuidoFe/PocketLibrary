@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.librarypage
+package com.guidofe.pocketlibrary.ui.pages
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -16,27 +16,32 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
-import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
-import com.guidofe.pocketlibrary.viewmodels.LibraryVM
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.launch
 import androidx.paging.compose.items
+import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
-import com.guidofe.pocketlibrary.ui.modules.*
+import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
+import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
+import com.guidofe.pocketlibrary.ui.modules.AddBookFab
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.LibraryListRow
+import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.LibraryVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlinx.coroutines.launch
 
-//TODO: Undo delete action
+// TODO: Undo delete action
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
@@ -49,17 +54,17 @@ fun LibraryPage(
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
-    var isFabExpanded: Boolean by remember{mutableStateOf(false)}
+    var isFabExpanded: Boolean by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    var isFavoriteButtonFilled by remember{mutableStateOf(false)}
-    var showDoubleIsbnDialog by remember{mutableStateOf(false)}
-    var isbnToSearch: String? by remember{mutableStateOf(null)}
-    var showConfirmDeleteBook by remember{mutableStateOf(false)}
-    var showLendBookDialog by remember{mutableStateOf(false)}
-    var offset by remember{mutableStateOf(Offset.Zero)}
+    var isFavoriteButtonFilled by remember { mutableStateOf(false) }
+    var showDoubleIsbnDialog by remember { mutableStateOf(false) }
+    var isbnToSearch: String? by remember { mutableStateOf(null) }
+    var showConfirmDeleteBook by remember { mutableStateOf(false) }
+    var showLendBookDialog by remember { mutableStateOf(false) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
     val screenDensity = LocalDensity.current
     val selectionManager = vm.selectionManager
-    var isMenuOpen by remember{mutableStateOf(false)}
+    var isMenuOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectionManager.isMultipleSelecting) {
         if (selectionManager.isMultipleSelecting) {
@@ -98,7 +103,7 @@ fun LibraryPage(
                             )
                         }
                     ) {
-                        if(isFavoriteButtonFilled)
+                        if (isFavoriteButtonFilled)
                             Icon(
                                 painterResource(R.drawable.heart_filled_24px),
                                 stringResource(R.string.remove_from_favorites)
@@ -111,7 +116,7 @@ fun LibraryPage(
                     }
                     Box {
                         IconButton(
-                            onClick = {isMenuOpen = true}
+                            onClick = { isMenuOpen = true }
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -123,14 +128,16 @@ fun LibraryPage(
                             onDismissRequest = { isMenuOpen = false }
                         ) {
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.lend_books))},
-                                onClick = {showLendBookDialog = true}
+                                text = { Text(stringResource(R.string.lend_books)) },
+                                onClick = { showLendBookDialog = true }
                             )
                             DropdownMenuItem(
-                                text = {Text(stringResource(R.string.mark_as_returned))},
-                                onClick = {vm.markSelectedLentBooksAsReturned  {
-                                    selectionManager.clearSelection()
-                                }}
+                                text = { Text(stringResource(R.string.mark_as_returned)) },
+                                onClick = {
+                                    vm.markSelectedLentBooksAsReturned {
+                                        selectionManager.clearSelection()
+                                    }
+                                }
                             )
                         }
                     }
@@ -151,14 +158,16 @@ fun LibraryPage(
                     Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, scope)
                 },
                 onNoBookFound = {
-                    Snackbars.noBookFoundForIsbnSnackbar(importVm.snackbarHostState, context, scope) {
+                    Snackbars.noBookFoundForIsbnSnackbar(
+                        importVm.snackbarHostState, context, scope
+                    ) {
                         navigator.navigate(
                             EditBookPageDestination(newBookDestination = BookDestination.LIBRARY)
                         )
                     }
                 },
                 onOneBookSaved = {
-                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope){
+                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope) {
                         vm.invalidate()
                     }
                 },
@@ -174,7 +183,7 @@ fun LibraryPage(
             AddBookFab(
                 isExpanded = isFabExpanded,
                 onMainFabClick = { isFabExpanded = !isFabExpanded },
-                onDismissRequest = { isFabExpanded = false},
+                onDismissRequest = { isFabExpanded = false },
                 onIsbnTyped = {
                     isbnToSearch = it
                 },
@@ -193,7 +202,9 @@ fun LibraryPage(
         }
     }
     LazyColumn {
-        if (lazyPagingItems.loadState.refresh != LoadState.Loading && lazyPagingItems.itemCount == 0)
+        if (lazyPagingItems.loadState.refresh != LoadState.Loading &&
+            lazyPagingItems.itemCount == 0
+        )
             item {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -205,7 +216,7 @@ fun LibraryPage(
             }
         items(
             items = lazyPagingItems,
-            key = {it.value.info.bookId}
+            key = { it.value.info.bookId }
         ) { item ->
             if (item == null)
                 return@items
@@ -241,7 +252,7 @@ fun LibraryPage(
                     )
                     if (item.value.lent == null)
                         DropdownMenuItem(
-                            text = {Text(stringResource(R.string.lend_book))},
+                            text = { Text(stringResource(R.string.lend_book)) },
                             onClick = {
                                 selectionManager.singleSelectedItem = item.value
                                 itemDropdownOpen = false
@@ -250,11 +261,12 @@ fun LibraryPage(
                         )
                     else
                         DropdownMenuItem(
-                            text = {Text(stringResource(R.string.mark_as_returned))},
+                            text = { Text(stringResource(R.string.mark_as_returned)) },
                             onClick = {
                                 itemDropdownOpen = false
                                 vm.markLentBookAsReturned(item.value.lent)
-                            })
+                            }
+                        )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.delete)) },
                         onClick = {
@@ -295,7 +307,6 @@ fun LibraryPage(
                                 BookDisambiguationPageDestination(it.toTypedArray())
                             )
                         }
-
                     },
                     failureCallback = {
                         scope.launch {
@@ -310,10 +321,11 @@ fun LibraryPage(
                     },
                 )
             },
-            onCancel = {showDoubleIsbnDialog = false})
+            onCancel = { showDoubleIsbnDialog = false }
+        )
     }
 
-    if(showConfirmDeleteBook) {
+    if (showConfirmDeleteBook) {
         ConfirmDeleteBookDialog(
             onDismiss = {
                 showConfirmDeleteBook = false
@@ -322,23 +334,23 @@ fun LibraryPage(
             },
             isPlural = selectionManager.isMultipleSelecting && selectionManager.count > 1
         ) {
-            if(selectionManager.isMultipleSelecting)
+            if (selectionManager.isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()
             else
                 vm.deleteSelectedBookAndRefresh()
             showConfirmDeleteBook = false
         }
     }
-    var whoString by remember{mutableStateOf("")}
-    var lentDate by remember{mutableStateOf(LocalDate.now())}
-    var whoError by remember{mutableStateOf(false)}
-    var showCalendar by remember{mutableStateOf(false)}
-    if(showLendBookDialog) {
+    var whoString by remember { mutableStateOf("") }
+    var lentDate by remember { mutableStateOf(LocalDate.now()) }
+    var whoError by remember { mutableStateOf(false) }
+    var showCalendar by remember { mutableStateOf(false) }
+    if (showLendBookDialog) {
         AlertDialog(
-            onDismissRequest = {selectionManager.clearSelection(); showLendBookDialog = false},
+            onDismissRequest = { selectionManager.clearSelection(); showLendBookDialog = false },
             confirmButton = {
                 Button(onClick = {
-                    if (whoString.isBlank()){
+                    if (whoString.isBlank()) {
                         whoError = true
                         return@Button
                     }
@@ -357,7 +369,10 @@ fun LibraryPage(
                 }
             },
             dismissButton = {
-                TextButton(onClick = {selectionManager.clearSelection(); showLendBookDialog = false}) {
+                TextButton(onClick = {
+                    selectionManager.clearSelection()
+                    showLendBookDialog = false
+                }) {
                     Text(stringResource(R.string.cancel))
                 }
             },
@@ -365,10 +380,12 @@ fun LibraryPage(
                 Column {
                     OutlinedTextField(
                         value = whoString,
-                        onValueChange = {whoString = it},
-                        label = {Text(stringResource(R.string.to_whom))},
+                        onValueChange = { whoString = it },
+                        label = { Text(stringResource(R.string.to_whom)) },
                         isError = whoError,
-                        supportingText = {if (whoError) Text(stringResource(R.string.please_enter_value))}
+                        supportingText = {
+                            if (whoError) Text(stringResource(R.string.please_enter_value))
+                        }
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -376,20 +393,24 @@ fun LibraryPage(
                     ) {
                         Text(stringResource(R.string.lent_on))
                         AssistChip(
-                            onClick = {showCalendar = true; showLendBookDialog = false; },
-                            label = {Text(lentDate.format(
-                                    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                            )}
+                            onClick = { showCalendar = true; showLendBookDialog = false; },
+                            label = {
+                                Text(
+                                    lentDate.format(
+                                        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                                    )
+                                )
+                            }
                         )
                     }
                 }
             }
         )
     }
-    if(showCalendar) {
+    if (showCalendar) {
         CalendarDialog(
-            onDismissed = {showLendBookDialog = true; showCalendar = false; },
-            onDaySelected = {lentDate = it; showLendBookDialog = true; showCalendar = false;},
+            onDismissed = { showLendBookDialog = true; showCalendar = false; },
+            onDaySelected = { lentDate = it; showLendBookDialog = true; showCalendar = false; },
             startingDate = lentDate,
         )
     }

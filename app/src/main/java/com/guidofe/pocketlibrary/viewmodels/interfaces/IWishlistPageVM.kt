@@ -5,8 +5,8 @@ import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import kotlinx.coroutines.flow.Flow
 
 interface IWishlistPageVM {

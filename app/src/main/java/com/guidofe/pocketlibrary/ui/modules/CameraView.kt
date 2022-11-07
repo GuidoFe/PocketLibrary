@@ -25,7 +25,6 @@ fun CameraView(
     // 1
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    
     AndroidView(
         modifier = modifier,
         factory = { context ->
