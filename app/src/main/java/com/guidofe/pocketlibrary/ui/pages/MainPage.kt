@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -93,7 +92,8 @@ fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
                 TopAppBar(
                     title = { Text(scaffoldState.title) },
                     actions = scaffoldState.actions,
-                    navigationIcon = scaffoldState.navigationIcon
+                    navigationIcon = scaffoldState.navigationIcon,
+                    scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
                 )
             }
         },

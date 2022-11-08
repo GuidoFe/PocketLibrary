@@ -1,12 +1,17 @@
 package com.guidofe.pocketlibrary.viewmodels.interfaces
 
+import androidx.compose.material3.SnackbarHostState
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ViewBookImmutableData
+import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ProgressTabState
 
 interface IViewBookVM {
     var editedNote: String
-    val data: ViewBookImmutableData?
     val scaffoldState: ScaffoldState
-    fun initFromLibraryBook(bookId: Long)
-    fun saveNote(bookId: Long)
+    val snackbarHostState: SnackbarHostState
+    fun initFromLocalBook(bookId: Long)
+    fun saveNote(callback: () -> Unit)
+    val bundle: BookBundle?
+    val progTabState: ProgressTabState
+    fun saveProgress(callback: () -> Unit)
 }

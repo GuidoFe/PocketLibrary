@@ -12,6 +12,7 @@ data class RawVolumeResponse(
     val categories: List<String>?,
     val imageLinks: ImageLinks?,
     val language: String?,
+    val pageCount: Int?
 
 ) {
     data class IndustryIdentifier(

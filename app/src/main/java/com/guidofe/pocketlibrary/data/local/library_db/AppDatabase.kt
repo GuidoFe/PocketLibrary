@@ -19,9 +19,10 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
         LentBook::class,
         BorrowedBook::class,
         Note::class,
-        WishlistBook::class
+        Progress::class,
+        WishlistBook::class,
     ],
-    version = 9,
+    version = 11,
     exportSchema = true,
     autoMigrations = []
 )
@@ -41,4 +42,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun wishlistBookDao(): WishlistBookDao
     abstract fun wishlistBundleDao(): WishlistBundleDao
     abstract fun lentBookDao(): LentBookDao
+    abstract fun progressDao(): ProgressDao
 }

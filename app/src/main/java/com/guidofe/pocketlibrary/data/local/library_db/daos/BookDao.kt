@@ -15,6 +15,9 @@ interface BookDao {
     @Update
     suspend fun update(book: Book)
 
+    @Query("UPDATE book SET pageCount = :value WHERE bookId = :bookId")
+    suspend fun changePageNumber(bookId: Long, value: Int)
+
     @Delete
     suspend fun delete(book: Book)
 

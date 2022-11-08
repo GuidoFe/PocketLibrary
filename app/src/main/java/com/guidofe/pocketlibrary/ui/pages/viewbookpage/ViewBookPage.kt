@@ -4,8 +4,6 @@ package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
 import android.util.Log
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,9 +11,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -29,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.modules.FAB
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
@@ -40,15 +39,15 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
-private enum class LocalTab { SUMMARY, DETAILS, NOTE }
-private enum class DisplayedFab { NONE, EDIT_BOOK, SAVE_NOTE }
+private enum class LocalTab { PROGRESS, SUMMARY, DETAILS, NOTE }
+private enum class DisplayedFab { NONE, EDIT_BOOK }
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Destination
 @Composable
 fun ViewBookPage(
     bookId: Long? = null,
     vm: IViewBookVM = hiltViewModel<ViewBookVM>(),
     navigator: DestinationsNavigator,
-    defaultTab: Int = 0,
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
@@ -57,21 +56,63 @@ fun ViewBookPage(
     }
     LaunchedEffect(key1 = bookId) {
         if (bookId != null)
-            vm.initFromLibraryBook(bookId)
+            vm.initFromLocalBook(bookId)
     }
 
-    var tabState by remember { mutableStateOf(LocalTab.SUMMARY) }
+    var tabState by remember { mutableStateOf(LocalTab.PROGRESS) }
     var localFabState by remember { mutableStateOf(DisplayedFab.NONE) }
     val detailsScrollState = rememberScrollState()
     val summaryScrollState = rememberScrollState()
     val genreScrollState = rememberScrollState()
-    var notePosition by remember { mutableStateOf(0f) }
     var hasNoteBeenModified by remember { mutableStateOf(false) }
-    val localFocusManager = LocalFocusManager.current
+    var hasProgressBeenModified by remember { mutableStateOf(false) }
+
+    LaunchedEffect(hasNoteBeenModified || hasProgressBeenModified) {
+        Log.d("debug", "Recomposed")
+        if (hasNoteBeenModified || hasProgressBeenModified) {
+            vm.scaffoldState.actions = {
+                IconButton(
+                    onClick = {
+                        if (hasProgressBeenModified) {
+                            vm.progTabState.isReadPagesError =
+                                vm.progTabState.pagesReadString !=
+                                vm.progTabState.pagesReadValue.toString()
+                            vm.progTabState.isTotalPagesError =
+                                vm.progTabState.totalPagesString !=
+                                vm.progTabState.totalPagesValue.toString()
+                            if (vm.progTabState.isReadPagesError ||
+                                vm.progTabState.isTotalPagesError
+                            ) {
+                                return@IconButton
+                            }
+                            vm.saveProgress() {
+                                hasProgressBeenModified = false
+                            }
+                        }
+                        if (hasNoteBeenModified) {
+                            vm.saveNote {
+                                hasNoteBeenModified = false
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        painterResource(R.drawable.save_24px),
+                        stringResource(R.string.save),
+                    )
+                }
+            }
+        } else {
+            vm.scaffoldState.actions = {}
+        }
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val boxScope = this
-        Surface {
+        Surface(
+            modifier = Modifier
+                .size(this.maxWidth, this.maxHeight)
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +123,7 @@ fun ViewBookPage(
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    val coverURI = vm.data?.coverURI
+                    val coverURI = vm.bundle?.book?.coverURI
                     if (coverURI != null) {
                         // TODO: placeholder for book cover
                         AsyncImage(
@@ -116,20 +157,23 @@ fun ViewBookPage(
                     Box(modifier = Modifier) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                vm.data?.title ?: "",
+                                vm.bundle?.book?.title ?: "",
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center
                             )
-                            vm.data?.subtitle?.let {
+                            vm.bundle?.book?.subtitle?.let {
                                 Text(
                                     it,
                                     style = MaterialTheme.typography.titleSmall,
                                     textAlign = TextAlign.Center
                                 )
                             }
-                            vm.data?.authors?.let {
+                            vm.bundle?.authors?.let { authorsList ->
+                                val authorsString = remember {
+                                    authorsList.joinToString(", ") { it.name }
+                                }
                                 Text(
-                                    it.joinToString(", "),
+                                    authorsString,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.labelSmall
                                         .copy(fontStyle = FontStyle.Italic)
@@ -141,10 +185,10 @@ fun ViewBookPage(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.horizontalScroll(genreScrollState)
                     ) {
-                        vm.data?.genres?.forEach {
+                        vm.bundle?.genres?.forEach {
                             SuggestionChip(
                                 onClick = {},
-                                label = { Text(it) },
+                                label = { Text(it.name) },
                             )
                         }
                     }
@@ -154,6 +198,11 @@ fun ViewBookPage(
                     edgePadding = 0.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    Tab(
+                        selected = tabState == LocalTab.PROGRESS,
+                        onClick = { tabState = LocalTab.PROGRESS },
+                        text = { Text(stringResource(R.string.progress_label)) }
+                    )
                     Tab(
                         selected = tabState == LocalTab.SUMMARY,
                         onClick = { tabState = LocalTab.SUMMARY },
@@ -177,10 +226,19 @@ fun ViewBookPage(
                     contentAlignment = Alignment.TopStart
                 ) {
                     when (tabState) {
+                        LocalTab.PROGRESS -> {
+                            localFabState = DisplayedFab.NONE
+                            ProgressTab(
+                                vm.progTabState
+                            ) {
+                                if (!hasProgressBeenModified)
+                                    hasProgressBeenModified = true
+                            }
+                        }
                         LocalTab.SUMMARY -> {
                             // TODO Fix unscrollable long summaries
                             localFabState = DisplayedFab.EDIT_BOOK
-                            if (vm.data?.description.isNullOrBlank()) {
+                            if (vm.bundle?.book?.description.isNullOrBlank()) {
                                 Text(
                                     stringResource(R.string.no_description),
                                     modifier = Modifier
@@ -188,12 +246,9 @@ fun ViewBookPage(
                                 )
                             } else {
                                 Text(
-                                    vm.data?.description ?: stringResource(R.string.no_description),
-                                    modifier = Modifier
-                                        .scrollable(
-                                            summaryScrollState,
-                                            orientation = Orientation.Vertical
-                                        )
+                                    text = vm.bundle?.book?.description
+                                        ?: stringResource(R.string.no_description),
+                                    modifier = Modifier.verticalScroll(summaryScrollState)
                                 )
                             }
                         }
@@ -201,14 +256,11 @@ fun ViewBookPage(
                             localFabState = DisplayedFab.EDIT_BOOK
                             DetailsTab(
                                 modifier = Modifier.verticalScroll(detailsScrollState),
-                                data = vm.data
+                                book = vm.bundle?.book
                             )
                         }
                         LocalTab.NOTE -> {
-                            localFabState = if (hasNoteBeenModified)
-                                DisplayedFab.SAVE_NOTE
-                            else
-                                DisplayedFab.NONE
+                            localFabState = DisplayedFab.NONE
                             OutlinedTextField(
                                 value = vm.editedNote,
                                 placeholder = { Text(stringResource(R.string.note_placeholder)) },
@@ -235,7 +287,7 @@ fun ViewBookPage(
                     vm.scaffoldState.fab = {
                         FAB(
                             onClick = {
-                                vm.data?.bookId?.let {
+                                vm.bundle?.book?.bookId?.let {
                                     Log.d("debug", "Navigating to EditPage with id $it")
                                     if (it > 0)
                                         navigator.navigate(EditBookPageDestination(it))
@@ -247,24 +299,6 @@ fun ViewBookPage(
                                 painterResource(R.drawable.edit_24px),
                                 stringResource(R.string.edit_details),
                                 modifier = iconModifier
-                            )
-                        }
-                    }
-                }
-                DisplayedFab.SAVE_NOTE -> {
-                    vm.scaffoldState.fab = {
-                        FAB(
-                            onClick = {
-                                vm.data?.bookId?.let {
-                                    vm.saveNote(it)
-                                    hasNoteBeenModified = false
-                                }
-                            },
-                            modifier = fabModifier
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.save_24px),
-                                stringResource(R.string.save),
                             )
                         }
                     }
@@ -285,11 +319,14 @@ private fun ViewBookPagePreview() {
             3,
             object : IViewBookVM {
                 override var editedNote = ""
-                override val data: ViewBookImmutableData =
-                    ViewBookImmutableData(PreviewUtils.exampleBookBundle)
-                override fun initFromLibraryBook(bookId: Long) {}
-                override fun saveNote(bookId: Long) {}
+                override fun initFromLocalBook(bookId: Long) {}
+                override fun saveNote(callback: () -> Unit) {}
+                override val bundle: BookBundle = PreviewUtils.exampleBookBundle
+                override val progTabState = ProgressTabState()
+                override fun saveProgress(callback: () -> Unit) {}
+
                 override val scaffoldState: ScaffoldState = ScaffoldState()
+                override val snackbarHostState: SnackbarHostState = SnackbarHostState()
             },
             EmptyDestinationsNavigator
         )

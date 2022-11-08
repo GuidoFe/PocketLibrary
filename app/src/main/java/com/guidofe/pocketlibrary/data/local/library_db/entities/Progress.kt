@@ -7,8 +7,10 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+enum class ProgressPhase { SUSPENDED, IN_PROGRESS, READ, DNF }
+
 @Entity(
-    tableName = "library_book",
+    tableName = "progress",
     foreignKeys = [
         ForeignKey(
             entity = Book::class,
@@ -19,7 +21,9 @@ import kotlinx.parcelize.Parcelize
     ]
 )
 @Parcelize
-data class LibraryBook(
+data class Progress(
     @PrimaryKey val bookId: Long,
-    @ColumnInfo var isFavorite: Boolean = false,
+    @ColumnInfo var phase: ProgressPhase = ProgressPhase.IN_PROGRESS,
+    @ColumnInfo var pagesRead: Int = 0,
+    @ColumnInfo var trackPages: Boolean = false
 ) : Parcelable

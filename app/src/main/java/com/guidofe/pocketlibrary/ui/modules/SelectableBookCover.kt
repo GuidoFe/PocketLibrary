@@ -8,10 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +27,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
+import com.guidofe.pocketlibrary.ui.theme.ExtendedTheme
 
 private enum class CoverStatus { LOADED, LOADING, ERROR, EMPTY }
 
@@ -38,7 +38,8 @@ fun SelectableBookCover(
     isSelected: Boolean,
     onTap: (Offset) -> Unit = {},
     onLongPress: (Offset) -> Unit = {},
-    isLent: Boolean = false
+    isLent: Boolean = false,
+    progress: ProgressPhase? = null
 ) {
     val selectionOffset: Dp by animateDpAsState(
         if (isSelected) (-5).dp else 0.dp,
@@ -126,6 +127,32 @@ fun SelectableBookCover(
                 ) {
                     Text(stringResource(R.string.lent), color = MaterialTheme.colorScheme.onPrimary)
                 }
+            progress?.let { p ->
+                val background = when (p) {
+                    ProgressPhase.READ -> ExtendedTheme.colors.green
+                    ProgressPhase.SUSPENDED -> ExtendedTheme.colors.yellow
+                    ProgressPhase.DNF -> ExtendedTheme.colors.red
+                    ProgressPhase.IN_PROGRESS -> ExtendedTheme.colors.blue
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(25.dp).align(Alignment.TopEnd)
+                        .clip(CircleShape).background(background).padding(3.dp)
+                ) {
+                    Icon(
+                        painter = when (p) {
+                            ProgressPhase.READ -> painterResource(R.drawable.done_24px)
+                            ProgressPhase.IN_PROGRESS -> painterResource(
+                                R.drawable.local_library_24px
+                            )
+                            ProgressPhase.SUSPENDED -> painterResource(R.drawable.pause_24px)
+                            ProgressPhase.DNF -> painterResource(R.drawable.do_not_disturb_on_24px)
+                        },
+                        contentDescription = p.name,
+                        tint = MaterialTheme.colorScheme.contentColorFor(background)
+                    )
+                }
+            }
             if (isSelected) {
                 Box(
                     modifier = Modifier

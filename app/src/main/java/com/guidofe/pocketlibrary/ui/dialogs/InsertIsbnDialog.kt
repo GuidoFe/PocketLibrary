@@ -35,7 +35,7 @@ fun InsertIsbnDialog(
             Button(onClick = {
                 onConfirm(isbn)
             }) {
-                Text(stringResource(R.string.ok))
+                Text(stringResource(R.string.ok_label))
             }
         },
         dismissButton = {

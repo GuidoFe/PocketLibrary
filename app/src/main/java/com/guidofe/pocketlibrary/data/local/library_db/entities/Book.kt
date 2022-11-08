@@ -22,4 +22,5 @@ data class Book(
     @ColumnInfo var identifier: String? = null,
     @ColumnInfo var media: Media = Media.BOOK,
     @ColumnInfo var language: String? = null,
+    @ColumnInfo var pageCount: Int? = null
 ) : Parcelable

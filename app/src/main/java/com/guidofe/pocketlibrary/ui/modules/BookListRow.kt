@@ -3,8 +3,11 @@ package com.guidofe.pocketlibrary.ui.modules
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -21,7 +24,7 @@ import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
@@ -47,7 +50,8 @@ fun LibraryListRow(
         item.value.lent != null,
         onRowTap,
         onRowLongPress,
-        onCoverLongPress
+        onCoverLongPress,
+        item.value.bookBundle.progress?.phase
     )
 }
 
@@ -111,7 +115,8 @@ private fun GenericListRow(
     isLent: Boolean = false,
     onRowTap: (Offset) -> Unit = {},
     onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {}
+    onCoverLongPress: (Offset) -> Unit = {},
+    progress: ProgressPhase? = null
 ) {
     BoxWithConstraints(modifier = modifier) {
         Surface(
@@ -130,7 +135,8 @@ private fun GenericListRow(
                     isSelected,
                     onRowTap,
                     onCoverLongPress,
-                    isLent
+                    isLent,
+                    progress
                 )
                 Box(
                     modifier = Modifier

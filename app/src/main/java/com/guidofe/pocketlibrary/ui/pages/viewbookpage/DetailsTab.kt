@@ -12,14 +12,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.utils.FormattingUtils
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 
 @Composable
 fun DetailsTab(
     modifier: Modifier = Modifier,
-    data: ViewBookImmutableData?
+    book: Book?
 ) {
     val boxPadding = 10.dp
     val gap = 5.dp
@@ -34,7 +36,7 @@ fun DetailsTab(
                 )
             },
             title = stringResource(R.string.publisher),
-            text = data?.publisher ?: "?",
+            text = book?.publisher ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -46,7 +48,7 @@ fun DetailsTab(
                 )
             },
             title = stringResource(R.string.published_year),
-            text = (data?.publishedYear?.toString()) ?: "?",
+            text = (book?.published?.toString()) ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -58,7 +60,7 @@ fun DetailsTab(
                 )
             },
             title = stringResource(R.string.isbn),
-            text = data?.identifier ?: "?",
+            text = book?.identifier ?: "?",
             boxPadding = boxPadding,
             gap = gap,
             selectable = true
@@ -72,7 +74,7 @@ fun DetailsTab(
             },
             title = stringResource(R.string.media_type),
             text = FormattingUtils.bookMediaToString(
-                data?.media ?: Media.BOOK
+                book?.media ?: Media.BOOK
             ),
             boxPadding = boxPadding,
             gap = gap
@@ -85,7 +87,7 @@ fun DetailsTab(
                 )
             },
             title = stringResource(R.string.language),
-            text = data?.language ?: "?",
+            text = book?.language ?: "?",
             boxPadding = boxPadding,
             gap = gap
         )
@@ -97,7 +99,7 @@ fun DetailsTab(
 private fun DetailsTabPreview() {
     MaterialTheme {
         Surface {
-            DetailsTab(data = null)
+            DetailsTab(book = PreviewUtils.exampleBookBundle.book)
         }
     }
 }

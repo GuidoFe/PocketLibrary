@@ -60,4 +60,7 @@ interface LocalRepository {
     suspend fun updateAllBorrowedBooks(borrowedBooks: List<BorrowedBook>)
     fun getLentLibraryBundles(): Flow<List<LibraryBundle>>
     suspend fun updateAllLentBooks(lentBooks: List<LentBook>)
+    suspend fun upsertProgress(progress: Progress)
+    suspend fun deleteProgress(bookId: Long)
+    suspend fun updatePageNumber(bookId: Long, value: Int)
 }

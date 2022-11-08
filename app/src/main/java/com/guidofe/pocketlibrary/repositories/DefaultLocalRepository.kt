@@ -211,4 +211,16 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
     override suspend fun deleteLentBooks(lentBooks: List<LentBook>) {
         db.lentBookDao().delete(lentBooks)
     }
+
+    override suspend fun upsertProgress(progress: Progress) {
+        db.progressDao().upsert(progress)
+    }
+
+    override suspend fun deleteProgress(bookId: Long) {
+        db.progressDao().delete(bookId)
+    }
+
+    override suspend fun updatePageNumber(bookId: Long, value: Int) {
+        db.bookDao().changePageNumber(bookId, value)
+    }
 }

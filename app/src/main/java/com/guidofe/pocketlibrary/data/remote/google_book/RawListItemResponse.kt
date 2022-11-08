@@ -73,7 +73,8 @@ data class RawListItemResponse(
             media = mediaType,
             language = volumeInfo.language,
             authors = volumeInfo.authors ?: listOf(),
-            genres = volumeInfo.categories ?: listOf()
+            genres = volumeInfo.categories ?: listOf(),
+            pageCount = volumeInfo.pageCount
         )
     }
 }

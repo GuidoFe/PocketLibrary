@@ -32,9 +32,9 @@
     <string name="place">Place</string>
     <string name="room">Room</string>
     <string name="bookshelf">Bookshelf</string>
-    <string name="placeExample">Home, workplace...</string>
-    <string name="roomExample">Bedroom, livingroom...</string>
-    <string name="bookshelfExample">Over the TV, left of the window...</string>
+    <string name="placeExample">Home, workplace…</string>
+    <string name="roomExample">Bedroom, living room…</string>
+    <string name="bookshelfExample">Over the TV, left of the window…</string>
     <string name="cover">cover</string>
     <string name="favorite">favorite</string>
     <string name="isbn_camera_rationale">The camera is important for this. Please grant the permission if you want to scan an isbn.</string>
@@ -54,7 +54,7 @@
     <string name="media_type">Media type</string>
     <string name="book">Book</string>
     <string name="ebook">E-Book</string>
-    <string name="note_placeholder">Opinions, reminders, annotations...</string>
+    <string name="note_placeholder">Opinions, reminders, annotations…</string>
     <string name="edit_details">Edit details</string>
     <string name="save">Save</string>
     <string name="error_no_connection">Error: no connection</string>
@@ -66,7 +66,7 @@
     <string name="select_current_book">Select current book</string>
     <string name="author">Author</string>
     <string name="search_online">Search online</string>
-    <string name="loading_dots">Loading...</string>
+    <string name="loading_dots">Loading…</string>
     <string name="choose_book">Choose the book</string>
     <string name="add_to_library">Add to library</string>
     <string name="no_book_found">No book found</string>
@@ -112,7 +112,7 @@
     <string name="edit">Edit</string>
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
-    <string name="ok">OK</string>
+    <string name="ok_label">OK</string>
     <string name="enter_date">Enter date</string>
     <string name="date">Date</string>
     <string name="yyyymmdd">yyyy-mm-dd</string>
@@ -129,5 +129,14 @@
     <string name="lend_books">Lend books</string>
     <string name="lent_to_colon">Lent to:</string>
     <string name="change_borrower">Change borrower</string>
+    <string name="not_read">Not read</string>
+    <string name="suspended">Suspended</string>
+    <string name="read">Read</string>
+    <string name="dnf">Did Not Finish</string>
+    <string name="track_pages">Track pages</string>
+    <string name="total_pages">Total pages</string>
+    <string name="pages_read">Pages read</string>
+    <string name="progress_label">Progress</string>
+    <string name="number_not_valid">Number not valid</string>
 
 </resources>

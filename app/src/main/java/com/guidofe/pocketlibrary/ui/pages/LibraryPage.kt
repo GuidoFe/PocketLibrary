@@ -365,7 +365,7 @@ fun LibraryPage(
                     }
                     showLendBookDialog = false
                 }) {
-                    Text(stringResource(R.string.ok))
+                    Text(stringResource(R.string.ok_label))
                 }
             },
             dismissButton = {

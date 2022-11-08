@@ -27,4 +27,9 @@ data class BookBundle(
         entityColumn = "bookId"
     )
     val note: Note? = null,
+    @Relation(
+        parentColumn = "bookId",
+        entityColumn = "bookId"
+    )
+    val progress: Progress? = null,
 ) : Parcelable

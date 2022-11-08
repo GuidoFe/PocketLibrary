@@ -20,7 +20,8 @@ data class ImportedBookData(
     val media: Media = Media.BOOK,
     val language: String? = null,
     val authors: List<String> = listOf(),
-    val genres: List<String> = listOf()
+    val genres: List<String> = listOf(),
+    val pageCount: Int? = null
 ) : Parcelable {
 
     private suspend fun saveToDb(localRepo: LocalRepository): Long {
@@ -35,7 +36,8 @@ data class ImportedBookData(
             coverURI = coverUrl?.let { Uri.parse(it) },
             identifier = identifier,
             media = media,
-            language = language
+            language = language,
+            pageCount = pageCount
         )
         bookId = localRepo.insertBook(book)
         val authorsList = authors
