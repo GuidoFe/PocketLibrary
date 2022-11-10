@@ -62,17 +62,17 @@ class EditBookVM @Inject constructor(
             } else {
                 repo.updateBook(book)
             }
-            val authorsList = formData.authors.split(",").map { a -> a.trim() }
-            val existingAuthors = repo.getExistingAuthors(authorsList)
-            val existingAuthorsNames = existingAuthors.map { a -> a.name }
-            val newAuthorsNames = authorsList.filter { a -> !existingAuthorsNames.contains(a) }
-            val newAuthorsIds = repo.insertAllAuthors(
-                newAuthorsNames.map { name ->
+            val authorsNames = formData.authors.split(",").map { a -> a.trim() }
+            repo.insertAllAuthors(
+                authorsNames.map { name ->
                     Author(0L, name)
                 }
             )
-            val authorsIds = newAuthorsIds.plus(existingAuthors.map { a -> a.authorId })
-            val bookAuthorList = authorsIds.map { id -> BookAuthor(currentBookId, id) }
+            val authors = repo.getExistingAuthors(authorsNames)
+            val bookAuthorList = authors.map {
+                a ->
+                BookAuthor(currentBookId, a.authorId, authorsNames.indexOf(a.name))
+            }
             repo.insertAllBookAuthors(bookAuthorList)
             if (formData.genres.isNotEmpty()) {
                 val existingGenres = repo.getGenresByNames(formData.genres)

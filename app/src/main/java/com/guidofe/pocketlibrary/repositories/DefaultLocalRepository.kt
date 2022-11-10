@@ -14,16 +14,28 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
             val authorsToInsert: ArrayList<Author> = arrayListOf()
             val authorsId = arrayListOf<Long>()
             bundle.authors.forEach { author ->
-                if (author.authorId == 0L)
+                if (author.authorId == 0L) {
                     authorsToInsert.add(author)
-                else
+                    authorsId.add(-1)
+                } else
                     authorsId.add(author.authorId)
             }
             if (authorsToInsert.isNotEmpty()) {
+                var i = 0
                 val newIds = insertAllAuthors(authorsToInsert)
-                authorsId.addAll(newIds)
+                authorsId.forEachIndexed { index, value ->
+                    if (value < 0) {
+                        authorsId[index] = newIds[i]
+                        i++
+                    }
+                }
             }
-            insertAllBookAuthors(authorsId.map { id -> BookAuthor(bookId, id) })
+            insertAllBookAuthors(
+                authorsId.mapIndexed {
+                    index, id ->
+                    BookAuthor(bookId, id, index)
+                }
+            )
             val genresToInsert: ArrayList<Genre> = arrayListOf()
             val genresId = arrayListOf<Long>()
             bundle.genres.forEach { genre ->

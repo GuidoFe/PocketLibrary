@@ -24,5 +24,6 @@ import androidx.room.Index
 )
 data class BookAuthor(
     val bookId: Long,
-    val authorId: Long
+    val authorId: Long,
+    val position: Int
 )

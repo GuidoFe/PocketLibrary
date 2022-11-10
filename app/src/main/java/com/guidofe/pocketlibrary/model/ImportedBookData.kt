@@ -40,18 +40,17 @@ data class ImportedBookData(
             pageCount = pageCount
         )
         bookId = localRepo.insertBook(book)
-        val authorsList = authors
-        val existingAuthors = localRepo.getExistingAuthors(authorsList)
-        val existingAuthorsNames = existingAuthors.map { a -> a.name }
-        val newAuthorsNames = authorsList.filter { a -> !existingAuthorsNames.contains(a) }
-        val newAuthorsIds = localRepo.insertAllAuthors(
-            newAuthorsNames.map { name ->
+        localRepo.insertAllAuthors(
+            authors.map { name ->
                 Author(0L, name)
             }
         )
-        val authorsIds = newAuthorsIds.plus(existingAuthors.map { a -> a.authorId })
-        val bookAuthorList = authorsIds.map { id -> BookAuthor(bookId, id) }
-        localRepo.insertAllBookAuthors(bookAuthorList)
+        val authorsList = localRepo.getExistingAuthors(authors)
+        localRepo.insertAllBookAuthors(
+            authorsList.map {
+                BookAuthor(bookId, it.authorId, authors.indexOf(it.name))
+            }
+        )
         if (genres.isNotEmpty()) {
             val existingGenres = localRepo.getGenresByNames(genres)
             val existingGenresNames = existingGenres.map { g -> g.name }

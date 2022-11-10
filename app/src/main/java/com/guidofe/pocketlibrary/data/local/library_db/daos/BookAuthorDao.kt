@@ -1,9 +1,6 @@
 package com.guidofe.pocketlibrary.data.local.library_db.daos
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BookAuthor
 
 @Dao
@@ -16,4 +13,7 @@ interface BookAuthorDao {
 
     @Delete
     suspend fun delete(bookAuthor: BookAuthor)
+
+    @Query("SELECT * FROM bookauthor WHERE bookId = :bookId ORDER BY position")
+    suspend fun getBookAuthorSorted(bookId: Long): List<BookAuthor>
 }

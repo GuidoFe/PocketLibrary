@@ -7,6 +7,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.converters.DateConverter
 import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.data.local.library_db.daos.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.data.local.library_db.views.SortedBookAuthor
 
 @Database(
     entities = [
@@ -22,7 +23,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
         Progress::class,
         WishlistBook::class,
     ],
-    version = 11,
+    views = [SortedBookAuthor::class],
+    version = 12,
     exportSchema = true,
     autoMigrations = []
 )

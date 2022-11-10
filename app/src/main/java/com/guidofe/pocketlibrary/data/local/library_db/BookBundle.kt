@@ -5,6 +5,7 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.data.local.library_db.views.SortedBookAuthor
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -13,7 +14,7 @@ data class BookBundle(
     @Relation(
         parentColumn = "bookId",
         entityColumn = "authorId",
-        associateBy = Junction(BookAuthor::class)
+        associateBy = Junction(SortedBookAuthor::class)
     )
     val authors: List<Author> = listOf(),
     @Relation(
