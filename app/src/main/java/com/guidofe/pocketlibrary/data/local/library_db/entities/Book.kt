@@ -20,7 +20,7 @@ data class Book(
     @ColumnInfo var published: Int? = null,
     @ColumnInfo var coverURI: Uri? = null,
     @ColumnInfo var identifier: String? = null,
-    @ColumnInfo var media: Media = Media.BOOK,
+    @ColumnInfo var isEbook: Boolean = false,
     @ColumnInfo var language: String? = null,
     @ColumnInfo var pageCount: Int? = null
 ) : Parcelable

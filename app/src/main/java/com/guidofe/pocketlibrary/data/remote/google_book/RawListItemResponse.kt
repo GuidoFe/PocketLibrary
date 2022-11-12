@@ -1,7 +1,6 @@
 package com.guidofe.pocketlibrary.data.remote.google_book
 
 import android.util.Log
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
 
 data class RawListItemResponse(
@@ -44,7 +43,6 @@ data class RawListItemResponse(
                 coverUrl = coverUrl.replace("http:", "https:", true)
             }
         }
-        val mediaType: Media = if (saleInfo.isEbook) Media.EBOOK else Media.BOOK
         val published: Int? = if (volumeInfo.publishedDate == null) null else {
             try {
                 volumeInfo.publishedDate.toInt()
@@ -70,7 +68,7 @@ data class RawListItemResponse(
             published = published,
             coverUrl = coverUrl,
             identifier = code13 ?: code10 ?: issn,
-            media = mediaType,
+            isEbook = saleInfo.isEbook,
             language = volumeInfo.language,
             authors = volumeInfo.authors ?: listOf(),
             genres = volumeInfo.categories ?: listOf(),

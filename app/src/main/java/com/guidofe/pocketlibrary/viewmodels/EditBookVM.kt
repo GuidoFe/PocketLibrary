@@ -13,8 +13,8 @@ import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
@@ -54,7 +54,7 @@ class EditBookVM @Inject constructor(
                 published = formData.published.toIntOrNull(),
                 coverURI = formData.coverUri,
                 identifier = formData.identifier,
-                media = formData.media,
+                isEbook = formData.isEbook,
                 language = formData.language
             )
             if (book.bookId == 0L) {

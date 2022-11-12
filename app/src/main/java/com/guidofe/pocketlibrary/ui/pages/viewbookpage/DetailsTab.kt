@@ -13,9 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
-import com.guidofe.pocketlibrary.ui.utils.FormattingUtils
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 
 @Composable
@@ -73,9 +71,10 @@ fun DetailsTab(
                 )
             },
             title = stringResource(R.string.media_type),
-            text = FormattingUtils.bookMediaToString(
-                book?.media ?: Media.BOOK
-            ),
+            text = if (book?.isEbook == true)
+                stringResource(R.string.ebook)
+            else
+                stringResource(R.string.book),
             boxPadding = boxPadding,
             gap = gap
         )

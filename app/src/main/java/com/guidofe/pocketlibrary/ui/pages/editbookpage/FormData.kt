@@ -14,7 +14,7 @@ class FormData() {
     var description: String by mutableStateOf("")
     var publisher: String by mutableStateOf("")
     var published: String by mutableStateOf("")
-    var media: Media by mutableStateOf(Media.BOOK)
+    var isEbook: Boolean by mutableStateOf(false)
     var coverUri: Uri? by mutableStateOf(null)
     var identifier: String by mutableStateOf("")
     var language: String by mutableStateOf("")
@@ -28,7 +28,7 @@ class FormData() {
         description: String = "",
         publisher: String = "",
         published: Int? = null,
-        media: Media = Media.BOOK,
+        isEbook: Boolean = false,
         coverUri: Uri? = null,
         identifier: String = "",
         language: String = "",
@@ -41,7 +41,7 @@ class FormData() {
         this.description = description
         this.publisher = publisher
         this.published = published?.toString() ?: ""
-        this.media = media
+        this.isEbook = isEbook
         this.coverUri = coverUri
         this.identifier = identifier
         this.language = language
@@ -56,7 +56,7 @@ class FormData() {
         this.description = book.description ?: ""
         this.publisher = book.publisher ?: ""
         this.published = (book.published?.toString()) ?: ""
-        this.media = book.media
+        this.isEbook = book.isEbook
         this.coverUri = book.coverURI
         this.identifier = book.identifier ?: ""
         this.language = book.language ?: ""
@@ -70,7 +70,7 @@ class FormData() {
         this.description = book.description ?: ""
         this.publisher = book.publisher ?: ""
         this.published = (book.published?.toString()) ?: ""
-        this.media = book.media
+        this.isEbook = book.isEbook
         this.coverUri = book.coverUrl?.let { Uri.parse(it) }
         this.identifier = book.identifier ?: ""
         this.language = book.language ?: ""

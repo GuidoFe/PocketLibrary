@@ -17,7 +17,7 @@ data class ImportedBookData(
     val published: Int? = null,
     val coverUrl: String? = null,
     val identifier: String? = null,
-    val media: Media = Media.BOOK,
+    val isEbook: Boolean = false,
     val language: String? = null,
     val authors: List<String> = listOf(),
     val genres: List<String> = listOf(),
@@ -35,7 +35,7 @@ data class ImportedBookData(
             published = published,
             coverURI = coverUrl?.let { Uri.parse(it) },
             identifier = identifier,
-            media = media,
+            isEbook = isEbook,
             language = language,
             pageCount = pageCount
         )

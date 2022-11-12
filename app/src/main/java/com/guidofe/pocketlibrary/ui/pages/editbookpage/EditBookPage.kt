@@ -195,7 +195,8 @@ fun EditBookPage(
             modifier = Modifier.fillMaxWidth()
         )
         Row(
-            horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
+            horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
                 value = viewModel.formData.language,
@@ -205,14 +206,16 @@ fun EditBookPage(
                 modifier = Modifier
                     .weight(1f)
             )
-            OutlinedTextField(
-                value = viewModel.formData.media.toString(),
-                onValueChange = {},
-                label = { Text(stringResource(R.string.type)) },
-                singleLine = true,
-                modifier = Modifier
-                    .weight(1f)
-            )
+            Column(
+                // verticalArrangement = Arrangement.spacedBy(2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(stringResource(R.string.is_ebook))
+                Switch(
+                    checked = viewModel.formData.isEbook,
+                    onCheckedChange = { viewModel.formData.isEbook = !viewModel.formData.isEbook },
+                )
+            }
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
