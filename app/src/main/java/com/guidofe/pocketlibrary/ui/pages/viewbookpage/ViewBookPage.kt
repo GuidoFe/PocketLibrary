@@ -2,7 +2,6 @@
 
 package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -28,7 +27,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.ui.modules.FAB
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
@@ -40,7 +38,22 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
 private enum class LocalTab { PROGRESS, SUMMARY, DETAILS, NOTE }
-private enum class DisplayedFab { NONE, EDIT_BOOK }
+
+@Composable
+private fun EditIcon(navigator: DestinationsNavigator, id: Long) {
+    IconButton(
+        onClick = {
+            if (id > 0)
+                navigator.navigate(EditBookPageDestination(id))
+        },
+    ) {
+        Icon(
+            painterResource(R.drawable.edit_24px),
+            stringResource(R.string.edit_details),
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Destination
 @Composable
@@ -54,13 +67,13 @@ fun ViewBookPage(
         vm.scaffoldState.refreshBar(context.getString(R.string.book_details))
         vm.scaffoldState.fab = {}
     }
-    LaunchedEffect(key1 = bookId) {
-        if (bookId != null)
+    LaunchedEffect(key1 = true) {
+        if (bookId != null) {
             vm.initFromLocalBook(bookId)
+        }
     }
 
     var tabState by remember { mutableStateOf(LocalTab.PROGRESS) }
-    var localFabState by remember { mutableStateOf(DisplayedFab.NONE) }
     val detailsScrollState = rememberScrollState()
     val summaryScrollState = rememberScrollState()
     val genreScrollState = rememberScrollState()
@@ -68,9 +81,11 @@ fun ViewBookPage(
     var hasProgressBeenModified by remember { mutableStateOf(false) }
 
     LaunchedEffect(hasNoteBeenModified || hasProgressBeenModified) {
-        Log.d("debug", "Recomposed")
         if (hasNoteBeenModified || hasProgressBeenModified) {
             vm.scaffoldState.actions = {
+                vm.bundle?.book?.bookId?.let {
+                    EditIcon(navigator, it)
+                }
                 IconButton(
                     onClick = {
                         if (hasProgressBeenModified) {
@@ -103,7 +118,11 @@ fun ViewBookPage(
                 }
             }
         } else {
-            vm.scaffoldState.actions = {}
+            vm.scaffoldState.actions = {
+                vm.bundle?.book?.bookId?.let {
+                    EditIcon(navigator, it)
+                }
+            }
         }
     }
 
@@ -169,9 +188,8 @@ fun ViewBookPage(
                                 )
                             }
                             vm.bundle?.authors?.let { authorsList ->
-                                val authorsString = remember {
+                                val authorsString =
                                     authorsList.joinToString(", ") { it.name }
-                                }
                                 Text(
                                     authorsString,
                                     textAlign = TextAlign.Center,
@@ -227,7 +245,6 @@ fun ViewBookPage(
                 ) {
                     when (tabState) {
                         LocalTab.PROGRESS -> {
-                            localFabState = DisplayedFab.NONE
                             ProgressTab(
                                 vm.progTabState
                             ) {
@@ -237,7 +254,6 @@ fun ViewBookPage(
                         }
                         LocalTab.SUMMARY -> {
                             // TODO Fix unscrollable long summaries
-                            localFabState = DisplayedFab.EDIT_BOOK
                             if (vm.bundle?.book?.description.isNullOrBlank()) {
                                 Text(
                                     stringResource(R.string.no_description),
@@ -253,14 +269,12 @@ fun ViewBookPage(
                             }
                         }
                         LocalTab.DETAILS -> {
-                            localFabState = DisplayedFab.EDIT_BOOK
                             DetailsTab(
                                 modifier = Modifier.verticalScroll(detailsScrollState),
                                 book = vm.bundle?.book
                             )
                         }
                         LocalTab.NOTE -> {
-                            localFabState = DisplayedFab.NONE
                             OutlinedTextField(
                                 value = vm.editedNote,
                                 placeholder = { Text(stringResource(R.string.note_placeholder)) },
@@ -274,37 +288,6 @@ fun ViewBookPage(
                             )
                         }
                     }
-                }
-            }
-        }
-        val fabModifier = Modifier
-            .align(Alignment.BottomEnd)
-            .offset((-16).dp, (-16).dp)
-        val iconModifier = Modifier
-        LaunchedEffect(key1 = localFabState) {
-            when (localFabState) {
-                DisplayedFab.EDIT_BOOK -> {
-                    vm.scaffoldState.fab = {
-                        FAB(
-                            onClick = {
-                                vm.bundle?.book?.bookId?.let {
-                                    Log.d("debug", "Navigating to EditPage with id $it")
-                                    if (it > 0)
-                                        navigator.navigate(EditBookPageDestination(it))
-                                }
-                            },
-                            modifier = fabModifier
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.edit_24px),
-                                stringResource(R.string.edit_details),
-                                modifier = iconModifier
-                            )
-                        }
-                    }
-                }
-                DisplayedFab.NONE -> {
-                    vm.scaffoldState.fab = {}
                 }
             }
         }
@@ -328,7 +311,7 @@ private fun ViewBookPagePreview() {
                 override val scaffoldState: ScaffoldState = ScaffoldState()
                 override val snackbarHostState: SnackbarHostState = SnackbarHostState()
             },
-            EmptyDestinationsNavigator
+            EmptyDestinationsNavigator,
         )
     }
 }

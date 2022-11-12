@@ -63,4 +63,5 @@ interface LocalRepository {
     suspend fun upsertProgress(progress: Progress)
     suspend fun deleteProgress(bookId: Long)
     suspend fun updatePageNumber(bookId: Long, value: Int)
+    suspend fun deleteBookAuthors(bookId: Long)
 }

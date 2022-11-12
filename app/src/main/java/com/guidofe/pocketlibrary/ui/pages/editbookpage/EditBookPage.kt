@@ -80,7 +80,7 @@ fun EditBookPage(
                 }
             },
             navigationIcon = {
-                IconButton(onClick = { navigator.popBackStack() }) {
+                IconButton(onClick = { navigator.navigateUp() }) {
                     Icon(
                         painterResource(R.drawable.arrow_back_24px),
                         stringResource(R.string.back)

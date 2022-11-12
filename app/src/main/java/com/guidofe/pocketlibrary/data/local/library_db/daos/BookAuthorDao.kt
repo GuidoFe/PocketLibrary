@@ -14,6 +14,9 @@ interface BookAuthorDao {
     @Delete
     suspend fun delete(bookAuthor: BookAuthor)
 
+    @Query("DELETE FROM BookAuthor WHERE bookId = :bookId")
+    suspend fun delete(bookId: Long)
+
     @Query("SELECT * FROM bookauthor WHERE bookId = :bookId ORDER BY position")
     suspend fun getBookAuthorSorted(bookId: Long): List<BookAuthor>
 }

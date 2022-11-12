@@ -156,6 +156,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
         db.bookAuthorDao().insertAll(bookAuthors)
     }
 
+    override suspend fun deleteBookAuthors(bookId: Long) {
+        db.bookAuthorDao().delete(bookId)
+    }
+
     override suspend fun upsertNote(note: Note) {
         db.noteDao().upsert(note)
     }
