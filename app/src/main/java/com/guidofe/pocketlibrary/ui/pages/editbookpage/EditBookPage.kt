@@ -4,6 +4,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +26,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.OutlinedAutocomplete
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
@@ -134,6 +137,57 @@ fun EditBookPage(
             label = { Text(stringResource(R.string.authors)) },
             modifier = Modifier.fillMaxWidth()
         )
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(items = viewModel.formData.genres) { genre ->
+                InputChip(
+                    selected = true,
+                    onClick = {},
+                    label = { Text(genre) },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                viewModel.formData.genres -= genre
+                            },
+                            modifier = Modifier.size(InputChipDefaults.IconSize)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.close_24px),
+                                contentDescription = stringResource(R.string.delete)
+                            )
+                        }
+                    }
+                )
+            }
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedAutocomplete(
+                text = viewModel.formData.genreInput,
+                onTextChange = {
+                    viewModel.formData.genreInput = it
+                    if (it.length == 3)
+                        viewModel.updateExistingGenres(it)
+                },
+                options = viewModel.formData.existingGenres,
+                label = { Text(stringResource(R.string.new_genre)) },
+                onOptionSelected = { viewModel.formData.genreInput = it },
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(
+                onClick = {
+                    if (viewModel.formData.genreInput.isBlank())
+                        return@IconButton
+                    viewModel.formData.genres += viewModel.formData.genreInput
+                    viewModel.formData.genreInput = ""
+                }
+            ) {
+                Icon(painterResource(R.drawable.add_24px), stringResource(R.string.add))
+            }
+        }
         OutlinedTextField(
             value = viewModel.formData.description,
             onValueChange = { viewModel.formData.description = it },
@@ -188,6 +242,7 @@ fun EditBookPage(
             onValueChange = { viewModel.formData.identifier = it },
             singleLine = true,
             label = { Text(stringResource(R.string.isbn)) },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -218,6 +273,7 @@ private object VMPreview : IEditBookVM {
     }
 
     override suspend fun submitBook(newBookDestination: BookDestination?): Long { return 1L }
+    override fun updateExistingGenres(startingLetters: String) {}
 }
 
 @Composable

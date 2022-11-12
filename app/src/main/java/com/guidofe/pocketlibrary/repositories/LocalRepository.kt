@@ -64,4 +64,6 @@ interface LocalRepository {
     suspend fun deleteProgress(bookId: Long)
     suspend fun updatePageNumber(bookId: Long, value: Int)
     suspend fun deleteBookAuthors(bookId: Long)
+    suspend fun getGenresByStartingLetters(start: String): List<Genre>
+    suspend fun deleteBookGenreRelations(bookId: Long)
 }

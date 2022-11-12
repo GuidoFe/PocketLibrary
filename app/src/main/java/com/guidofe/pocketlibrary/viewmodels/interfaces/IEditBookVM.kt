@@ -13,4 +13,5 @@ interface IEditBookVM {
     suspend fun initialiseFromDatabase(id: Long)
 
     suspend fun submitBook(newBookDestination: BookDestination?): Long
+    fun updateExistingGenres(startingLetters: String)
 }

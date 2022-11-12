@@ -176,6 +176,13 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
         return db.genreDao().getGenresByNames(names)
     }
 
+    override suspend fun getGenresByStartingLetters(start: String): List<Genre> {
+        return db.genreDao().getFromStartingLetters(start)
+    }
+
+    override suspend fun deleteBookGenreRelations(bookId: Long) {
+        return db.bookGenreDao().delete(bookId)
+    }
     override suspend fun insertAllBookGenres(bookGenres: List<BookGenre>) {
         db.bookGenreDao().insertAll(bookGenres)
     }

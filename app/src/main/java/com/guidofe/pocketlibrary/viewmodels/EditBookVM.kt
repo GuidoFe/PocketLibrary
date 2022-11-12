@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
@@ -13,6 +14,7 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
@@ -31,6 +33,13 @@ class EditBookVM @Inject constructor(
         currentBookId = id
         val bundle = repo.getBookBundle(id)
         formData = if (bundle != null) FormData(bundle) else FormData()
+    }
+
+    override fun updateExistingGenres(startingLetters: String) {
+        viewModelScope.launch {
+            formData.existingGenres = repo.getGenresByStartingLetters(startingLetters)
+                .map { it.name }
+        }
     }
 
     override suspend fun submitBook(newBookDestination: BookDestination?): Long {
@@ -74,18 +83,12 @@ class EditBookVM @Inject constructor(
             }
             repo.deleteBookAuthors(currentBookId)
             repo.insertAllBookAuthors(bookAuthorList)
-            if (formData.genres.isNotEmpty()) {
-                val existingGenres = repo.getGenresByNames(formData.genres)
-                val existingGenresNames = existingGenres.map { g -> g.name }
-                val newGenresNames = formData.genres.filter { g ->
-                    !existingGenresNames.contains(g)
-                }
-                val newGenresIds = repo.insertAllGenres(
-                    newGenresNames.map { name ->
-                        Genre(0L, name)
-                    }
-                )
-                val genresIds = newGenresIds.plus(existingGenres.map { g -> g.genreId })
+            if (formData.genres.isEmpty()) {
+                repo.deleteBookGenreRelations(currentBookId)
+            } else {
+                repo.deleteBookGenreRelations(currentBookId)
+                repo.insertAllGenres(formData.genres.map { Genre(0L, it) })
+                val genresIds = repo.getGenresByNames(formData.genres).map { it.genreId }
                 repo.insertAllBookGenres(genresIds.map { id -> BookGenre(currentBookId, id) })
             }
         }

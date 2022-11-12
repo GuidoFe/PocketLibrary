@@ -20,6 +20,8 @@ class FormData() {
     var language: String by mutableStateOf("")
     var authors: String by mutableStateOf("")
     var genres: List<String> by mutableStateOf(listOf())
+    var genreInput: String by mutableStateOf("")
+    var existingGenres: List<String> by mutableStateOf(listOf())
     constructor(
         title: String = "",
         subtitle: String = "",
@@ -31,7 +33,7 @@ class FormData() {
         identifier: String = "",
         language: String = "",
         authors: String = "",
-        genres: List<String> = listOf()
+        genres: List<String> = listOf(),
 
     ) : this() {
         this.title = title

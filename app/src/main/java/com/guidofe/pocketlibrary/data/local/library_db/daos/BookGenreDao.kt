@@ -1,9 +1,6 @@
 package com.guidofe.pocketlibrary.data.local.library_db.daos
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BookGenre
 
 @Dao
@@ -16,4 +13,7 @@ interface BookGenreDao {
 
     @Delete
     suspend fun delete(bookGenre: BookGenre)
+
+    @Query("DELETE FROM bookgenre WHERE bookId = :bookId")
+    suspend fun delete(bookId: Long)
 }

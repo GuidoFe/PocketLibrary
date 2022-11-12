@@ -1,7 +1,7 @@
 package com.guidofe.pocketlibrary.ui.modules
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,6 +16,7 @@ fun OutlinedAutocomplete(
     options: List<String>,
     label: @Composable () -> Unit,
     onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onDismissRequest: () -> Unit = {},
 ) {
@@ -23,16 +24,15 @@ fun OutlinedAutocomplete(
     val filteredOptions = if (text.isBlank()) options else options.filter {
         it.contains(text, true)
     }
-    Box(modifier = Modifier.wrapContentSize()) {
+    Box(modifier = modifier) {
         OutlinedTextField(
             value = text,
             onValueChange = onTextChange,
             label = label,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             enabled = enabled,
             modifier = Modifier.onFocusChanged { state ->
                 expanded = state.isFocused
-            }
+            }.fillMaxSize()
         )
         if (filteredOptions.isNotEmpty()) {
             DropdownMenu(
