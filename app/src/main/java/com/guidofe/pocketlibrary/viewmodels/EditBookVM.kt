@@ -9,12 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.ui.pages.editbookpage.FormData
+import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookState
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.utils.Constants
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
@@ -25,37 +26,44 @@ class EditBookVM @Inject constructor(
     // var formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
     //    private set
     private var currentBookId: Long = 0L
-    override var formData: FormData by mutableStateOf(FormData())
+    override var editBookState: EditBookState by mutableStateOf(EditBookState())
 
     override suspend fun initialiseFromDatabase(
         id: Long
     ) {
         currentBookId = id
         val bundle = repo.getBookBundle(id)
-        formData = if (bundle != null) FormData(bundle) else FormData()
+        editBookState = if (bundle != null) EditBookState(bundle) else EditBookState()
     }
 
     override fun updateExistingGenres(startingLetters: String) {
         viewModelScope.launch {
-            formData.existingGenres = repo.getGenresByStartingLetters(startingLetters)
+            editBookState.existingGenres = repo.getGenresByStartingLetters(startingLetters)
                 .map { it.name }
         }
     }
 
     override suspend fun submitBook(newBookDestination: BookDestination?): Long {
         // TODO: Check for validity
+        val lowercaseLanguage = editBookState.language.lowercase()
+        if (lowercaseLanguage.isNotBlank() &&
+            !Constants.languageCodes.contains(lowercaseLanguage)
+        ) {
+            editBookState.isLanguageError = true
+            return -1
+        }
         repo.withTransaction {
             val book = Book(
                 bookId = currentBookId,
-                title = formData.title,
-                subtitle = formData.subtitle.ifBlank { null },
-                description = formData.description.ifBlank { null },
-                publisher = formData.publisher.ifBlank { null },
-                published = formData.published.toIntOrNull(),
-                coverURI = formData.coverUri,
-                identifier = formData.identifier,
-                isEbook = formData.isEbook,
-                language = formData.language
+                title = editBookState.title,
+                subtitle = editBookState.subtitle.ifBlank { null },
+                description = editBookState.description.ifBlank { null },
+                publisher = editBookState.publisher.ifBlank { null },
+                published = editBookState.published.toIntOrNull(),
+                coverURI = editBookState.coverUri,
+                identifier = editBookState.identifier,
+                isEbook = editBookState.isEbook,
+                language = lowercaseLanguage.ifBlank { null }
             )
             if (book.bookId == 0L) {
                 currentBookId = repo.insertBook(book)
@@ -71,7 +79,7 @@ class EditBookVM @Inject constructor(
             } else {
                 repo.updateBook(book)
             }
-            val authorsNames = formData.authors.split(",").map { a -> a.trim() }
+            val authorsNames = editBookState.authors.split(",").map { a -> a.trim() }
             repo.insertAllAuthors(
                 authorsNames.map { name ->
                     Author(0L, name)
@@ -83,12 +91,12 @@ class EditBookVM @Inject constructor(
             }
             repo.deleteBookAuthors(currentBookId)
             repo.insertAllBookAuthors(bookAuthorList)
-            if (formData.genres.isEmpty()) {
+            if (editBookState.genres.isEmpty()) {
                 repo.deleteBookGenreRelations(currentBookId)
             } else {
                 repo.deleteBookGenreRelations(currentBookId)
-                repo.insertAllGenres(formData.genres.map { Genre(0L, it) })
-                val genresIds = repo.getGenresByNames(formData.genres).map { it.genreId }
+                repo.insertAllGenres(editBookState.genres.map { Genre(0L, it) })
+                val genresIds = repo.getGenresByNames(editBookState.genres).map { it.genreId }
                 repo.insertAllBookGenres(genresIds.map { id -> BookGenre(currentBookId, id) })
             }
         }

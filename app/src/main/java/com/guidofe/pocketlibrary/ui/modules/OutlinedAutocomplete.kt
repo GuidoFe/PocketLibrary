@@ -30,6 +30,7 @@ fun OutlinedAutocomplete(
             onValueChange = onTextChange,
             label = label,
             enabled = enabled,
+            singleLine = true,
             modifier = Modifier.onFocusChanged { state ->
                 expanded = state.isFocused
             }.fillMaxSize()

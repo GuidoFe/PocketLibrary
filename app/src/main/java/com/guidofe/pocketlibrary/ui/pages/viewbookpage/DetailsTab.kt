@@ -15,6 +15,7 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
+import com.guidofe.pocketlibrary.ui.utils.languageName
 
 @Composable
 fun DetailsTab(
@@ -86,7 +87,7 @@ fun DetailsTab(
                 )
             },
             title = stringResource(R.string.language),
-            text = book?.language ?: "?",
+            text = languageName(book?.language),
             boxPadding = boxPadding,
             gap = gap
         )

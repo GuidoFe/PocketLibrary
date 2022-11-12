@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ORDERED BY ISO 639-1 code -->
+    <string-array name="language_names">
+        <item>Afar</item>
+        <item>Abkhazian</item>
+        <item>Avestan</item>
+        <item>Afrikaans</item>
+        <item>Akan</item>
+        <item>Amharic</item>
+        <item>Aragonese</item>
+        <item>Arabic</item>
+        <item>Assamese</item>
+        <item>Avaric</item>
+        <item>Aymara</item>
+        <item>Azerbaijani</item>
+        <item>Bashkir</item>
+        <item>Belarusian</item>
+        <item>Bulgarian</item>
+        <item>Bislama</item>
+        <item>Bambara</item>
+        <item>Bengali</item>
+        <item>Tibetan</item>
+        <item>Breton</item>
+        <item>Bosnian</item>
+        <item>Catalan, Valencian</item>
+        <item>Chechen</item>
+        <item>Chamorro</item>
+        <item>Corsican</item>
+        <item>Cree</item>
+        <item>Czech</item>
+        <item>Church Slavonic, Old Slavonic, Old Church Slavonic</item>
+        <item>Chuvash</item>
+        <item>Welsh</item>
+        <item>Danish</item>
+        <item>German</item>
+        <item>Divehi, Dhivehi, Maldivian</item>
+        <item>Dzongkha</item>
+        <item>Ewe</item>
+        <item>Greek, Modern (1453–)</item>
+        <item>English</item>
+        <item>Esperanto</item>
+        <item>Spanish, Castilian</item>
+        <item>Estonian</item>
+        <item>Basque</item>
+        <item>Persian</item>
+        <item>Fulah</item>
+        <item>Finnish</item>
+        <item>Fijian</item>
+        <item>Faroese</item>
+        <item>French</item>
+        <item>Western Frisian</item>
+        <item>Irish</item>
+        <item>Gaelic, Scottish Gaelic</item>
+        <item>Galician</item>
+        <item>Guarani</item>
+        <item>Gujarati</item>
+        <item>Manx</item>
+        <item>Hausa</item>
+        <item>Hebrew</item>
+        <item>Hindi</item>
+        <item>Hiri Motu</item>
+        <item>Croatian</item>
+        <item>Haitian, Haitian Creole</item>
+        <item>Hungarian</item>
+        <item>Armenian</item>
+        <item>Herero</item>
+        <item>Interlingua (International Auxiliary Language Association)</item>
+        <item>Indonesian</item>
+        <item>Interlingue, Occidental</item>
+        <item>Igbo</item>
+        <item>Sichuan Yi, Nuosu</item>
+        <item>Inupiaq</item>
+        <item>Ido</item>
+        <item>Icelandic</item>
+        <item>Italian</item>
+        <item>Inuktitut</item>
+        <item>Japanese</item>
+        <item>Javanese</item>
+        <item>Georgian</item>
+        <item>Kongo</item>
+        <item>Kikuyu, Gikuyu</item>
+        <item>Kuanyama, Kwanyama</item>
+        <item>Kazakh</item>
+        <item>Kalaallisut, Greenlandic</item>
+        <item>Central Khmer</item>
+        <item>Kannada</item>
+        <item>Korean</item>
+        <item>Kanuri</item>
+        <item>Kashmiri</item>
+        <item>Kurdish</item>
+        <item>Komi</item>
+        <item>Cornish</item>
+        <item>Kirghiz, Kyrgyz</item>
+        <item>Latin</item>
+        <item>Luxembourgish, Letzeburgesch</item>
+        <item>Ganda</item>
+        <item>Limburgan, Limburger, Limburgish</item>
+        <item>Lingala</item>
+        <item>Lao</item>
+        <item>Lithuanian</item>
+        <item>Luba-Katanga</item>
+        <item>Latvian</item>
+        <item>Malagasy</item>
+        <item>Marshallese</item>
+        <item>Maori</item>
+        <item>Macedonian</item>
+        <item>Malayalam</item>
+        <item>Mongolian</item>
+        <item>Marathi</item>
+        <item>Malay</item>
+        <item>Maltese</item>
+        <item>Burmese</item>
+        <item>Nauru</item>
+        <item>Norwegian Bokmål</item>
+        <item>North Ndebele</item>
+        <item>Nepali</item>
+        <item>Ndonga</item>
+        <item>Dutch, Flemish</item>
+        <item>Norwegian Nynorsk</item>
+        <item>Norwegian</item>
+        <item>South Ndebele</item>
+        <item>Navajo, Navaho</item>
+        <item>Chichewa, Chewa, Nyanja</item>
+        <item>Occitan</item>
+        <item>Ojibwa</item>
+        <item>Oromo</item>
+        <item>Oriya</item>
+        <item>Ossetian, Ossetic</item>
+        <item>Punjabi, Panjabi</item>
+        <item>Pali</item>
+        <item>Polish</item>
+        <item>Pashto, Pushto</item>
+        <item>Portuguese</item>
+        <item>Quechua</item>
+        <item>Romansh</item>
+        <item>Rundi</item>
+        <item>Romanian, Moldavian, Moldovan</item>
+        <item>Russian</item>
+        <item>Kinyarwanda</item>
+        <item>Sanskrit</item>
+        <item>Sardinian</item>
+        <item>Sindhi</item>
+        <item>Northern Sami</item>
+        <item>Sango</item>
+        <item>Sinhala, Sinhalese</item>
+        <item>Slovak</item>
+        <item>Slovenian</item>
+        <item>Samoan</item>
+        <item>Shona</item>
+        <item>Somali</item>
+        <item>Albanian</item>
+        <item>Serbian</item>
+        <item>Swati</item>
+        <item>Southern Sotho</item>
+        <item>Sundanese</item>
+        <item>Swedish</item>
+        <item>Swahili</item>
+        <item>Tamil</item>
+        <item>Telugu</item>
+        <item>Tajik</item>
+        <item>Thai</item>
+        <item>Tigrinya</item>
+        <item>Turkmen</item>
+        <item>Tagalog</item>
+        <item>Tswana</item>
+        <item>Tonga (Tonga Islands)</item>
+        <item>Turkish</item>
+        <item>Tsonga</item>
+        <item>Tatar</item>
+        <item>Twi</item>
+        <item>Tahitian</item>
+        <item>Uighur, Uyghur</item>
+        <item>Ukrainian</item>
+        <item>Urdu</item>
+        <item>Uzbek</item>
+        <item>Venda</item>
+        <item>Vietnamese</item>
+        <item>Volapük</item>
+        <item>Walloon</item>
+        <item>Wolof</item>
+        <item>Xhosa</item>
+        <item>Yiddish</item>
+        <item>Yoruba</item>
+        <item>Zhuang, Chuang</item>
+        <item>Chinese</item>
+        <item>Zulu</item>
+    </string-array>
+</resources>

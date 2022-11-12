@@ -5,10 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.Media
 import com.guidofe.pocketlibrary.model.ImportedBookData
 
-class FormData() {
+class EditBookState() {
     var title: String by mutableStateOf("")
     var subtitle: String by mutableStateOf("")
     var description: String by mutableStateOf("")
@@ -22,6 +21,7 @@ class FormData() {
     var genres: List<String> by mutableStateOf(listOf())
     var genreInput: String by mutableStateOf("")
     var existingGenres: List<String> by mutableStateOf(listOf())
+    var isLanguageError: Boolean by mutableStateOf(false)
     constructor(
         title: String = "",
         subtitle: String = "",

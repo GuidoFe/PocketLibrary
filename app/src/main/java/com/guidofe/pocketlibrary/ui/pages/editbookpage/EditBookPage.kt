@@ -26,6 +26,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
 import com.guidofe.pocketlibrary.ui.modules.OutlinedAutocomplete
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.utils.BookDestination
@@ -94,7 +95,7 @@ fun EditBookPage(
         bookId?.let { viewModel.initialiseFromDatabase(it) }
         isbn?.let {
             Log.d("debug", "Setting isbn $it")
-            viewModel.formData.identifier = it
+            viewModel.editBookState.identifier = it
         }
     }
     Column(
@@ -105,11 +106,11 @@ fun EditBookPage(
             .fillMaxWidth()
             .padding(5.dp)
     ) {
-        if (viewModel.formData.coverUri != null) {
+        if (viewModel.editBookState.coverUri != null) {
             // TODO: placeholder for book cover
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(viewModel.formData.coverUri)
+                    .data(viewModel.editBookState.coverUri)
                     .build(),
                 contentDescription = stringResource(id = R.string.cover),
                 Modifier.size(200.dp, 200.dp)
@@ -120,20 +121,20 @@ fun EditBookPage(
                 stringResource(R.string.cover)
             )
         OutlinedTextField(
-            value = viewModel.formData.title,
+            value = viewModel.editBookState.title,
             label = { Text(stringResource(id = R.string.title) + "*") },
-            onValueChange = { viewModel.formData.title = it },
+            onValueChange = { viewModel.editBookState.title = it },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = viewModel.formData.subtitle,
+            value = viewModel.editBookState.subtitle,
             label = { Text(stringResource(id = R.string.subtitle)) },
-            onValueChange = { viewModel.formData.subtitle = it },
+            onValueChange = { viewModel.editBookState.subtitle = it },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = viewModel.formData.authors,
-            onValueChange = { viewModel.formData.authors = it },
+            value = viewModel.editBookState.authors,
+            onValueChange = { viewModel.editBookState.authors = it },
             label = { Text(stringResource(R.string.authors)) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -141,7 +142,7 @@ fun EditBookPage(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items = viewModel.formData.genres) { genre ->
+            items(items = viewModel.editBookState.genres) { genre ->
                 InputChip(
                     selected = true,
                     onClick = {},
@@ -149,7 +150,7 @@ fun EditBookPage(
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                                viewModel.formData.genres -= genre
+                                viewModel.editBookState.genres -= genre
                             },
                             modifier = Modifier.size(InputChipDefaults.IconSize)
                         ) {
@@ -166,31 +167,31 @@ fun EditBookPage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedAutocomplete(
-                text = viewModel.formData.genreInput,
+                text = viewModel.editBookState.genreInput,
                 onTextChange = {
-                    viewModel.formData.genreInput = it
+                    viewModel.editBookState.genreInput = it
                     if (it.length == 3)
                         viewModel.updateExistingGenres(it)
                 },
-                options = viewModel.formData.existingGenres,
+                options = viewModel.editBookState.existingGenres,
                 label = { Text(stringResource(R.string.new_genre)) },
-                onOptionSelected = { viewModel.formData.genreInput = it },
+                onOptionSelected = { viewModel.editBookState.genreInput = it },
                 modifier = Modifier.weight(1f)
             )
             IconButton(
                 onClick = {
-                    if (viewModel.formData.genreInput.isBlank())
+                    if (viewModel.editBookState.genreInput.isBlank())
                         return@IconButton
-                    viewModel.formData.genres += viewModel.formData.genreInput
-                    viewModel.formData.genreInput = ""
+                    viewModel.editBookState.genres += viewModel.editBookState.genreInput
+                    viewModel.editBookState.genreInput = ""
                 }
             ) {
                 Icon(painterResource(R.drawable.add_24px), stringResource(R.string.add))
             }
         }
         OutlinedTextField(
-            value = viewModel.formData.description,
-            onValueChange = { viewModel.formData.description = it },
+            value = viewModel.editBookState.description,
+            onValueChange = { viewModel.editBookState.description = it },
             label = { Text(stringResource(id = R.string.summary)) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -198,11 +199,12 @@ fun EditBookPage(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
-                value = viewModel.formData.language,
-                onValueChange = { viewModel.formData.language = it },
+            LanguageAutocomplete(
+                text = viewModel.editBookState.language,
+                onTextChange = { viewModel.editBookState.language = it },
+                onOptionSelected = { viewModel.editBookState.language = it },
                 label = { Text(stringResource(R.string.language)) },
-                singleLine = true,
+                isError = viewModel.editBookState.isLanguageError,
                 modifier = Modifier
                     .weight(1f)
             )
@@ -212,8 +214,10 @@ fun EditBookPage(
             ) {
                 Text(stringResource(R.string.is_ebook))
                 Switch(
-                    checked = viewModel.formData.isEbook,
-                    onCheckedChange = { viewModel.formData.isEbook = !viewModel.formData.isEbook },
+                    checked = viewModel.editBookState.isEbook,
+                    onCheckedChange = {
+                        viewModel.editBookState.isEbook = !viewModel.editBookState.isEbook
+                    },
                 )
             }
         }
@@ -221,17 +225,17 @@ fun EditBookPage(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
         ) {
             OutlinedTextField(
-                value = viewModel.formData.publisher,
-                onValueChange = { viewModel.formData.publisher = it },
+                value = viewModel.editBookState.publisher,
+                onValueChange = { viewModel.editBookState.publisher = it },
                 label = { Text(stringResource(R.string.publisher)) },
                 singleLine = true,
                 modifier = Modifier
                     .weight(2f)
             )
             OutlinedTextField(
-                value = viewModel.formData.published,
+                value = viewModel.editBookState.published,
                 onValueChange = {
-                    viewModel.formData.published = it
+                    viewModel.editBookState.published = it
                 },
                 label = { Text(stringResource(R.string.year)) },
                 singleLine = true,
@@ -241,9 +245,10 @@ fun EditBookPage(
             )
         }
         OutlinedTextField(
-            value = viewModel.formData.identifier,
-            onValueChange = { viewModel.formData.identifier = it },
+            value = viewModel.editBookState.identifier,
+            onValueChange = { viewModel.editBookState.identifier = it },
             singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             label = { Text(stringResource(R.string.isbn)) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -251,8 +256,8 @@ fun EditBookPage(
 }
 
 private object VMPreview : IEditBookVM {
-    override var formData: FormData =
-        FormData(
+    override var editBookState: EditBookState =
+        EditBookState(
             title = "Dune",
             subtitle = "The Greatest Sci-Fi Story",
             description = "Opposing forces struggle for control of the universe when the " +

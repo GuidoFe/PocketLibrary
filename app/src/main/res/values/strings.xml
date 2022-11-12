@@ -141,5 +141,5 @@
     <string name="add">Add</string>
     <string name="new_genre">New genre</string>
     <string name="is_ebook">Is eBook:</string>
-
+    <string name="language_not_valid">Language code not valid</string>
 </resources>
