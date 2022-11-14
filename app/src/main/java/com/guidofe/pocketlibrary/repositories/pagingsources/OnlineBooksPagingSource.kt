@@ -36,7 +36,7 @@ class OnlineBooksPagingSource(
             )
             return LoadResult.Error(Exception(res.message))
         }
-        val response = res.data ?: listOf()
+        val response = res.data ?: emptyList()
         val prevKey = if (pageNumber > 0) pageNumber - 1 else null
         val nextKey = if (response.isNotEmpty()) pageNumber + 1 else null
         return LoadResult.Page(

@@ -40,8 +40,8 @@ fun BookLogPage(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var tabIndex: Int by remember { mutableStateOf(0) }
-    val borrowedList by vm.borrowedItems.collectAsState(initial = listOf())
-    val lentList by vm.lentItems.collectAsState(initial = listOf())
+    val borrowedList by vm.borrowedItems.collectAsState(initial = emptyList())
+    val lentList by vm.lentItems.collectAsState(initial = emptyList())
     var isFabExpanded: Boolean by remember { mutableStateOf(false) }
     var isBorrowTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
     var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
@@ -258,7 +258,7 @@ fun BookLogPage(
             Tab(
                 selected = tabIndex == 1,
                 onClick = { tabIndex = 1 },
-                text = { Text(stringResource(R.string.lent)) }
+                text = { Text(stringResource(R.string.lent_tab)) }
             )
         }
         when (tabIndex) {

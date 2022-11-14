@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">Pocket Library</string>
-    <string name="home">Home</string>
-    <string name="my_library">My Library</string>
-    <string name="lent_tab">Lent</string>
-    <string name="lent_adj">Lent</string>
-    <string name="title">Title</string>
-    <string name="subtitle">Subtitle</string>
-    <string name="close">Close</string>
-    <string name="authors">Authors</string>
+    <string name="home">Pagina Iniziale</string>
+    <string name="my_library">La Mia Libreria</string>
+    <string name="lent_tab">Prestiti</string>
+    <string name="lent_adj">Prestato</string>
+    <string name="title">Titolo</string>
+    <string name="subtitle">Sottotitolo</string>
+    <string name="close">Chiudi</string>
+    <string name="authors">Autori</string>
     <string name="publisher">Publisher</string>
     <string name="published_year">Published Year</string>
     <string name="isbn">ISBN</string>

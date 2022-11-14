@@ -16,13 +16,13 @@ data class BookBundle(
         entityColumn = "authorId",
         associateBy = Junction(SortedBookAuthor::class)
     )
-    val authors: List<Author> = listOf(),
+    val authors: List<Author> = emptyList(),
     @Relation(
         parentColumn = "bookId",
         entityColumn = "genreId",
         associateBy = Junction(BookGenre::class)
     )
-    val genres: List<Genre> = listOf(),
+    val genres: List<Genre> = emptyList(),
     @Relation(
         parentColumn = "bookId",
         entityColumn = "bookId"

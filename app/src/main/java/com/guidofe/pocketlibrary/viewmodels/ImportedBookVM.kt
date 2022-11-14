@@ -28,7 +28,7 @@ class ImportedBookVM @Inject constructor(
         viewModelScope.launch {
             val res = metaRepo.fetchVolumesByIsbn(isbn, maxResults)
             if (res.isSuccess())
-                callback(res.data ?: listOf())
+                callback(res.data ?: emptyList())
             else
                 failureCallback(res.message ?: "Error")
         }

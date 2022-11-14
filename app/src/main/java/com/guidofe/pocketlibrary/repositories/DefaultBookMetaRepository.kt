@@ -56,7 +56,7 @@ class DefaultBookMetaRepository : BookMetaRepository {
         )
         return if (response is NetworkResponse.Success) {
             Resource.Success(
-                response.value.items?.mapNotNull { it.toImportedBookData() } ?: listOf()
+                response.value.items?.mapNotNull { it.toImportedBookData() } ?: emptyList()
             )
         } else
             networkErrorResponseToResource(response)
@@ -70,7 +70,7 @@ class DefaultBookMetaRepository : BookMetaRepository {
     ): Resource<List<ImportedBookData>> {
         if (title == null && author == null) {
             Log.d("debug", "title and author are null")
-            return Resource.Success(listOf())
+            return Resource.Success(emptyList())
         } else {
             val service = retrofit.create(GoogleBooksServiceEndpoints::class.java)
             val query: MutableMap<QueryData.QueryKey, String> = mutableMapOf()
@@ -86,7 +86,7 @@ class DefaultBookMetaRepository : BookMetaRepository {
             )
             return if (response is NetworkResponse.Success) {
                 Resource.Success(
-                    response.value.items?.mapNotNull { it.toImportedBookData() } ?: listOf()
+                    response.value.items?.mapNotNull { it.toImportedBookData() } ?: emptyList()
                 )
             } else
                 networkErrorResponseToResource(response)
@@ -107,10 +107,10 @@ class DefaultBookMetaRepository : BookMetaRepository {
             )
             return if (response is NetworkResponse.Success) {
                 Resource.Success(
-                    response.value.items?.mapNotNull { it.toImportedBookData() } ?: listOf()
+                    response.value.items?.mapNotNull { it.toImportedBookData() } ?: emptyList()
                 )
             } else
                 networkErrorResponseToResource(response)
-        } ?: return Resource.Success(listOf())
+        } ?: return Resource.Success(emptyList())
     }
 }

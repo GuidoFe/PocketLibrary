@@ -19,8 +19,8 @@ data class ImportedBookData(
     val identifier: String? = null,
     val isEbook: Boolean = false,
     val language: String? = null,
-    val authors: List<String> = listOf(),
-    val genres: List<String> = listOf(),
+    val authors: List<String> = emptyList(),
+    val genres: List<String> = emptyList(),
     val pageCount: Int? = null
 ) : Parcelable {
 

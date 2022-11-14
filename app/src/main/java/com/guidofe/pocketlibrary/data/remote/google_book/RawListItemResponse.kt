@@ -70,8 +70,8 @@ data class RawListItemResponse(
             identifier = code13 ?: code10 ?: issn,
             isEbook = saleInfo.isEbook,
             language = volumeInfo.language,
-            authors = volumeInfo.authors ?: listOf(),
-            genres = volumeInfo.categories ?: listOf(),
+            authors = volumeInfo.authors ?: emptyList(),
+            genres = volumeInfo.categories ?: emptyList(),
             pageCount = volumeInfo.pageCount
         )
     }

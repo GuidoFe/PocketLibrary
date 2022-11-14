@@ -125,7 +125,7 @@ fun SelectableBookCover(
                         .align(Alignment.BottomCenter)
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(stringResource(R.string.lent), color = MaterialTheme.colorScheme.onPrimary)
+                    Text(stringResource(R.string.lent_tab), color = MaterialTheme.colorScheme.onPrimary)
                 }
             progress?.let { p ->
                 val background = when (p) {

@@ -18,9 +18,9 @@ class EditBookState() {
     var identifier: String by mutableStateOf("")
     var language: String by mutableStateOf("")
     var authors: String by mutableStateOf("")
-    var genres: List<String> by mutableStateOf(listOf())
+    var genres: List<String> by mutableStateOf(emptyList())
     var genreInput: String by mutableStateOf("")
-    var existingGenres: List<String> by mutableStateOf(listOf())
+    var existingGenres: List<String> by mutableStateOf(emptyList())
     var isLanguageError: Boolean by mutableStateOf(false)
     constructor(
         title: String = "",
@@ -33,7 +33,7 @@ class EditBookState() {
         identifier: String = "",
         language: String = "",
         authors: String = "",
-        genres: List<String> = listOf(),
+        genres: List<String> = emptyList(),
 
     ) : this() {
         this.title = title
