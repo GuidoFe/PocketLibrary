@@ -5,6 +5,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
@@ -21,10 +22,12 @@ class SettingsVM @Inject constructor(
     private val dataStore: DataStoreRepository
 ) : ViewModel(), ISettingsVM {
     override val settingsFlow = dataStore.settingsFlow
+    override var lastSettings: AppSettings? = null
     override fun setLanguage(language: Language) {
         viewModelScope.launch {
             val appLocale = LocaleListCompat.forLanguageTags(language.code)
             // delay(100)
+            dataStore.setLanguage(language)
             AppCompatDelegate.setApplicationLocales(appLocale)
         }
     }

@@ -20,7 +20,7 @@ class DefaultDataStoreRepository @Inject constructor(
 ) : DataStoreRepository {
     override val settingsFlow: Flow<AppSettings> = context.dataStore.data
     override suspend fun setLanguage(language: Language) {
-        context.dataStore.updateData { it.copy(language = language) }
+        context.dataStore.updateData { it.copy(languageName = language.toString()) }
     }
 
     private fun booleanToNightModeEnum(darkTheme: Boolean): Int {
@@ -46,7 +46,7 @@ class DefaultDataStoreRepository @Inject constructor(
     override suspend fun setTheme(theme: Theme) {
         context.dataStore.updateData {
             it.copy(
-                theme = theme
+                themeName = theme.toString()
             )
         }
     }

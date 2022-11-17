@@ -16,4 +16,5 @@ interface ISettingsVM {
     fun setDarkTheme(enabled: Boolean)
     fun getCurrentLanguageName(): String
     fun setTheme(theme: Theme)
+    var lastSettings: AppSettings?
 }

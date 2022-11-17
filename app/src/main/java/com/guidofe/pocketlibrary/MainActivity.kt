@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.collectAsState
 import com.guidofe.pocketlibrary.ui.pages.MainPage
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.viewmodels.MainActivityVM
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,7 +21,7 @@ class MainActivity : AppCompatActivity() {
             PocketLibraryTheme(
                 darkTheme = settings.darkTheme,
                 dynamicColor = settings.dynamicColors,
-                theme = settings.theme
+                theme = Theme.valueOf(settings.themeName)
             ) {
                 MainPage()
             }

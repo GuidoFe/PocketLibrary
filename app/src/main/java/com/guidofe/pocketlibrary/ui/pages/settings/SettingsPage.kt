@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages.settings
 
-import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -34,111 +33,108 @@ fun SettingsPage(
     vm: ISettingsVM = hiltViewModel<SettingsVM>()
 ) {
     val context = LocalContext.current
-    val settings = vm.settingsFlow.collectAsState(
-        initial = AppSettings(
-            dynamicColors = context.resources?.configuration?.uiMode?.and(
-                Configuration.UI_MODE_NIGHT_MASK
-            ) == Configuration.UI_MODE_NIGHT_YES
-        )
-    ).value
+    val settingsFlow: AppSettings? by vm.settingsFlow.collectAsState(
+        initial = null
+    )
     val scrollState = rememberScrollState()
     var isLanguageDropdownOpen by rememberSaveable { mutableStateOf(false) }
-    var selectedLanguage by rememberSaveable { mutableStateOf(vm.getCurrentLanguageName()) }
-    var isDynamicColorsEnabled by rememberSaveable { mutableStateOf(settings.dynamicColors) }
-    var isDarkThemeEnabled by rememberSaveable { mutableStateOf(settings.darkTheme) }
     var showThemeSelector by rememberSaveable { mutableStateOf(false) }
-
+    var currentSettings: AppSettings? by remember { mutableStateOf(vm.lastSettings) }
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(title = context.getString(R.string.settings))
     }
-    Column(
-        modifier = Modifier
-            .verticalScroll(scrollState)
-            .padding(5.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+    LaunchedEffect(settingsFlow) {
+        settingsFlow?.let { currentSettings = it }
+    }
+    currentSettings?.let { s ->
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(5.dp)
         ) {
-            Text(
-                stringResource(R.string.language),
-                maxLines = 1,
-                modifier = Modifier.weight(1f)
-            )
-            ExposedDropdownMenuBox(
-                expanded = true,
-                onExpandedChange = {
-                    isLanguageDropdownOpen = !isLanguageDropdownOpen
-                },
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                DropdownBox(
-                    text = { Text(selectedLanguage) },
-                    isExpanded = isLanguageDropdownOpen,
-                    modifier = Modifier.menuAnchor()
+                Text(
+                    stringResource(R.string.language),
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
                 )
-                // It's necessary to hide the menu without using the expanded property, because the
-                // language change trigger the recreation of the activity and it glitches the
-                // animation of the closing dropdown. An alternative is setting a delay before the
-                // language change in vm
-                if (isLanguageDropdownOpen) {
-                    DropdownMenu(
-                        expanded = true,
-                        onDismissRequest = { isLanguageDropdownOpen = false }
-                    ) {
-                        for (language in Language.values()) {
-                            DropdownMenuItem(text = {
-                                Text(language.localizedName)
-                            }, onClick = {
-                                isLanguageDropdownOpen = false
-                                selectedLanguage = language.localizedName
-                                vm.setLanguage(language)
-                            })
+                ExposedDropdownMenuBox(
+                    expanded = true,
+                    onExpandedChange = {
+                        isLanguageDropdownOpen = !isLanguageDropdownOpen
+                    },
+                ) {
+                    DropdownBox(
+                        text = { Text(Language.valueOf(s.languageName).localizedName) },
+                        isExpanded = isLanguageDropdownOpen,
+                        modifier = Modifier.menuAnchor()
+                    )
+                    // It's necessary to hide the menu without using the expanded property, because the
+                    // language change trigger the recreation of the activity and it glitches the
+                    // animation of the closing dropdown. An alternative is setting a delay before the
+                    // language change in vm
+                    if (isLanguageDropdownOpen) {
+                        DropdownMenu(
+                            expanded = true,
+                            onDismissRequest = { isLanguageDropdownOpen = false }
+                        ) {
+                            for (language in Language.values()) {
+                                DropdownMenuItem(text = {
+                                    Text(language.localizedName)
+                                }, onClick = {
+                                    isLanguageDropdownOpen = false
+                                    vm.lastSettings = s
+                                    vm.setLanguage(language)
+                                })
+                            }
                         }
                     }
                 }
             }
-        }
-        if (DynamicColors.isDynamicColorAvailable()) {
+            if (DynamicColors.isDynamicColorAvailable()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.dynamic_colors),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = s.dynamicColors,
+                        onCheckedChange = {
+                            vm.lastSettings = s
+                            vm.setDynamicColors(!s.dynamicColors)
+                        }
+                    )
+                }
+            }
+            // TODO: Why changing dark mode while DynamicColors is active cause recomposition???
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    stringResource(R.string.dynamic_colors),
+                    stringResource(R.string.dark_theme),
                     modifier = Modifier.weight(1f)
                 )
                 Switch(
-                    checked = isDynamicColorsEnabled,
+                    checked = s.darkTheme,
                     onCheckedChange = {
-                        isDynamicColorsEnabled = !isDynamicColorsEnabled
-                        vm.setDynamicColors(!settings.dynamicColors)
+                        Log.d("debug", "Check changed")
+                        vm.lastSettings = s
+                        vm.setDarkTheme(!s.darkTheme)
                     }
                 )
             }
-        }
-        // TODO: Why changing dark mode while DynamicColors is active cause recomposition???
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                stringResource(R.string.dark_theme),
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = isDarkThemeEnabled,
-                onCheckedChange = {
-                    Log.d("debug", "Check changed")
-                    isDarkThemeEnabled = !isDarkThemeEnabled
-                    vm.setDarkTheme(!settings.darkTheme)
-                }
-            )
-        }
-        if (!settings.dynamicColors) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.theme),
-                    modifier = Modifier.weight(1f)
-                )
-                ThemeTile(theme = settings.theme) {
-                    showThemeSelector = true
+            if (!s.dynamicColors) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.theme),
+                        modifier = Modifier.weight(1f)
+                    )
+                    ThemeTile(theme = Theme.valueOf(s.themeName)) {
+                        showThemeSelector = true
+                    }
                 }
             }
-        }
-        /*
+            /*
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 stringResource(R.string.save_data_external),
@@ -150,19 +146,21 @@ fun SettingsPage(
                 enabled = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
             )
         }*/
-    }
-    if (showThemeSelector) {
-        ThemeSelector(
-            themes = Theme.values().asList(),
-            currentTheme = settings.theme,
-            onDismiss = {
+        }
+
+        if (showThemeSelector) {
+            ThemeSelector(
+                themes = Theme.values().asList(),
+                currentTheme = Theme.valueOf(s.themeName),
+                onDismiss = {
+                    showThemeSelector = false
+                },
+                onClick = {
+                    vm.setTheme(it)
+                }
+            ) {
                 showThemeSelector = false
-            },
-            onClick = {
-                vm.setTheme(it)
             }
-        ) {
-            showThemeSelector = false
         }
     }
 }
