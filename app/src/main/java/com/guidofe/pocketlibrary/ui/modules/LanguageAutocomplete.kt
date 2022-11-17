@@ -33,7 +33,9 @@ fun LanguageAutocomplete(
         }
     }
     var expanded by remember { mutableStateOf(false) }
-    val filteredOptions = if (text.isBlank() || text.length < 2) emptyList() else languageList.filter {
+    val filteredOptions = if (text.isBlank() || text.length < 2)
+        emptyList()
+    else languageList.filter {
         it.code.startsWith(text, true) || it.name.startsWith(text, true)
     }
     Box(modifier = modifier) {

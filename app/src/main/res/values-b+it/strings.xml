@@ -2,7 +2,7 @@
     <string name="app_name">Pocket Library</string>
     <string name="home">Pagina Iniziale</string>
     <string name="my_library">La Mia Libreria</string>
-    <string name="lent_tab">Prestiti</string>
+    <string name="lent_tab">Prestati</string>
     <string name="lent_adj">Prestato</string>
     <string name="title">Titolo</string>
     <string name="subtitle">Sottotitolo</string>
@@ -12,7 +12,7 @@
     <string name="published_year">Anno Pubblicazione</string>
     <string name="isbn">ISBN</string>
     <string name="summary">Sommario</string>
-    <string name="language">Linuga</string>
+    <string name="language">Lingua</string>
     <string name="note">Note</string>
     <string name="add_book">Aggiungi Libro</string>
     <string name="scan_isbn">Scansiona ISBN</string>
@@ -50,7 +50,7 @@
     <string name="error_cant_save_book">Non è stato possibile salvare il libro nel database</string>
     <string name="error_sadface">Errore :(</string>
     <string name="network_error_sadface">Errore di rete :(</string>
-    <string name="selecting">Selzionando</string>
+    <string name="selecting">Selezionando</string>
     <string name="clear_selection">Annulla selezione</string>
     <string name="delete">Elimina</string>
     <string name="books_saved">Libri salvati</string>
@@ -117,8 +117,8 @@
     <string name="is_ebook">È in formato digitale:</string>
     <string name="language_not_valid">Sigla della lingua non valida</string>
     <string name="settings">Impostazioni</string>
-    <string name="follow_system_theme">Segui il tema del sistema</string>
-    <string name="dynamic_theme">Tema dinamico</string>
+    <string name="automatic_dark_light_setting">Impostazione tema chiaro/scuro automatico</string>
+    <string name="dynamic_colors">Colori dinamici</string>
     <string name="theme">Tema</string>
     <string name="dark_theme">Tema scuro</string>
     <string name="save_data_external">Salva dati nella memoria esterna</string>

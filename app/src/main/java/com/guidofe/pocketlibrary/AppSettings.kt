@@ -6,9 +6,13 @@ import kotlinx.serialization.Serializable
 data class AppSettings(
     val language: Language = Language.ENGLISH,
     val followSystem: Boolean = false,
-    val dynamicTheme: Boolean = false,
+    val dynamicColors: Boolean = false,
     val darkTheme: Boolean = false,
     val saveInExternal: Boolean = false
 )
 
-enum class Language {ENGLISH, ITALIAN}
+@Serializable
+enum class Language(val localizedName: String, val code: String) {
+    ENGLISH("English", "en"),
+    ITALIAN("Italiano", "it");
+}

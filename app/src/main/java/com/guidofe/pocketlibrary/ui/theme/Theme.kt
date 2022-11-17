@@ -1,13 +1,12 @@
 package com.guidofe.pocketlibrary.ui.theme
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 // TODO: Support material3 system colors
 private val DarkColorPalette = darkColorScheme(
@@ -40,9 +39,11 @@ val LocalExtendedColors = staticCompositionLocalOf {
 @Composable
 fun PocketLibraryTheme(
     darkTheme: Boolean = false,
+    dynamicColor: Boolean = false,
     // darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val extendedColors = ExtendedColors(
         green = CustomGreen,
         yellow = CustomYellow,
@@ -50,9 +51,11 @@ fun PocketLibraryTheme(
         blue = CustomBlue
     )
     val colors = if (darkTheme) {
-        DarkColorPalette
+        if (dynamicColor) dynamicDarkColorScheme(context)
+        else DarkColorPalette
     } else {
-        LightColorPalette
+        if (dynamicColor) dynamicLightColorScheme(context)
+        else LightColorPalette
     }
     CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
         MaterialTheme(

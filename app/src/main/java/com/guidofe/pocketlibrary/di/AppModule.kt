@@ -7,10 +7,7 @@ import coil.ImageLoader
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
-import com.guidofe.pocketlibrary.repositories.BookMetaRepository
-import com.guidofe.pocketlibrary.repositories.DefaultBookMetaRepository
-import com.guidofe.pocketlibrary.repositories.DefaultLocalRepository
-import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.*
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module
@@ -18,9 +15,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -94,29 +91,14 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesAuthorDao(db: AppDatabase) = db.authorDao()
-
-    @Singleton
-    @Provides
-    fun providesBookDao(db: AppDatabase) = db.bookDao()
-
-    @Singleton
-    @Provides
-    fun providesBookBundleDao(db: AppDatabase) = db.bookBundleDao()
-
-    @Singleton
-    @Provides
-    fun providesGenreDao(db: AppDatabase) = db.genreDao()
-
-    @Singleton
-    @Provides
-    fun providesNoteDao(db: AppDatabase) = db.noteDao()
-
-    @Singleton
-    @Provides
     fun providesLibraryRepository(db: AppDatabase): LocalRepository = DefaultLocalRepository(db)
 
     @Singleton
     @Provides
     fun providesBookMetaRepository(): BookMetaRepository = DefaultBookMetaRepository()
+
+    @Singleton
+    @Provides
+    fun providesDataStoreRepository(@ApplicationContext context: Context): DataStoreRepository =
+        DefaultDataStoreRepository(context)
 }

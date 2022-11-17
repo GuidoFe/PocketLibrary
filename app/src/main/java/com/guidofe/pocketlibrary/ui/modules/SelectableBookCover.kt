@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,14 +22,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.ui.theme.ExtendedTheme
+import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 
-private enum class CoverStatus { LOADED, LOADING, ERROR, EMPTY }
+private enum class CoverStatus { LOADED, LOADING, ERROR }
 
 @Composable
 fun SelectableBookCover(
@@ -64,69 +65,75 @@ fun SelectableBookCover(
                 )
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surface)
-                .border(
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize().border(
                     width = 3.dp,
                     color = if (isLent) MaterialTheme.colorScheme.primary else Color.Transparent,
                     shape = MaterialTheme.shapes.medium
                 )
-        ) {
-            if (coverURI == null) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .border(
-                            3.dp,
-                            MaterialTheme.colorScheme.outline,
-                            MaterialTheme.shapes.medium
-                        )
-                ) {
-                    Text(
-                        "NO COVER",
-                        color = MaterialTheme.colorScheme.outline,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        softWrap = true
-                    )
-                }
-            } else {
-                AsyncImage(
-                    model = coverURI,
-                    contentDescription = stringResource(id = R.string.cover),
-                    contentScale = ContentScale.FillBounds,
-                    onLoading = { coverStatus = CoverStatus.LOADING },
-                    onSuccess = { coverStatus = CoverStatus.LOADED },
-                    onError = { coverStatus = CoverStatus.ERROR },
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
-                if (coverStatus == CoverStatus.LOADING) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else if (coverStatus == CoverStatus.ERROR) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.align(Alignment.Center)
+            ) {
+                if (coverURI == null) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .border(
+                                3.dp,
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.medium
+                            )
                     ) {
-                        Icon(
-                            painterResource(R.drawable.error_24px),
-                            stringResource(R.string.error)
+                        Text(
+                            "NO COVER",
+                            color = MaterialTheme.colorScheme.outline,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            softWrap = true
                         )
-                        Text(stringResource(R.string.error_sadface))
+                    }
+                } else {
+                    AsyncImage(
+                        model = coverURI,
+                        contentDescription = stringResource(id = R.string.cover),
+                        contentScale = ContentScale.FillBounds,
+                        onLoading = { coverStatus = CoverStatus.LOADING },
+                        onSuccess = { coverStatus = CoverStatus.LOADED },
+                        onError = { coverStatus = CoverStatus.ERROR },
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                    if (coverStatus == CoverStatus.LOADING) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    } else if (coverStatus == CoverStatus.ERROR) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.align(Alignment.Center)
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.error_24px),
+                                stringResource(R.string.error)
+                            )
+                            Text(stringResource(R.string.error_sadface))
+                        }
                     }
                 }
+                if (isLent)
+                    CornerIcon(
+                        cornerAlignment = Alignment.TopStart,
+                        roundCornerSize = MaterialTheme.shapes.small.topStart,
+                        background = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.borrow_book_24px),
+                            stringResource(R.string.lent_adj),
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
             }
-            if (isLent)
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(stringResource(R.string.lent_tab), color = MaterialTheme.colorScheme.onPrimary)
-                }
             progress?.let { p ->
                 val background = when (p) {
                     ProgressPhase.READ -> ExtendedTheme.colors.green
@@ -134,10 +141,12 @@ fun SelectableBookCover(
                     ProgressPhase.DNF -> ExtendedTheme.colors.red
                     ProgressPhase.IN_PROGRESS -> ExtendedTheme.colors.blue
                 }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(25.dp).align(Alignment.TopEnd)
-                        .clip(CircleShape).background(background).padding(3.dp)
+                CornerIcon(
+                    cornerAlignment = Alignment.BottomStart,
+                    roundCornerSize = MaterialTheme.shapes.small.bottomStart,
+                    background = background,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
                 ) {
                     Icon(
                         painter = when (p) {
@@ -146,7 +155,9 @@ fun SelectableBookCover(
                                 R.drawable.local_library_24px
                             )
                             ProgressPhase.SUSPENDED -> painterResource(R.drawable.pause_24px)
-                            ProgressPhase.DNF -> painterResource(R.drawable.do_not_disturb_on_24px)
+                            ProgressPhase.DNF -> painterResource(
+                                R.drawable.do_not_disturb_on_24px
+                            )
                         },
                         contentDescription = p.name,
                         tint = MaterialTheme.colorScheme.contentColorFor(background)
@@ -179,6 +190,19 @@ fun SelectableBookCover(
                         onTap = onTap
                     )
                 }
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SelectableBookCoverPreview() {
+    PocketLibraryTheme() {
+        SelectableBookCover(
+            coverURI = null,
+            isSelected = false,
+            isLent = true,
+            progress = ProgressPhase.IN_PROGRESS
         )
     }
 }
