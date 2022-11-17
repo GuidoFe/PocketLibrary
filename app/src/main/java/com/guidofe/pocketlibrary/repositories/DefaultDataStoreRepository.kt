@@ -6,6 +6,7 @@ import androidx.datastore.dataStore
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
+import com.guidofe.pocketlibrary.ui.theme.Theme
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -38,6 +39,14 @@ class DefaultDataStoreRepository @Inject constructor(
         context.dataStore.updateData {
             it.copy(
                 dynamicColors = enabled
+            )
+        }
+    }
+
+    override suspend fun setTheme(theme: Theme) {
+        context.dataStore.updateData {
+            it.copy(
+                theme = theme
             )
         }
     }

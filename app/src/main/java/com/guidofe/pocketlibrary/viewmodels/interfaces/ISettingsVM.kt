@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.theme.Theme
 import kotlinx.coroutines.flow.Flow
 
 interface ISettingsVM {
@@ -14,4 +15,5 @@ interface ISettingsVM {
     fun setDynamicColors(enabled: Boolean)
     fun setDarkTheme(enabled: Boolean)
     fun getCurrentLanguageName(): String
+    fun setTheme(theme: Theme)
 }

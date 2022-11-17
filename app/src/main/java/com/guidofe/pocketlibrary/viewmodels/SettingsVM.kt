@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -44,6 +45,12 @@ class SettingsVM @Inject constructor(
     override fun setDarkTheme(enabled: Boolean) {
         viewModelScope.launch {
             dataStore.setDarkTheme(enabled)
+        }
+    }
+
+    override fun setTheme(theme: Theme) {
+        viewModelScope.launch {
+            dataStore.setTheme(theme)
         }
     }
 }

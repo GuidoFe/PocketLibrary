@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.ui.pages.settings
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,6 +19,9 @@ import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
+import com.guidofe.pocketlibrary.ui.modules.ThemeSelector
+import com.guidofe.pocketlibrary.ui.modules.ThemeTile
+import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import com.ramcosta.composedestinations.annotation.Destination
@@ -42,6 +46,7 @@ fun SettingsPage(
     var selectedLanguage by rememberSaveable { mutableStateOf(vm.getCurrentLanguageName()) }
     var isDynamicColorsEnabled by rememberSaveable { mutableStateOf(settings.dynamicColors) }
     var isDarkThemeEnabled by rememberSaveable { mutableStateOf(settings.darkTheme) }
+    var showThemeSelector by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(title = context.getString(R.string.settings))
@@ -116,26 +121,24 @@ fun SettingsPage(
             Switch(
                 checked = isDarkThemeEnabled,
                 onCheckedChange = {
+                    Log.d("debug", "Check changed")
                     isDarkThemeEnabled = !isDarkThemeEnabled
                     vm.setDarkTheme(!settings.darkTheme)
                 }
             )
         }
-        /*
-        if (!vm.state.dynamicTheme) {
+        if (!settings.dynamicColors) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(R.string.theme),
                     modifier = Modifier.weight(1f)
                 )
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(MaterialTheme.colorScheme.primary)
-                )
+                ThemeTile(theme = settings.theme) {
+                    showThemeSelector = true
+                }
             }
         }
+        /*
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 stringResource(R.string.save_data_external),
@@ -147,5 +150,19 @@ fun SettingsPage(
                 enabled = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
             )
         }*/
+    }
+    if (showThemeSelector) {
+        ThemeSelector(
+            themes = Theme.values().asList(),
+            currentTheme = settings.theme,
+            onDismiss = {
+                showThemeSelector = false
+            },
+            onClick = {
+                vm.setTheme(it)
+            }
+        ) {
+            showThemeSelector = false
+        }
     }
 }

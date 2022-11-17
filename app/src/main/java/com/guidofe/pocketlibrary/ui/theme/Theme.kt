@@ -7,17 +7,23 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.guidofe.pocketlibrary.ui.theme.greentheme.GreenTheme
+import com.guidofe.pocketlibrary.ui.theme.yellowtheme.YellowTheme
 
-// TODO: Support material3 system colors
-private val DarkColorPalette = darkColorScheme(
-    primary = Purple200,
-    secondary = Teal200
-)
-
-private val LightColorPalette = lightColorScheme(
-    primary = Purple500,
-    secondary = Teal200
-)
+enum class Theme(val light: ColorScheme, val dark: ColorScheme) {
+    DEFAULT(
+        lightColorScheme(
+            primary = Purple500,
+            secondary = Teal200
+        ),
+        darkColorScheme(
+            primary = Purple200,
+            secondary = Teal200,
+        )
+    ),
+    GREEN(GreenTheme.LightColors, GreenTheme.DarkColors),
+    YELLOW(YellowTheme.LightColors, YellowTheme.DarkColors)
+}
 
 @Immutable
 data class ExtendedColors(
@@ -40,7 +46,7 @@ val LocalExtendedColors = staticCompositionLocalOf {
 fun PocketLibraryTheme(
     darkTheme: Boolean = false,
     dynamicColor: Boolean = false,
-    // darkTheme: Boolean = isSystemInDarkTheme(),
+    theme: Theme = Theme.DEFAULT,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -52,10 +58,10 @@ fun PocketLibraryTheme(
     )
     val colors = if (darkTheme) {
         if (dynamicColor) dynamicDarkColorScheme(context)
-        else DarkColorPalette
+        else theme.dark
     } else {
         if (dynamicColor) dynamicLightColorScheme(context)
-        else LightColorPalette
+        else theme.light
     }
     CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
         MaterialTheme(

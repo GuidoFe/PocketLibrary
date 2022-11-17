@@ -19,7 +19,8 @@ class MainActivity : AppCompatActivity() {
             val settings = viewModel.settingsFlow.collectAsState(initial = AppSettings()).value
             PocketLibraryTheme(
                 darkTheme = settings.darkTheme,
-                dynamicColor = settings.dynamicColors
+                dynamicColor = settings.dynamicColors,
+                theme = settings.theme
             ) {
                 MainPage()
             }
