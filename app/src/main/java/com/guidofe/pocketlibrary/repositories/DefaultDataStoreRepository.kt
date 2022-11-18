@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.repositories
 
 import android.content.Context
+import android.os.Environment
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.dataStore
 import com.guidofe.pocketlibrary.AppSettings
@@ -20,7 +21,7 @@ class DefaultDataStoreRepository @Inject constructor(
 ) : DataStoreRepository {
     override val settingsFlow: Flow<AppSettings> = context.dataStore.data
     override suspend fun setLanguage(language: Language) {
-        context.dataStore.updateData { it.copy(languageName = language.toString()) }
+        context.dataStore.updateData { it.copy(language = language) }
     }
 
     private fun booleanToNightModeEnum(darkTheme: Boolean): Int {
@@ -46,8 +47,20 @@ class DefaultDataStoreRepository @Inject constructor(
     override suspend fun setTheme(theme: Theme) {
         context.dataStore.updateData {
             it.copy(
-                themeName = theme.toString()
+                theme = theme
             )
         }
+    }
+
+    override suspend fun setMemory(isExternal: Boolean) {
+        context.dataStore.updateData {
+            it.copy(
+                saveInExternal = isExternal
+            )
+        }
+    }
+
+    override fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 }

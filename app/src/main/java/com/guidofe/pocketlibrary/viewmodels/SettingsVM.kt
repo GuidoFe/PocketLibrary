@@ -56,4 +56,13 @@ class SettingsVM @Inject constructor(
             dataStore.setTheme(theme)
         }
     }
+
+    override fun setMemory(isExternal: Boolean) {
+        viewModelScope.launch {
+            dataStore.setMemory(isExternal)
+        }
+    }
+
+    override val hasExternalStorage: Boolean
+        get() = dataStore.isExternalStorageWritable()
 }

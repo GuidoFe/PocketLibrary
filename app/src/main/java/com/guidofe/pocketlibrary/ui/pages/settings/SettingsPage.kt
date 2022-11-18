@@ -67,7 +67,7 @@ fun SettingsPage(
                     },
                 ) {
                     DropdownBox(
-                        text = { Text(Language.valueOf(s.languageName).localizedName) },
+                        text = { Text(s.language.localizedName) },
                         isExpanded = isLanguageDropdownOpen,
                         modifier = Modifier.menuAnchor()
                     )
@@ -129,29 +129,31 @@ fun SettingsPage(
                         stringResource(R.string.theme),
                         modifier = Modifier.weight(1f)
                     )
-                    ThemeTile(theme = Theme.valueOf(s.themeName)) {
+                    ThemeTile(theme = s.theme) {
                         showThemeSelector = true
                     }
                 }
             }
-            /*
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                stringResource(R.string.save_data_external),
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = vm.state.saveInExternal,
-                onCheckedChange = { vm.state.saveInExternal = !vm.state.saveInExternal },
-                enabled = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
-            )
-        }*/
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.save_data_external),
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = s.saveInExternal && vm.hasExternalStorage,
+                    onCheckedChange = {
+                        vm.lastSettings = s
+                        vm.setMemory(!s.saveInExternal)
+                    },
+                    enabled = vm.hasExternalStorage
+                )
+            }
         }
 
         if (showThemeSelector) {
             ThemeSelector(
                 themes = Theme.values().asList(),
-                currentTheme = Theme.valueOf(s.themeName),
+                currentTheme = s.theme,
                 onDismiss = {
                     showThemeSelector = false
                 },

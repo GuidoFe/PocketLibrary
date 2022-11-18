@@ -17,4 +17,6 @@ interface ISettingsVM {
     fun getCurrentLanguageName(): String
     fun setTheme(theme: Theme)
     var lastSettings: AppSettings?
+    fun setMemory(isExternal: Boolean)
+    val hasExternalStorage: Boolean
 }

@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AppSettings(
-    val languageName: String = Language.ENGLISH.toString(),
+    val language: Language = Language.ENGLISH,
     val followSystem: Boolean = false,
     val dynamicColors: Boolean = false,
     val darkTheme: Boolean = false,
     val saveInExternal: Boolean = false,
-    val themeName: String = Theme.DEFAULT.toString()
+    val theme: Theme = Theme.DEFAULT
 )
 
 @Serializable

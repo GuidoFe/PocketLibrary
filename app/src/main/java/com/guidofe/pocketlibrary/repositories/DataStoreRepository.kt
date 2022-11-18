@@ -11,4 +11,6 @@ interface DataStoreRepository {
     suspend fun setDarkTheme(enabled: Boolean)
     suspend fun setDynamicColors(enabled: Boolean)
     suspend fun setTheme(theme: Theme)
+    suspend fun setMemory(isExternal: Boolean)
+    fun isExternalStorageWritable(): Boolean
 }
