@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -21,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -126,22 +126,22 @@ fun ViewBookPage(
         }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val boxScope = this
-        Surface(
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Column(
             modifier = Modifier
-                .size(this.maxWidth, this.maxHeight)
+                .fillMaxWidth()
         ) {
-            Column(
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(10.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .heightIn(max = min(300.dp, boxScope.maxHeight / 2 - 50.dp))
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+                Box() {
                     val coverURI = vm.bundle?.book?.coverURI
                     if (coverURI != null) {
                         // TODO: placeholder for book cover
@@ -150,13 +150,13 @@ fun ViewBookPage(
                                 .data(coverURI)
                                 .build(),
                             contentDescription = stringResource(id = R.string.cover),
-                            modifier = Modifier.weight(1f)
+                            Modifier.width(60.dp).clip(MaterialTheme.shapes.medium)
                         )
                     } else {
                         Box(
                             modifier = Modifier
-                                .aspectRatio(0.67f)
-                                .weight(1f)
+                                // .aspectRatio(0.67f)
+                                .size(100.dp)
                                 .border(
                                     5.dp,
                                     MaterialTheme.colorScheme.outline,
@@ -173,120 +173,125 @@ fun ViewBookPage(
                             )
                         }
                     }
-                    Box(modifier = Modifier) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                vm.bundle?.book?.title ?: "",
-                                style = MaterialTheme.typography.titleLarge,
-                                textAlign = TextAlign.Center
-                            )
-                            vm.bundle?.book?.subtitle?.let {
-                                Text(
-                                    it,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                            vm.bundle?.authors?.let { authorsList ->
-                                val authorsString =
-                                    authorsList.joinToString(", ") { it.name }
-                                Text(
-                                    authorsString,
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.labelSmall
-                                        .copy(fontStyle = FontStyle.Italic)
-                                )
-                            }
-                        }
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.horizontalScroll(genreScrollState)
-                    ) {
-                        vm.bundle?.genres?.forEach {
-                            SuggestionChip(
-                                onClick = {},
-                                label = { Text(it.name) },
-                            )
-                        }
-                    }
-                }
-                ScrollableTabRow(
-                    selectedTabIndex = tabState.ordinal,
-                    edgePadding = 0.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Tab(
-                        selected = tabState == LocalTab.PROGRESS,
-                        onClick = { tabState = LocalTab.PROGRESS },
-                        text = { Text(stringResource(R.string.progress_label)) }
-                    )
-                    Tab(
-                        selected = tabState == LocalTab.SUMMARY,
-                        onClick = { tabState = LocalTab.SUMMARY },
-                        text = { Text(stringResource(R.string.summary)) }
-                    )
-                    Tab(
-                        selected = tabState == LocalTab.DETAILS,
-                        onClick = { tabState = LocalTab.DETAILS },
-                        text = { Text(stringResource(R.string.details)) }
-                    )
-                    Tab(
-                        selected = tabState == LocalTab.NOTE,
-                        onClick = { tabState = LocalTab.NOTE },
-                        text = { Text(stringResource(R.string.note)) }
-                    )
                 }
                 Box(
-                    Modifier
-                        .padding(10.dp)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.TopStart
+                    modifier = Modifier
+                        .weight(1f)
                 ) {
-                    when (tabState) {
-                        LocalTab.PROGRESS -> {
-                            ProgressTab(
-                                vm.progTabState
-                            ) {
-                                if (!hasProgressBeenModified)
-                                    hasProgressBeenModified = true
-                            }
-                        }
-                        LocalTab.SUMMARY -> {
-                            // TODO Fix unscrollable long summaries
-                            if (vm.bundle?.book?.description.isNullOrBlank()) {
-                                Text(
-                                    stringResource(R.string.no_description),
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                )
-                            } else {
-                                Text(
-                                    text = vm.bundle?.book?.description
-                                        ?: stringResource(R.string.no_description),
-                                    modifier = Modifier.verticalScroll(summaryScrollState)
-                                )
-                            }
-                        }
-                        LocalTab.DETAILS -> {
-                            DetailsTab(
-                                modifier = Modifier.verticalScroll(detailsScrollState),
-                                book = vm.bundle?.book
+                    Column() {
+                        Text(
+                            vm.bundle?.book?.title ?: "",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        vm.bundle?.book?.subtitle?.let {
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                         }
-                        LocalTab.NOTE -> {
-                            OutlinedTextField(
-                                value = vm.editedNote,
-                                placeholder = { Text(stringResource(R.string.note_placeholder)) },
-
-                                onValueChange = {
-                                    vm.editedNote = it
-                                    hasNoteBeenModified = true
-                                },
+                        vm.bundle?.authors?.let { authorsList ->
+                            val authorsString =
+                                authorsList.joinToString(", ") { it.name }
+                            Text(
+                                authorsString,
+                                style = MaterialTheme.typography.labelLarge
+                                    .copy(fontStyle = FontStyle.Italic)
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.horizontalScroll(genreScrollState)
+                        ) {
+                            vm.bundle?.genres?.forEach {
+                                SuggestionChip(
+                                    onClick = {},
+                                    label = {
+                                        Text(
+                                            it.name,
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            ScrollableTabRow(
+                selectedTabIndex = tabState.ordinal,
+                edgePadding = 0.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Tab(
+                    selected = tabState == LocalTab.PROGRESS,
+                    onClick = { tabState = LocalTab.PROGRESS },
+                    text = { Text(stringResource(R.string.progress_label)) }
+                )
+                Tab(
+                    selected = tabState == LocalTab.SUMMARY,
+                    onClick = { tabState = LocalTab.SUMMARY },
+                    text = { Text(stringResource(R.string.summary)) }
+                )
+                Tab(
+                    selected = tabState == LocalTab.DETAILS,
+                    onClick = { tabState = LocalTab.DETAILS },
+                    text = { Text(stringResource(R.string.details)) }
+                )
+                Tab(
+                    selected = tabState == LocalTab.NOTE,
+                    onClick = { tabState = LocalTab.NOTE },
+                    text = { Text(stringResource(R.string.note)) }
+                )
+            }
+            Box(
+                Modifier
+                    .padding(10.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                when (tabState) {
+                    LocalTab.PROGRESS -> {
+                        ProgressTab(
+                            vm.progTabState
+                        ) {
+                            if (!hasProgressBeenModified)
+                                hasProgressBeenModified = true
+                        }
+                    }
+                    LocalTab.SUMMARY -> {
+                        // TODO Fix unscrollable long summaries
+                        if (vm.bundle?.book?.description.isNullOrBlank()) {
+                            Text(
+                                stringResource(R.string.no_description),
                                 modifier = Modifier
-                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                            )
+                        } else {
+                            Text(
+                                text = vm.bundle?.book?.description
+                                    ?: stringResource(R.string.no_description),
+                                modifier = Modifier.verticalScroll(summaryScrollState)
                             )
                         }
+                    }
+                    LocalTab.DETAILS -> {
+                        DetailsTab(
+                            modifier = Modifier.verticalScroll(detailsScrollState),
+                            book = vm.bundle?.book
+                        )
+                    }
+                    LocalTab.NOTE -> {
+                        OutlinedTextField(
+                            value = vm.editedNote,
+                            placeholder = { Text(stringResource(R.string.note_placeholder)) },
+
+                            onValueChange = {
+                                vm.editedNote = it
+                                hasNoteBeenModified = true
+                            },
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
                     }
                 }
             }
