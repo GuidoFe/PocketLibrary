@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.dialogs
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -10,7 +9,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -65,14 +63,8 @@ fun PreviewBookDialog(
                             contentDescription = stringResource(id = R.string.cover),
                             modifier = Modifier.height(200.dp)
                         )
-                    } else {
-                        Image(
-                            // TODO: change large cover placeholder
-                            painterResource(id = R.drawable.large_cover),
-                            stringResource(R.string.cover),
-                            modifier = Modifier.height(200.dp)
-                        )
                     }
+                    // TODO: change large cover placeholder
                     Text(
                         data.title,
                         style = MaterialTheme.typography.titleLarge,
