@@ -126,9 +126,9 @@ private fun GenericListRow(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .height(100.dp)
+                    .height(115.dp)
                     .width(maxWidth)
-                    .padding(5.dp)
+                    .padding(10.dp, 10.dp)
             ) {
                 SelectableBookCover(
                     coverURI,
@@ -146,11 +146,11 @@ private fun GenericListRow(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxHeight()
                     ) {
+                        Spacer(modifier = Modifier.width(10.dp))
                         Column(
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(5.dp, 0.dp)
                         ) {
                             Text(
                                 text = title,
@@ -199,10 +199,22 @@ private fun GenericListRow(
 @Preview(showSystemUi = true, device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
-        LibraryListRow(
-            item = SelectableListItem(
-                PreviewUtils.exampleLibraryBundle
+        Column {
+            LibraryListRow(
+                item = SelectableListItem(
+                    PreviewUtils.exampleLibraryBundle
+                )
             )
-        )
+            LibraryListRow(
+                item = SelectableListItem(
+                    PreviewUtils.exampleLibraryBundle
+                )
+            )
+            LibraryListRow(
+                item = SelectableListItem(
+                    PreviewUtils.exampleLibraryBundle
+                )
+            )
+        }
     }
 }

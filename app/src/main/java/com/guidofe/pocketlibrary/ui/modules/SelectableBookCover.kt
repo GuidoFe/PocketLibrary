@@ -96,7 +96,7 @@ fun SelectableBookCover(
                     AsyncImage(
                         model = coverURI,
                         contentDescription = stringResource(id = R.string.cover),
-                        contentScale = ContentScale.FillBounds,
+                        contentScale = ContentScale.Crop,
                         onLoading = { coverStatus = CoverStatus.LOADING },
                         onSuccess = { coverStatus = CoverStatus.LOADED },
                         onError = { coverStatus = CoverStatus.ERROR },
