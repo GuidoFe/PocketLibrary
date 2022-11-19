@@ -116,13 +116,17 @@ fun SearchBookOnlinePage(
         Column {
             OutlinedTextField(
                 value = vm.title,
-                onValueChange = { vm.title = it },
-                label = { Text(stringResource(R.string.title)) }
+                onValueChange = {
+                    vm.title = it
+                },
+                label = { Text(stringResource(R.string.title)) },
+                singleLine = true
             )
             OutlinedTextField(
                 value = vm.author,
                 onValueChange = { vm.author = it },
-                label = { Text(stringResource(R.string.author)) }
+                label = { Text(stringResource(R.string.author)) },
+                singleLine = true
             )
             IconButton(
                 onClick = {

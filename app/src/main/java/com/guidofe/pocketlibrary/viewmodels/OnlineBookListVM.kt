@@ -1,5 +1,8 @@
 package com.guidofe.pocketlibrary.viewmodels
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
@@ -17,7 +20,7 @@ class OnlineBookListVM(
     override val selectionManager: SelectionManager<String, ImportedBookData>,
     private val metaRepo: BookMetaRepository
 ) : ViewModel(), IOnlineBookListVM {
-    override var query: QueryData? = null
+    override var query: QueryData? by mutableStateOf(null)
     override var pager = Pager(PagingConfig(20, initialLoadSize = 20)) {
         OnlineBooksPagingSource(query, repo = metaRepo)
     }.flow.map { pagingData ->

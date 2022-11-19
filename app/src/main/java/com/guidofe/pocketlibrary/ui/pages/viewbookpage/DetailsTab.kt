@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
-import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
+import com.guidofe.pocketlibrary.ui.modules.RowWithIconAndSubtitle
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.languageName
 
@@ -27,7 +27,7 @@ fun DetailsTab(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        RowWithIcon(
+        RowWithIconAndSubtitle(
             icon = {
                 Icon(
                     painterResource(R.drawable.domain_24px),
@@ -39,7 +39,7 @@ fun DetailsTab(
             boxPadding = boxPadding,
             gap = gap
         )
-        RowWithIcon(
+        RowWithIconAndSubtitle(
             icon = {
                 Icon(
                     painterResource(R.drawable.calendar_month_24px),
@@ -51,7 +51,7 @@ fun DetailsTab(
             boxPadding = boxPadding,
             gap = gap
         )
-        RowWithIcon(
+        RowWithIconAndSubtitle(
             icon = {
                 Icon(
                     painterResource(R.drawable.barcode_24px),
@@ -64,7 +64,7 @@ fun DetailsTab(
             gap = gap,
             selectable = true
         )
-        RowWithIcon(
+        RowWithIconAndSubtitle(
             icon = {
                 Icon(
                     painterResource(R.drawable.reader_mode_48px),
@@ -79,7 +79,7 @@ fun DetailsTab(
             boxPadding = boxPadding,
             gap = gap
         )
-        RowWithIcon(
+        RowWithIconAndSubtitle(
             icon = {
                 Icon(
                     painterResource(R.drawable.language_48px),

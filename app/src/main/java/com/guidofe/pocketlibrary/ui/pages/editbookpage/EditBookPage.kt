@@ -2,18 +2,17 @@ package com.guidofe.pocketlibrary.ui.pages.editbookpage
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -25,10 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
-import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
-import com.guidofe.pocketlibrary.ui.modules.OutlinedAutocomplete
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
@@ -41,7 +37,7 @@ import kotlinx.coroutines.withContext
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Destination
 @Composable
 fun EditBookPage(
@@ -106,20 +102,27 @@ fun EditBookPage(
             .fillMaxWidth()
             .padding(5.dp)
     ) {
-        if (viewModel.editBookState.coverUri != null) {
-            // TODO: placeholder for book cover
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(viewModel.editBookState.coverUri)
-                    .build(),
-                contentDescription = stringResource(id = R.string.cover),
-                Modifier.size(200.dp, 200.dp)
-            )
-        } else
-            Image(
-                painterResource(id = R.drawable.sample_cover),
-                stringResource(R.string.cover)
-            )
+        BoxWithConstraints {
+            Box(
+                modifier = Modifier
+                    .clickable { viewModel.editBookState.showCoverMenu = true }
+            ) {
+                if (viewModel.editBookState.coverUri != null) {
+                    // TODO: placeholder for book cover
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(viewModel.editBookState.coverUri)
+                            .build(),
+                        contentDescription = stringResource(id = R.string.cover),
+                        Modifier.size(200.dp, 200.dp)
+                    )
+                } else
+                    Image(
+                        painterResource(id = R.drawable.sample_cover),
+                        stringResource(R.string.cover)
+                    )
+            }
+        }
         OutlinedTextField(
             value = viewModel.editBookState.title,
             label = { Text(stringResource(id = R.string.title) + "*") },
@@ -252,6 +255,35 @@ fun EditBookPage(
             label = { Text(stringResource(R.string.isbn)) },
             modifier = Modifier.fillMaxWidth()
         )
+    }
+    ModalBottomSheet(
+        visible = viewModel.editBookState.showCoverMenu,
+        onDismiss = { viewModel.editBookState.showCoverMenu = false }
+    ) {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.photo_camera_24px),
+                        stringResource(R.string.camera)
+                    )
+                },
+                onClick = { viewModel.editBookState.showCoverMenu = false }
+            ) {
+                Text(stringResource(R.string.take_photo))
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
+                },
+                onClick = { viewModel.editBookState.showCoverMenu = false }
+            ) {
+                Text(stringResource(R.string.choose_from_gallery))
+            }
+        }
     }
 }
 

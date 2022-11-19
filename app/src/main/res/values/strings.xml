@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pocket Library</string>
+    <string name="app_name" translatable="false">Pocket Library</string>
     <string name="home">Home</string>
     <string name="my_library">My Library</string>
     <string name="lent_tab">Lent</string>
@@ -61,7 +61,7 @@
     <string name="isbn_already_present_specific_book_dialog_text">A book with the same isbn of %s by %s is already present.</string>
     <string name="isbn_already_present_specific_title_dialog_text">A book with the same isbn as %s is already present.</string>
     <string name="isbn_already_present_generic_dialog_text">A book with the same isbn is already present.</string>
-    <string name="no_cover_sadface">No cover :(</string>
+    <string name="no_cover_sadface" translatable="false">No cover :(</string>
     <string name="book_alredy_present_message">A book with the same isbn is already present</string>
     <string name="book_alredy_present_message_with_title">The ISBN of "%s" is already present</string>
     <string name="book_saved">Book saved</string>
@@ -122,4 +122,8 @@
     <string name="theme">Theme</string>
     <string name="dark_theme">Dark theme</string>
     <string name="save_data_external">Save data in external memory</string>
+    <string name="take_photo">Take photo</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="camera">Camera</string>
+    <string name="upload">Upload</string>
 </resources>

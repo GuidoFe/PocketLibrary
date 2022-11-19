@@ -1,7 +1,7 @@
 package com.guidofe.pocketlibrary.ui.modules
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Icon
@@ -20,50 +20,40 @@ import com.thedeanda.lorem.LoremIpsum
 @Composable
 fun RowWithIcon(
     icon: @Composable () -> Unit,
-    title: String,
-    text: String,
     modifier: Modifier = Modifier,
     gap: Dp = 0.dp,
     boxPadding: Dp = 0.dp,
     boxWidth: Dp = 50.dp,
-    selectable: Boolean = false
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val padding: Dp = 10.dp
-    Row(
-        modifier = modifier
-            .height(IntrinsicSize.Min)
-            .fillMaxWidth()
-            .padding(0.dp, padding, padding, padding)
+    Box(
+        modifier = Modifier
+            .height(56.dp)
     ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(0.dp, padding, padding, padding)
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(boxWidth)
+                    .padding(boxPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                icon()
+            }
+            Spacer(modifier = Modifier.width(gap))
+            content()
+        }
         Box(
             modifier = Modifier
-                .width(boxWidth)
-                .fillMaxHeight()
-                .padding(boxPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            icon()
-        }
-        Spacer(modifier = Modifier.width(gap))
-        Column {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            if (selectable)
-                SelectionContainer {
-                    Text(
-                        text,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        maxLines = 1
-                    )
-                }
-            else
-                Text(
-                    text,
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    maxLines = 1
-                )
-        }
+                .fillMaxSize()
+                .clickable { onClick() }
+        )
     }
 }
 
@@ -75,9 +65,10 @@ private fun RowWithIconPreview() {
         Surface {
             RowWithIcon(
                 icon = { Icon(Icons.Filled.Email, contentDescription = "Icon") },
-                title = lorem.getTitle(3),
-                text = lorem.getParagraphs(2, 4)
-            )
+                onClick = {}
+            ) {
+                Text(lorem.getTitle(3))
+            }
         }
     }
 }

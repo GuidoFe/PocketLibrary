@@ -9,6 +9,8 @@ import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.lastOrNull
+import java.io.File
 import javax.inject.Inject
 
 private val Context.dataStore by dataStore(
@@ -20,6 +22,28 @@ class DefaultDataStoreRepository @Inject constructor(
     private val context: Context
 ) : DataStoreRepository {
     override val settingsFlow: Flow<AppSettings> = context.dataStore.data
+    override val COVER_DIR = "covers"
+
+    override suspend fun getCoverDir(): File? {
+        val isExternal = settingsFlow.lastOrNull()?.saveInExternal
+        return if (isExternal == null)
+            null
+        else {
+            if (isExternal)
+                context.getExternalFilesDir(COVER_DIR)
+            else
+                context.getDir(COVER_DIR, Context.MODE_PRIVATE)
+        }
+    }
+
+    override suspend fun getCover(fileName: String): File? {
+        return getCoverDir()?.let { File(it, fileName) }
+    }
+
+    override suspend fun getCoverPath(fileName: String): String? {
+        return getCover(fileName)?.path
+    }
+
     override suspend fun setLanguage(language: Language) {
         context.dataStore.updateData { it.copy(language = language) }
     }

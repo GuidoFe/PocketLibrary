@@ -22,6 +22,7 @@ class EditBookState() {
     var genreInput: String by mutableStateOf("")
     var existingGenres: List<String> by mutableStateOf(emptyList())
     var isLanguageError: Boolean by mutableStateOf(false)
+    var showCoverMenu: Boolean by mutableStateOf(false)
     constructor(
         title: String = "",
         subtitle: String = "",

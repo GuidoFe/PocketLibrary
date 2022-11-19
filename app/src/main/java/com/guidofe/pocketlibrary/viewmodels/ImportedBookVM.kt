@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
@@ -10,14 +11,15 @@ import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ImportedBookVM @Inject constructor(
     private val localRepo: LocalRepository,
     private val metaRepo: BookMetaRepository,
-    override val snackbarHostState: SnackbarHostState
+    override val snackbarHostState: SnackbarHostState,
+    private val imageLoader: ImageLoader
 ) : ViewModel(), IImportedBookVM {
     override fun getImportedBooksFromIsbn(
         isbn: String,

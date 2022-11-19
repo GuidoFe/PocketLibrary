@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pocket Library</string>
     <string name="home">Pagina Iniziale</string>
     <string name="my_library">La Mia Libreria</string>
     <string name="lent_tab">Prestati</string>
@@ -61,7 +60,6 @@
     <string name="isbn_already_present_specific_book_dialog_text">È già presente un libro con lo stesso ISBN di %s di %s.</string>
     <string name="isbn_already_present_specific_title_dialog_text">È già presente un libro con lo stesso ISBN di %s.</string>
     <string name="isbn_already_present_generic_dialog_text">È già presente un libro con lo stesso ISBN.</string>
-    <string name="no_cover_sadface">No cover :(</string>
     <string name="book_alredy_present_message">È già presente un libro con lo stesso ISBN.</string>
     <string name="book_alredy_present_message_with_title">L\'ISBN di "%s" è già presente</string>
     <string name="book_saved">Libro salvato</string>
@@ -122,4 +120,6 @@
     <string name="theme">Tema</string>
     <string name="dark_theme">Tema scuro</string>
     <string name="save_data_external">Salva dati nella memoria esterna</string>
+    <string name="take_photo">Scatta foto</string>
+    <string name="choose_from_gallery">Scegli dalla galleria</string>
 </resources>
