@@ -12,11 +12,11 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.destinations.SettingsPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.viewmodels.LandingPageVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILandingPageVM
+import com.guidofe.pocketlibrary.viewmodels.previews.LandingPageVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -57,10 +57,7 @@ private fun LandingPagePreview() {
     PocketLibraryTheme(darkTheme = true) {
         LandingPage(
             EmptyDestinationsNavigator,
-            object : ILandingPageVM {
-                override val scaffoldState: ScaffoldState =
-                    ScaffoldState()
-            }
+            LandingPageVMPreview()
         )
     }
 }

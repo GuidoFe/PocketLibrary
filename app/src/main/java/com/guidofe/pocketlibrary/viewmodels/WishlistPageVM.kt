@@ -3,7 +3,10 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.repositories.LocalRepository
@@ -13,9 +16,10 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class WishlistPageVM @Inject constructor(
@@ -48,7 +52,7 @@ class WishlistPageVM @Inject constructor(
 
     override fun deleteSelectedBooksAndRefresh() {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.deleteBooksByIds(selectionManager.selectedKeys)
             selectionManager.clearSelection()
             currentPagingSource?.invalidate()
@@ -56,7 +60,7 @@ class WishlistPageVM @Inject constructor(
     }
 
     override fun deleteSelectedBookAndRefresh() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             selectedBook?.let {
                 repo.deleteBook(it)
                 currentPagingSource?.invalidate()
@@ -65,7 +69,7 @@ class WishlistPageVM @Inject constructor(
     }
 
     override fun moveBookToLibraryAndRefresh(bookId: Long, callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.moveBookFromWishlistToLibrary(bookId)
             currentPagingSource?.invalidate()
             callback()
@@ -73,7 +77,7 @@ class WishlistPageVM @Inject constructor(
     }
 
     override fun moveSelectedBooksToLibraryAndRefresh(callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.moveBooksFromWishlistToLibrary(selectionManager.selectedKeys)
             currentPagingSource?.invalidate()
             selectionManager.clearSelection()

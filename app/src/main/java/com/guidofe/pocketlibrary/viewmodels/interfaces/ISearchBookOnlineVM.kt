@@ -6,7 +6,6 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.utils.BookDestination
-import com.guidofe.pocketlibrary.viewmodels.OnlineBookListVM
 
 interface ISearchBookOnlineVM {
     var author: String
@@ -22,5 +21,5 @@ interface ISearchBookOnlineVM {
         callback: (Long) -> Unit
     )
     fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit)
-    val listVM: OnlineBookListVM
+    val listVM: IOnlineBookListVM
 }

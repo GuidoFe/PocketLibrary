@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,18 +34,16 @@ fun SettingsPage(
     vm: ISettingsVM = hiltViewModel<SettingsVM>()
 ) {
     val context = LocalContext.current
-    val settingsFlow: AppSettings? by vm.settingsFlow.collectAsState(
-        initial = null
-    )
+    val settings: AppSettings? by vm.settingsLiveData.observeAsState()
     val scrollState = rememberScrollState()
     var isLanguageDropdownOpen by rememberSaveable { mutableStateOf(false) }
     var showThemeSelector by rememberSaveable { mutableStateOf(false) }
-    var currentSettings: AppSettings? by remember { mutableStateOf(vm.lastSettings) }
+    var currentSettings: AppSettings? by remember { mutableStateOf(null) }
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(title = context.getString(R.string.settings))
     }
-    LaunchedEffect(settingsFlow) {
-        settingsFlow?.let { currentSettings = it }
+    LaunchedEffect(settings) {
+        settings?.let { currentSettings = it }
     }
     currentSettings?.let { s ->
         Column(
@@ -85,7 +84,7 @@ fun SettingsPage(
                                     Text(language.localizedName)
                                 }, onClick = {
                                     isLanguageDropdownOpen = false
-                                    vm.lastSettings = s
+                                    // vm.lastSettings = s
                                     vm.setLanguage(language)
                                 })
                             }
@@ -102,7 +101,7 @@ fun SettingsPage(
                     Switch(
                         checked = s.dynamicColors,
                         onCheckedChange = {
-                            vm.lastSettings = s
+                            // vm.lastSettings = s
                             vm.setDynamicColors(!s.dynamicColors)
                         }
                     )
@@ -118,7 +117,7 @@ fun SettingsPage(
                     checked = s.darkTheme,
                     onCheckedChange = {
                         Log.d("debug", "Check changed")
-                        vm.lastSettings = s
+                        // vm.lastSettings = s
                         vm.setDarkTheme(!s.darkTheme)
                     }
                 )
@@ -142,7 +141,7 @@ fun SettingsPage(
                 Switch(
                     checked = s.saveInExternal && vm.hasExternalStorage,
                     onCheckedChange = {
-                        vm.lastSettings = s
+                        // vm.lastSettings = s
                         vm.setMemory(!s.saveInExternal)
                     },
                     enabled = vm.hasExternalStorage

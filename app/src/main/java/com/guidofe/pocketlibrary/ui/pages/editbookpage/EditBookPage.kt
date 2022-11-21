@@ -1,16 +1,16 @@
 package com.guidofe.pocketlibrary.ui.pages.editbookpage
 
+import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -25,15 +25,21 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.*
+import com.guidofe.pocketlibrary.ui.pages.destinations.TakeCoverPhotoPageDestination
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
+import com.guidofe.pocketlibrary.viewmodels.previews.EditBookVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultRecipient
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
@@ -46,10 +52,31 @@ fun EditBookPage(
     newBookDestination: BookDestination? = null,
     navigator: DestinationsNavigator,
     viewModel: IEditBookVM = hiltViewModel<EditBookVM>(),
+    coverPhotoRecipient: ResultRecipient<TakeCoverPhotoPageDestination, Uri>
 ) {
+    coverPhotoRecipient.onNavResult { result ->
+        Log.d("debug", "EditPage received result")
+        if (result is NavResult.Value) {
+            Log.d("debug", "EditPage result is valid, == ${result.value}")
+            viewModel.editBookState.coverUri = result.value
+            Log.d("debug", "Reread, == ${result.value}")
+        }
+    }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    var imageRequest: ImageRequest? by remember { mutableStateOf(null) }
+    LaunchedEffect(viewModel.editBookState.coverUri) {
+        imageRequest = viewModel.editBookState.coverUri?.let { uri ->
+            ImageRequest.Builder(context)
+                .data(uri)
+                .build()
+        }
+    }
+    BackHandler() {
+        File(viewModel.getTempCoverUri().path!!).delete()
+        navigator.navigateUp()
+    }
     LaunchedEffect(key1 = true) {
         viewModel.scaffoldState.refreshBar(
             title = context.getString(R.string.edit_book),
@@ -80,7 +107,10 @@ fun EditBookPage(
                 }
             },
             navigationIcon = {
-                IconButton(onClick = { navigator.navigateUp() }) {
+                IconButton(onClick = {
+                    File(viewModel.getTempCoverUri().path!!).delete()
+                    navigator.navigateUp()
+                }) {
                     Icon(
                         painterResource(R.drawable.arrow_back_24px),
                         stringResource(R.string.back)
@@ -88,10 +118,13 @@ fun EditBookPage(
                 }
             }
         )
-        bookId?.let { viewModel.initialiseFromDatabase(it) }
-        isbn?.let {
-            Log.d("debug", "Setting isbn $it")
-            viewModel.editBookState.identifier = it
+        if (!viewModel.isInitialized) {
+            bookId?.let { viewModel.initialiseFromDatabase(it) }
+            isbn?.let {
+                Log.d("debug", "Setting isbn $it")
+                viewModel.editBookState.identifier = it
+            }
+            viewModel.isInitialized = true
         }
     }
     Column(
@@ -107,12 +140,10 @@ fun EditBookPage(
                 modifier = Modifier
                     .clickable { viewModel.editBookState.showCoverMenu = true }
             ) {
-                if (viewModel.editBookState.coverUri != null) {
+                if (imageRequest != null) {
                     // TODO: placeholder for book cover
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(viewModel.editBookState.coverUri)
-                            .build(),
+                        model = imageRequest,
                         contentDescription = stringResource(id = R.string.cover),
                         Modifier.size(200.dp, 200.dp)
                     )
@@ -271,7 +302,22 @@ fun EditBookPage(
                         stringResource(R.string.camera)
                     )
                 },
-                onClick = { viewModel.editBookState.showCoverMenu = false }
+                onClick = {
+                    try {
+                        val uri = viewModel.getTempCoverUri()
+                        navigator.navigate(TakeCoverPhotoPageDestination(uri))
+                    } catch (e: ActivityNotFoundException) {
+                        coroutineScope.launch {
+                            viewModel.snackbarHostState.showSnackbar(
+                                CustomSnackbarVisuals(
+                                    message = context.getString(R.string.error_no_camera),
+                                    isError = true
+                                )
+                            )
+                        }
+                    }
+                    viewModel.editBookState.showCoverMenu = false
+                }
             ) {
                 Text(stringResource(R.string.take_photo))
             }
@@ -287,41 +333,13 @@ fun EditBookPage(
     }
 }
 
-private object VMPreview : IEditBookVM {
-    override var editBookState: EditBookState =
-        EditBookState(
-            title = "Dune",
-            subtitle = "The Greatest Sci-Fi Story",
-            description = "Opposing forces struggle for control of the universe when the " +
-                "archenemy of the cosmic emperor is banished to a barren world where " +
-                "savages fight for water",
-            publisher = "Penguin",
-            published = 1990,
-            coverUri = Uri.parse(
-                "http://books.google.com/books/content?" +
-                    "id=nrRKDwAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
-            ),
-            identifier = "9780441172719",
-            language = "en",
-            authors = "Frank Herbert, Princess Irulan",
-            genres = listOf("Fantasy", "Sci-fi"),
-        )
-    override val scaffoldState: ScaffoldState = ScaffoldState()
-    override val snackbarHostState: SnackbarHostState = SnackbarHostState()
-
-    override suspend fun initialiseFromDatabase(id: Long) {
-    }
-
-    override suspend fun submitBook(newBookDestination: BookDestination?): Long { return 1L }
-    override fun updateExistingGenres(startingLetters: String) {}
-}
-
 @Composable
 @Preview(showSystemUi = true)
 private fun ImportedBookFormPagePreview() {
     EditBookPage(
         bookId = 0,
         navigator = EmptyDestinationsNavigator,
-        viewModel = VMPreview
+        viewModel = EditBookVMPreview(),
+        coverPhotoRecipient = EmptyResultRecipient()
     )
 }

@@ -1,7 +1,10 @@
 package com.guidofe.pocketlibrary.ui.modules
 
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 class ScaffoldState {
     var title: String by mutableStateOf("")
@@ -15,6 +18,7 @@ class ScaffoldState {
         navigationIcon: @Composable () -> Unit = {},
         actions: @Composable RowScope.() -> Unit = {}
     ) {
+        hiddenBar = false
         this.title = title
         this.navigationIcon = navigationIcon
         this.actions = actions

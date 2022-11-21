@@ -1,16 +1,20 @@
 package com.guidofe.pocketlibrary.repositories
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Environment
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.dataStore
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.ui.theme.Theme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 private val Context.dataStore by dataStore(
@@ -21,14 +25,12 @@ private val Context.dataStore by dataStore(
 class DefaultDataStoreRepository @Inject constructor(
     private val context: Context
 ) : DataStoreRepository {
-    override val settingsFlow: Flow<AppSettings> = context.dataStore.data
+    override val settingsLiveData: LiveData<AppSettings> = context.dataStore.data.asLiveData()
     override val COVER_DIR = "covers"
 
-    override suspend fun getCoverDir(): File? {
-        val isExternal = settingsFlow.lastOrNull()?.saveInExternal
-        return if (isExternal == null)
-            null
-        else {
+    override fun getCoverDir(): File? {
+        return settingsLiveData.value?.let { settings ->
+            val isExternal = settings.saveInExternal
             if (isExternal)
                 context.getExternalFilesDir(COVER_DIR)
             else
@@ -36,11 +38,11 @@ class DefaultDataStoreRepository @Inject constructor(
         }
     }
 
-    override suspend fun getCover(fileName: String): File? {
+    override fun getCover(fileName: String): File? {
         return getCoverDir()?.let { File(it, fileName) }
     }
 
-    override suspend fun getCoverPath(fileName: String): String? {
+    override fun getCoverPath(fileName: String): String? {
         return getCover(fileName)?.path
     }
 
@@ -86,5 +88,16 @@ class DefaultDataStoreRepository @Inject constructor(
 
     override fun isExternalStorageWritable(): Boolean {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    }
+
+    override suspend fun saveCover(bitmap: Bitmap, path: String, callback: () -> Unit) {
+        withContext(Dispatchers.IO) {
+            val file = File(path)
+            val fOut = FileOutputStream(path)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut)
+            fOut.flush()
+            fOut.close()
+            callback()
+        }
     }
 }

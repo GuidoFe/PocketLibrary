@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.viewmodels
 
+import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookState
@@ -14,19 +16,23 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.Constants
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import javax.inject.Inject
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
     private val repo: LocalRepository,
     override val scaffoldState: ScaffoldState,
-    override val snackbarHostState: SnackbarHostState
+    override val snackbarHostState: SnackbarHostState,
+    private val dataStore: DataStoreRepository
 ) : ViewModel(), IEditBookVM {
     // var formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
     //    private set
     private var currentBookId: Long = 0L
     override var editBookState: EditBookState by mutableStateOf(EditBookState())
+    override var isInitialized: Boolean = false
 
     override suspend fun initialiseFromDatabase(
         id: Long
@@ -37,20 +43,36 @@ class EditBookVM @Inject constructor(
     }
 
     override fun updateExistingGenres(startingLetters: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             editBookState.existingGenres = repo.getGenresByStartingLetters(startingLetters)
                 .map { it.name }
         }
     }
 
+    override fun getLocalCoverFileUri(): Uri {
+        return Uri.parse(dataStore.getCoverPath(currentBookId.toString()))
+    }
+
+    override fun getTempCoverUri(): Uri {
+        return Uri.parse(dataStore.getCoverPath("temp"))
+    }
+
     override suspend fun submitBook(newBookDestination: BookDestination?): Long {
         // TODO: Check for validity
+        if (editBookState == null)
+            return -1
         val lowercaseLanguage = editBookState.language.lowercase()
         if (lowercaseLanguage.isNotBlank() &&
             !Constants.languageCodes.contains(lowercaseLanguage)
         ) {
             editBookState.isLanguageError = true
             return -1
+        }
+        editBookState.coverUri?.lastPathSegment?.let { fileName ->
+            if (fileName == "temp") {
+                moveTempFileToCoverPath()
+                editBookState.coverUri = getLocalCoverFileUri()
+            }
         }
         repo.withTransaction {
             val book = Book(
@@ -101,5 +123,16 @@ class EditBookVM @Inject constructor(
             }
         }
         return currentBookId
+    }
+
+    private fun moveTempFileToCoverPath() {
+        try {
+            val tempFile = File(getTempCoverUri().path!!)
+            val coverPath = getLocalCoverFileUri().path!!
+            tempFile.copyTo(File(coverPath), overwrite = true)
+            tempFile.delete()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

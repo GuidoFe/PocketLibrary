@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.viewmodels.interfaces
 
+import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookState
@@ -14,4 +15,7 @@ interface IEditBookVM {
 
     suspend fun submitBook(newBookDestination: BookDestination?): Long
     fun updateExistingGenres(startingLetters: String)
+    fun getLocalCoverFileUri(): Uri
+    fun getTempCoverUri(): Uri
+    var isInitialized: Boolean
 }

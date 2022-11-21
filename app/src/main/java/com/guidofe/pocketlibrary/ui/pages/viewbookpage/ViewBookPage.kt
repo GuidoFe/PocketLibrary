@@ -2,11 +2,8 @@
 
 package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,13 +23,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
-import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
+import com.guidofe.pocketlibrary.viewmodels.previews.ViewBookVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -140,8 +135,13 @@ fun ViewBookPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
+                    .height(IntrinsicSize.Min)
             ) {
-                Box() {
+                Box(
+                    Modifier
+                        .widthIn(max = 80.dp)
+                        .fillMaxHeight()
+                ) {
                     val coverURI = vm.bundle?.book?.coverURI
                     if (coverURI != null) {
                         // TODO: placeholder for book cover
@@ -150,13 +150,15 @@ fun ViewBookPage(
                                 .data(coverURI)
                                 .build(),
                             contentDescription = stringResource(id = R.string.cover),
-                            Modifier.width(60.dp).clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier.fillMaxHeight()
                         )
                     } else {
                         Box(
                             modifier = Modifier
-                                // .aspectRatio(0.67f)
-                                .size(100.dp)
+                                .fillMaxHeight()
+                                .aspectRatio(0.67f)
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .border(
                                     5.dp,
                                     MaterialTheme.colorScheme.outline,
@@ -165,7 +167,7 @@ fun ViewBookPage(
                         ) {
                             Text(
                                 stringResource(R.string.no_cover_sadface),
-                                color = MaterialTheme.colorScheme.outline,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 softWrap = true,
@@ -305,17 +307,7 @@ private fun ViewBookPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
         ViewBookPage(
             3,
-            object : IViewBookVM {
-                override var editedNote = ""
-                override fun initFromLocalBook(bookId: Long) {}
-                override fun saveNote(callback: () -> Unit) {}
-                override val bundle: BookBundle = PreviewUtils.exampleBookBundle
-                override val progTabState = ProgressTabState()
-                override fun saveProgress(callback: () -> Unit) {}
-
-                override val scaffoldState: ScaffoldState = ScaffoldState()
-                override val snackbarHostState: SnackbarHostState = SnackbarHostState()
-            },
+            ViewBookVMPreview(),
             EmptyDestinationsNavigator,
         )
     }

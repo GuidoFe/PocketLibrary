@@ -13,10 +13,12 @@ import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class SearchBookOnlineVM @Inject constructor(
@@ -28,7 +30,7 @@ class SearchBookOnlineVM @Inject constructor(
     override val selectionManager = SelectionManager<String, ImportedBookData>(
         getKey = { it.externalId }
     )
-    override val listVM: OnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)
+    override val listVM: IOnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)
     override var title: String by mutableStateOf("")
     override var author: String by mutableStateOf("")
     override fun search() {
@@ -49,14 +51,14 @@ class SearchBookOnlineVM @Inject constructor(
         destination: BookDestination,
         callback: (Long) -> Unit,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val id = importedBook.saveToDestination(destination, repo)
             callback(id)
         }
     }
 
     override fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             selectionManager.selectedItems.value.values.forEach {
                 it.saveToDestination(destination, repo)
             }

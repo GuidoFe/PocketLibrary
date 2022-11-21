@@ -14,8 +14,9 @@ import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ProgressTabState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ViewBookVM @Inject constructor(
@@ -30,7 +31,7 @@ class ViewBookVM @Inject constructor(
         private set
     override fun initFromLocalBook(bookId: Long) {
         // TODO: What to do if book doesn't exist?
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             bundle = repo.getBookBundle(bookId)
             bundle?.let { bundle ->
                 oldNote = bundle.note
@@ -42,7 +43,7 @@ class ViewBookVM @Inject constructor(
 
     override fun saveNote(callback: () -> Unit) {
         bundle?.book?.bookId?.let { id ->
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 if (id > 0) {
                     if (editedNote.isBlank() && oldNote != null) {
                         repo.deleteNote(oldNote!!)
@@ -57,7 +58,7 @@ class ViewBookVM @Inject constructor(
     }
 
     override fun saveProgress(callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             progTabState.selectedPhase.let { phase ->
                 if (phase == null)
                     bundle?.book?.bookId?.let { repo.deleteProgress(it) }

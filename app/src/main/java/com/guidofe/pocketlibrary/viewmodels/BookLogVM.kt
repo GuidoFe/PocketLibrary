@@ -12,9 +12,10 @@ import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class BookLogVM @Inject constructor(
@@ -38,25 +39,25 @@ class BookLogVM @Inject constructor(
         }
 
     override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.deleteBooksByIds(bookIds)
             callback()
         }
     }
 
     override fun updateBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.updateAllBorrowedBooks(borrowedBooks)
         }
     }
 
     override fun updateLent(list: List<LentBook>) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.updateAllLentBooks(list)
         }
     }
     override fun removeLentStatus(books: List<LentBook>, callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBooks(books)
         }
     }

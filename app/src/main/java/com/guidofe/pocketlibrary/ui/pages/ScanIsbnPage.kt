@@ -1,8 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import android.Manifest
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -11,7 +9,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -27,6 +24,8 @@ import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
+import com.guidofe.pocketlibrary.viewmodels.previews.ImportedBookVMPreview
+import com.guidofe.pocketlibrary.viewmodels.previews.ScanIsbnVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -183,81 +182,8 @@ private fun ScanIsbnPagePreview() {
     ScanIsbnPage(
         EmptyDestinationsNavigator,
         BookDestination.LIBRARY,
-        object : IScanIsbnVM {
-            override var scannedCode: String? = ""
-            override fun getImageAnalysis(): ImageAnalysis {
-                return ImageAnalysis.Builder().build()
-            }
-            override val scaffoldState = ScaffoldState()
-            override val snackbarHostState = SnackbarHostState()
-            override fun restartAnalysis(lifecycleOwner: LifecycleOwner) {}
-            override var cameraProvider: ProcessCameraProvider? = null
-        },
-        object : IImportedBookVM {
-            override val snackbarHostState = SnackbarHostState()
-
-            override fun getImportedBooksFromIsbn(
-                isbn: String,
-                failureCallback: (message: String) -> Unit,
-                maxResults: Int,
-                callback: (books: List<ImportedBookData>) -> Unit
-            ) {}
-
-            override fun saveImportedBookAsBookBundle(
-                importedBook: ImportedBookData,
-                callback: (Long) -> Unit
-            ) {}
-
-            override fun getAndSaveBookFromIsbnFlow(
-                isbn: String,
-                destination: BookDestination,
-                onNetworkError: () -> Unit,
-                onNoBookFound: () -> Unit,
-                onOneBookSaved: () -> Unit,
-                onMultipleBooksFound: (List<ImportedBookData>) -> Unit
-            ) {}
-
-            override fun checkIfImportedBooksAreAlreadyInLibrary(
-                list: List<ImportedBookData>,
-                onAllOk: () -> Unit,
-                onConflict: (
-                    booksOk: List<ImportedBookData>,
-                    duplicateBooks: List<ImportedBookData>
-                ) -> Unit
-            ) {}
-
-            override fun saveImportedBooksAsBookBundles(
-                importedBooks: List<ImportedBookData>,
-                callback: () -> Unit
-            ) {}
-
-            override fun getBooksInLibraryWithSameIsbn(
-                isbn: String,
-                callback: (List<Book>) -> Unit
-            ) {}
-
-            override fun saveImportedBook(
-                importedBook: ImportedBookData,
-                destination: BookDestination,
-                callback: (Long) -> Unit
-            ) { }
-
-            override fun saveImportedBooks(
-                importedBooks: List<ImportedBookData>,
-                destination: BookDestination,
-                callback: () -> Unit
-            ) {}
-
-            override fun getBooksInWishlistWithSameIsbn(
-                isbn: String,
-                callback: (List<Book>) -> Unit
-            ) {}
-
-            override fun getBooksInBorrowedWithSameIsbn(
-                isbn: String,
-                callback: (List<Book>) -> Unit
-            ) {}
-        },
+        ScanIsbnVMPreview(),
+        ImportedBookVMPreview(),
         EmptyResultRecipient()
     )
 }

@@ -2,7 +2,7 @@ package com.guidofe.pocketlibrary.ui.pages
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
@@ -12,11 +12,11 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.PreviewBookDialog
 import com.guidofe.pocketlibrary.ui.modules.ImportedBookListRow
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.BookDisambiguationVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookDisambiguationVM
+import com.guidofe.pocketlibrary.viewmodels.previews.BookDisambiguationVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -68,10 +68,7 @@ private fun PreviewBookDisambiguationPage() {
         BookDisambiguationPage(
             navigator = EmptyResultBackNavigator(),
             bookList = arrayOf(PreviewUtils.exampleImportedBook),
-            vm = object : IBookDisambiguationVM {
-                override val scaffoldState = ScaffoldState()
-                override val snackbarHostState = SnackbarHostState()
-            }
+            vm = BookDisambiguationVMPreview()
         )
     }
 }

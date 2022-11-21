@@ -8,6 +8,7 @@ import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,9 +19,9 @@ class MainActivityVM @Inject constructor(
     override val snackbarHostState: SnackbarHostState,
     private val dataStore: DataStoreRepository
 ) : ViewModel(), IMainActivityVM {
-    val settingsFlow = dataStore.settingsFlow
+    val settingsLiveData = dataStore.settingsLiveData
     fun initializeApp(context: Context, onCompleted: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             context.getDir(dataStore.COVER_DIR, Context.MODE_PRIVATE)
         }
     }

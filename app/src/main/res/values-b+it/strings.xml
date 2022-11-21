@@ -122,4 +122,7 @@
     <string name="save_data_external">Salva dati nella memoria esterna</string>
     <string name="take_photo">Scatta foto</string>
     <string name="choose_from_gallery">Scegli dalla galleria</string>
+    <string name="camera">Fotocamera</string>
+    <string name="upload">Carica</string>
+    <string name="error_no_camera">Errore: Impossibile aprire la fotocamera</string>
 </resources>

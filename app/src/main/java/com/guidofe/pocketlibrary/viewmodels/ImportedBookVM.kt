@@ -11,6 +11,7 @@ import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,7 +28,7 @@ class ImportedBookVM @Inject constructor(
         maxResults: Int,
         callback: (books: List<ImportedBookData>) -> Unit,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val res = metaRepo.fetchVolumesByIsbn(isbn, maxResults)
             if (res.isSuccess())
                 callback(res.data ?: emptyList())
@@ -37,7 +38,7 @@ class ImportedBookVM @Inject constructor(
     }
 
     override fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInLibraryWithSameIsbn(isbn)
             callback(list)
         }
@@ -48,7 +49,7 @@ class ImportedBookVM @Inject constructor(
         destination: BookDestination,
         callback: (Long) -> Unit
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val id = importedBook.saveToDestination(destination, localRepo)
             callback(id)
         }
@@ -59,7 +60,7 @@ class ImportedBookVM @Inject constructor(
         destination: BookDestination,
         callback: () -> Unit
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             importedBooks.forEach {
                 it.saveToDestination(destination, localRepo)
             }
@@ -68,14 +69,14 @@ class ImportedBookVM @Inject constructor(
     }
 
     override fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInWishlistWithSameIsbn(isbn)
             callback(list)
         }
     }
 
     override fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInBorrowedWithSameIsbn(isbn)
             callback(list)
         }
@@ -85,7 +86,7 @@ class ImportedBookVM @Inject constructor(
         importedBook: ImportedBookData,
         callback: (Long) -> Unit
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val id = importedBook.saveToDbAsBookBundle(localRepo)
             callback(id)
         }
@@ -95,7 +96,7 @@ class ImportedBookVM @Inject constructor(
         importedBooks: List<ImportedBookData>,
         callback: () -> Unit
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             importedBooks.forEach {
                 it.saveToDbAsBookBundle(localRepo)
             }
@@ -142,7 +143,7 @@ class ImportedBookVM @Inject constructor(
             duplicateBooks: List<ImportedBookData>
         ) -> Unit
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val conflictBooks = localRepo.getLibraryBundlesWithSameIsbns(
                 list.mapNotNull { it.identifier }
             )

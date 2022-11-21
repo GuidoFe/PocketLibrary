@@ -3,7 +3,10 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
@@ -13,11 +16,12 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.LocalDate
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LibraryVM @Inject constructor(
@@ -49,7 +53,7 @@ class LibraryVM @Inject constructor(
 
     override fun deleteSelectedBooksAndRefresh() {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.deleteBooksByIds(selectionManager.selectedKeys)
             selectionManager.clearSelection()
             currentPagingSource?.invalidate()
@@ -57,7 +61,7 @@ class LibraryVM @Inject constructor(
     }
 
     override fun deleteSelectedBookAndRefresh() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             selectionManager.singleSelectedItem?.let {
                 repo.deleteBook(it.bookBundle.book)
                 currentPagingSource?.invalidate()
@@ -67,7 +71,7 @@ class LibraryVM @Inject constructor(
     }
 
     override fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (ids.isEmpty()) return@launch
             repo.updateFavorite(ids, favorite)
             currentPagingSource?.invalidate()
@@ -75,7 +79,7 @@ class LibraryVM @Inject constructor(
     }
 
     override fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             selectionManager.singleSelectedItem?.let {
                 repo.insertLentBook(LentBook(it.info.bookId, who, Date.valueOf(start.toString())))
                 currentPagingSource?.invalidate()
@@ -85,7 +89,7 @@ class LibraryVM @Inject constructor(
     }
 
     override fun markSelectedItemsAsLent(who: String, start: LocalDate, callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val lentBooks = selectionManager.selectedKeys.map {
                 LentBook(it, who, Date.valueOf(start.toString()))
             }
@@ -96,14 +100,14 @@ class LibraryVM @Inject constructor(
     }
 
     override fun markLentBookAsReturned(lentBook: LentBook) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBook(lentBook)
             currentPagingSource?.invalidate()
         }
     }
 
     override fun markSelectedLentBooksAsReturned(callback: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBooks(selectionManager.selectedItems.value.mapNotNull { it.value.lent })
             currentPagingSource?.invalidate()
             callback()

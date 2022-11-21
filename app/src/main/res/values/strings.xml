@@ -126,4 +126,8 @@
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="camera">Camera</string>
     <string name="upload">Upload</string>
+    <string name="error_no_camera">Error: Can\'t open camera</string>
+    <string name="take_photo_of_cover">Take photo of cover</string>
+    <string name="error_couldnt_save_image">Couldn\'t save image</string>
+    <string name="cover_editor">Cover editor</string>
 </resources>
