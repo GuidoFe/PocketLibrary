@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -178,7 +177,7 @@ fun LibraryPage(
         }
     }
     LaunchedEffect(Unit) {
-        Log.d("debug", "Drawing fab")
+        vm.invalidate()
         vm.scaffoldState.fab = {
             AddBookFab(
                 isExpanded = isFabExpanded,
