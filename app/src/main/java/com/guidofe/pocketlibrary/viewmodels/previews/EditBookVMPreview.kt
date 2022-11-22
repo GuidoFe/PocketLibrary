@@ -8,7 +8,7 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 
 class EditBookVMPreview : IEditBookVM {
-    override var editBookState = EditBookState()
+    override var state = EditBookState()
     override val scaffoldState: ScaffoldState
         get() = ScaffoldState()
     override val snackbarHostState: SnackbarHostState

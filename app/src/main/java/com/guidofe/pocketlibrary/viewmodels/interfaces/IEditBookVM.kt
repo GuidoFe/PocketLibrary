@@ -7,7 +7,7 @@ import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookState
 import com.guidofe.pocketlibrary.utils.BookDestination
 
 interface IEditBookVM {
-    var editBookState: EditBookState
+    var state: EditBookState
     val scaffoldState: ScaffoldState
     val snackbarHostState: SnackbarHostState
 

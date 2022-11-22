@@ -7,11 +7,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -118,6 +120,7 @@ private fun GenericListRow(
     onCoverLongPress: (Offset) -> Unit = {},
     progress: ProgressPhase? = null
 ) {
+    var tapZoneOffset: Offset by remember { mutableStateOf(Offset.Zero) }
     BoxWithConstraints(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
@@ -182,9 +185,19 @@ private fun GenericListRow(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
+                            .onGloballyPositioned {
+                                tapZoneOffset = it.positionInParent()
+                            }
                             .pointerInput(Unit) {
                                 detectTapGestures(
-                                    onLongPress = onRowLongPress,
+                                    onLongPress = {
+                                        onRowLongPress(
+                                            Offset(
+                                                it.x + tapZoneOffset.x,
+                                                it.y + tapZoneOffset.y
+                                            )
+                                        )
+                                    },
                                     onTap = onRowTap
                                 )
                             }

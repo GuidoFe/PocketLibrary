@@ -125,4 +125,8 @@
     <string name="camera">Fotocamera</string>
     <string name="upload">Carica</string>
     <string name="error_no_camera">Errore: Impossibile aprire la fotocamera</string>
+    <string name="take_photo_of_cover">Scatta foto alla copertina</string>
+    <string name="error_couldnt_save_image">Impossibile salvare l\'immagine</string>
+    <string name="cover_editor">Modifica copertina</string>
+    <string name="clear_cover">Cancella copertina</string>
 </resources>

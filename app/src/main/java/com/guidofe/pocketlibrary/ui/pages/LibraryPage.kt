@@ -7,11 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -36,10 +36,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import kotlinx.coroutines.launch
 
 // TODO: Undo delete action
 
@@ -61,8 +61,8 @@ fun LibraryPage(
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     var showConfirmDeleteBook by remember { mutableStateOf(false) }
     var showLendBookDialog by remember { mutableStateOf(false) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
-    val screenDensity = LocalDensity.current
+    var offset by remember { mutableStateOf(DpOffset.Zero) }
+    val density = LocalDensity.current
     val selectionManager = vm.selectionManager
     var isMenuOpen by remember { mutableStateOf(false) }
 
@@ -235,14 +235,19 @@ fun LibraryPage(
                             selectionManager.startMultipleSelection(item.value)
                         }
                     },
-                    onRowLongPress = {
-                        offset = it
-                        itemDropdownOpen = true
+                    onRowLongPress = { pxOffset ->
+                        with(density) {
+                            val x = pxOffset.x.toDp()
+                            val y = pxOffset.y.toDp() - 115.dp
+                            offset = DpOffset(x, y)
+                            itemDropdownOpen = true
+                        }
                     }
                 )
                 DropdownMenu(
                     expanded = itemDropdownOpen,
                     onDismissRequest = { itemDropdownOpen = false },
+                    offset = offset
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.edit_details)) },

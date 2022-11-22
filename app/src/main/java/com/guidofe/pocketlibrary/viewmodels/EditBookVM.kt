@@ -31,7 +31,7 @@ class EditBookVM @Inject constructor(
     // var formData = FormData(coverUri = mutableStateOf(defaultCoverUri))
     //    private set
     private var currentBookId: Long = 0L
-    override var editBookState: EditBookState by mutableStateOf(EditBookState())
+    override var state: EditBookState by mutableStateOf(EditBookState())
     override var isInitialized: Boolean = false
 
     override suspend fun initialiseFromDatabase(
@@ -39,12 +39,12 @@ class EditBookVM @Inject constructor(
     ) {
         currentBookId = id
         val bundle = repo.getBookBundle(id)
-        editBookState = if (bundle != null) EditBookState(bundle) else EditBookState()
+        state = if (bundle != null) EditBookState(bundle) else EditBookState()
     }
 
     override fun updateExistingGenres(startingLetters: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            editBookState.existingGenres = repo.getGenresByStartingLetters(startingLetters)
+            state.existingGenres = repo.getGenresByStartingLetters(startingLetters)
                 .map { it.name }
         }
     }
@@ -59,32 +59,30 @@ class EditBookVM @Inject constructor(
 
     override suspend fun submitBook(newBookDestination: BookDestination?): Long {
         // TODO: Check for validity
-        if (editBookState == null)
-            return -1
-        val lowercaseLanguage = editBookState.language.lowercase()
+        val lowercaseLanguage = state.language.lowercase()
         if (lowercaseLanguage.isNotBlank() &&
             !Constants.languageCodes.contains(lowercaseLanguage)
         ) {
-            editBookState.isLanguageError = true
+            state.isLanguageError = true
             return -1
         }
-        editBookState.coverUri?.lastPathSegment?.let { fileName ->
+        state.coverUri?.lastPathSegment?.let { fileName ->
             if (fileName == "temp") {
                 moveTempFileToCoverPath()
-                editBookState.coverUri = getLocalCoverFileUri()
+                state.coverUri = getLocalCoverFileUri()
             }
         }
         repo.withTransaction {
             val book = Book(
                 bookId = currentBookId,
-                title = editBookState.title,
-                subtitle = editBookState.subtitle.ifBlank { null },
-                description = editBookState.description.ifBlank { null },
-                publisher = editBookState.publisher.ifBlank { null },
-                published = editBookState.published.toIntOrNull(),
-                coverURI = editBookState.coverUri,
-                identifier = editBookState.identifier,
-                isEbook = editBookState.isEbook,
+                title = state.title,
+                subtitle = state.subtitle.ifBlank { null },
+                description = state.description.ifBlank { null },
+                publisher = state.publisher.ifBlank { null },
+                published = state.published.toIntOrNull(),
+                coverURI = state.coverUri,
+                identifier = state.identifier,
+                isEbook = state.isEbook,
                 language = lowercaseLanguage.ifBlank { null }
             )
             if (book.bookId == 0L) {
@@ -101,7 +99,7 @@ class EditBookVM @Inject constructor(
             } else {
                 repo.updateBook(book)
             }
-            val authorsNames = editBookState.authors.split(",").map { a -> a.trim() }
+            val authorsNames = state.authors.split(",").map { a -> a.trim() }
             repo.insertAllAuthors(
                 authorsNames.map { name ->
                     Author(0L, name)
@@ -113,12 +111,12 @@ class EditBookVM @Inject constructor(
             }
             repo.deleteBookAuthors(currentBookId)
             repo.insertAllBookAuthors(bookAuthorList)
-            if (editBookState.genres.isEmpty()) {
+            if (state.genres.isEmpty()) {
                 repo.deleteBookGenreRelations(currentBookId)
             } else {
                 repo.deleteBookGenreRelations(currentBookId)
-                repo.insertAllGenres(editBookState.genres.map { Genre(0L, it) })
-                val genresIds = repo.getGenresByNames(editBookState.genres).map { it.genreId }
+                repo.insertAllGenres(state.genres.map { Genre(0L, it) })
+                val genresIds = repo.getGenresByNames(state.genres).map { it.genreId }
                 repo.insertAllBookGenres(genresIds.map { id -> BookGenre(currentBookId, id) })
             }
         }

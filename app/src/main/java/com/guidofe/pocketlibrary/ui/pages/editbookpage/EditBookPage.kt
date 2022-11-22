@@ -1,14 +1,21 @@
 package com.guidofe.pocketlibrary.ui.pages.editbookpage
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.*
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.TakeCoverPhotoPageDestination
@@ -43,7 +51,10 @@ import java.io.File
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+    ExperimentalPermissionsApi::class
+)
 @Destination
 @Composable
 fun EditBookPage(
@@ -51,14 +62,14 @@ fun EditBookPage(
     isbn: String? = null,
     newBookDestination: BookDestination? = null,
     navigator: DestinationsNavigator,
-    viewModel: IEditBookVM = hiltViewModel<EditBookVM>(),
+    vm: IEditBookVM = hiltViewModel<EditBookVM>(),
     coverPhotoRecipient: ResultRecipient<TakeCoverPhotoPageDestination, Uri>
 ) {
     coverPhotoRecipient.onNavResult { result ->
         Log.d("debug", "EditPage received result")
         if (result is NavResult.Value) {
             Log.d("debug", "EditPage result is valid, == ${result.value}")
-            viewModel.editBookState.coverUri = result.value
+            vm.state.coverUri = result.value
             Log.d("debug", "Reread, == ${result.value}")
         }
     }
@@ -66,27 +77,54 @@ fun EditBookPage(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var imageRequest: ImageRequest? by remember { mutableStateOf(null) }
-    LaunchedEffect(viewModel.editBookState.coverUri) {
-        imageRequest = viewModel.editBookState.coverUri?.let { uri ->
+
+    val uploadFileLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+        onResult = { result ->
+            val tempUri = vm.getTempCoverUri()
+            result?.let { uri ->
+                val resolver = context.contentResolver
+                resolver.openInputStream(uri).use { iStr ->
+                    File(tempUri.path!!).outputStream().use { oStr ->
+                        iStr?.copyTo(oStr)
+                    }
+                }
+                vm.state.coverUri = tempUri
+            }
+        }
+    )
+    val readMediaPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            uploadFileLauncher.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        }
+    }
+    LaunchedEffect(vm.state.coverUri) {
+        imageRequest = vm.state.coverUri?.let { uri ->
             ImageRequest.Builder(context)
                 .data(uri)
                 .build()
         }
     }
     BackHandler() {
-        File(viewModel.getTempCoverUri().path!!).delete()
+        File(vm.getTempCoverUri().path!!).delete()
         navigator.navigateUp()
     }
     LaunchedEffect(key1 = true) {
-        viewModel.scaffoldState.refreshBar(
+        vm.scaffoldState.refreshBar(
             title = context.getString(R.string.edit_book),
             actions = {
                 IconButton(
                     onClick = {
                         coroutineScope.launch(Dispatchers.IO) {
-                            val id = viewModel.submitBook(newBookDestination)
+                            val id = vm.submitBook(newBookDestination)
                             if (id <= 0L) {
-                                viewModel.snackbarHostState.showSnackbar(
+                                vm.snackbarHostState.showSnackbar(
                                     CustomSnackbarVisuals(
                                         context.getString(R.string.error_cant_save_book),
                                         true
@@ -108,7 +146,7 @@ fun EditBookPage(
             },
             navigationIcon = {
                 IconButton(onClick = {
-                    File(viewModel.getTempCoverUri().path!!).delete()
+                    File(vm.getTempCoverUri().path!!).delete()
                     navigator.navigateUp()
                 }) {
                     Icon(
@@ -118,13 +156,13 @@ fun EditBookPage(
                 }
             }
         )
-        if (!viewModel.isInitialized) {
-            bookId?.let { viewModel.initialiseFromDatabase(it) }
+        if (!vm.isInitialized) {
+            bookId?.let { vm.initialiseFromDatabase(it) }
             isbn?.let {
                 Log.d("debug", "Setting isbn $it")
-                viewModel.editBookState.identifier = it
+                vm.state.identifier = it
             }
-            viewModel.isInitialized = true
+            vm.isInitialized = true
         }
     }
     Column(
@@ -138,7 +176,7 @@ fun EditBookPage(
         BoxWithConstraints {
             Box(
                 modifier = Modifier
-                    .clickable { viewModel.editBookState.showCoverMenu = true }
+                    .clickable { vm.state.showCoverMenu = true }
             ) {
                 if (imageRequest != null) {
                     // TODO: placeholder for book cover
@@ -148,27 +186,24 @@ fun EditBookPage(
                         Modifier.size(200.dp, 200.dp)
                     )
                 } else
-                    Image(
-                        painterResource(id = R.drawable.sample_cover),
-                        stringResource(R.string.cover)
-                    )
+                    EmptyBookCover(Modifier.width(90.dp))
             }
         }
         OutlinedTextField(
-            value = viewModel.editBookState.title,
+            value = vm.state.title,
             label = { Text(stringResource(id = R.string.title) + "*") },
-            onValueChange = { viewModel.editBookState.title = it },
+            onValueChange = { vm.state.title = it },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = viewModel.editBookState.subtitle,
+            value = vm.state.subtitle,
             label = { Text(stringResource(id = R.string.subtitle)) },
-            onValueChange = { viewModel.editBookState.subtitle = it },
+            onValueChange = { vm.state.subtitle = it },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = viewModel.editBookState.authors,
-            onValueChange = { viewModel.editBookState.authors = it },
+            value = vm.state.authors,
+            onValueChange = { vm.state.authors = it },
             label = { Text(stringResource(R.string.authors)) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -176,7 +211,7 @@ fun EditBookPage(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items = viewModel.editBookState.genres) { genre ->
+            items(items = vm.state.genres) { genre ->
                 InputChip(
                     selected = true,
                     onClick = {},
@@ -184,7 +219,7 @@ fun EditBookPage(
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                                viewModel.editBookState.genres -= genre
+                                vm.state.genres -= genre
                             },
                             modifier = Modifier.size(InputChipDefaults.IconSize)
                         ) {
@@ -201,31 +236,31 @@ fun EditBookPage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedAutocomplete(
-                text = viewModel.editBookState.genreInput,
+                text = vm.state.genreInput,
                 onTextChange = {
-                    viewModel.editBookState.genreInput = it
+                    vm.state.genreInput = it
                     if (it.length == 3)
-                        viewModel.updateExistingGenres(it)
+                        vm.updateExistingGenres(it)
                 },
-                options = viewModel.editBookState.existingGenres,
+                options = vm.state.existingGenres,
                 label = { Text(stringResource(R.string.new_genre)) },
-                onOptionSelected = { viewModel.editBookState.genreInput = it },
+                onOptionSelected = { vm.state.genreInput = it },
                 modifier = Modifier.weight(1f)
             )
             IconButton(
                 onClick = {
-                    if (viewModel.editBookState.genreInput.isBlank())
+                    if (vm.state.genreInput.isBlank())
                         return@IconButton
-                    viewModel.editBookState.genres += viewModel.editBookState.genreInput
-                    viewModel.editBookState.genreInput = ""
+                    vm.state.genres += vm.state.genreInput
+                    vm.state.genreInput = ""
                 }
             ) {
                 Icon(painterResource(R.drawable.add_24px), stringResource(R.string.add))
             }
         }
         OutlinedTextField(
-            value = viewModel.editBookState.description,
-            onValueChange = { viewModel.editBookState.description = it },
+            value = vm.state.description,
+            onValueChange = { vm.state.description = it },
             label = { Text(stringResource(id = R.string.summary)) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -234,11 +269,11 @@ fun EditBookPage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             LanguageAutocomplete(
-                text = viewModel.editBookState.language,
-                onTextChange = { viewModel.editBookState.language = it },
-                onOptionSelected = { viewModel.editBookState.language = it },
+                text = vm.state.language,
+                onTextChange = { vm.state.language = it },
+                onOptionSelected = { vm.state.language = it },
                 label = { Text(stringResource(R.string.language)) },
-                isError = viewModel.editBookState.isLanguageError,
+                isError = vm.state.isLanguageError,
                 modifier = Modifier
                     .weight(1f)
             )
@@ -248,9 +283,9 @@ fun EditBookPage(
             ) {
                 Text(stringResource(R.string.is_ebook))
                 Switch(
-                    checked = viewModel.editBookState.isEbook,
+                    checked = vm.state.isEbook,
                     onCheckedChange = {
-                        viewModel.editBookState.isEbook = !viewModel.editBookState.isEbook
+                        vm.state.isEbook = !vm.state.isEbook
                     },
                 )
             }
@@ -259,17 +294,17 @@ fun EditBookPage(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
         ) {
             OutlinedTextField(
-                value = viewModel.editBookState.publisher,
-                onValueChange = { viewModel.editBookState.publisher = it },
+                value = vm.state.publisher,
+                onValueChange = { vm.state.publisher = it },
                 label = { Text(stringResource(R.string.publisher)) },
                 singleLine = true,
                 modifier = Modifier
                     .weight(2f)
             )
             OutlinedTextField(
-                value = viewModel.editBookState.published,
+                value = vm.state.published,
                 onValueChange = {
-                    viewModel.editBookState.published = it
+                    vm.state.published = it
                 },
                 label = { Text(stringResource(R.string.year)) },
                 singleLine = true,
@@ -279,8 +314,8 @@ fun EditBookPage(
             )
         }
         OutlinedTextField(
-            value = viewModel.editBookState.identifier,
-            onValueChange = { viewModel.editBookState.identifier = it },
+            value = vm.state.identifier,
+            onValueChange = { vm.state.identifier = it },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             label = { Text(stringResource(R.string.isbn)) },
@@ -288,8 +323,8 @@ fun EditBookPage(
         )
     }
     ModalBottomSheet(
-        visible = viewModel.editBookState.showCoverMenu,
-        onDismiss = { viewModel.editBookState.showCoverMenu = false }
+        visible = vm.state.showCoverMenu,
+        onDismiss = { vm.state.showCoverMenu = false }
     ) {
         Column(
             modifier = Modifier
@@ -304,11 +339,11 @@ fun EditBookPage(
                 },
                 onClick = {
                     try {
-                        val uri = viewModel.getTempCoverUri()
+                        val uri = vm.getTempCoverUri()
                         navigator.navigate(TakeCoverPhotoPageDestination(uri))
                     } catch (e: ActivityNotFoundException) {
                         coroutineScope.launch {
-                            viewModel.snackbarHostState.showSnackbar(
+                            vm.snackbarHostState.showSnackbar(
                                 CustomSnackbarVisuals(
                                     message = context.getString(R.string.error_no_camera),
                                     isError = true
@@ -316,7 +351,7 @@ fun EditBookPage(
                             )
                         }
                     }
-                    viewModel.editBookState.showCoverMenu = false
+                    vm.state.showCoverMenu = false
                 }
             ) {
                 Text(stringResource(R.string.take_photo))
@@ -325,9 +360,28 @@ fun EditBookPage(
                 icon = {
                     Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
                 },
-                onClick = { viewModel.editBookState.showCoverMenu = false }
+                onClick = {
+                    readMediaPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    vm.state.showCoverMenu = false
+                }
             ) {
                 Text(stringResource(R.string.choose_from_gallery))
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(
+                            R.drawable.delete_24px
+                        ),
+                        stringResource(R.string.clear_cover)
+                    )
+                },
+                onClick = {
+                    vm.state.coverUri = null
+                    vm.state.showCoverMenu = false
+                }
+            ) {
+                Text(stringResource(R.string.clear_cover))
             }
         }
     }
@@ -339,7 +393,7 @@ private fun ImportedBookFormPagePreview() {
     EditBookPage(
         bookId = 0,
         navigator = EmptyDestinationsNavigator,
-        viewModel = EditBookVMPreview(),
+        vm = EditBookVMPreview(),
         coverPhotoRecipient = EmptyResultRecipient()
     )
 }

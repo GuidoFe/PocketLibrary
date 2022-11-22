@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,7 +8,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
@@ -26,6 +31,8 @@ fun LentTab(
     state: LentTabState,
     modifier: Modifier = Modifier
 ) {
+    val config = LocalConfiguration.current
+    val density = LocalDensity.current
     val selectionManager = state.selectionManager
     Column(modifier = modifier) {
         LazyColumn {
@@ -33,6 +40,7 @@ fun LentTab(
                 item { Text(stringResource(R.string.empty_library_text)) }
             items(lentItems, key = { it.value.info.bookId }) { item ->
                 Box {
+                    var xOffset by remember { mutableStateOf(0.dp) }
                     LentBookRow(
                         item,
                         onRowTap = {
@@ -53,12 +61,23 @@ fun LentTab(
                             selectionManager.singleSelectedItem = item.value
                             state.isCalendarVisible = true
                         },
-                        onMarkAsReturned = {
-                            it.lent?.let { lent ->
-                                removeLentStatus(listOf(lent)) {}
-                            }
+                        areButtonsActive = !selectionManager.isMultipleSelecting,
+                        onDrag = { change, _ ->
+                            Log.d("debug", "Dragging")
+                            xOffset += with(density) { change.positionChange().x.toDp() }
+                            if (xOffset > 0.dp)
+                                xOffset = 0.dp
                         },
-                        areButtonsActive = !selectionManager.isMultipleSelecting
+                        onDragEnd = {
+                            if (xOffset < (-config.screenWidthDp / 2).dp) {
+                                item.value.lent?.let { lent ->
+                                    removeLentStatus(listOf(lent)) {}
+                                }
+                            }
+                            xOffset = 0.dp
+                        },
+                        onDragCancel = { xOffset = 0.dp },
+                        horizontalOffset = xOffset,
                     )
                 }
             }
