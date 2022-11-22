@@ -1,16 +1,20 @@
 package com.guidofe.pocketlibrary.ui.modules
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -29,24 +33,25 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.Instant
 
 @Composable
 fun LentBookRow(
     item: SelectableListItem<LibraryBundle>,
+    swipeThreshold: Dp,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {},
     onBorrowerTap: () -> Unit = {},
     onStartTap: () -> Unit = {},
     areButtonsActive: Boolean = true,
-    onDragStart: (Offset) -> Unit = {},
-    onDrag: (PointerInputChange, Offset) -> Unit = { _, _ -> },
-    onDragEnd: () -> Unit = {},
-    onDragCancel: () -> Unit = {},
-    horizontalOffset: Dp = 0.dp
+    onSwiped: () -> Unit = {},
 ) {
+    val xOffset = remember { Animatable(0f) }
+    val density = LocalDensity.current
+    val coroutineScope = rememberCoroutineScope()
     val bookBundle = item.value.bookBundle
     val lentInfo = item.value.lent
     val lenderString = stringResource(R.string.lent_to_colon)
@@ -74,7 +79,10 @@ fun LentBookRow(
         Surface(
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 4.dp,
-            modifier = Modifier.offset(horizontalOffset, 0.dp)
+            modifier = Modifier.offset(
+                with(density) { xOffset.value.toDp() },
+                0.dp
+            )
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -107,12 +115,32 @@ fun LentBookRow(
                                         .fillMaxWidth()
                                         .pointerInput(Unit) {
                                             detectDragGestures(
-                                                onDragStart = { onDragStart(it) },
-                                                onDragEnd = { onDragEnd() },
-                                                onDrag = { pointer, offset ->
-                                                    onDrag(pointer, offset)
+                                                onDragStart = {},
+                                                onDragEnd = {
+                                                    with(density) {
+                                                        if (
+                                                            xOffset.value < (-swipeThreshold).toPx()
+                                                        ) {
+                                                            onSwiped()
+                                                        }
+                                                        coroutineScope.launch {
+                                                            xOffset.animateTo(0f)
+                                                        }
+                                                    }
                                                 },
-                                                onDragCancel = { onDragCancel() }
+                                                onDrag = { pointer, _ ->
+                                                    var newValue = xOffset.value +
+                                                        pointer.positionChange().x
+                                                    if (newValue > 0f) newValue = 0f
+                                                    coroutineScope.launch {
+                                                        xOffset.snapTo(newValue)
+                                                    }
+                                                },
+                                                onDragCancel = {
+                                                    coroutineScope.launch {
+                                                        xOffset.snapTo(0f)
+                                                    }
+                                                }
                                             )
                                         }
                                 ) {
@@ -173,7 +201,8 @@ private fun LibraryListRowPreview() {
                         Date.from(Instant.now()) as Date
                     )
                 )
-            )
+            ),
+            swipeThreshold = 10.dp
         )
     }
 }

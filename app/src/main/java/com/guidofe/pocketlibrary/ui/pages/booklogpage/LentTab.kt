@@ -1,6 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
-import android.util.Log
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -17,8 +17,10 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.LentBookRow
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.LocalDate
 
@@ -29,18 +31,21 @@ fun LentTab(
     updateLent: (List<LentBook>) -> Unit,
     removeLentStatus: (books: List<LentBook>, callback: () -> Unit) -> Unit,
     state: LentTabState,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     val config = LocalConfiguration.current
     val density = LocalDensity.current
     val selectionManager = state.selectionManager
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier) {
         LazyColumn {
             if (lentItems.isEmpty())
                 item { Text(stringResource(R.string.empty_library_text)) }
             items(lentItems, key = { it.value.info.bookId }) { item ->
                 Box {
-                    var xOffset by remember { mutableStateOf(0.dp) }
+                    val xOffset = remember { Animatable(0f) }
                     LentBookRow(
                         item,
                         onRowTap = {
@@ -62,22 +67,22 @@ fun LentTab(
                             state.isCalendarVisible = true
                         },
                         areButtonsActive = !selectionManager.isMultipleSelecting,
-                        onDrag = { change, _ ->
-                            Log.d("debug", "Dragging")
-                            xOffset += with(density) { change.positionChange().x.toDp() }
-                            if (xOffset > 0.dp)
-                                xOffset = 0.dp
-                        },
-                        onDragEnd = {
-                            if (xOffset < (-config.screenWidthDp / 2).dp) {
-                                item.value.lent?.let { lent ->
-                                    removeLentStatus(listOf(lent)) {}
+                        onSwiped = {
+                            item.value.lent?.let { lent ->
+                                removeLentStatus(listOf(lent)) {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            CustomSnackbarVisuals(
+                                                message = context.getString(
+                                                    R.string.book_moved_to_library
+                                                )
+                                            )
+                                        )
+                                    }
                                 }
                             }
-                            xOffset = 0.dp
                         },
-                        onDragCancel = { xOffset = 0.dp },
-                        horizontalOffset = xOffset,
+                        swipeThreshold = (config.screenWidthDp / 3).dp,
                     )
                 }
             }

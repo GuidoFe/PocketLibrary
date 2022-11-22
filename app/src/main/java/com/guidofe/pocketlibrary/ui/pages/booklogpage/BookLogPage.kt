@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
@@ -28,7 +29,9 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun BookLogPage(
@@ -38,7 +41,7 @@ fun BookLogPage(
     disambiguationRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     var tabIndex: Int by remember { mutableStateOf(0) }
     val borrowedList by vm.borrowedItems.collectAsState(initial = emptyList())
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
@@ -141,7 +144,17 @@ fun BookLogPage(
                                     .mapNotNull {
                                         it.lent
                                     }
-                            ) {}
+                            ) {
+                                coroutineScope.launch {
+                                    vm.snackbarState.showSnackbar(
+                                        CustomSnackbarVisuals(
+                                            message = context.getString(
+                                                R.string.books_moved_to_library
+                                            )
+                                        )
+                                    )
+                                }
+                            }
                         }
                     ) {
                         Icon(
@@ -193,11 +206,11 @@ fun BookLogPage(
                 it,
                 BookDestination.BORROWED,
                 onNetworkError = {
-                    Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, scope)
+                    Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, coroutineScope)
                 },
                 onNoBookFound = {
                     Snackbars.noBookFoundForIsbnSnackbar(
-                        importVm.snackbarHostState, context, scope
+                        importVm.snackbarHostState, context, coroutineScope
                     ) {
                         navigator.navigate(
                             EditBookPageDestination(newBookDestination = BookDestination.BORROWED)
@@ -205,7 +218,7 @@ fun BookLogPage(
                     }
                 },
                 onOneBookSaved = {
-                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, scope) {}
+                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, coroutineScope) {}
                 },
                 onMultipleBooksFound = { list ->
                     navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
@@ -279,7 +292,8 @@ fun BookLogPage(
                     removeLentStatus = { list, callback ->
                         vm.removeLentStatus(list, callback)
                     },
-                    state = vm.lentTabState
+                    state = vm.lentTabState,
+                    snackbarHostState = vm.snackbarState
                 )
             }
         }
@@ -291,7 +305,7 @@ fun BookLogPage(
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,
-                    scope,
+                    coroutineScope,
                 ) {}
             }
         }

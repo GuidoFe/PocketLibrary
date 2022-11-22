@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,11 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
@@ -36,13 +33,13 @@ fun BorrowedTab(
     val density = LocalDensity.current
     val config = LocalConfiguration.current
     val selectionManager = state.selectionManager
+    val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier) {
         LazyColumn {
             if (borrowedItems.isEmpty())
                 item { Text(stringResource(R.string.empty_library_text)) }
             items(borrowedItems, key = { it.value.info.bookId }) { item ->
                 Box {
-                    var xOffset: Dp by remember { mutableStateOf(0.dp) }
                     BorrowedBookRow(
                         item,
                         onRowTap = {
@@ -69,21 +66,11 @@ fun BorrowedTab(
                             state.isCalendarVisible = true
                         },
                         areButtonsActive = !selectionManager.isMultipleSelecting,
-                        onDrag = { change, _ ->
-                            Log.d("debug", "Dragging")
-                            xOffset += with(density) { change.positionChange().x.toDp() }
-                            if (xOffset > 0.dp)
-                                xOffset = 0.dp
+                        onSwiped = {
+                            selectionManager.singleSelectedItem = item.value
+                            state.showConfirmReturnBook = true
                         },
-                        onDragEnd = {
-                            if (xOffset < (-config.screenWidthDp / 2).dp) {
-                                selectionManager.singleSelectedItem = item.value
-                                state.showConfirmReturnBook = true
-                            }
-                            xOffset = 0.dp
-                        },
-                        onDragCancel = { xOffset = 0.dp },
-                        horizontalOffset = xOffset,
+                        swipeThreshold = (config.screenWidthDp / 3).dp
                     )
                 }
             }

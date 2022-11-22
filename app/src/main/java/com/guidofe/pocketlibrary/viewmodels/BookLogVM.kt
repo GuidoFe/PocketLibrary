@@ -59,6 +59,7 @@ class BookLogVM @Inject constructor(
     override fun removeLentStatus(books: List<LentBook>, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBooks(books)
+            callback()
         }
     }
 }
