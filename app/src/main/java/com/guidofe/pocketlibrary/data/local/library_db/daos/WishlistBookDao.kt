@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.WishlistBook
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WishlistBookDao {
@@ -28,4 +29,7 @@ interface WishlistBookDao {
 
     @Query("DELETE FROM wishlist_book WHERE bookId IN ( :bookIds )")
     suspend fun deleteAll(bookIds: List<Long>)
+
+    @Query("SELECT COUNT(bookId) FROM wishlist_book")
+    suspend fun countBooksInWishlist(): Flow<Int>
 }

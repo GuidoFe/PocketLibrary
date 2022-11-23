@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LibraryBookDao {
@@ -28,4 +29,7 @@ interface LibraryBookDao {
 
     @Query("UPDATE library_book SET isFavorite = :isFavorite WHERE bookId IN (:bookIds)")
     suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean)
+
+    @Query("SELECT COUNT(bookId) FROM library_book")
+    fun countBooksInLibrary(): Flow<Int>
 }

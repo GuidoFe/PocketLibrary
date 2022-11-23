@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.data.local.library_db.daos
 
 import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LentBookDao {
@@ -22,4 +23,7 @@ interface LentBookDao {
 
     @Delete
     suspend fun delete(lentBooks: List<LentBook>)
+
+    @Query("SELECT COUNT(bookId) FROM lent_book")
+    fun countLentBooks(): Flow<Int>
 }
