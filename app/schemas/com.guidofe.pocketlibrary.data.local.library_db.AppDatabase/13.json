@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "d3c766a6f17dee57ddf336f34db7ed43",
+    "identityHash": "49990caeadd8f3f213cc75478458ff68",
     "entities": [
       {
         "tableName": "Author",
@@ -384,7 +384,7 @@
       },
       {
         "tableName": "borrowed_book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER NOT NULL, `who` TEXT, `start` INTEGER NOT NULL, `end` INTEGER, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookId`) REFERENCES `Book`(`bookId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER NOT NULL, `who` TEXT, `start` INTEGER NOT NULL, `end` INTEGER, `isReturned` INTEGER NOT NULL, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookId`) REFERENCES `Book`(`bookId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -409,6 +409,12 @@
             "columnName": "end",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "isReturned",
+            "columnName": "isReturned",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -561,7 +567,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd3c766a6f17dee57ddf336f34db7ed43')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '49990caeadd8f3f213cc75478458ff68')"
     ]
   }
 }

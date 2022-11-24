@@ -13,6 +13,24 @@ interface BorrowedBundleDao {
     suspend fun getBorrowedBundle(bookId: Long): BorrowedBundle
 
     @Transaction
-    @Query("SELECT * FROM borrowed_book")
+    @Query("SELECT * FROM borrowed_book WHERE isReturned = :isReturned")
+    fun getBorrowedBundles(isReturned: Boolean): Flow<List<BorrowedBundle>>
+
+    @Transaction
+    @Query("SELECT * FROM borrowed_book ORDER BY isReturned")
     fun getBorrowedBundles(): Flow<List<BorrowedBundle>>
+
+    @Transaction
+    @Query("SELECT * FROM borrowed_book WHERE isReturned = 0 LIMIT :offset,:limit  ")
+    suspend fun getBorrowedBundlesWithoutReturned(
+        offset: Int,
+        limit: Int
+    ): List<BorrowedBundle>
+
+    @Transaction
+    @Query("SELECT * FROM borrowed_book ORDER BY isReturned LIMIT :offset,:limit")
+    suspend fun getBorrowedBundlesWithReturned(
+        offset: Int,
+        limit: Int
+    ): List<BorrowedBundle>
 }

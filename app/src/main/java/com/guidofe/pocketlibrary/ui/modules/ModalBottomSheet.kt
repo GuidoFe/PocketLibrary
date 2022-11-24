@@ -29,7 +29,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 fun ModalBottomSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val visibleState = remember {
@@ -95,7 +95,9 @@ fun ModalBottomSheet(
                             .align(Alignment.BottomCenter)
                             .offset(0.dp, y = this@BoxWithConstraints.maxHeight * yOffset)
                     ) {
-                        content()
+                        Column {
+                            content()
+                        }
                     }
                 }
             }

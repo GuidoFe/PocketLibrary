@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -40,7 +41,8 @@ fun SelectableBookCover(
     onTap: (Offset) -> Unit = {},
     onLongPress: (Offset) -> Unit = {},
     isLent: Boolean = false,
-    progress: ProgressPhase? = null
+    progress: ProgressPhase? = null,
+    colorFilter: ColorFilter? = null
 ) {
     val selectionOffset: Dp by animateDpAsState(
         if (isSelected) (-5).dp else 0.dp,
@@ -100,6 +102,7 @@ fun SelectableBookCover(
                         onLoading = { coverStatus = CoverStatus.LOADING },
                         onSuccess = { coverStatus = CoverStatus.LOADED },
                         onError = { coverStatus = CoverStatus.ERROR },
+                        colorFilter = colorFilter,
                         modifier = Modifier
                             .fillMaxSize()
                     )
@@ -128,7 +131,7 @@ fun SelectableBookCover(
                         modifier = Modifier.align(Alignment.BottomEnd)
                     ) {
                         Icon(
-                            painterResource(R.drawable.borrow_book_24px),
+                            painterResource(R.drawable.book_hand_right_24px),
                             stringResource(R.string.lent_adj),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )

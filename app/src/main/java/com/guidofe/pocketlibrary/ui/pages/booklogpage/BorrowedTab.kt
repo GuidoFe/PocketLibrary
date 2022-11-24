@@ -1,22 +1,24 @@
 package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.BorrowedBookRow
+import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
+import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
 import java.time.LocalDate
@@ -24,55 +26,83 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BorrowedTab(
-    borrowedItems: List<SelectableListItem<BorrowedBundle>>,
+    borrowedItems: LazyPagingItems<SelectableListItem<BorrowedBundle>>,
     updateBorrowed: (List<BorrowedBook>) -> Unit,
+    setReturnStatus: (Long, Boolean) -> Unit,
+    moveToLibrary: (List<Long>) -> Unit,
     deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
     state: BorrowedTabState,
     modifier: Modifier = Modifier
 ) {
-    val density = LocalDensity.current
-    val config = LocalConfiguration.current
     val selectionManager = state.selectionManager
-    val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier) {
-        LazyColumn {
-            if (borrowedItems.isEmpty())
-                item { Text(stringResource(R.string.empty_library_text)) }
-            items(borrowedItems, key = { it.value.info.bookId }) { item ->
-                Box {
-                    BorrowedBookRow(
-                        item,
-                        onRowTap = {
-                            if (selectionManager.isMultipleSelecting)
-                                selectionManager.multipleSelectToggle(item.value)
-                        },
-                        onCoverLongPress = {
-                            if (!selectionManager.isMultipleSelecting)
-                                selectionManager.startMultipleSelection(item.value)
-                        },
-                        onLenderTap = {
-                            state.fieldToChange = BorrowedField.LENDER
-                            selectionManager.singleSelectedItem = item.value
-                            state.isLenderDialogVisible = true
-                        },
-                        onStartTap = {
-                            state.fieldToChange = BorrowedField.START
-                            selectionManager.singleSelectedItem = item.value
-                            state.isCalendarVisible = true
-                        },
-                        onReturnByTap = {
-                            state.fieldToChange = BorrowedField.RETURN_BY
-                            selectionManager.singleSelectedItem = item.value
-                            state.isCalendarVisible = true
-                        },
-                        areButtonsActive = !selectionManager.isMultipleSelecting,
-                        onSwiped = {
-                            selectionManager.singleSelectedItem = item.value
-                            state.showConfirmReturnBook = true
-                        },
-                        swipeThreshold = (config.screenWidthDp / 3).dp
-                    )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.show_returned_books),
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = state.showReturnedBooks,
+                onCheckedChange = {
+                    if (state.showReturnedBooks)
+                        state.selectionManager.clearSelection()
+                    state.showReturnedBooks = !state.showReturnedBooks
+                    borrowedItems.refresh()
                 }
+            )
+        }
+        LazyColumn() {
+            if (borrowedItems.loadState.refresh != LoadState.Loading &&
+                borrowedItems.itemCount == 0
+            )
+                item {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            stringResource(R.string.empty_library_text),
+                            color = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+
+            items(borrowedItems, key = { it.value.info.bookId }) { item ->
+                if (item == null)
+                    return@items
+                BorrowedBookRow(
+                    item,
+                    onRowTap = {
+                        if (selectionManager.isMultipleSelecting)
+                            selectionManager.multipleSelectToggle(item.value)
+                    },
+                    onRowLongPress = {
+                        if (!selectionManager.isMultipleSelecting) {
+                            selectionManager.singleSelectedItem = item.value
+                            state.isContextMenuVisible = true
+                        }
+                    },
+                    onCoverLongPress = {
+                        if (!selectionManager.isMultipleSelecting)
+                            selectionManager.startMultipleSelection(item.value)
+                    },
+                    onLenderTap = {
+                        state.fieldToChange = BorrowedField.LENDER
+                        selectionManager.singleSelectedItem = item.value
+                        state.isLenderDialogVisible = true
+                    },
+                    onStartTap = {
+                        state.fieldToChange = BorrowedField.START
+                        selectionManager.singleSelectedItem = item.value
+                        state.isCalendarVisible = true
+                    },
+                    onReturnByTap = {
+                        state.fieldToChange = BorrowedField.RETURN_BY
+                        selectionManager.singleSelectedItem = item.value
+                        state.isCalendarVisible = true
+                    },
+                    areButtonsActive = !selectionManager.isMultipleSelecting
+                )
             }
         }
     }
@@ -122,12 +152,6 @@ fun BorrowedTab(
             },
             text = {
                 Column {
-                    val description = when (state.fieldToChange) {
-                        BorrowedField.LENDER -> stringResource(R.string.lender_colon)
-                        BorrowedField.START -> stringResource(R.string.start_colon)
-                        BorrowedField.RETURN_BY -> stringResource(R.string.return_by_colon)
-                        else -> "???"
-                    }
                     Text(stringResource(R.string.lender_colon))
                     OutlinedTextField(
                         value = textInput,
@@ -193,16 +217,16 @@ fun BorrowedTab(
         }
     }
 
-    if (state.showConfirmReturnBook) {
+    if (state.showConfirmDeleteBook) {
         ConfirmDeleteBookDialog(
             onDismiss = {
-                state.showConfirmReturnBook = false
+                state.showConfirmDeleteBook = false
                 if (state.isMultipleSelecting)
                     selectionManager.clearSelection()
             },
             isPlural = state.isMultipleSelecting && selectionManager.count > 1,
-            messageSingular = stringResource(R.string.confirm_return_message),
-            messagePlural = stringResource(R.string.confirm_return_message_plural),
+            messageSingular = stringResource(R.string.confirm_delete_book),
+            messagePlural = stringResource(R.string.confirm_delete_books),
         ) {
             if (state.isMultipleSelecting)
                 deleteBorrowedBooks(selectionManager.selectedKeys) {
@@ -213,7 +237,82 @@ fun BorrowedTab(
                     deleteBorrowedBooks(listOf(it.info.bookId)) {}
                 }
             }
-            state.showConfirmReturnBook = false
+            state.showConfirmDeleteBook = false
+        }
+    }
+    ModalBottomSheet(
+        visible = state.isContextMenuVisible,
+        onDismiss = { state.isContextMenuVisible = false }
+    ) {
+        val selectedItem = selectionManager.singleSelectedItem
+        selectedItem?.let { item ->
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(
+                            if (item.info.isReturned)
+                                R.drawable.upload_24px
+                            else
+                                R.drawable.book_hand_right_24px
+                        ),
+                        stringResource(
+                            if (item.info.isReturned)
+                                R.string.mark_as_not_returned
+                            else
+                                R.string.mark_as_returned
+                        )
+                    )
+                },
+                onClick = {
+                    selectionManager.singleSelectedItem?.info?.bookId?.let { id ->
+                        setReturnStatus(id, !item.info.isReturned)
+                    }
+                    state.isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(
+                        if (item.info.isReturned)
+                            R.string.mark_as_not_returned
+                        else
+                            R.string.mark_as_returned
+                    )
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.library_add_24px),
+                        stringResource(R.string.add_to_library)
+                    )
+                },
+                onClick = {
+                    state.selectionManager.singleSelectedItem?.info?.bookId?.let { id ->
+                        moveToLibrary(listOf(id))
+                    }
+                    state.isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(R.string.add_to_library)
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.delete_24px),
+                        stringResource(R.string.delete)
+                    )
+                },
+                onClick = {
+                    state.showConfirmDeleteBook = true
+                    state.isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(R.string.delete)
+                )
+            }
         }
     }
 }

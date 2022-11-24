@@ -131,4 +131,8 @@
     <string name="error_couldnt_save_image">Couldn\'t save image</string>
     <string name="cover_editor">Cover editor</string>
     <string name="clear_cover">Clear cover</string>
+    <string name="delete_books">Delete books</string>
+    <string name="returned_books">Returned books</string>
+    <string name="show_returned_books">Show returned books</string>
+    <string name="mark_as_not_returned">Mark as not returned</string>
 </resources>

@@ -3,8 +3,8 @@ package com.guidofe.pocketlibrary.repositories
 import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRepository {
     override suspend fun insertBookBundle(bundle: BookBundle): Long {
@@ -62,6 +62,10 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
         db.libraryBookDao().insert(libraryBook)
     }
 
+    override suspend fun insertLibraryBooks(libraryBooks: List<LibraryBook>) {
+        db.libraryBookDao().insertAll(libraryBooks)
+    }
+
     override suspend fun insertWishlistBook(wishlistBook: WishlistBook) {
         db.wishlistBookDao().insert(wishlistBook)
     }
@@ -88,6 +92,18 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
 
     override suspend fun getLibraryBundles(pageSize: Int, pageNumber: Int): List<LibraryBundle> {
         return db.libraryBundleDao().getLibraryBundles(pageNumber * pageSize, pageSize)
+    }
+
+    override suspend fun getBorrowedBundles(
+        pageSize: Int,
+        pageNumber: Int,
+        withReturned: Boolean
+    ): List<BorrowedBundle> {
+        val offset = pageNumber * pageSize
+        return if (withReturned)
+            db.borrowedBundleDao().getBorrowedBundlesWithReturned(offset, pageSize)
+        else
+            db.borrowedBundleDao().getBorrowedBundlesWithoutReturned(offset, pageSize)
     }
 
     override suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle> {
@@ -120,8 +136,16 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
         db.libraryBookDao().insertAll(bookIds.map { LibraryBook(it) })
     }
 
+    override fun getBorrowedBundles(isReturned: Boolean): Flow<List<BorrowedBundle>> {
+        return db.borrowedBundleDao().getBorrowedBundles(isReturned)
+    }
+
     override fun getBorrowedBundles(): Flow<List<BorrowedBundle>> {
         return db.borrowedBundleDao().getBorrowedBundles()
+    }
+
+    override suspend fun deleteBorrowedBooks(ids: List<Long>) {
+        db.borrowedBookDao().delete(ids)
     }
 
     override fun getLentLibraryBundles(): Flow<List<LibraryBundle>> {
@@ -245,5 +269,9 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
 
     override suspend fun updatePageNumber(bookId: Long, value: Int) {
         db.bookDao().changePageNumber(bookId, value)
+    }
+
+    override suspend fun setBorrowedBookStatus(bookIds: List<Long>, isReturned: Boolean) {
+        db.borrowedBookDao().setReturnStatus(bookIds, isReturned)
     }
 }

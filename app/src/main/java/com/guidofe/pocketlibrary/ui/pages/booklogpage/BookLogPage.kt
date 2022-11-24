@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
@@ -43,13 +44,12 @@ fun BookLogPage(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var tabIndex: Int by remember { mutableStateOf(0) }
-    val borrowedList by vm.borrowedItems.collectAsState(initial = emptyList())
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
     var isFabExpanded: Boolean by remember { mutableStateOf(false) }
     var isBorrowTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
     var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
-    var showDoubleIsbnDialog by remember { mutableStateOf(false) }
     var isbnToSearch: String? by remember { mutableStateOf(null) }
+    val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
     LaunchedEffect(
         tabIndex,
         vm.borrowedTabState.selectionManager.isMultipleSelecting,
@@ -73,7 +73,17 @@ fun BookLogPage(
                 actions = {
                     IconButton(
                         onClick = {
-                            vm.borrowedTabState.showConfirmReturnBook = true
+                            vm.borrowedTabState.showConfirmDeleteBook = true
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.delete_24px),
+                            stringResource(R.string.delete_books)
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            vm.setStatusOfSelectedBooks(true)
                         }
                     ) {
                         Icon(
@@ -158,7 +168,7 @@ fun BookLogPage(
                         }
                     ) {
                         Icon(
-                            painterResource(R.drawable.return_book_24px),
+                            painterResource(R.drawable.book_hand_left_24px),
                             stringResource(R.string.mark_as_returned),
                         )
                     }
@@ -206,7 +216,11 @@ fun BookLogPage(
                 it,
                 BookDestination.BORROWED,
                 onNetworkError = {
-                    Snackbars.connectionErrorSnackbar(importVm.snackbarHostState, context, coroutineScope)
+                    Snackbars.connectionErrorSnackbar(
+                        importVm.snackbarHostState,
+                        context,
+                        coroutineScope
+                    )
                 },
                 onNoBookFound = {
                     Snackbars.noBookFoundForIsbnSnackbar(
@@ -218,7 +232,11 @@ fun BookLogPage(
                     }
                 },
                 onOneBookSaved = {
-                    Snackbars.bookSavedSnackbar(importVm.snackbarHostState, context, coroutineScope) {}
+                    Snackbars.bookSavedSnackbar(
+                        importVm.snackbarHostState,
+                        context,
+                        coroutineScope
+                    ) {}
                 },
                 onMultipleBooksFound = { list ->
                     navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
@@ -277,10 +295,16 @@ fun BookLogPage(
         when (tabIndex) {
             0 -> {
                 BorrowedTab(
-                    borrowedList,
+                    lazyBorrowedPagingItems,
+                    setReturnStatus = { id, isReturned ->
+                        vm.setBookReturnStatus(id, isReturned)
+                    },
                     updateBorrowed = { vm.updateBorrowedBooks(it) },
                     deleteBorrowedBooks = { ids, callback ->
                         vm.deleteBorrowedBooks(ids, callback)
+                    },
+                    moveToLibrary = { ids ->
+                        vm.moveBorrowedBooksToLibrary(ids)
                     },
                     state = vm.borrowedTabState
                 )

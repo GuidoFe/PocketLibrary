@@ -26,4 +26,7 @@ interface BorrowedBookDao {
 
     @Query("SELECT book.* FROM borrowed_book NATURAL JOIN book WHERE book.identifier = :isbn")
     suspend fun getBooksInBorrowedWithSameIsbn(isbn: String): List<Book>
+
+    @Query("UPDATE borrowed_book SET isReturned = :isReturned WHERE bookId IN ( :bookIds )")
+    suspend fun setReturnStatus(bookIds: List<Long>, isReturned: Boolean)
 }
