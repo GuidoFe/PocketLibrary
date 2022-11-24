@@ -8,7 +8,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -326,63 +325,58 @@ fun EditBookPage(
         visible = vm.state.showCoverMenu,
         onDismiss = { vm.state.showCoverMenu = false }
     ) {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.photo_camera_24px),
-                        stringResource(R.string.camera)
-                    )
-                },
-                onClick = {
-                    try {
-                        val uri = vm.getTempCoverUri()
-                        navigator.navigate(TakeCoverPhotoPageDestination(uri))
-                    } catch (e: ActivityNotFoundException) {
-                        coroutineScope.launch {
-                            vm.snackbarHostState.showSnackbar(
-                                CustomSnackbarVisuals(
-                                    message = context.getString(R.string.error_no_camera),
-                                    isError = true
-                                )
+        RowWithIcon(
+            icon = {
+                Icon(
+                    painterResource(R.drawable.photo_camera_24px),
+                    stringResource(R.string.camera)
+                )
+            },
+            onClick = {
+                try {
+                    val uri = vm.getTempCoverUri()
+                    navigator.navigate(TakeCoverPhotoPageDestination(uri))
+                } catch (e: ActivityNotFoundException) {
+                    coroutineScope.launch {
+                        vm.snackbarHostState.showSnackbar(
+                            CustomSnackbarVisuals(
+                                message = context.getString(R.string.error_no_camera),
+                                isError = true
                             )
-                        }
+                        )
                     }
-                    vm.state.showCoverMenu = false
                 }
-            ) {
-                Text(stringResource(R.string.take_photo))
+                vm.state.showCoverMenu = false
             }
-            RowWithIcon(
-                icon = {
-                    Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
-                },
-                onClick = {
-                    readMediaPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    vm.state.showCoverMenu = false
-                }
-            ) {
-                Text(stringResource(R.string.choose_from_gallery))
+        ) {
+            Text(stringResource(R.string.take_photo))
+        }
+        RowWithIcon(
+            icon = {
+                Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
+            },
+            onClick = {
+                readMediaPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                vm.state.showCoverMenu = false
             }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(
-                            R.drawable.delete_24px
-                        ),
-                        stringResource(R.string.clear_cover)
-                    )
-                },
-                onClick = {
-                    vm.state.coverUri = null
-                    vm.state.showCoverMenu = false
-                }
-            ) {
-                Text(stringResource(R.string.clear_cover))
+        ) {
+            Text(stringResource(R.string.choose_from_gallery))
+        }
+        RowWithIcon(
+            icon = {
+                Icon(
+                    painterResource(
+                        R.drawable.delete_24px
+                    ),
+                    stringResource(R.string.clear_cover)
+                )
+            },
+            onClick = {
+                vm.state.coverUri = null
+                vm.state.showCoverMenu = false
             }
+        ) {
+            Text(stringResource(R.string.clear_cover))
         }
     }
 }

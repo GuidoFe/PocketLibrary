@@ -8,19 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
-import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.LentBookRow
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
-import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.LocalDate
 
@@ -34,11 +28,7 @@ fun LentTab(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-    val config = LocalConfiguration.current
-    val density = LocalDensity.current
     val selectionManager = state.selectionManager
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier) {
         LazyColumn {
             if (lentItems.isEmpty())
@@ -67,22 +57,6 @@ fun LentTab(
                             state.isCalendarVisible = true
                         },
                         areButtonsActive = !selectionManager.isMultipleSelecting,
-                        onSwiped = {
-                            item.value.lent?.let { lent ->
-                                removeLentStatus(listOf(lent)) {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            CustomSnackbarVisuals(
-                                                message = context.getString(
-                                                    R.string.book_moved_to_library
-                                                )
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                        swipeThreshold = (config.screenWidthDp / 3).dp,
                     )
                 }
             }

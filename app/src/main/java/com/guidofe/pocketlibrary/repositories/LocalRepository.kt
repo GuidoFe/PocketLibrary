@@ -48,6 +48,7 @@ interface LocalRepository {
     suspend fun moveBookFromWishlistToLibrary(bookId: Long)
     suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>)
 
+    fun getBorrowedBundles(isReturned: Boolean): Flow<List<BorrowedBundle>>
     fun getBorrowedBundles(): Flow<List<BorrowedBundle>>
     suspend fun insertBorrowedBook(borrowedBook: BorrowedBook)
     suspend fun getBooksInBorrowedWithSameIsbn(isbn: String): List<Book>
@@ -66,4 +67,12 @@ interface LocalRepository {
     suspend fun deleteBookAuthors(bookId: Long)
     suspend fun getGenresByStartingLetters(start: String): List<Genre>
     suspend fun deleteBookGenreRelations(bookId: Long)
+    suspend fun setBorrowedBookStatus(bookIds: List<Long>, isReturned: Boolean)
+    suspend fun deleteBorrowedBooks(ids: List<Long>)
+    suspend fun insertLibraryBooks(libraryBooks: List<LibraryBook>)
+    suspend fun getBorrowedBundles(
+        pageSize: Int,
+        pageNumber: Int,
+        withReturned: Boolean
+    ): List<BorrowedBundle>
 }

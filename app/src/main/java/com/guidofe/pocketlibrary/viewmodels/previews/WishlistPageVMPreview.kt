@@ -9,7 +9,7 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.emptyFlow
 
 class WishlistPageVMPreview : IWishlistPageVM {
     override val scaffoldState: ScaffoldState
@@ -20,7 +20,7 @@ class WishlistPageVMPreview : IWishlistPageVM {
         get() = SelectionManager { it.info.bookId }
     override var duplicateIsbn: String = ""
     override val pager: Flow<PagingData<SelectableListItem<WishlistBundle>>>
-        get() = flowOf()
+        get() = emptyFlow()
 
     override fun invalidate() {
     }

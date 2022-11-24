@@ -3,9 +3,15 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.repositories.pagingsources.BorrowedBooksPagingSource
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTabState
@@ -25,12 +31,27 @@ class BookLogVM @Inject constructor(
 ) : ViewModel(), IBookLogVM {
     override val borrowedTabState = BorrowedTabState()
     override val lentTabState = LentTabState()
-    override val borrowedItems = repo.getBorrowedBundles()
-        .combine(borrowedTabState.selectionManager.selectedItems) { books, selected ->
-            books.map {
-                SelectableListItem(it, selected.containsKey(it.info.bookId))
+
+    private var currentBorrowedPagingSource: BorrowedBooksPagingSource? = null
+
+    override var borrowedPager = Pager(PagingConfig(40, initialLoadSize = 40)) {
+        BorrowedBooksPagingSource(repo, borrowedTabState.showReturnedBooks)
+            .also { currentBorrowedPagingSource = it }
+    }.flow.cachedIn(viewModelScope)
+        .combine(borrowedTabState.selectionManager.selectedItems) { items, selected ->
+            items.map {
+                SelectableListItem(
+                    it,
+                    selected.containsKey(it.info.bookId)
+                )
             }
         }
+        private set
+
+    override fun invalidateBorrowedPagingSource() {
+        currentBorrowedPagingSource?.invalidate()
+    }
+
     override val lentItems = repo.getLentLibraryBundles()
         .combine(lentTabState.selectionManager.selectedItems) { books, selected ->
             books.map {
@@ -41,6 +62,7 @@ class BookLogVM @Inject constructor(
     override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.deleteBooksByIds(bookIds)
+            invalidateBorrowedPagingSource()
             callback()
         }
     }
@@ -48,6 +70,7 @@ class BookLogVM @Inject constructor(
     override fun updateBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.updateAllBorrowedBooks(borrowedBooks)
+            invalidateBorrowedPagingSource()
         }
     }
 
@@ -60,6 +83,28 @@ class BookLogVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBooks(books)
             callback()
+        }
+    }
+
+    override fun setStatusOfSelectedBooks(isReturned: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.setBorrowedBookStatus(borrowedTabState.selectionManager.selectedKeys, isReturned)
+            borrowedTabState.selectionManager.clearSelection()
+        }
+    }
+
+    override fun setBookReturnStatus(bookId: Long, isReturned: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.setBorrowedBookStatus(listOf(bookId), isReturned)
+            invalidateBorrowedPagingSource()
+        }
+    }
+
+    override fun moveBorrowedBooksToLibrary(bookIds: List<Long>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteBorrowedBooks(bookIds)
+            repo.insertLibraryBooks(bookIds.map { LibraryBook(it) })
+            invalidateBorrowedPagingSource()
         }
     }
 }

@@ -15,5 +15,7 @@ class BorrowedTabState {
     var isLenderDialogVisible by mutableStateOf(false)
     var isCalendarVisible by mutableStateOf(false)
     var fieldToChange: BorrowedField? = null
-    var showConfirmReturnBook by mutableStateOf(false)
+    var showConfirmDeleteBook by mutableStateOf(false)
+    var showReturnedBooks by mutableStateOf(false)
+    var isContextMenuVisible by mutableStateOf(false)
 }
