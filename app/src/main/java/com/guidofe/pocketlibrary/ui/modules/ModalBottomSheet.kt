@@ -40,7 +40,7 @@ fun ModalBottomSheet(
         transitionSpec = { tween(300) },
         label = "background"
     ) {
-        if (it) MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f) else Color.Transparent
+        if (it) MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f) else Color.Transparent
     }
     val yOffset by transition.animateFloat(
         transitionSpec = { tween(300) },

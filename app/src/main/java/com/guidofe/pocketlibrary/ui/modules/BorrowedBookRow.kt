@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -15,8 +16,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,33 +44,7 @@ fun BorrowedBookRow(
     areButtonsActive: Boolean = true,
 
 ) {
-    val bookBundle = item.value.bookBundle
-    val lenderString = stringResource(R.string.lender_colon)
-
-    val lenderBuilder = AnnotatedString.Builder(
-        lenderString + "\n" + (item.value.info.who ?: "???")
-    )
-    lenderBuilder.addStyle(
-        SpanStyle(fontWeight = FontWeight.Bold), 0, lenderString.length
-    )
-    val startString = stringResource(R.string.start_colon)
-    val startBuilder = AnnotatedString.Builder(
-        startString + "\n" + (item.value.info.start)
-    )
-    startBuilder.addStyle(
-        SpanStyle(fontWeight = FontWeight.Bold), 0, startString.length
-    )
-    val returnByString = stringResource(R.string.return_by_colon)
-    val returnByBuilder = AnnotatedString.Builder(
-        returnByString + "\n" + (item.value.info.end ?: "-")
-    )
-    returnByBuilder.addStyle(
-        SpanStyle(fontWeight = FontWeight.Bold), 0, returnByString.length
-    )
-    val textColor = if (item.value.info.isReturned)
-        MaterialTheme.colorScheme.onSurfaceVariant
-    else
-        MaterialTheme.colorScheme.onSurface
+    val bookBundle = remember { item.value.bookBundle }
     Surface(
         color = if (item.value.info.isReturned)
             MaterialTheme.colorScheme.surfaceVariant
@@ -114,7 +87,7 @@ fun BorrowedBookRow(
                         .weight(3f)
                         .padding(5.dp, 0.dp)
                 ) {
-                    BoxWithConstraints {
+                    Box {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -125,7 +98,6 @@ fun BorrowedBookRow(
                                 fontSize = 5.em,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
-                                color = textColor
                             )
                             Text(
                                 text = bookBundle.authors.joinToString(", ") {
@@ -134,41 +106,64 @@ fun BorrowedBookRow(
                                 fontStyle = FontStyle.Italic,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
-                                color = textColor
                             )
                         }
                     }
                     Divider()
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        Text(
-                            lenderBuilder.toAnnotatedString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = textColor,
+                        Column(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
                                 .clickable(areButtonsActive) { onLenderTap() }
-                        )
-                        Text(
-                            startBuilder.toAnnotatedString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = textColor,
+                        ) {
+                            Text(
+                                stringResource(R.string.lender_colon),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                item.value.info.who ?: "???",
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
+                        Column(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
                                 .clickable(areButtonsActive) { onStartTap() }
-                        )
-                        Text(
-                            returnByBuilder.toAnnotatedString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = textColor,
+                        ) {
+                            Text(
+                                stringResource(R.string.start_colon),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                item.value.info.start.toString(),
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
+
+                        Column(
                             modifier = Modifier
+                                .weight(1f)
                                 .fillMaxHeight()
                                 .clickable(areButtonsActive) { onReturnByTap() }
-                        )
+                        ) {
+                            Text(
+                                stringResource(R.string.return_by_colon),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                item.value.info.end?.toString() ?: "-",
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
                     }
                 }
             }

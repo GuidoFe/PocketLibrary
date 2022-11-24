@@ -7,12 +7,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,22 +38,7 @@ fun LentBookRow(
     onStartTap: () -> Unit = {},
     areButtonsActive: Boolean = true,
 ) {
-    val bookBundle = item.value.bookBundle
-    val lentInfo = item.value.lent
-    val lenderString = stringResource(R.string.lent_to_colon)
-    val lenderBuilder = AnnotatedString.Builder(
-        lenderString + "\n" + (lentInfo?.who ?: "???")
-    )
-    lenderBuilder.addStyle(
-        SpanStyle(fontWeight = FontWeight.Bold), 0, lenderString.length
-    )
-    val startString = stringResource(R.string.start_colon)
-    val startBuilder = AnnotatedString.Builder(
-        startString + "\n" + (lentInfo?.start ?: "???")
-    )
-    startBuilder.addStyle(
-        SpanStyle(fontWeight = FontWeight.Bold), 0, startString.length
-    )
+    val bookBundle = remember { item.value.bookBundle }
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -86,7 +70,7 @@ fun LentBookRow(
                             .weight(3f)
                             .padding(5.dp, 0.dp)
                     ) {
-                        BoxWithConstraints {
+                        Box {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -111,22 +95,38 @@ fun LentBookRow(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxHeight()
                         ) {
-                            Text(
-                                lenderBuilder.toAnnotatedString(),
-                                style = MaterialTheme.typography.labelSmall,
+                            Column(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clickable(areButtonsActive) { onBorrowerTap() }
-                            )
-                            Text(
-                                startBuilder.toAnnotatedString(),
-                                style = MaterialTheme.typography.labelSmall,
+                            ) {
+                                Text(
+                                    stringResource(R.string.lent_to_colon),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    item.value.lent?.who ?: "???",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                            Column(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clickable(areButtonsActive) { onStartTap() }
-                            )
+                            ) {
+                                Text(
+                                    stringResource(R.string.start_colon),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    item.value.lent?.start?.toString() ?: "-",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
                         }
                     }
                 }
