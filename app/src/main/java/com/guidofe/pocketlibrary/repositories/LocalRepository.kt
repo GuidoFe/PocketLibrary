@@ -5,6 +5,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.model.AppStats
 import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
@@ -75,4 +76,6 @@ interface LocalRepository {
         pageNumber: Int,
         withReturned: Boolean
     ): List<BorrowedBundle>
+
+    suspend fun getStats(): AppStats
 }

@@ -11,11 +11,11 @@ import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ITakeCoverPhotoVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class TakeCoverPhotoVM @Inject constructor(

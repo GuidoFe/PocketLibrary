@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.repositories
 import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
+import com.guidofe.pocketlibrary.model.AppStats
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -273,5 +274,15 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
 
     override suspend fun setBorrowedBookStatus(bookIds: List<Long>, isReturned: Boolean) {
         db.borrowedBookDao().setReturnStatus(bookIds, isReturned)
+    }
+
+    // TODO: Optimize queries
+    override suspend fun getStats(): AppStats {
+        return AppStats(
+            libraryBooksCount = db.libraryBookDao().countBooksInLibrary(),
+            currentlyBorrowedBooksCount = db.borrowedBookDao().countCurrentlyBorrowedBooks(),
+            lentBooksCount = db.lentBookDao().countLentBooks(),
+            readBooksCount = db.progressDao().countBooks(ProgressPhase.READ),
+        )
     }
 }

@@ -3,7 +3,6 @@ package com.guidofe.pocketlibrary.data.local.library_db.daos
 import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Progress
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProgressDao {
@@ -25,5 +24,5 @@ interface ProgressDao {
     suspend fun delete(bookId: Long)
 
     @Query("SELECT COUNT(bookId) FROM progress WHERE phase = :progress")
-    fun countBooks(progress: ProgressPhase): Flow<Int>
+    suspend fun countBooks(progress: ProgressPhase): Int
 }

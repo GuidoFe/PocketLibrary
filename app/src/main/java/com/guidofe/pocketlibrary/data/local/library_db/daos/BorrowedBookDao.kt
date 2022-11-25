@@ -29,4 +29,10 @@ interface BorrowedBookDao {
 
     @Query("UPDATE borrowed_book SET isReturned = :isReturned WHERE bookId IN ( :bookIds )")
     suspend fun setReturnStatus(bookIds: List<Long>, isReturned: Boolean)
+
+    @Query("SELECT COUNT(bookId) FROM borrowed_book WHERE isReturned = 0")
+    suspend fun countCurrentlyBorrowedBooks(): Int
+
+    @Query("SELECT COUNT(bookId) FROM borrowed_book")
+    suspend fun countAllBorrowedBooks(): Int
 }

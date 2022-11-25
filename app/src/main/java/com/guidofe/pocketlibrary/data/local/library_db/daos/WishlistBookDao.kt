@@ -31,5 +31,5 @@ interface WishlistBookDao {
     suspend fun deleteAll(bookIds: List<Long>)
 
     @Query("SELECT COUNT(bookId) FROM wishlist_book")
-    suspend fun countBooksInWishlist(): Flow<Int>
+    suspend fun countBooksInWishlist(): Int
 }

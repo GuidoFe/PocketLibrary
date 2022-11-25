@@ -14,9 +14,9 @@ import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ProgressTabState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class ViewBookVM @Inject constructor(
