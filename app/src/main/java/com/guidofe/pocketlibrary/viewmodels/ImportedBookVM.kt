@@ -11,9 +11,9 @@ import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class ImportedBookVM @Inject constructor(

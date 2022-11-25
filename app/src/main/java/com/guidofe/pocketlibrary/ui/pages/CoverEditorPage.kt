@@ -29,12 +29,12 @@ import com.guidofe.pocketlibrary.viewmodels.CoverEditorVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ICoverEditorVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.lang.Float.min
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 @Destination

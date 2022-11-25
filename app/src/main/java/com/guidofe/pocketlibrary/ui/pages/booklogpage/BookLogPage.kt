@@ -50,6 +50,9 @@ fun BookLogPage(
     var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
+    LaunchedEffect(Unit) {
+        vm.invalidateBorrowedPagingSource()
+    }
     LaunchedEffect(
         tabIndex,
         vm.borrowedTabState.selectionManager.isMultipleSelecting,
@@ -306,6 +309,7 @@ fun BookLogPage(
                     moveToLibrary = { ids ->
                         vm.moveBorrowedBooksToLibrary(ids)
                     },
+                    navigator = navigator,
                     state = vm.borrowedTabState
                 )
             }

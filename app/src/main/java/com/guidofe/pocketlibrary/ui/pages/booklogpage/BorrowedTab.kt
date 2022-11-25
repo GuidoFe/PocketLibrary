@@ -19,7 +19,10 @@ import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.BorrowedBookRow
 import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
+import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.sql.Date
 import java.time.LocalDate
 
@@ -32,6 +35,7 @@ fun BorrowedTab(
     moveToLibrary: (List<Long>) -> Unit,
     deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
     state: BorrowedTabState,
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier
 ) {
     val selectionManager = state.selectionManager
@@ -75,6 +79,9 @@ fun BorrowedTab(
                     onRowTap = {
                         if (selectionManager.isMultipleSelecting)
                             selectionManager.multipleSelectToggle(item.value)
+                        else {
+                            navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
+                        }
                     },
                     onRowLongPress = {
                         if (!selectionManager.isMultipleSelecting) {
@@ -277,6 +284,38 @@ fun BorrowedTab(
                         else
                             R.string.mark_as_returned
                     )
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.info_24px),
+                        stringResource(R.string.details)
+                    )
+                },
+                onClick = {
+                    state.isContextMenuVisible = false
+                    navigator.navigate(ViewBookPageDestination(item.info.bookId))
+                }
+            ) {
+                Text(
+                    stringResource(R.string.details)
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.edit_24px),
+                        stringResource(R.string.edit)
+                    )
+                },
+                onClick = {
+                    state.isContextMenuVisible = false
+                    navigator.navigate(EditBookPageDestination(item.info.bookId))
+                }
+            ) {
+                Text(
+                    stringResource(R.string.edit)
                 )
             }
             RowWithIcon(

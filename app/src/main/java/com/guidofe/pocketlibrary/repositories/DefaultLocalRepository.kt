@@ -4,8 +4,8 @@ import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
 class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRepository {
     override suspend fun insertBookBundle(bundle: BookBundle): Long {

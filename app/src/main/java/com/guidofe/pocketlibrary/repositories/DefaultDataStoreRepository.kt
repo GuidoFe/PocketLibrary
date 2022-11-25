@@ -11,11 +11,11 @@ import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.ui.theme.Theme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private val Context.dataStore by dataStore(
     fileName = "app-settings.json",
