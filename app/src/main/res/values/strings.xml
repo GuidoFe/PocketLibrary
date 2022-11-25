@@ -139,4 +139,5 @@
     <string name="books_read">Books read</string>
     <string name="borrowed_books">Borrowed books</string>
     <string name="lent_books">Lent books</string>
+    <string name="return_to_library">Return to library</string>
 </resources>

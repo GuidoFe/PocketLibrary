@@ -1,6 +1,9 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -31,7 +34,7 @@ class BookLogVM @Inject constructor(
 ) : ViewModel(), IBookLogVM {
     override val borrowedTabState = BorrowedTabState()
     override val lentTabState = LentTabState()
-
+    override var tabIndex: Int by mutableStateOf(0)
     private var currentBorrowedPagingSource: BorrowedBooksPagingSource? = null
 
     override var borrowedPager = Pager(PagingConfig(40, initialLoadSize = 40)) {

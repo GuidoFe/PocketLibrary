@@ -43,7 +43,6 @@ fun BookLogPage(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var tabIndex: Int by remember { mutableStateOf(0) }
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
     var isFabExpanded: Boolean by remember { mutableStateOf(false) }
     var isBorrowTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
@@ -54,11 +53,11 @@ fun BookLogPage(
         vm.invalidateBorrowedPagingSource()
     }
     LaunchedEffect(
-        tabIndex,
+        vm.tabIndex,
         vm.borrowedTabState.selectionManager.isMultipleSelecting,
         vm.lentTabState.selectionManager.isMultipleSelecting
     ) {
-        if (tabIndex == 0 && vm.borrowedTabState.selectionManager.isMultipleSelecting) {
+        if (vm.tabIndex == 0 && vm.borrowedTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
@@ -134,7 +133,7 @@ fun BookLogPage(
                     }
                 }
             )
-        } else if (tabIndex == 1 && vm.lentTabState.selectionManager.isMultipleSelecting) {
+        } else if (vm.tabIndex == 1 && vm.lentTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
@@ -247,8 +246,8 @@ fun BookLogPage(
             )
         }
     }
-    LaunchedEffect(tabIndex) {
-        if (tabIndex == 0) {
+    LaunchedEffect(vm.tabIndex) {
+        if (vm.tabIndex == 0) {
             vm.scaffoldState.fab = {
                 AddBookFab(
                     isExpanded = isFabExpanded,
@@ -281,21 +280,21 @@ fun BookLogPage(
             .fillMaxSize()
     ) {
         TabRow(
-            selectedTabIndex = tabIndex,
+            selectedTabIndex = vm.tabIndex,
             modifier = Modifier.fillMaxWidth()
         ) {
             Tab(
-                selected = tabIndex == 0,
-                onClick = { tabIndex = 0 },
+                selected = vm.tabIndex == 0,
+                onClick = { vm.tabIndex = 0 },
                 text = { Text(stringResource(R.string.borrowed)) }
             )
             Tab(
-                selected = tabIndex == 1,
-                onClick = { tabIndex = 1 },
+                selected = vm.tabIndex == 1,
+                onClick = { vm.tabIndex = 1 },
                 text = { Text(stringResource(R.string.lent_tab)) }
             )
         }
-        when (tabIndex) {
+        when (vm.tabIndex) {
             0 -> {
                 BorrowedTab(
                     lazyBorrowedPagingItems,
@@ -321,7 +320,7 @@ fun BookLogPage(
                         vm.removeLentStatus(list, callback)
                     },
                     state = vm.lentTabState,
-                    snackbarHostState = vm.snackbarState
+                    navigator = navigator
                 )
             }
         }

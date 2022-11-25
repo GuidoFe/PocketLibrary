@@ -8,13 +8,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.modules.LentBookRow
+import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
+import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
+import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.sql.Date
 import java.time.LocalDate
 
@@ -25,7 +31,7 @@ fun LentTab(
     updateLent: (List<LentBook>) -> Unit,
     removeLentStatus: (books: List<LentBook>, callback: () -> Unit) -> Unit,
     state: LentTabState,
-    snackbarHostState: SnackbarHostState,
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier
 ) {
     val selectionManager = state.selectionManager
@@ -55,6 +61,10 @@ fun LentTab(
                             state.fieldToChange = LentField.START
                             selectionManager.singleSelectedItem = item.value
                             state.isCalendarVisible = true
+                        },
+                        onRowLongPress = {
+                            state.selectionManager.singleSelectedItem = item.value
+                            state.isContextMenuVisible = true
                         },
                         areButtonsActive = !selectionManager.isMultipleSelecting,
                     )
@@ -160,6 +170,64 @@ fun LentTab(
             state.isCalendarVisible = false
             selectionManager.clearSelection()
             state.fieldToChange = null
+        }
+    }
+    ModalBottomSheet(
+        visible = state.isContextMenuVisible,
+        onDismiss = { state.isContextMenuVisible = false }
+    ) {
+        val selectedItem = selectionManager.singleSelectedItem
+        selectedItem?.let { item ->
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.book_hand_left_24px),
+                        stringResource(R.string.return_to_library)
+                    )
+                },
+                onClick = {
+                    selectionManager.singleSelectedItem?.lent?.let { book ->
+                        removeLentStatus(listOf(book)) {}
+                    }
+                    state.isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(R.string.return_to_library)
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.info_24px),
+                        stringResource(R.string.details)
+                    )
+                },
+                onClick = {
+                    state.isContextMenuVisible = false
+                    navigator.navigate(ViewBookPageDestination(item.info.bookId))
+                }
+            ) {
+                Text(
+                    stringResource(R.string.details)
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.edit_24px),
+                        stringResource(R.string.edit)
+                    )
+                },
+                onClick = {
+                    state.isContextMenuVisible = false
+                    navigator.navigate(EditBookPageDestination(item.info.bookId))
+                }
+            ) {
+                Text(
+                    stringResource(R.string.edit)
+                )
+            }
         }
     }
 }

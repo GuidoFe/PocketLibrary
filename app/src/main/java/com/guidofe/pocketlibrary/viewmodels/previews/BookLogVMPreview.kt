@@ -55,4 +55,6 @@ class BookLogVMPreview : IBookLogVM {
 
     override fun invalidateBorrowedPagingSource() {
     }
+
+    override var tabIndex: Int = 0
 }

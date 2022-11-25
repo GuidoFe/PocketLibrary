@@ -15,4 +15,5 @@ class LentTabState {
     var isBorrowerDialogVisible by mutableStateOf(false)
     var isCalendarVisible by mutableStateOf(false)
     var fieldToChange: LentField? = null
+    var isContextMenuVisible by mutableStateOf(false)
 }

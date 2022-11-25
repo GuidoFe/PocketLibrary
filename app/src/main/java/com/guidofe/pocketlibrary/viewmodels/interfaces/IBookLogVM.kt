@@ -27,4 +27,5 @@ interface IBookLogVM {
     fun moveBorrowedBooksToLibrary(bookIds: List<Long>)
     val borrowedPager: Flow<PagingData<SelectableListItem<BorrowedBundle>>>
     fun invalidateBorrowedPagingSource()
+    var tabIndex: Int
 }

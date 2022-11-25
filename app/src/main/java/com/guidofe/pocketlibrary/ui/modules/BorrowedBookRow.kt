@@ -66,6 +66,7 @@ fun BorrowedBookRow(
                 item.isSelected,
                 onRowTap,
                 onCoverLongPress,
+                progress = item.value.bookBundle.progress?.phase,
                 colorFilter = if (item.value.info.isReturned)
                     ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
                 else

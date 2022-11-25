@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.ui.modules
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -11,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +38,7 @@ fun LentBookRow(
     onCoverLongPress: (Offset) -> Unit = {},
     onBorrowerTap: () -> Unit = {},
     onStartTap: () -> Unit = {},
+    onRowLongPress: () -> Unit = {},
     areButtonsActive: Boolean = true,
 ) {
     val bookBundle = remember { item.value.bookBundle }
@@ -56,7 +59,8 @@ fun LentBookRow(
                 bookBundle.book.coverURI,
                 item.isSelected,
                 onRowTap,
-                onCoverLongPress
+                onCoverLongPress,
+                progress = item.value.bookBundle.progress?.phase
             )
             Box(
                 modifier = Modifier
@@ -70,7 +74,9 @@ fun LentBookRow(
                             .weight(3f)
                             .padding(5.dp, 0.dp)
                     ) {
-                        Box {
+                        Box(
+                            modifier = Modifier.height(IntrinsicSize.Min)
+                        ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -83,12 +89,22 @@ fun LentBookRow(
                                     maxLines = 1,
                                 )
                                 Text(
-                                    text = bookBundle.authors.joinToString(", ") { it.name },
+                                    text = bookBundle.authors
+                                        .joinToString(", ") { it.name },
                                     fontStyle = FontStyle.Italic,
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 1,
                                 )
                             }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onLongPress = { onRowLongPress() }
+                                        )
+                                    }
+                            )
                         }
                         Divider()
                         Row(
