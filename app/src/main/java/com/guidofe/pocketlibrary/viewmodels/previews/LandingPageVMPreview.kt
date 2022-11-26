@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.viewmodels.previews
 
 import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILandingPageVM
 
 class LandingPageVMPreview : ILandingPageVM {
@@ -13,6 +14,11 @@ class LandingPageVMPreview : ILandingPageVM {
             50,
             10,
             4,
+            3,
+            1,
+            1,
+            1,
+            listOf(PreviewUtils.exampleBookBundle, PreviewUtils.exampleBookBundle)
         )
 
     override fun initStats() {

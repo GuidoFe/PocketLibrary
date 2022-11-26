@@ -2,9 +2,11 @@ package com.guidofe.pocketlibrary.data.local.library_db.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapInfo
 import androidx.room.Query
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 
 @Dao
 interface LibraryBookDao {
@@ -31,4 +33,14 @@ interface LibraryBookDao {
 
     @Query("SELECT COUNT(bookId) FROM library_book")
     suspend fun countBooksInLibrary(): Int
+
+    @Query("SELECT COUNT(bookId) FROM library_book NATURAL JOIN progress WHERE phase = :phase")
+    suspend fun countLibraryBooksAtProgressPhase(phase: ProgressPhase): Int
+
+    @Query(
+        "SELECT phase, COUNT(bookId) as total " +
+            "FROM library_book NATURAL JOIN progress GROUP BY phase"
+    )
+    @MapInfo(keyColumn = "phase", valueColumn = "total")
+    suspend fun countLibraryBooksAtEveryPhase(): Map<ProgressPhase, Int>
 }

@@ -78,4 +78,6 @@ interface LocalRepository {
     ): List<BorrowedBundle>
 
     suspend fun getStats(): AppStats
+    suspend fun getBookBundlesAtProgressPhase(phase: ProgressPhase): List<BookBundle>
+    suspend fun countLibraryBooksAtEveryPhase(): Map<ProgressPhase, Int>
 }

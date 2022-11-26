@@ -3,10 +3,12 @@ package com.guidofe.pocketlibrary.ui.pages.booklogpage
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,9 +38,15 @@ fun LentTab(
 ) {
     val selectionManager = state.selectionManager
     Column(modifier = modifier) {
+        if (lentItems.isEmpty())
+            Box(modifier = Modifier.fillMaxSize()) {
+                Text(
+                    stringResource(R.string.you_have_no_lent),
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         LazyColumn {
-            if (lentItems.isEmpty())
-                item { Text(stringResource(R.string.empty_library_text)) }
             items(lentItems, key = { it.value.info.bookId }) { item ->
                 Box {
                     val xOffset = remember { Animatable(0f) }
@@ -186,8 +194,8 @@ fun LentTab(
                     )
                 },
                 onClick = {
-                    selectionManager.singleSelectedItem?.lent?.let { book ->
-                        removeLentStatus(listOf(book)) {}
+                    item.lent?.let { lent ->
+                        removeLentStatus(listOf(lent)) {}
                     }
                     state.isContextMenuVisible = false
                 }

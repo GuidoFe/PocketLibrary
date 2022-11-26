@@ -5,10 +5,11 @@ import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 interface ILibraryVM {
     val scaffoldState: ScaffoldState
@@ -24,4 +25,5 @@ interface ILibraryVM {
     fun markSelectedLentBooksAsReturned(callback: () -> Unit)
     fun markLentBookAsReturned(lentBook: LentBook)
     fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit)
+    val state: LibraryPageState
 }

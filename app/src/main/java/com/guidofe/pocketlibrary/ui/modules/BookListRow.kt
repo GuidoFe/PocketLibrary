@@ -141,67 +141,60 @@ private fun GenericListRow(
                     isLent,
                     progress
                 )
-                Box(
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
+                        .fillMaxHeight()
                         .weight(1f, true)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .weight(1f)
-                        ) {
-                            Text(
-                                text = title,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 5.em,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
-                            if (subtitle != null)
-                                Text(
-                                    text = subtitle,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                )
-                            Text(
-                                text = authors,
-                                fontStyle = FontStyle.Italic,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
+                        .onGloballyPositioned {
+                            tapZoneOffset = it.positionInParent()
                         }
-                        if (isFavorite) {
-                            Icon(
-                                painter = painterResource(R.drawable.heart_filled_24px),
-                                contentDescription = stringResource(R.string.favorite),
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .onGloballyPositioned {
-                                tapZoneOffset = it.positionInParent()
-                            }
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        onRowLongPress(
-                                            Offset(
-                                                it.x + tapZoneOffset.x,
-                                                it.y + tapZoneOffset.y
-                                            )
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    onRowLongPress(
+                                        Offset(
+                                            it.x + tapZoneOffset.x,
+                                            it.y + tapZoneOffset.y
                                         )
-                                    },
-                                    onTap = onRowTap
-                                )
-                            }
-                    )
+                                    )
+                                },
+                                onTap = onRowTap
+                            )
+                        }
+                ) {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                    ) {
+                        Text(
+                            text = title,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 5.em,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        if (subtitle != null)
+                            Text(
+                                text = subtitle,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                            )
+                        Text(
+                            text = authors,
+                            fontStyle = FontStyle.Italic,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                    }
+                    if (isFavorite) {
+                        Icon(
+                            painter = painterResource(R.drawable.heart_filled_24px),
+                            contentDescription = stringResource(R.string.favorite),
+                        )
+                    }
                 }
             }
         }

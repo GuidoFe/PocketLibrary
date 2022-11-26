@@ -57,20 +57,17 @@ fun BorrowedTab(
                 }
             )
         }
+        if (borrowedItems.loadState.refresh != LoadState.Loading &&
+            borrowedItems.itemCount == 0
+        )
+            Box(modifier = Modifier.fillMaxSize()) {
+                Text(
+                    stringResource(R.string.you_have_no_borrowed),
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         LazyColumn() {
-            if (borrowedItems.loadState.refresh != LoadState.Loading &&
-                borrowedItems.itemCount == 0
-            )
-                item {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            stringResource(R.string.empty_library_text),
-                            color = MaterialTheme.colorScheme.outline,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
-
             items(borrowedItems, key = { it.value.info.bookId }) { item ->
                 if (item == null)
                     return@items
@@ -271,9 +268,8 @@ fun BorrowedTab(
                     )
                 },
                 onClick = {
-                    selectionManager.singleSelectedItem?.info?.bookId?.let { id ->
-                        setReturnStatus(id, !item.info.isReturned)
-                    }
+                    setReturnStatus(item.info.bookId, !item.info.isReturned)
+                    state.selectionManager.singleSelectedItem = null
                     state.isContextMenuVisible = false
                 }
             ) {
@@ -326,9 +322,7 @@ fun BorrowedTab(
                     )
                 },
                 onClick = {
-                    state.selectionManager.singleSelectedItem?.info?.bookId?.let { id ->
-                        moveToLibrary(listOf(id))
-                    }
+                    moveToLibrary(listOf(item.info.bookId))
                     state.isContextMenuVisible = false
                 }
             ) {

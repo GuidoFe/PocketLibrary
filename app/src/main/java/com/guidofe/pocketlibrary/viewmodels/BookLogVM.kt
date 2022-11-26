@@ -37,7 +37,7 @@ class BookLogVM @Inject constructor(
     override var tabIndex: Int by mutableStateOf(0)
     private var currentBorrowedPagingSource: BorrowedBooksPagingSource? = null
 
-    override var borrowedPager = Pager(PagingConfig(40, initialLoadSize = 40)) {
+    override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 10)) {
         BorrowedBooksPagingSource(repo, borrowedTabState.showReturnedBooks)
             .also { currentBorrowedPagingSource = it }
     }.flow.cachedIn(viewModelScope)
@@ -89,10 +89,11 @@ class BookLogVM @Inject constructor(
         }
     }
 
-    override fun setStatusOfSelectedBooks(isReturned: Boolean) {
+    override fun setStatusOfSelectedBorrowedBooks(isReturned: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.setBorrowedBookStatus(borrowedTabState.selectionManager.selectedKeys, isReturned)
             borrowedTabState.selectionManager.clearSelection()
+            invalidateBorrowedPagingSource()
         }
     }
 

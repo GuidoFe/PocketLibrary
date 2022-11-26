@@ -12,6 +12,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.LibraryPagingSource
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
@@ -29,13 +30,14 @@ class LibraryVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState
 ) : ViewModel(), ILibraryVM {
+    override val state = LibraryPageState()
     override var duplicateIsbn: String = ""
     override val selectionManager = SelectionManager<Long, LibraryBundle>(
         getKey = { it.info.bookId }
     )
     private var currentPagingSource: LibraryPagingSource? = null
 
-    override var pager = Pager(PagingConfig(40, initialLoadSize = 40)) {
+    override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
         LibraryPagingSource(repo).also { currentPagingSource = it }
     }.flow.cachedIn(viewModelScope).combine(selectionManager.selectedItems) { items, selected ->
         items.map {

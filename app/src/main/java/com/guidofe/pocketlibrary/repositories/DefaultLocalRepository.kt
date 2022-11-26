@@ -4,8 +4,8 @@ import androidx.room.withTransaction
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRepository {
     override suspend fun insertBookBundle(bundle: BookBundle): Long {
@@ -276,13 +276,28 @@ class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRep
         db.borrowedBookDao().setReturnStatus(bookIds, isReturned)
     }
 
+    override suspend fun countLibraryBooksAtEveryPhase(): Map<ProgressPhase, Int> {
+        return db.libraryBookDao().countLibraryBooksAtEveryPhase()
+    }
+
     // TODO: Optimize queries
     override suspend fun getStats(): AppStats {
+        val phaseCount = countLibraryBooksAtEveryPhase()
         return AppStats(
             libraryBooksCount = db.libraryBookDao().countBooksInLibrary(),
             currentlyBorrowedBooksCount = db.borrowedBookDao().countCurrentlyBorrowedBooks(),
             lentBooksCount = db.lentBookDao().countLentBooks(),
-            readBooksCount = db.progressDao().countBooks(ProgressPhase.READ),
+            totalReadBooksCount = db.progressDao().countBooks(ProgressPhase.READ),
+            booksCurrentlyReading = db.bookBundleDao()
+                .getBookBundlesAtProgressPhase(ProgressPhase.IN_PROGRESS),
+            libraryBooksCurrentlyReading = phaseCount[ProgressPhase.IN_PROGRESS] ?: 0,
+            libraryBooksDnf = phaseCount[ProgressPhase.DNF] ?: 0,
+            libraryBooksRead = phaseCount[ProgressPhase.READ] ?: 0,
+            libraryBooksSuspended = phaseCount[ProgressPhase.SUSPENDED] ?: 0
         )
+    }
+
+    override suspend fun getBookBundlesAtProgressPhase(phase: ProgressPhase): List<BookBundle> {
+        return db.bookBundleDao().getBookBundlesAtProgressPhase(phase)
     }
 }

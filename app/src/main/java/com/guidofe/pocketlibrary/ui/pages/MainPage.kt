@@ -90,7 +90,9 @@ fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
         topBar = {
             if (!scaffoldState.hiddenBar) {
                 TopAppBar(
-                    title = { Text(scaffoldState.title) },
+                    title = {
+                        Text(scaffoldState.title, style = MaterialTheme.typography.titleLarge)
+                    },
                     actions = scaffoldState.actions,
                     navigationIcon = scaffoldState.navigationIcon,
                     scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

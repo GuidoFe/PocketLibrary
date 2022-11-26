@@ -22,7 +22,7 @@ interface IBookLogVM {
     fun updateLent(list: List<LentBook>)
     fun removeLentStatus(books: List<LentBook>, callback: () -> Unit)
     val lentItems: Flow<List<SelectableListItem<LibraryBundle>>>
-    fun setStatusOfSelectedBooks(isReturned: Boolean)
+    fun setStatusOfSelectedBorrowedBooks(isReturned: Boolean)
     fun setBookReturnStatus(bookId: Long, isReturned: Boolean)
     fun moveBorrowedBooksToLibrary(bookIds: List<Long>)
     val borrowedPager: Flow<PagingData<SelectableListItem<BorrowedBundle>>>

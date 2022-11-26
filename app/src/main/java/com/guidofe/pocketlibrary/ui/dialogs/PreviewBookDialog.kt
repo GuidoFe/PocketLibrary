@@ -36,7 +36,7 @@ fun PreviewBookDialog(
             Button(
                 onClick = onSaveButtonClicked
             ) {
-                Text(stringResource(R.string.add_to_library))
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {

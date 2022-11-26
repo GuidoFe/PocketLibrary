@@ -85,7 +85,7 @@ fun BookLogPage(
                     }
                     IconButton(
                         onClick = {
-                            vm.setStatusOfSelectedBooks(true)
+                            vm.setStatusOfSelectedBorrowedBooks(true)
                         }
                     ) {
                         Icon(
@@ -119,6 +119,20 @@ fun BookLogPage(
                                     isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.fieldToChange = BorrowedField.START
                                     vm.borrowedTabState.isCalendarVisible = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.mark_as_returned)) },
+                                onClick = {
+                                    isBorrowTabMenuExpanded = false
+                                    vm.setStatusOfSelectedBorrowedBooks(true)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.mark_as_not_returned)) },
+                                onClick = {
+                                    isBorrowTabMenuExpanded = false
+                                    vm.setStatusOfSelectedBorrowedBooks(false)
                                 }
                             )
                             DropdownMenuItem(

@@ -3,12 +3,20 @@ package com.guidofe.pocketlibrary.ui.pages
 import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -18,9 +26,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.modules.BookTile
 import com.guidofe.pocketlibrary.ui.modules.PieChart
 import com.guidofe.pocketlibrary.ui.pages.destinations.SettingsPageDestination
-import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.ui.theme.*
 import com.guidofe.pocketlibrary.viewmodels.LandingPageVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILandingPageVM
 import com.guidofe.pocketlibrary.viewmodels.previews.LandingPageVMPreview
@@ -44,6 +54,32 @@ private fun StatsTile(
 }
 
 @Composable
+private fun LegendRow(
+    text: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(color)
+        )
+        Text(
+            text,
+            style = MaterialTheme.typography.labelSmall,
+            color = textColor
+        )
+    }
+}
+
+@Composable
 private fun NumberTile(
     label: String,
     value: String,
@@ -58,6 +94,7 @@ private fun NumberTile(
             Text(
                 label,
                 textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Box(
@@ -86,6 +123,7 @@ fun LandingPage(
 ) {
     val padding = 10.dp
     val context = LocalContext.current
+    val scroll = rememberScrollState()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
             context.getString(R.string.home),
@@ -107,67 +145,131 @@ fun LandingPage(
     Surface(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
-            .padding(padding)
+            .verticalScroll(scroll)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(padding)
         ) {
             vm.stats?.let { stats ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.height(IntrinsicSize.Min)
+                Text(
+                    stringResource(
+                        R.string.books_currently_reading
+                    ),
+                    modifier = Modifier.padding(padding)
+                )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(padding)
                 ) {
-                    NumberTile(
-                        label = stringResource(R.string.books_in_your_library),
-                        value = stats.libraryBooksCount.toString(),
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatsTile(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        PieChart(
-                            circleThickness = 20.dp,
-                            innerCircleThickness = 20.dp,
-                            circleColor = MaterialTheme.colorScheme.surface,
-                            innerCircleColor = MaterialTheme.colorScheme.tertiary,
-                            sweepAngle = if (stats.libraryBooksCount != 0)
-                                stats.readBooksCount.toFloat() / stats.libraryBooksCount * 360f
-                            else
-                                0f,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .fillMaxSize()
+                    items(stats.booksCurrentlyReading) { item ->
+                        BookTile(
+                            item,
+                            modifier = Modifier.shadow(
+                                elevation = 6.dp,
+                                shape = MaterialTheme.shapes.small
+                            )
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.align(Alignment.Center)
-                            ) {
-                                Text(
-                                    stringResource(R.string.books_read),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                                Text(
-                                    stats.readBooksCount.toString(),
-                                    style = MaterialTheme.typography.displayMedium
-                                )
-                            }
+                            navigator.navigate(ViewBookPageDestination(item.book.bookId))
                         }
                     }
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.height(IntrinsicSize.Min)
+                Spacer(Modifier.height(10.dp))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(padding),
+                    modifier = Modifier.padding(padding)
                 ) {
-                    NumberTile(
-                        label = stringResource(R.string.borrowed_books),
-                        value = stats.currentlyBorrowedBooksCount.toString(),
-                        modifier = Modifier.weight(1f)
-                    )
-                    NumberTile(
-                        label = stringResource(R.string.lent_books),
-                        value = stats.lentBooksCount.toString(),
-                        modifier = Modifier.weight(1f)
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.height(IntrinsicSize.Min)
+                    ) {
+                        NumberTile(
+                            label = stringResource(R.string.books_in_your_library),
+                            value = stats.libraryBooksCount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                        NumberTile(
+                            label = stringResource(R.string.books_read),
+                            value = stats.totalReadBooksCount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.height(IntrinsicSize.Min)
+                    ) {
+                        NumberTile(
+                            label = stringResource(R.string.borrowed_books),
+                            value = stats.currentlyBorrowedBooksCount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                        NumberTile(
+                            label = stringResource(R.string.lent_books),
+                            value = stats.lentBooksCount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    BoxWithConstraints() {
+                        StatsTile() {
+                            Column {
+                                Text(
+                                    stringResource(R.string.owned_books),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                PieChart(
+                                    circleThickness = 40.dp,
+                                    innerCircleThickness = 40.dp,
+                                    circleColor = MaterialTheme.colorScheme.surface,
+                                    innerCircleColors = listOf(
+                                        CustomGreen,
+                                        CustomBlue,
+                                        CustomYellow,
+                                        CustomRed
+                                    ),
+                                    total = stats.libraryBooksCount.toFloat(),
+                                    values = listOf(
+                                        stats.libraryBooksRead.toFloat(),
+                                        stats.libraryBooksCurrentlyReading.toFloat(),
+                                        stats.libraryBooksSuspended.toFloat(),
+                                        stats.libraryBooksDnf.toFloat()
+                                    ),
+                                    cap = StrokeCap.Butt,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    Column(
+                                        modifier = Modifier.align(Alignment.Center)
+                                    ) {
+                                        LegendRow(
+                                            stringResource(R.string.read) +
+                                                ": ${stats.libraryBooksRead}",
+                                            color = CustomGreen
+                                        )
+                                        LegendRow(
+                                            stringResource(R.string.currently_reading) +
+                                                ": ${stats.libraryBooksCurrentlyReading}",
+                                            color = CustomBlue
+                                        )
+                                        LegendRow(
+                                            stringResource(R.string.suspended) +
+                                                ": ${stats.libraryBooksSuspended}",
+                                            color = CustomYellow
+                                        )
+                                        LegendRow(
+                                            stringResource(R.string.did_not_finish) +
+                                                ": ${stats.libraryBooksSuspended}",
+                                            color = CustomRed
+                                        )
+                                        LegendRow(
+                                            stringResource(R.string.not_read) +
+                                                ": ${stats.libraryBooksNotRead}",
+                                            color = MaterialTheme.colorScheme.surface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

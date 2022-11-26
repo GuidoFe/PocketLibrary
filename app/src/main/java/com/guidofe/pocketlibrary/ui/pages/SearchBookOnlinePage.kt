@@ -24,6 +24,8 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,12 +159,15 @@ fun SearchBookOnlinePage(
         PreviewBookDialog(
             bookData = selectedBook,
             onSaveButtonClicked = {
+                isDialogOpen = false
                 selectedBook?.let { importedBook ->
                     vm.saveBook(importedBook, destination) {
-                        if (destination == BookDestination.LIBRARY)
-                            navigator.navigate(ViewBookPageDestination(bookId = it))
-                        else
-                            vm.selectionManager.clearSelection()
+                        coroutineScope.launch(Dispatchers.Main) {
+                            if (destination == BookDestination.LIBRARY)
+                                navigator.navigate(ViewBookPageDestination(bookId = it))
+                            else
+                                vm.selectionManager.clearSelection()
+                        }
                     }
                 }
             },

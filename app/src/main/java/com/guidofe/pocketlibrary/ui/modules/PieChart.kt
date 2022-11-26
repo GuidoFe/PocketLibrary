@@ -23,13 +23,23 @@ fun PieChart(
     circleThickness: Dp,
     innerCircleThickness: Dp,
     circleColor: Color,
-    innerCircleColor: Color,
-    sweepAngle: Float,
+    innerCircleColors: List<Color>,
+    total: Float,
+    values: List<Float>,
     modifier: Modifier = Modifier,
     startAngle: Float = -90f,
     cap: StrokeCap = StrokeCap.Round,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
+    if (innerCircleColors.size != values.size)
+        return
+    val sweepAngles = mutableListOf<Pair<Float, Float>>()
+    var lastAngle = startAngle
+    for (value in values) {
+        val sweep = if (total != 0f) value / total * 360 else 0f
+        sweepAngles.add(Pair(lastAngle, sweep))
+        lastAngle += sweep
+    }
     with(LocalDensity.current) {
         val circleThicknessPx = circleThickness.toPx()
         val innerCircleThicknessPx = innerCircleThickness.toPx()
@@ -52,18 +62,22 @@ fun PieChart(
                     center = this.center,
                     style = Stroke(circleThicknessPx),
                 )
-                drawArc(
-                    color = innerCircleColor,
-                    startAngle = startAngle,
-                    sweepAngle = sweepAngle,
-                    useCenter = false,
-                    topLeft = Offset(innerCircleTopLeftPx, innerCircleTopLeftPx),
-                    size = Size(circleRadiusPx * 2, circleRadiusPx * 2),
-                    style = Stroke(
-                        width = innerCircleThicknessPx,
-                        cap = cap
-                    )
-                )
+                for ((i, pair) in sweepAngles.withIndex().reversed()) {
+                    if (pair.second != 0f) {
+                        drawArc(
+                            color = innerCircleColors[i],
+                            startAngle = pair.first,
+                            sweepAngle = pair.second,
+                            useCenter = false,
+                            topLeft = Offset(innerCircleTopLeftPx, innerCircleTopLeftPx),
+                            size = Size(circleRadiusPx * 2, circleRadiusPx * 2),
+                            style = Stroke(
+                                width = innerCircleThicknessPx,
+                                cap = cap
+                            )
+                        )
+                    }
+                }
             }
             Box(
                 modifier = Modifier.size(contentBoxSize).align(Alignment.Center),

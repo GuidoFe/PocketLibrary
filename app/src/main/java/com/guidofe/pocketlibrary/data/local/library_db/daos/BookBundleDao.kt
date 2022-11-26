@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,6 +36,10 @@ interface BookBundleDao {
     @Transaction
     @Query("SELECT * FROM book WHERE title IN ( :titles )")
     suspend fun getBookBundlesWithSimilarTitles(titles: List<String>): List<BookBundle>
+
+    @Transaction
+    @Query("SELECT book.* FROM book NATURAL JOIN progress WHERE progress.phase = :phase")
+    suspend fun getBookBundlesAtProgressPhase(phase: ProgressPhase): List<BookBundle>
 
     // @Transaction
     // @Insert

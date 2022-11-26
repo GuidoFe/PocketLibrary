@@ -41,7 +41,7 @@ class BookLogVMPreview : IBookLogVM {
     override val lentItems: Flow<List<SelectableListItem<LibraryBundle>>>
         get() = listOf(listOf<SelectableListItem<LibraryBundle>>()).asFlow()
 
-    override fun setStatusOfSelectedBooks(isReturned: Boolean) {
+    override fun setStatusOfSelectedBorrowedBooks(isReturned: Boolean) {
     }
 
     override fun setBookReturnStatus(bookId: Long, isReturned: Boolean) {

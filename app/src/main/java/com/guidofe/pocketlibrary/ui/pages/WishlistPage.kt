@@ -2,27 +2,25 @@ package com.guidofe.pocketlibrary.ui.pages
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
-import com.guidofe.pocketlibrary.ui.modules.AddBookFab
-import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
-import com.guidofe.pocketlibrary.ui.modules.Snackbars
-import com.guidofe.pocketlibrary.ui.modules.WishlistRow
-import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
+import com.guidofe.pocketlibrary.ui.modules.*
+import com.guidofe.pocketlibrary.ui.pages.destinations.*
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.WishlistPageVM
@@ -53,6 +51,8 @@ fun WishlistPage(
     var showDoubleIsbnDialog by remember { mutableStateOf(false) }
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     var showConfirmDeleteBook by remember { mutableStateOf(false) }
+    var isContextMenuVisible by remember { mutableStateOf(false) }
+
 // TODO add to borrowed
     LaunchedEffect(isMultipleSelecting) {
         if (isMultipleSelecting) {
@@ -136,6 +136,7 @@ fun WishlistPage(
     }
     LaunchedEffect(Unit) {
         Log.d("debug", "Drawing fab")
+        vm.invalidate()
         vm.scaffoldState.fab = {
             AddBookFab(
                 isExpanded = isExpanded,
@@ -158,6 +159,16 @@ fun WishlistPage(
             )
         }
     }
+    if (lazyPagingItems.loadState.refresh != LoadState.Loading &&
+        lazyPagingItems.itemCount == 0
+    )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                stringResource(R.string.empty_library_text),
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     LazyColumn {
         items(
             items = lazyPagingItems,
@@ -166,7 +177,6 @@ fun WishlistPage(
             if (item == null)
                 return@items
             Box {
-                var itemDropdownOpen by remember { mutableStateOf(false) }
                 WishlistRow(
                     item,
                     onRowTap = {
@@ -181,40 +191,10 @@ fun WishlistPage(
                     },
                     onRowLongPress = {
                         if (isMultipleSelecting) return@WishlistRow
-                        itemDropdownOpen = true
+                        vm.selectionManager.singleSelectedItem = item.value
+                        isContextMenuVisible = true
                     }
                 )
-                DropdownMenu(
-                    expanded = itemDropdownOpen,
-                    onDismissRequest = { itemDropdownOpen = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.add_to_library)) },
-                        onClick = {
-                            vm.moveBookToLibraryAndRefresh(item.value.info.bookId) {
-                                Snackbars.bookMovedToLibrary(
-                                    vm.snackbarHostState,
-                                    context,
-                                    scope,
-                                    false
-                                )
-                            }
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.edit_details)) },
-                        onClick = {
-                            navigator.navigate(EditBookPageDestination(item.value.info.bookId))
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.remove_from_wishlist)) },
-                        onClick = {
-                            vm.selectedBook = item.value.bookBundle.book
-                            showConfirmDeleteBook = true
-                        }
-                    )
-                }
             }
         }
         // TODO manage what happens when added library book is in wishlist
@@ -276,8 +256,11 @@ fun WishlistPage(
         ) {
             if (isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()
-            else
-                vm.deleteSelectedBookAndRefresh()
+            else {
+                vm.selectionManager.singleSelectedItem?.bookBundle?.book?.let { book ->
+                    vm.deleteBookAndRefresh(book)
+                }
+            }
             showConfirmDeleteBook = false
         }
     }
@@ -291,6 +274,82 @@ fun WishlistPage(
                     scope,
                 ) {}
                 vm.invalidate()
+            }
+        }
+    }
+    ModalBottomSheet(
+        visible = isContextMenuVisible,
+        onDismiss = { isContextMenuVisible = false }
+    ) {
+        val selectedItem = vm.selectionManager.singleSelectedItem
+        selectedItem?.let { item ->
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.place_item_24px),
+                        stringResource(R.string.add_to_library)
+                    )
+                },
+                onClick = {
+                    item.info?.bookId?.let { id ->
+                        vm.moveBookToLibraryAndRefresh(id) {}
+                    }
+                    isContextMenuVisible = false
+                }
+            ) {
+                Text(stringResource(R.string.add_to_library))
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.info_24px),
+                        stringResource(R.string.details)
+                    )
+                },
+                onClick = {
+                    navigator.navigate(
+                        ViewBookPageDestination(item.info.bookId)
+                    )
+                    isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(R.string.details)
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.edit_24px),
+                        stringResource(R.string.edit)
+                    )
+                },
+                onClick = {
+                    navigator.navigate(
+                        EditBookPageDestination(item.info.bookId)
+                    )
+                    isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(R.string.edit)
+                )
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.delete_24px),
+                        stringResource(R.string.remove_from_wishlist)
+                    )
+                },
+                onClick = {
+                    showConfirmDeleteBook = true
+                    isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(R.string.remove_from_wishlist)
+                )
             }
         }
     }

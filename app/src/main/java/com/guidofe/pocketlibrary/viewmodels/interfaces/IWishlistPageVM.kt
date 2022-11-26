@@ -16,9 +16,8 @@ interface IWishlistPageVM {
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<WishlistBundle>>>
     fun invalidate()
-    fun deleteSelectedBookAndRefresh()
+    fun deleteBookAndRefresh(book: Book)
     fun deleteSelectedBooksAndRefresh()
     fun moveBookToLibraryAndRefresh(bookId: Long, callback: () -> Unit)
-    var selectedBook: Book?
     fun moveSelectedBooksToLibraryAndRefresh(callback: () -> Unit)
 }

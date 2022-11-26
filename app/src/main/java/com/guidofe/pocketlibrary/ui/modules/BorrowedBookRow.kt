@@ -54,44 +54,43 @@ fun BorrowedBookRow(
         modifier = modifier
 
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .height(100.dp)
-                .fillMaxWidth()
-                .padding(5.dp)
-        ) {
-            SelectableBookCover(
-                bookBundle.book.coverURI,
-                item.isSelected,
-                onRowTap,
-                onCoverLongPress,
-                progress = item.value.bookBundle.progress?.phase,
-                colorFilter = if (item.value.info.isReturned)
-                    ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-                else
-                    null
-            )
+        Box(modifier = Modifier.height(100.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .weight(1f, true)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = { onRowTap(it) },
-                            onLongPress = { onRowLongPress() }
-                        )
-                    }
+                    .fillMaxSize()
+                    .padding(5.dp)
             ) {
-                Column(
+                SelectableBookCover(
+                    bookBundle.book.coverURI,
+                    item.isSelected,
+                    onRowTap,
+                    onCoverLongPress,
+                    progress = item.value.bookBundle.progress?.phase,
+                    colorFilter = if (item.value.info.isReturned)
+                        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                    else
+                        null
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .weight(3f)
-                        .padding(5.dp, 0.dp)
+                        .weight(1f, true)
                 ) {
-                    Box {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(5.dp, 0.dp)
+                    ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { onRowTap(it) },
+                                        onLongPress = { onRowLongPress() }
+                                    )
+                                }
                         ) {
                             Text(
                                 text = bookBundle.book.title,
@@ -109,64 +108,75 @@ fun BorrowedBookRow(
                                 maxLines = 1,
                             )
                         }
-                    }
-                    Divider()
+                        Divider()
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable(areButtonsActive) { onLenderTap() }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxHeight()
                         ) {
-                            Text(
-                                stringResource(R.string.lender_colon),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                item.value.info.who ?: "???",
-                                style = MaterialTheme.typography.labelMedium,
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable(areButtonsActive) { onStartTap() }
-                        ) {
-                            Text(
-                                stringResource(R.string.start_colon),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                item.value.info.start.toString(),
-                                style = MaterialTheme.typography.labelMedium,
-                            )
-                        }
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { onLenderTap() }
+                            ) {
+                                Text(
+                                    stringResource(R.string.lender_colon),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    item.value.info.who ?: "???",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { onStartTap() }
+                            ) {
+                                Text(
+                                    stringResource(R.string.start_colon),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    item.value.info.start.toString(),
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
 
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable(areButtonsActive) { onReturnByTap() }
-                        ) {
-                            Text(
-                                stringResource(R.string.return_by_colon),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                item.value.info.end?.toString() ?: "-",
-                                style = MaterialTheme.typography.labelMedium,
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { onReturnByTap() }
+                            ) {
+                                Text(
+                                    stringResource(R.string.return_by_colon),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    item.value.info.end?.toString() ?: "-",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
                         }
                     }
                 }
+            }
+            if (!areButtonsActive) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onRowTap(it) },
+                            )
+                        }
+                )
             }
         }
     }
@@ -176,18 +186,20 @@ fun BorrowedBookRow(
 @Preview(showSystemUi = true, device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
     PocketLibraryTheme(darkTheme = true) {
-        BorrowedBookRow(
-            item = SelectableListItem(
-                BorrowedBundle(
-                    BorrowedBook(
-                        1,
-                        "Tim Minchin",
-                        Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25")
-                    ),
-                    PreviewUtils.exampleBookBundle
-                )
-            ),
-        )
+        Row {
+            BorrowedBookRow(
+                item = SelectableListItem(
+                    BorrowedBundle(
+                        BorrowedBook(
+                            1,
+                            "Tim Minchin",
+                            Date.valueOf("2022-03-11"),
+                            Date.valueOf("2022-12-25")
+                        ),
+                        PreviewUtils.exampleBookBundle
+                    )
+                ),
+            )
+        }
     }
 }

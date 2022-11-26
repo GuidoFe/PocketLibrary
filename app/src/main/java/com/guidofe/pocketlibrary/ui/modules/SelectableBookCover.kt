@@ -42,8 +42,9 @@ fun SelectableBookCover(
     onLongPress: (Offset) -> Unit = {},
     isLent: Boolean = false,
     progress: ProgressPhase? = null,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
 ) {
+    val shape = MaterialTheme.shapes.small
     val selectionOffset: Dp by animateDpAsState(
         if (isSelected) (-5).dp else 0.dp,
         animationSpec = tween(durationMillis = 100, easing = LinearEasing)
@@ -55,7 +56,7 @@ fun SelectableBookCover(
             .height(100.dp)
             .background(
                 MaterialTheme.colorScheme.secondary,
-                MaterialTheme.shapes.medium
+                shape
             )
     ) {
         Box(
@@ -65,14 +66,14 @@ fun SelectableBookCover(
                     x = selectionOffset,
                     y = selectionOffset,
                 )
-                .clip(MaterialTheme.shapes.medium)
+                .clip(shape)
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Box(
                 modifier = Modifier.fillMaxSize().border(
                     width = 3.dp,
                     color = if (isLent) MaterialTheme.colorScheme.primary else Color.Transparent,
-                    shape = MaterialTheme.shapes.medium
+                    shape = shape
                 )
             ) {
                 if (coverURI == null) {
@@ -83,7 +84,7 @@ fun SelectableBookCover(
                             .border(
                                 3.dp,
                                 MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.medium
+                                shape
                             )
                     ) {
                         Text(
@@ -171,12 +172,16 @@ fun SelectableBookCover(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.hsl(0f, 0f, 0f, 0.6f))
+                        .background(
+                            MaterialTheme.colorScheme.secondaryContainer
+                                .copy(alpha = 0.6f)
+                        )
+                    // .background(Color.hsl(0f, 0f, 0f, 0.6f))
                 ) {
                     Icon(
                         painterResource(R.drawable.check_24px),
                         stringResource(R.string.selected),
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier
                             .align(Alignment.Center)
                             .scale(2f)

@@ -140,4 +140,11 @@
     <string name="borrowed_books">Borrowed books</string>
     <string name="lent_books">Lent books</string>
     <string name="return_to_library">Return to library</string>
+    <string name="books_currently_reading">Books currently reading</string>
+    <string name="currently_reading">Currently reading</string>
+    <string name="did_not_finish">Did not finish</string>
+    <string name="owned_books">Owned books</string>
+    <string name="add_to_wishlist">Add to wishlist</string>
+    <string name="you_have_no_borrowed">You have not borrowed any books</string>
+    <string name="you_have_no_lent">You have not lent any of your books</string>
 </resources>

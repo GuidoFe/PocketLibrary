@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
@@ -48,4 +49,7 @@ class LibraryVMPreview : ILibraryVM {
 
     override fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit) {
     }
+
+    override val state: LibraryPageState
+        get() = LibraryPageState()
 }

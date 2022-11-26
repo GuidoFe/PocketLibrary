@@ -25,7 +25,7 @@ class WishlistPageVMPreview : IWishlistPageVM {
     override fun invalidate() {
     }
 
-    override fun deleteSelectedBookAndRefresh() {
+    override fun deleteBookAndRefresh(book: Book) {
     }
 
     override fun deleteSelectedBooksAndRefresh() {
@@ -34,7 +34,7 @@ class WishlistPageVMPreview : IWishlistPageVM {
     override fun moveBookToLibraryAndRefresh(bookId: Long, callback: () -> Unit) {
     }
 
-    override var selectedBook: Book? = null
+    var selectedBook: Book? = null
 
     override fun moveSelectedBooksToLibraryAndRefresh(callback: () -> Unit) {
     }
