@@ -16,10 +16,10 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.Constants
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.io.File
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import javax.inject.Inject
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
@@ -39,7 +39,10 @@ class EditBookVM @Inject constructor(
     ) {
         currentBookId = id
         val bundle = repo.getBookBundle(id)
-        state = if (bundle != null) EditBookState(bundle) else EditBookState()
+        state = if (bundle != null)
+            EditBookState(bundle)
+        else
+            EditBookState()
     }
 
     override fun updateExistingGenres(startingLetters: String) {
@@ -66,10 +69,12 @@ class EditBookVM @Inject constructor(
             state.isLanguageError = true
             return -1
         }
+        var uriToSave = state.coverUri
         state.coverUri?.lastPathSegment?.let { fileName ->
             if (fileName == "temp") {
                 moveTempFileToCoverPath()
-                state.coverUri = getLocalCoverFileUri()
+                state.coverUri = Uri.parse(dataStore.getCoverPath(currentBookId.toString()))
+                uriToSave = Uri.parse(currentBookId.toString())
             }
         }
         repo.withTransaction {
@@ -80,7 +85,7 @@ class EditBookVM @Inject constructor(
                 description = state.description.ifBlank { null },
                 publisher = state.publisher.ifBlank { null },
                 published = state.published.toIntOrNull(),
-                coverURI = state.coverUri,
+                coverURI = uriToSave,
                 identifier = state.identifier,
                 isEbook = state.isEbook,
                 language = lowercaseLanguage.ifBlank { null }

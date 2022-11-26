@@ -1,23 +1,26 @@
-package com.guidofe.pocketlibrary.ui.pages.settings
+package com.guidofe.pocketlibrary.ui.pages.settingspage
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.material.color.DynamicColors
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
 import com.guidofe.pocketlibrary.ui.modules.ThemeSelector
 import com.guidofe.pocketlibrary.ui.modules.ThemeTile
@@ -25,6 +28,7 @@ import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import com.ramcosta.composedestinations.annotation.Destination
+import kotlinx.coroutines.launch
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,16 +40,14 @@ fun SettingsPage(
     val context = LocalContext.current
     val settings: AppSettings? by vm.settingsLiveData.observeAsState()
     val scrollState = rememberScrollState()
-    var isLanguageDropdownOpen by rememberSaveable { mutableStateOf(false) }
-    var showThemeSelector by rememberSaveable { mutableStateOf(false) }
-    var currentSettings: AppSettings? by remember { mutableStateOf(null) }
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(title = context.getString(R.string.settings))
     }
     LaunchedEffect(settings) {
-        settings?.let { currentSettings = it }
+        settings?.let { vm.state.currentSettings = it }
     }
-    currentSettings?.let { s ->
+    vm.state.currentSettings?.let { s ->
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
@@ -62,28 +64,28 @@ fun SettingsPage(
                 ExposedDropdownMenuBox(
                     expanded = true,
                     onExpandedChange = {
-                        isLanguageDropdownOpen = !isLanguageDropdownOpen
+                        vm.state.isLanguageDropdownOpen = !vm.state.isLanguageDropdownOpen
                     },
                 ) {
                     DropdownBox(
                         text = { Text(s.language.localizedName) },
-                        isExpanded = isLanguageDropdownOpen,
+                        isExpanded = vm.state.isLanguageDropdownOpen,
                         modifier = Modifier.menuAnchor()
                     )
                     // It's necessary to hide the menu without using the expanded property, because the
                     // language change trigger the recreation of the activity and it glitches the
                     // animation of the closing dropdown. An alternative is setting a delay before the
                     // language change in vm
-                    if (isLanguageDropdownOpen) {
+                    if (vm.state.isLanguageDropdownOpen) {
                         DropdownMenu(
                             expanded = true,
-                            onDismissRequest = { isLanguageDropdownOpen = false }
+                            onDismissRequest = { vm.state.isLanguageDropdownOpen = false }
                         ) {
                             for (language in Language.values()) {
                                 DropdownMenuItem(text = {
                                     Text(language.localizedName)
                                 }, onClick = {
-                                    isLanguageDropdownOpen = false
+                                    vm.state.isLanguageDropdownOpen = false
                                     // vm.lastSettings = s
                                     vm.setLanguage(language)
                                 })
@@ -129,7 +131,7 @@ fun SettingsPage(
                         modifier = Modifier.weight(1f)
                     )
                     ThemeTile(theme = s.theme) {
-                        showThemeSelector = true
+                        vm.state.showThemeSelector = true
                     }
                 }
             }
@@ -142,25 +144,77 @@ fun SettingsPage(
                     checked = s.saveInExternal && vm.hasExternalStorage,
                     onCheckedChange = {
                         // vm.lastSettings = s
-                        vm.setMemory(!s.saveInExternal)
+                        vm.setMemoryAndTransferFiles(!s.saveInExternal) { success ->
+                            vm.state.showWaitForFileTransfer = false
+                            if (success) {
+                                coroutineScope.launch {
+                                    vm.snackbarHostState.showSnackbar(
+                                        CustomSnackbarVisuals(
+                                            context.getString(R.string.files_moved_successfully)
+                                        )
+                                    )
+                                }
+                            } else {
+                                coroutineScope.launch {
+                                    vm.snackbarHostState.showSnackbar(
+                                        CustomSnackbarVisuals(
+                                            context.getString(R.string.error_transfering_files),
+                                            isError = true
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     },
                     enabled = vm.hasExternalStorage
                 )
             }
         }
 
-        if (showThemeSelector) {
+        if (vm.state.showThemeSelector) {
             ThemeSelector(
                 themes = Theme.values().asList(),
                 currentTheme = s.theme,
                 onDismiss = {
-                    showThemeSelector = false
+                    vm.state.showThemeSelector = false
                 },
                 onClick = {
                     vm.setTheme(it)
                 }
             ) {
-                showThemeSelector = false
+                vm.state.showThemeSelector = false
+            }
+        }
+    }
+    if (vm.state.showWaitForFileTransfer) {
+        Dialog(onDismissRequest = {}) {
+            Column(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.large)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(10.dp)
+            ) {
+                Text(
+                    stringResource(R.string.data_transfer_in_progress),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(stringResource(R.string.data_transfer_text))
+                if (vm.state.totalFiles != 0) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(20.dp)
+                    ) {
+                        Text(
+                            "${vm.state.movedFiles}/${vm.state.totalFiles}",
+                            modifier = Modifier.padding(10.dp)
+                        )
+                        LinearProgressIndicator(
+                            progress = vm.state.movedFiles.toFloat() / vm.state.totalFiles,
+                        )
+                    }
+                }
             }
         }
     }

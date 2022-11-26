@@ -16,12 +16,11 @@ import com.guidofe.pocketlibrary.ui.MainBottomBar
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.viewmodels.MainActivityVM
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import com.ramcosta.composedestinations.DestinationsNavHost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainPage(viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>()) {
+fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
     val navController = rememberNavController()
     val scaffoldState = viewModel.scaffoldState
     val refreshFabBlacklist = listOf("library_page", "wishlist_page")

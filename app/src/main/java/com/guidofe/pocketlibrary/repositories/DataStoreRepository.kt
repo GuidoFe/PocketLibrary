@@ -19,5 +19,9 @@ interface DataStoreRepository {
     fun getCoverDir(): File?
     fun getCover(fileName: String): File?
     fun getCoverPath(fileName: String): String?
-    suspend fun saveCover(bitmap: Bitmap, path: String, callback: () -> Unit)
+    suspend fun saveCover(bitmap: Bitmap, fullPath: String, callback: () -> Unit)
+    fun getExternalCoverFile(fileName: String): File?
+    fun getInternalCoverFile(fileName: String): File?
+    fun getCoverFile(fileName: String, external: Boolean): File?
+    fun getCoverDir(isExternal: Boolean): File?
 }

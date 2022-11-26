@@ -209,17 +209,7 @@ private fun LibraryListRowPreview() {
             LibraryListRow(
                 item = SelectableListItem(
                     PreviewUtils.exampleLibraryBundle
-                )
-            )
-            LibraryListRow(
-                item = SelectableListItem(
-                    PreviewUtils.exampleLibraryBundle
-                )
-            )
-            LibraryListRow(
-                item = SelectableListItem(
-                    PreviewUtils.exampleLibraryBundle
-                )
+                ),
             )
         }
     }

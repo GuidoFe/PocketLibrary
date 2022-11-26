@@ -7,7 +7,9 @@ import com.guidofe.pocketlibrary.model.AppStats
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DefaultLocalRepository @Inject constructor(val db: AppDatabase) : LocalRepository {
+class DefaultLocalRepository @Inject constructor(
+    private val db: AppDatabase,
+) : LocalRepository {
     override suspend fun insertBookBundle(bundle: BookBundle): Long {
         var bookId: Long = -1L
         withTransaction {

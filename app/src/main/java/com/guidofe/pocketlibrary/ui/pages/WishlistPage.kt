@@ -182,6 +182,8 @@ fun WishlistPage(
                     onRowTap = {
                         if (isMultipleSelecting) {
                             vm.selectionManager.multipleSelectToggle(item.value)
+                        } else {
+                            navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
                         }
                     },
                     onCoverLongPress = {

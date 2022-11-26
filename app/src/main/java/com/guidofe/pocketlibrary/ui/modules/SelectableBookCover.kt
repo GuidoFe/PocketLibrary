@@ -36,7 +36,7 @@ private enum class CoverStatus { LOADED, LOADING, ERROR }
 
 @Composable
 fun SelectableBookCover(
-    coverURI: Uri?,
+    coverUri: Uri?,
     isSelected: Boolean,
     onTap: (Offset) -> Unit = {},
     onLongPress: (Offset) -> Unit = {},
@@ -76,7 +76,7 @@ fun SelectableBookCover(
                     shape = shape
                 )
             ) {
-                if (coverURI == null) {
+                if (coverUri == null) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
@@ -97,7 +97,7 @@ fun SelectableBookCover(
                     }
                 } else {
                     AsyncImage(
-                        model = coverURI,
+                        model = coverUri,
                         contentDescription = stringResource(id = R.string.cover),
                         contentScale = ContentScale.Crop,
                         onLoading = { coverStatus = CoverStatus.LOADING },
@@ -207,7 +207,7 @@ fun SelectableBookCover(
 private fun SelectableBookCoverPreview() {
     PocketLibraryTheme() {
         SelectableBookCover(
-            coverURI = null,
+            coverUri = null,
             isSelected = false,
             isLent = true,
             progress = ProgressPhase.IN_PROGRESS

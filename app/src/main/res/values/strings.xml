@@ -147,4 +147,8 @@
     <string name="add_to_wishlist">Add to wishlist</string>
     <string name="you_have_no_borrowed">You have not borrowed any books</string>
     <string name="you_have_no_lent">You have not lent any of your books</string>
+    <string name="data_transfer_in_progress">Data transfer in progress</string>
+    <string name="data_transfer_text">Please don\'t close the app while the files are being moved...</string>
+    <string name="files_moved_successfully">Files moved successfully</string>
+    <string name="error_transfering_files">"Error: couldn't transfer files. "</string>
 </resources>

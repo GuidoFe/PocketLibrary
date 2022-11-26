@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
 
 interface ISettingsVM {
@@ -16,6 +17,7 @@ interface ISettingsVM {
     fun setDarkTheme(enabled: Boolean)
     fun getCurrentLanguageName(): String
     fun setTheme(theme: Theme)
-    fun setMemory(isExternal: Boolean)
     val hasExternalStorage: Boolean
+    val state: SettingsState
+    fun setMemoryAndTransferFiles(isExternal: Boolean, callback: (Boolean) -> Unit)
 }

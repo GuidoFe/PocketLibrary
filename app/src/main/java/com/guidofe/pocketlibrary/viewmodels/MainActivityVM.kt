@@ -1,28 +1,23 @@
 package com.guidofe.pocketlibrary.viewmodels
 
-import android.content.Context
+import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
-import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: check if it's necessary
 @HiltViewModel
 class MainActivityVM @Inject constructor(
-    override val scaffoldState: ScaffoldState,
-    override val snackbarHostState: SnackbarHostState,
+    val scaffoldState: ScaffoldState,
+    val snackbarHostState: SnackbarHostState,
     private val dataStore: DataStoreRepository
-) : ViewModel(), IMainActivityVM {
+) : ViewModel() {
     val settingsLiveData = dataStore.settingsLiveData
-    fun initializeApp(context: Context, onCompleted: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            context.getDir(dataStore.COVER_DIR, Context.MODE_PRIVATE)
-        }
+    fun getCoverDir(): Uri? {
+        return dataStore.getCoverDir()?.toUri()
     }
 }

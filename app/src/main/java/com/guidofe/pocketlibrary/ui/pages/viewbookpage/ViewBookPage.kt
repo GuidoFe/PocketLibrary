@@ -9,7 +9,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -49,7 +48,7 @@ private fun EditIcon(navigator: DestinationsNavigator, id: Long) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun ViewBookPage(
@@ -142,12 +141,11 @@ fun ViewBookPage(
                         .widthIn(max = 80.dp)
                         .fillMaxHeight()
                 ) {
-                    val coverURI = vm.bundle?.book?.coverURI
-                    if (coverURI != null) {
-                        // TODO: placeholder for book cover
+                    var coverUri = vm.bundle?.book?.coverURI
+                    if (coverUri != null) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(coverURI)
+                                .data(coverUri)
                                 .build(),
                             contentDescription = stringResource(id = R.string.cover),
                             modifier = Modifier.fillMaxHeight()

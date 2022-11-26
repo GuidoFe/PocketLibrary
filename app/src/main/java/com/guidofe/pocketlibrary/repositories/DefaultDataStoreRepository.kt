@@ -4,18 +4,20 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Environment
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.net.toUri
 import androidx.datastore.dataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
+import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.ui.theme.Theme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 private val Context.dataStore by dataStore(
     fileName = "app-settings.json",
@@ -36,6 +38,28 @@ class DefaultDataStoreRepository @Inject constructor(
             else
                 context.getDir(COVER_DIR, Context.MODE_PRIVATE)
         }
+    }
+
+    override fun getCoverDir(isExternal: Boolean): File? {
+        return if (isExternal)
+            context.getExternalFilesDir(COVER_DIR)
+        else
+            context.getDir(COVER_DIR, Context.MODE_PRIVATE)
+    }
+
+    override fun getInternalCoverFile(fileName: String): File? {
+        return context.getDir(COVER_DIR, Context.MODE_PRIVATE)?.let { File(it, fileName) }
+    }
+
+    override fun getExternalCoverFile(fileName: String): File? {
+        return context.getExternalFilesDir(COVER_DIR)?.let { File(it, fileName) }
+    }
+
+    override fun getCoverFile(fileName: String, external: Boolean): File? {
+        return if (external)
+            getExternalCoverFile(fileName)
+        else
+            getInternalCoverFile(fileName)
     }
 
     override fun getCover(fileName: String): File? {
@@ -84,16 +108,19 @@ class DefaultDataStoreRepository @Inject constructor(
                 saveInExternal = isExternal
             )
         }
+        getCoverDir(isExternal)?.toUri()?.let {
+            UriConverter.baseUri = it
+        }
     }
 
     override fun isExternalStorageWritable(): Boolean {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
-    override suspend fun saveCover(bitmap: Bitmap, path: String, callback: () -> Unit) {
+    override suspend fun saveCover(bitmap: Bitmap, fullPath: String, callback: () -> Unit) {
         withContext(Dispatchers.IO) {
-            val file = File(path)
-            val fOut = FileOutputStream(path)
+            val file = File(fullPath)
+            val fOut = FileOutputStream(fullPath)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut)
             fOut.flush()
             fOut.close()
