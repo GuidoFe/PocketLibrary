@@ -25,6 +25,7 @@ private fun progressToString(progress: ProgressPhase?): String {
         ProgressPhase.SUSPENDED -> stringResource(R.string.suspended)
         ProgressPhase.READ -> stringResource(R.string.read)
         ProgressPhase.DNF -> stringResource(R.string.dnf)
+        ProgressPhase.NOT_READ -> stringResource(R.string.not_read)
     }
 }
 

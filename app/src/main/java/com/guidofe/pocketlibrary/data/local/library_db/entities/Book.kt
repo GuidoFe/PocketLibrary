@@ -7,8 +7,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-enum class Media { BOOK, EBOOK }
-
 @Entity
 @Parcelize
 data class Book(
@@ -23,4 +21,8 @@ data class Book(
     @ColumnInfo var isEbook: Boolean = false,
     @ColumnInfo var language: String? = null,
     @ColumnInfo var pageCount: Int? = null
-) : Parcelable
+) : Parcelable {
+    init {
+        language?.let {language = it.lowercase()}
+    }
+}

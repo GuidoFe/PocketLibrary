@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.modules
+package com.guidofe.pocketlibrary.ui.dialogs
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background

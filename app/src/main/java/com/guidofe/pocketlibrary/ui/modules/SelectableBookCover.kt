@@ -70,11 +70,16 @@ fun SelectableBookCover(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Box(
-                modifier = Modifier.fillMaxSize().border(
-                    width = 3.dp,
-                    color = if (isLent) MaterialTheme.colorScheme.primary else Color.Transparent,
-                    shape = shape
-                )
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(
+                        width = 3.dp,
+                        color = if (isLent)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            Color.Transparent,
+                        shape = shape
+                    )
             ) {
                 if (coverUri == null) {
                     Box(
@@ -143,7 +148,7 @@ fun SelectableBookCover(
                     ProgressPhase.READ -> ExtendedTheme.colors.green
                     ProgressPhase.SUSPENDED -> ExtendedTheme.colors.yellow
                     ProgressPhase.DNF -> ExtendedTheme.colors.red
-                    ProgressPhase.IN_PROGRESS -> ExtendedTheme.colors.blue
+                    else -> ExtendedTheme.colors.blue
                 }
                 CornerIcon(
                     cornerAlignment = Alignment.BottomStart,
@@ -159,7 +164,7 @@ fun SelectableBookCover(
                                 R.drawable.local_library_24px
                             )
                             ProgressPhase.SUSPENDED -> painterResource(R.drawable.pause_24px)
-                            ProgressPhase.DNF -> painterResource(
+                            else -> painterResource(
                                 R.drawable.do_not_disturb_on_24px
                             )
                         },

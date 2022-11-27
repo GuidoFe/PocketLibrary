@@ -7,7 +7,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-enum class ProgressPhase { SUSPENDED, IN_PROGRESS, READ, DNF }
+enum class ProgressPhase { NOT_READ, SUSPENDED, IN_PROGRESS, READ, DNF }
 
 @Entity(
     tableName = "progress",

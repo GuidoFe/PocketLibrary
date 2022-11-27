@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
+import java.sql.Date
 
 @Entity(
     tableName = "library_book",
@@ -22,4 +23,5 @@ import kotlinx.parcelize.Parcelize
 data class LibraryBook(
     @PrimaryKey val bookId: Long,
     @ColumnInfo var isFavorite: Boolean = false,
+    @ColumnInfo val creation: Date = Date(System.currentTimeMillis())
 ) : Parcelable

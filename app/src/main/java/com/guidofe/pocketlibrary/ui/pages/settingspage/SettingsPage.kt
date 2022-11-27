@@ -20,10 +20,10 @@ import com.google.android.material.color.DynamicColors
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.dialogs.ThemeSelector
+import com.guidofe.pocketlibrary.ui.dialogs.ThemeTile
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
-import com.guidofe.pocketlibrary.ui.modules.ThemeSelector
-import com.guidofe.pocketlibrary.ui.modules.ThemeTile
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
