@@ -6,9 +6,9 @@ import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTabState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.modules
+package com.guidofe.pocketlibrary.ui.utils
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable

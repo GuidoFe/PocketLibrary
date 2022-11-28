@@ -5,7 +5,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.material3.SnackbarHostState
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ITakeCoverPhotoVM
 
 class TakeCoverPhotoVMPreview : ITakeCoverPhotoVM {

@@ -5,9 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 
 class SettingsVMPreview : ISettingsVM {

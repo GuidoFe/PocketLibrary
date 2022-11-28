@@ -24,11 +24,9 @@ import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
-import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
-import java.time.Instant
 
 @Composable
 fun LentBookRow(
@@ -152,15 +150,15 @@ fun LentBookRow(
 }
 
 @Composable
-@Preview(showSystemUi = true, device = Devices.PIXEL_4)
+@Preview(device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
-    PocketLibraryTheme(darkTheme = true) {
+    PreviewUtils.ThemeColumn() {
         LentBookRow(
             item = SelectableListItem(
                 PreviewUtils.exampleLibraryBundle.copy(
                     lent = LentBook(
                         1, "Pinco",
-                        Date.from(Instant.now()) as Date
+                        Date(System.currentTimeMillis())
                     )
                 )
             ),

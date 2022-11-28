@@ -24,9 +24,11 @@ fun MainBottomBar(navController: NavController) {
                 icon = { Icon(painterResource(screen.iconId), contentDescription = null) },
                 onClick = {
                     try {
-                        navController.navigate(screen.direction, fun NavOptionsBuilder.() {
-                            launchSingleTop = true
-                        })
+                        if (currentDestination != screen.direction) {
+                            navController.navigate(screen.direction, fun NavOptionsBuilder.() {
+                                launchSingleTop = true
+                            })
+                        }
                     } catch (e: IllegalStateException) {
                         Log.e("test", "Illegal state exception at bottom menu")
                     }

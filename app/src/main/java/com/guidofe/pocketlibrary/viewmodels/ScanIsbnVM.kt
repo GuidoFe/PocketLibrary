@@ -17,7 +17,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.Executors

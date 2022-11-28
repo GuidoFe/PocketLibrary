@@ -1,15 +1,17 @@
 package com.guidofe.pocketlibrary.ui.modules
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.PopupProperties
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.utils.Constants
 
 private data class Language(val code: String, val name: String)
@@ -24,7 +26,8 @@ fun LanguageAutocomplete(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onDismissRequest: () -> Unit = {},
-    isError: Boolean = false
+    isError: Boolean = false,
+    showTrailingIcon: Boolean = true
 ) {
     val languageNames = stringArrayResource(R.array.language_names)
     val languageList = remember {
@@ -49,19 +52,20 @@ fun LanguageAutocomplete(
             singleLine = true,
             enabled = enabled,
             isError = isError,
-            supportingText = { if (isError) Text(stringResource(R.string.language_not_valid)) },
-            trailingIcon = {
+            supportingText = if (isError) { ->
+                Text(stringResource(R.string.language_not_valid))
+            } else null,
+            trailingIcon = if (showTrailingIcon) { ->
                 IconButton(
                     onClick = { expanded = !expanded }
                 ) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 }
-            },
+            } else null,
             modifier = Modifier
                 .onFocusChanged { state ->
                     expanded = state.isFocused
                 }
-                .fillMaxSize()
         )
         if (filteredOptions.isNotEmpty()) {
             DropdownMenu(
@@ -78,6 +82,33 @@ fun LanguageAutocomplete(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun LanguageAutocompletePreview() {
+    Column {
+        PocketLibraryTheme(darkTheme = false) {
+            Surface() {
+                LanguageAutocomplete(
+                    text = "it",
+                    onTextChange = {},
+                    label = { Text("Language") },
+                    onOptionSelected = {}
+                )
+            }
+        }
+        PocketLibraryTheme(darkTheme = true) {
+            Surface() {
+                LanguageAutocomplete(
+                    text = "it",
+                    onTextChange = {},
+                    label = { Text("Language") },
+                    onOptionSelected = {}
+                )
             }
         }
     }

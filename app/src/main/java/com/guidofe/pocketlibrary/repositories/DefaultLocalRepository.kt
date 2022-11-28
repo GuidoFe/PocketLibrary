@@ -305,71 +305,86 @@ class DefaultLocalRepository @Inject constructor(
         return db.bookBundleDao().getBookBundlesAtProgressPhase(phase)
     }
 
+    override suspend fun getAllGenres(): List<Genre> {
+        return db.genreDao().getAll()
+    }
+
     override suspend fun getLibraryBundlesWithCustomFilter(
         pageSize: Int,
         pageNumber: Int,
         query: LibraryQuery,
     ): List<LibraryBundle> {
-        var queryString = "SELECT library_book.* FROM library_book"
+        var queryString = "SELECT library_book.* FROM library_book NATURAL JOIN book"
         val firstArgumentList = mutableListOf<Any>()
         val lastArgumentList = mutableListOf<Any>()
-        if (query.hasWhereClauses) {
-            val whereList = mutableListOf<String>()
-            if (query.title != null) {
-                queryString += " NATURAL JOIN (SELECT book.*, INSTR(lower(title), " +
-                    "lower( ? )) as title_count FROM book WHERE title_count != 0)"
-                firstArgumentList.add(query.title)
+
+        val whereList = mutableListOf<String>()
+        if (query.title != null) {
+            queryString += " NATURAL JOIN (SELECT bookId, INSTR(lower(title), " +
+                "lower( ? )) as title_count FROM book WHERE title_count != 0)"
+            firstArgumentList.add(query.title)
+        } else {
+            queryString += " NATURAL JOIN book"
+        }
+        if (query.onlyFavorite) {
+            whereList.add("library_book.isFavorite = 1")
+        }
+        if (query.mediaFilter != LibraryQuery.MediaFilter.ANY) {
+            if (query.mediaFilter == LibraryQuery.MediaFilter.ONLY_BOOKS) {
+                whereList.add("book.isEbook = 0")
             } else {
-                queryString += " NATURAL JOIN book"
+                whereList.add("book.isEbook = 1")
             }
-            if (query.onlyFavorite) {
-                whereList.add("library_book.isFavorite = 1")
-            }
-            if (query.mediaFilter != LibraryQuery.MediaFilter.ANY) {
-                if (query.mediaFilter == LibraryQuery.MediaFilter.ONLY_BOOKS) {
-                    whereList.add("book.isEbook = 0")
-                } else {
-                    whereList.add("book.isEbook = 1")
-                }
-            }
-            query.language?.let {
-                whereList.add("book.language = ?")
-                lastArgumentList.add(it)
-            }
-            query.author?.let {
-                queryString += " NATURAL JOIN (SELECT bookId, INSTR(name, ?) as author_count" +
-                        " FROM BookAuthor NATURAL JOIN Author " +
-                        "WHERE author_count != 0 )"
-                firstArgumentList.add(it)
-            }
-            query.genre?.let {
-                queryString += " NATURAL JOIN BookGenre NATURAL JOIN Genre"
-                whereList.add("Genre.name = ?")
-                lastArgumentList.add(it)
-            }
-            query.progress?.let {
+        }
+        query.language?.let {
+            whereList.add("book.language = ?")
+            lastArgumentList.add(it)
+        }
+        query.author?.let {
+            queryString += " NATURAL JOIN (SELECT bookId, INSTR(lower( name ), lower( ? )) as " +
+                "author_count FROM BookAuthor NATURAL JOIN Author WHERE author_count != 0 )"
+            firstArgumentList.add(it)
+        }
+        query.genre?.let {
+            queryString += " NATURAL JOIN BookGenre NATURAL JOIN Genre"
+            whereList.add("Genre.name = ?")
+            lastArgumentList.add(it)
+        }
+        query.progress?.let {
+            if (it == ProgressPhase.NOT_READ) {
+                queryString += " LEFT JOIN progress ON book.bookId = progress.bookId"
+                whereList.add("progress.bookId IS NULL")
+            } else {
                 queryString += " NATURAL JOIN progress"
                 whereList.add("progress.phase = ?")
-                lastArgumentList.add(it)
+                lastArgumentList.add(it.name)
             }
-            queryString = "$queryString ${
-                if (whereList.isEmpty()) 
-                    "" 
-                else 
-                    " WHERE ${whereList.joinToString(" AND ")}"
-            } SORT BY ${
-                when(query.sortingField) {
-                    is LibraryQuery.LibrarySortField.Creation -> "library_book.creation"
-                    is LibraryQuery.LibrarySortField.Title -> "book.title"
-                }
-            } ${if (query.sortingField.reverse) "DESC" else "ASC"};"
-            Log.d("debug", queryString)
-            val args = arrayOf(*firstArgumentList.toTypedArray(), *lastArgumentList.toTypedArray())
-            Log.d("debug", args.joinToString(", ") { args.toString() })
-            return db.libraryBundleDao().getLibraryBundlesWithCustomQuery(
-                SimpleSQLiteQuery(queryString, args)
-            )
         }
-        return listOf()
+        queryString = "$queryString ${
+        if (whereList.isEmpty())
+            ""
+        else
+            "WHERE ${whereList.joinToString(" AND ")}"
+        }${
+        if (query.sortingField != null)
+            " ORDER BY ${
+            when (query.sortingField) {
+                LibraryQuery.LibrarySortField.CREATION -> "library_book.creation"
+                LibraryQuery.LibrarySortField.TITLE -> "book.title"
+            }
+            } ${if (query.reverseOrder) "DESC" else "ASC"}"
+        else ""
+        } LIMIT ?,?;"
+        Log.d("debug", queryString)
+        val args = arrayOf(
+            *firstArgumentList.toTypedArray(),
+            *lastArgumentList.toTypedArray(),
+            pageNumber * pageSize,
+            pageSize
+        )
+        Log.d("debug", args.joinToString(", ") { it.toString() })
+        return db.libraryBundleDao().getLibraryBundlesWithCustomQuery(
+            SimpleSQLiteQuery(queryString, args)
+        )
     }
 }

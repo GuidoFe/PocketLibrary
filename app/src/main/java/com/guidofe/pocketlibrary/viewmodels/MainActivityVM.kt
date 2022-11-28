@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

@@ -6,7 +6,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,12 +19,11 @@ import java.lang.Integer.max
 @Composable
 private fun progressToString(progress: ProgressPhase?): String {
     return when (progress) {
-        null -> stringResource(R.string.not_read)
         ProgressPhase.IN_PROGRESS -> stringResource(R.string.in_progress)
         ProgressPhase.SUSPENDED -> stringResource(R.string.suspended)
         ProgressPhase.READ -> stringResource(R.string.read)
         ProgressPhase.DNF -> stringResource(R.string.dnf)
-        ProgressPhase.NOT_READ -> stringResource(R.string.not_read)
+        else -> stringResource(R.string.not_read)
     }
 }
 
@@ -37,7 +35,6 @@ fun ProgressTab(
     onValuesChanged: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val dropdownValues = remember { listOf(null, *ProgressPhase.values()) }
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -65,11 +62,14 @@ fun ProgressTab(
                 expanded = state.isDropdownExpanded,
                 onDismissRequest = { state.isDropdownExpanded = false }
             ) {
-                dropdownValues.forEach {
+                ProgressPhase.values().forEach {
                     DropdownMenuItem(
                         text = { Text(progressToString(it)) },
                         onClick = {
-                            state.selectedPhase = it
+                            if (state.selectedPhase == ProgressPhase.NOT_READ)
+                                state.selectedPhase = null
+                            else
+                                state.selectedPhase = it
                             state.isDropdownExpanded = false
                             onValuesChanged()
                         }

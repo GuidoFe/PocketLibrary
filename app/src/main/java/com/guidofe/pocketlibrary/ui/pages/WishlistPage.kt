@@ -293,9 +293,7 @@ fun WishlistPage(
                     )
                 },
                 onClick = {
-                    item.info?.bookId?.let { id ->
-                        vm.moveBookToLibraryAndRefresh(id) {}
-                    }
+                    vm.moveBookToLibraryAndRefresh(item.info.bookId) {}
                     isContextMenuVisible = false
                 }
             ) {

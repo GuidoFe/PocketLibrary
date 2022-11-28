@@ -4,8 +4,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import kotlinx.coroutines.flow.Flow
@@ -26,4 +27,5 @@ interface ILibraryVM {
     fun markLentBookAsReturned(lentBook: LentBook)
     fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit)
     val state: LibraryPageState
+    var customQuery: LibraryQuery?
 }

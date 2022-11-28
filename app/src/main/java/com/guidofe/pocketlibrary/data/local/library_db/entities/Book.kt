@@ -23,6 +23,6 @@ data class Book(
     @ColumnInfo var pageCount: Int? = null
 ) : Parcelable {
     init {
-        language?.let {language = it.lowercase()}
+        language?.let { language = it.lowercase() }
     }
 }

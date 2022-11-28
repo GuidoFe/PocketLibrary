@@ -4,14 +4,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,13 +28,29 @@ fun DropdownBox(
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        CompositionLocalProvider(
+            LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
         ) {
-            Box(modifier = Modifier.padding(10.dp)) {
-                text()
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .widthIn(min = 40.dp)
+                ) {
+                    text()
+                }
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
             }
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
         }
+    }
+}
+
+@Composable
+@Preview
+fun DropdownBoxPreview() {
+    PreviewUtils.ThemeColumn() {
+        DropdownBox(text = { Text("Test") }, isExpanded = false)
     }
 }

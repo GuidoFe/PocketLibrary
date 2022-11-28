@@ -86,4 +86,6 @@ interface LocalRepository {
         pageNumber: Int,
         query: LibraryQuery
     ): List<LibraryBundle>
+
+    suspend fun getAllGenres(): List<Genre>
 }

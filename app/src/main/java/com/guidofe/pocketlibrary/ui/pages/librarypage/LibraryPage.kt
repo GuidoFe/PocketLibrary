@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -16,6 +17,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
@@ -45,6 +47,7 @@ fun LibraryPage(
     vm: ILibraryVM = hiltViewModel<LibraryVM>(),
     importVm: IImportedBookVM = hiltViewModel<ImportedBookVM>(),
     disambiguationRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>,
+    filterRecipient: ResultRecipient<LibraryFilterPageDestination, LibraryQuery?>
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val scope = rememberCoroutineScope()
@@ -131,7 +134,26 @@ fun LibraryPage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.library)
+                title = context.getString(R.string.library),
+                actions = {
+                    FilledIconToggleButton(
+                        colors = IconButtonDefaults.filledIconToggleButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.Unspecified
+                        ),
+                        checked = vm.customQuery != null,
+                        onCheckedChange = {
+                            navigator.navigate(
+                                LibraryFilterPageDestination(vm.customQuery)
+                            )
+                        },
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.filter_list_24px),
+                            stringResource(R.string.filter),
+                        )
+                    }
+                }
             )
         }
     }
@@ -187,6 +209,7 @@ fun LibraryPage(
             )
         }
     }
+
     if (lazyPagingItems.loadState.refresh != LoadState.Loading &&
         lazyPagingItems.itemCount == 0
     )
@@ -377,6 +400,12 @@ fun LibraryPage(
                 ) {}
                 vm.invalidate()
             }
+        }
+    }
+    filterRecipient.onNavResult { navResult ->
+        if (navResult is NavResult.Value) {
+            vm.customQuery = navResult.value
+            vm.invalidate()
         }
     }
     ModalBottomSheet(

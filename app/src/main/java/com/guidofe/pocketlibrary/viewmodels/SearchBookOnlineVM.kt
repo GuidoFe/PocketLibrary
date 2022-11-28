@@ -10,7 +10,7 @@ import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM

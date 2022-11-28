@@ -3,10 +3,7 @@ package com.guidofe.pocketlibrary.ui.modules
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +25,6 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 
@@ -120,80 +116,85 @@ private fun GenericListRow(
     onCoverLongPress: (Offset) -> Unit = {},
     progress: ProgressPhase? = null
 ) {
+    val elevation = 3.dp
     var tapZoneOffset: Offset by remember { mutableStateOf(Offset.Zero) }
     BoxWithConstraints(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 4.dp,
+            tonalElevation = elevation,
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .height(115.dp)
-                    .width(maxWidth)
-                    .padding(10.dp, 10.dp)
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
             ) {
-                SelectableBookCover(
-                    coverURI,
-                    isSelected,
-                    onRowTap,
-                    onCoverLongPress,
-                    isLent,
-                    progress
-                )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f, true)
-                        .onGloballyPositioned {
-                            tapZoneOffset = it.positionInParent()
-                        }
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    onRowLongPress(
-                                        Offset(
-                                            it.x + tapZoneOffset.x,
-                                            it.y + tapZoneOffset.y
-                                        )
-                                    )
-                                },
-                                onTap = onRowTap
-                            )
-                        }
+                        .height(115.dp)
+                        .width(maxWidth)
+                        .padding(10.dp, 10.dp)
                 ) {
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column(
-                        verticalArrangement = Arrangement.Center,
+                    SelectableBookCover(
+                        coverURI,
+                        isSelected,
+                        onRowTap,
+                        onCoverLongPress,
+                        isLent,
+                        progress
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .weight(1f)
+                            .fillMaxHeight()
+                            .weight(1f, true)
+                            .onGloballyPositioned {
+                                tapZoneOffset = it.positionInParent()
+                            }
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        onRowLongPress(
+                                            Offset(
+                                                it.x + tapZoneOffset.x,
+                                                it.y + tapZoneOffset.y
+                                            )
+                                        )
+                                    },
+                                    onTap = onRowTap
+                                )
+                            }
                     ) {
-                        Text(
-                            text = title,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 5.em,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                        )
-                        if (subtitle != null)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
                             Text(
-                                text = subtitle,
+                                text = title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 5.em,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                             )
-                        Text(
-                            text = authors,
-                            fontStyle = FontStyle.Italic,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                        )
-                    }
-                    if (isFavorite) {
-                        Icon(
-                            painter = painterResource(R.drawable.heart_filled_24px),
-                            contentDescription = stringResource(R.string.favorite),
-                        )
+                            if (subtitle != null)
+                                Text(
+                                    text = subtitle,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                )
+                            Text(
+                                text = authors,
+                                fontStyle = FontStyle.Italic,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                            )
+                        }
+                        if (isFavorite) {
+                            Icon(
+                                painter = painterResource(R.drawable.heart_filled_24px),
+                                contentDescription = stringResource(R.string.favorite),
+                            )
+                        }
                     }
                 }
             }
@@ -202,15 +203,13 @@ private fun GenericListRow(
 }
 
 @Composable
-@Preview(showSystemUi = true, device = Devices.PIXEL_4)
+@Preview(device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
-    PocketLibraryTheme(darkTheme = true) {
-        Column {
-            LibraryListRow(
-                item = SelectableListItem(
-                    PreviewUtils.exampleLibraryBundle
-                ),
-            )
-        }
+    PreviewUtils.ThemeColumn {
+        LibraryListRow(
+            item = SelectableListItem(
+                PreviewUtils.exampleLibraryBundle
+            ),
+        )
     }
 }

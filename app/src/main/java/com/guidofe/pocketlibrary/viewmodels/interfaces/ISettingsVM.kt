@@ -4,9 +4,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.LiveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 
 interface ISettingsVM {
     val scaffoldState: ScaffoldState

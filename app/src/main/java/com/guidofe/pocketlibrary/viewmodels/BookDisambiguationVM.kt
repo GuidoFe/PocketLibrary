@@ -2,7 +2,7 @@ package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookDisambiguationVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

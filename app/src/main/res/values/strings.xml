@@ -151,4 +151,15 @@
     <string name="data_transfer_text">Please don\'t close the app while the files are being moved...</string>
     <string name="files_moved_successfully">Files moved successfully</string>
     <string name="error_transfering_files">"Error: couldn't transfer files. "</string>
+    <string name="genre">Genre</string>
+    <string name="show_only_favorites">Show only favorites</string>
+    <string name="any">Any</string>
+    <string name="only_books">Only books</string>
+    <string name="only_ebooks">Only E-Books</string>
+    <string name="creation_date">Creation date</string>
+    <string name="descending">Descending</string>
+    <string name="ascending">Ascending</string>
+    <string name="apply">Apply</string>
+    <string name="filter">Filter</string>
+    <string name="sort_by">Sort by</string>
 </resources>

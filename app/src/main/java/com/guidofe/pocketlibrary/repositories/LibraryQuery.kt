@@ -1,7 +1,10 @@
 package com.guidofe.pocketlibrary.repositories
 
+import android.os.Parcelable
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class LibraryQuery(
     val title: String? = null,
     val author: String? = null,
@@ -10,18 +13,16 @@ data class LibraryQuery(
     val progress: ProgressPhase? = null,
     val mediaFilter: MediaFilter = MediaFilter.ANY,
     val language: String? = null,
-    val sortingField: LibrarySortField = LibrarySortField.Creation(true)
-) {
+    val sortingField: LibrarySortField? = null,
+    val reverseOrder: Boolean = false
+) : Parcelable {
     enum class MediaFilter { ANY, ONLY_BOOKS, ONLY_EBOOKS }
-    sealed class LibrarySortField(val reverse: Boolean = false) {
-        class Creation(reverse: Boolean) : LibrarySortField(reverse)
-        class Title(reverse: Boolean) : LibrarySortField(reverse)
-    }
+    enum class LibrarySortField { CREATION, TITLE }
+
     companion object {
         val Empty = LibraryQuery()
     }
 
-    val hasWhereClauses: Boolean
-        get() = title != null || author != null || genre != null || onlyFavorite ||
-            progress != null || mediaFilter != MediaFilter.ANY
+    val isEmpty: Boolean
+        get() = this == Empty
 }

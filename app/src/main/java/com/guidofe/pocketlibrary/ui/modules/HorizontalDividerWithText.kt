@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,11 +30,17 @@ fun HorizontalDividerWithText(
             modifier = if (onClick == null)
                 Modifier.padding(5.dp)
             else
-                Modifier.padding(5.dp).clickable {
-                    onClick()
-                }
+                Modifier
+                    .padding(5.dp)
+                    .clickable {
+                        onClick()
+                    }
         ) {
-            label()
+            CompositionLocalProvider(
+                LocalContentColor provides color
+            ) {
+                label()
+            }
         }
         Divider(modifier = Modifier.weight(1f), color = color)
     }

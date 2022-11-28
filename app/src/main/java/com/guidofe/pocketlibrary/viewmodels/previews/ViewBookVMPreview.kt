@@ -2,8 +2,8 @@ package com.guidofe.pocketlibrary.viewmodels.previews
 
 import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ProgressTabState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 
 class ViewBookVMPreview : IViewBookVM {

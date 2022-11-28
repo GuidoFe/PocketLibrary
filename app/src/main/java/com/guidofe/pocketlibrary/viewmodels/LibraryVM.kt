@@ -1,6 +1,9 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -9,10 +12,11 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.LibraryPagingSource
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
 import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
@@ -36,9 +40,9 @@ class LibraryVM @Inject constructor(
         getKey = { it.info.bookId }
     )
     private var currentPagingSource: LibraryPagingSource? = null
-
+    override var customQuery: LibraryQuery? by mutableStateOf(null)
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
-        LibraryPagingSource(repo).also { currentPagingSource = it }
+        LibraryPagingSource(repo, customQuery).also { currentPagingSource = it }
     }.flow.cachedIn(viewModelScope).combine(selectionManager.selectedItems) { items, selected ->
         items.map {
             SelectableListItem(

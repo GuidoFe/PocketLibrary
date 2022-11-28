@@ -17,4 +17,7 @@ interface GenreDao {
 
     @Query("SELECT * FROM genre WHERE lower(name) LIKE lower(:start) || '%'")
     suspend fun getFromStartingLetters(start: String): List<Genre>
+
+    @Query("SELECT * FROM genre")
+    suspend fun getAll(): List<Genre>
 }

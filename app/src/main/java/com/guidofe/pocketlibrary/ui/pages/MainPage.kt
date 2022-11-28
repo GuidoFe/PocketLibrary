@@ -23,11 +23,9 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
     val navController = rememberNavController()
     val scaffoldState = viewModel.scaffoldState
-    val refreshFabBlacklist = listOf("library_page", "wishlist_page")
     LaunchedEffect(key1 = true) {
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (!refreshFabBlacklist.contains(destination.route))
-                scaffoldState.fab = {}
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            scaffoldState.fab = {}
             scaffoldState.actions = {}
         }
     }
@@ -74,12 +72,12 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
                     containerColor = if (custom?.isError == true) {
                         MaterialTheme.colorScheme.errorContainer
                     } else {
-                        SnackbarDefaults.color
+                        MaterialTheme.colorScheme.inverseSurface
                     },
                     contentColor = if (custom?.isError == true)
                         MaterialTheme.colorScheme.onErrorContainer
                     else
-                        SnackbarDefaults.contentColor
+                        MaterialTheme.colorScheme.inverseOnSurface
                 ) {
                     Text(data.visuals.message)
                 }

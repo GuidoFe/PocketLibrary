@@ -8,7 +8,7 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
 import com.guidofe.pocketlibrary.repositories.*
-import com.guidofe.pocketlibrary.ui.modules.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module
 import dagger.Provides

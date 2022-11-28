@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.ui.modules
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.dialogs.InsertIsbnDialog
+import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +40,7 @@ private fun SmallFabWithLabel(
                 .shadow(6.dp, MaterialTheme.shapes.small)
                 .clip(MaterialTheme.shapes.small)
                 .background(MaterialTheme.colorScheme.surface)
+                .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
                 .clickable { onClick() }
         ) {
             Text(
@@ -192,7 +195,25 @@ fun AddBookFab(
 @Composable
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
 private fun AddBookFabPreview() {
-    MaterialTheme {
+    PocketLibraryTheme(darkTheme = false) {
+        Scaffold(
+            floatingActionButton = {
+                AddBookFab(
+                    isExpanded = true,
+                    {}, {}, {}, {}, {}, {}
+                )
+            }
+        ) {
+            Box(modifier = Modifier.padding(it))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview(device = Devices.PIXEL_4, showSystemUi = true)
+private fun AddBookFabPreviewDark() {
+    PocketLibraryTheme(darkTheme = true) {
         Scaffold(
             floatingActionButton = {
                 AddBookFab(

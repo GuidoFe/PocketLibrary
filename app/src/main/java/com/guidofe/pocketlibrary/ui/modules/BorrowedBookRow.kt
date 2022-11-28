@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
-import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
@@ -183,23 +182,21 @@ fun BorrowedBookRow(
 }
 
 @Composable
-@Preview(showSystemUi = true, device = Devices.PIXEL_4)
+@Preview(device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
-    PocketLibraryTheme(darkTheme = true) {
-        Row {
-            BorrowedBookRow(
-                item = SelectableListItem(
-                    BorrowedBundle(
-                        BorrowedBook(
-                            1,
-                            "Tim Minchin",
-                            Date.valueOf("2022-03-11"),
-                            Date.valueOf("2022-12-25")
-                        ),
-                        PreviewUtils.exampleBookBundle
-                    )
-                ),
-            )
-        }
+    PreviewUtils.ThemeColumn() {
+        BorrowedBookRow(
+            item = SelectableListItem(
+                BorrowedBundle(
+                    BorrowedBook(
+                        1,
+                        "Tim Minchin",
+                        Date.valueOf("2022-03-11"),
+                        Date.valueOf("2022-12-25")
+                    ),
+                    PreviewUtils.exampleBookBundle
+                )
+            ),
+        )
     }
 }

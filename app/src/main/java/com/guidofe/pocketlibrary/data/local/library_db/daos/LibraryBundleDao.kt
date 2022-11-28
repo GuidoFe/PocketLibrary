@@ -37,13 +37,6 @@ interface LibraryBundleDao {
     )
     suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle>
 
-
-    @Query(
-        "SELECT library_book.* FROM library_book NATURAL JOIN book NATURAL JOIN (SELECT bookId FROM BookGenre NATURAL JOIN Genre WHERE name = ) WHERE " +
-            "library_book.isFavorite = 1 AND book.isEbook"
-    )
-    suspend fun test()
-
     @Transaction
     @RawQuery
     suspend fun getLibraryBundlesWithCustomQuery(query: SupportSQLiteQuery): List<LibraryBundle>
