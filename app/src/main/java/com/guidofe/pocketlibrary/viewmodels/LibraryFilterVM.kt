@@ -52,8 +52,8 @@ class LibraryFilterVM @Inject constructor(
         isOrderReversed = query?.reverseOrder ?: false
     }
 
-    override fun createQuery(): LibraryQuery {
-        return LibraryQuery(
+    override fun createQuery(): LibraryQuery? {
+        val query = LibraryQuery(
             title = title.ifBlank { null },
             author = author.ifBlank { null },
             genre = genre.ifBlank { null },
@@ -64,5 +64,6 @@ class LibraryFilterVM @Inject constructor(
             sortingField = sortingField,
             reverseOrder = isOrderReversed
         )
+        return if (query.isEmpty) null else query
     }
 }

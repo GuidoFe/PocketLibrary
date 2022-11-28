@@ -162,4 +162,5 @@
     <string name="apply">Apply</string>
     <string name="filter">Filter</string>
     <string name="sort_by">Sort by</string>
+    <string name="no_book_match_search">No book match your search</string>
 </resources>

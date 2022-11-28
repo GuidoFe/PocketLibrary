@@ -215,7 +215,12 @@ fun LibraryPage(
     )
         Box(modifier = Modifier.fillMaxSize()) {
             Text(
-                stringResource(R.string.empty_library_text),
+                stringResource(
+                    if (vm.customQuery == null)
+                        R.string.empty_library_text
+                    else
+                        R.string.no_book_match_search
+                ),
                 color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.align(Alignment.Center)
             )

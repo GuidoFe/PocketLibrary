@@ -19,5 +19,5 @@ interface ILibraryFilterVM {
     var isMediaDropdownExpanded: Boolean
     var isSortDropdownExpanded: Boolean
     fun initializeState(query: LibraryQuery?)
-    fun createQuery(): LibraryQuery
+    fun createQuery(): LibraryQuery?
 }
