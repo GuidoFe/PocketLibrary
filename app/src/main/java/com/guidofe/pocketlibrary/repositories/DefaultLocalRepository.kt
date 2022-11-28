@@ -3,10 +3,18 @@ package com.guidofe.pocketlibrary.repositories
 import android.util.Log
 import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.google.mlkit.common.model.DownloadConditions
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
+import com.guidofe.pocketlibrary.utils.TranslationPhase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(
@@ -394,5 +402,85 @@ class DefaultLocalRepository @Inject constructor(
         return db.libraryBundleDao().getLibraryBundlesWithCustomQuery(
             SimpleSQLiteQuery(queryString, args)
         )
+    }
+
+    override suspend fun translateGenres(
+        targetLanguageCode: String,
+        coroutineScope: CoroutineScope,
+        onPhaseChanged: (TranslationPhase) -> Unit,
+        onCountedTotalGenresToUpdate: (Int) -> Unit,
+        onTranslatedGenresCountUpdate: (Int) -> Unit
+    ) {
+        onPhaseChanged(TranslationPhase.FETCHING_GENRES)
+        val genresToTranslate = getGenresOfDifferentLanguage(targetLanguageCode)
+            .toMutableList()
+        if (genresToTranslate.isEmpty()) {
+            Log.w("debug", "No genres to translate")
+            onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            return
+        }
+        onCountedTotalGenresToUpdate(genresToTranslate.size)
+        if (targetLanguageCode == "en") {
+            onPhaseChanged(TranslationPhase.UPDATING_DB)
+            genresToTranslate.forEachIndexed { index, genre ->
+                genresToTranslate[index] = genre.copy(name = genre.englishName, lang = "en")
+            }
+            updateAllGenres(genresToTranslate)
+            onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            return
+        }
+
+        // If target language is not English:
+
+        onPhaseChanged(TranslationPhase.DOWNLOADING_TRANSLATOR)
+        val targetLanguage = TranslateLanguage.fromLanguageTag(targetLanguageCode)
+        if (targetLanguage == null) {
+            //TODO: Manage
+            Log.e("debug", "Target language is null")
+            onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            return
+        }
+        val translationOptions = TranslatorOptions.Builder()
+            .setSourceLanguage(TranslateLanguage.ENGLISH)
+            .setTargetLanguage(targetLanguage)
+            .build()
+        val translator = Translation.getClient(translationOptions)
+        val conditions = DownloadConditions.Builder() //TODO: support allowing for data?
+            .requireWifi()
+            .build()
+        translator.downloadModelIfNeeded(conditions)
+            .addOnFailureListener {
+                //TODO: Manage failure
+                it.printStackTrace()
+                onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            }
+            .addOnSuccessListener {
+                onPhaseChanged(TranslationPhase.TRANSLATING)
+                var genresTranslated = 0
+                genresToTranslate.forEachIndexed { index, genre ->
+                    translator.translate(genre.englishName)
+                        .addOnSuccessListener {
+                            genresToTranslate[index] = genre.copy(
+                                name = it, lang = targetLanguageCode
+                            )
+                            genresTranslated += 1
+                            onTranslatedGenresCountUpdate(genresTranslated)
+                        }
+                        .addOnFailureListener {
+                            //TODO: Manage failure
+                            Log.e("debug", "Couldn't translate ${genre.englishName}")
+                            it.printStackTrace()
+                            genresTranslated += 1
+                            onTranslatedGenresCountUpdate(genresTranslated)
+                        }
+                }
+                onPhaseChanged(TranslationPhase.UPDATING_DB)
+                coroutineScope.launch(Dispatchers.IO) {
+                    updateAllGenres(genresToTranslate)
+                    onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+                    Log.d("debug", "Translation success")
+                    //TODO: Message
+                }
+            }
     }
 }

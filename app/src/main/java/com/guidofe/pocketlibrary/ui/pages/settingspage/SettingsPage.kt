@@ -22,10 +22,11 @@ import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.dialogs.ThemeSelector
 import com.guidofe.pocketlibrary.ui.dialogs.ThemeTile
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
-import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState.TranslationPhase
 import com.guidofe.pocketlibrary.ui.theme.Theme
+import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import com.ramcosta.composedestinations.annotation.Destination
@@ -228,55 +229,7 @@ fun SettingsPage(
             }
         }
     }
-    if (vm.state.translationPhase != TranslationPhase.NO_TRANSLATING) {
-        Dialog(onDismissRequest = {}) {
-            Column(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.large)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(10.dp)
-            ) {
-                Text(
-                    stringResource(R.string.translation_in_progress),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(stringResource(R.string.dialog_translation_text))
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(20.dp)
-                ) {
-                    if (
-                        vm.state.translationPhase != TranslationPhase.TRANSLATING ||
-                        vm.state.totalGenres == 0
-                    ) {
-                        Text(stringResource(
-                            when(vm.state.translationPhase) {
-                                TranslationPhase.DOWNLOADING_TRANSLATOR ->
-                                    R.string.downloading_translator_dots
-                                TranslationPhase.FETCHING_GENRES ->
-                                    R.string.fetching_genres_dots
-                                TranslationPhase.UPDATING_DB ->
-                                    R.string.updating_db_dots
-                                TranslationPhase.TRANSLATING ->
-                                    R.string.translating_dots
-                                else -> R.string.EMPTY_STRING
-                            }),
-                            modifier = Modifier.padding(10.dp)
-                        )
-                        CircularProgressIndicator()
-                    } else {
-                        Text(
-                            "${vm.state.genresTranslated}/${vm.state.totalGenres}",
-                            modifier = Modifier.padding(10.dp)
-                        )
-                        LinearProgressIndicator(
-                            progress = vm.state.genresTranslated.toFloat() / vm.state.totalGenres,
-                        )
-                    }
-                }
-            }
-        }
+    if (vm.translationState.translationPhase != TranslationPhase.NO_TRANSLATING) {
+        TranslationDialog(vm.translationState)
     }
 }

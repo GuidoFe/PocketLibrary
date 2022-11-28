@@ -6,6 +6,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
+import com.guidofe.pocketlibrary.utils.TranslationPhase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
@@ -90,4 +92,11 @@ interface LocalRepository {
     suspend fun getAllGenres(): List<Genre>
     suspend fun updateAllGenres(genres: List<Genre>)
     suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre>
+    suspend fun translateGenres(
+        targetLanguageCode: String,
+        coroutineScope: CoroutineScope,
+        onPhaseChanged: (TranslationPhase) -> Unit = {},
+        onCountedTotalGenresToUpdate: (Int) -> Unit = {},
+        onTranslatedGenresCountUpdate: (Int) -> Unit = {}
+    )
 }

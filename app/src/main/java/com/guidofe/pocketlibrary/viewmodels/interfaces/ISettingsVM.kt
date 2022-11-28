@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.LiveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
@@ -21,5 +22,5 @@ interface ISettingsVM {
     val state: SettingsState
     fun setMemoryAndTransferFiles(isExternal: Boolean, callback: (Boolean) -> Unit)
     fun setGenreTranslation(translate: Boolean)
-    fun translateGenres(targetLanguageCode: String)
+    val translationState: TranslationDialogState
 }

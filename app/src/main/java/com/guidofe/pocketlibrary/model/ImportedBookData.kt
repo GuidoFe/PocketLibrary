@@ -25,7 +25,6 @@ data class ImportedBookData(
 ) : Parcelable {
 
     private suspend fun saveToDb(localRepo: LocalRepository): Long {
-        var bookId = -1L
         val book = Book(
             bookId = 0L,
             title = title,
@@ -39,7 +38,7 @@ data class ImportedBookData(
             language = language,
             pageCount = pageCount
         )
-        bookId = localRepo.insertBook(book)
+        val bookId = localRepo.insertBook(book)
         localRepo.insertAllAuthors(
             authors.map { name ->
                 Author(0L, name)
@@ -57,7 +56,12 @@ data class ImportedBookData(
             val newGenresNames = genres.filter { g -> !existingGenresNames.contains(g) }
             val newGenresIds = localRepo.insertAllGenres(
                 newGenresNames.map { name ->
-                    Genre(0L, name)
+                    Genre(
+                        genreId = 0L,
+                        name = name,
+                        englishName = name,
+                        lang = "en"
+                    )
                 }
             )
             val genresIds = newGenresIds.plus(existingGenres.map { g -> g.genreId })
