@@ -88,4 +88,6 @@ interface LocalRepository {
     ): List<LibraryBundle>
 
     suspend fun getAllGenres(): List<Genre>
+    suspend fun updateAllGenres(genres: List<Genre>)
+    suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre>
 }

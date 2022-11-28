@@ -24,4 +24,5 @@ interface DataStoreRepository {
     fun getInternalCoverFile(fileName: String): File?
     fun getCoverFile(fileName: String, external: Boolean): File?
     fun getCoverDir(isExternal: Boolean): File?
+    suspend fun setGenreTranslation(translate: Boolean)
 }

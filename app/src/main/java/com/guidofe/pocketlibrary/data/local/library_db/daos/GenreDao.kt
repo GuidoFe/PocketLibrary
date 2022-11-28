@@ -1,9 +1,6 @@
 package com.guidofe.pocketlibrary.data.local.library_db.daos
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Genre
 
 @Dao
@@ -20,4 +17,10 @@ interface GenreDao {
 
     @Query("SELECT * FROM genre")
     suspend fun getAll(): List<Genre>
+
+    @Query("SELECT * FROM genre WHERE lang != :languageCode")
+    suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre>
+
+    @Update
+    suspend fun updateAll(genres: List<Genre>)
 }

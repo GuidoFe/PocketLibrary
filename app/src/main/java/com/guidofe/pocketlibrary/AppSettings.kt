@@ -10,7 +10,8 @@ data class AppSettings(
     val dynamicColors: Boolean = false,
     val darkTheme: Boolean = false,
     val saveInExternal: Boolean = false,
-    val theme: Theme = Theme.DEFAULT
+    val theme: Theme = Theme.DEFAULT,
+    val allowGenreTranslation: Boolean = false
 )
 
 @Serializable

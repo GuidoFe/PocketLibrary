@@ -102,6 +102,14 @@ class DefaultDataStoreRepository @Inject constructor(
         }
     }
 
+    override suspend fun setGenreTranslation(translate: Boolean) {
+        context.dataStore.updateData {
+            it.copy(
+                allowGenreTranslation = translate
+            )
+        }
+    }
+
     override suspend fun setMemory(isExternal: Boolean) {
         context.dataStore.updateData {
             it.copy(

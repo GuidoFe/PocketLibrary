@@ -163,4 +163,13 @@
     <string name="filter">Filter</string>
     <string name="sort_by">Sort by</string>
     <string name="no_book_match_search">No book match your search</string>
+    <string name="translation_in_progress">Translation in progress</string>
+    <string name="dialog_translation_text">Please don\'t close the app while the genres are being translated</string>
+    <string name="downloading_translator_dots">Downloading translator...</string>
+    <string name="fetching_genres_dots">Fetching genres...</string>
+    <string name="updating_db_dots">Updating database...</string>
+    <string name="NO_STRING">NO STRING</string>
+    <string name="translating_dots">Translating...</string>
+    <string name="EMPTY_STRING" />
+    <string name="allow_genres_translation">Translate genres using Google Translate</string>
 </resources>

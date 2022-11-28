@@ -20,4 +20,6 @@ interface ISettingsVM {
     val hasExternalStorage: Boolean
     val state: SettingsState
     fun setMemoryAndTransferFiles(isExternal: Boolean, callback: (Boolean) -> Unit)
+    fun setGenreTranslation(translate: Boolean)
+    fun translateGenres(targetLanguageCode: String)
 }

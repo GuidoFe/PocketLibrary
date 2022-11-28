@@ -309,6 +309,14 @@ class DefaultLocalRepository @Inject constructor(
         return db.genreDao().getAll()
     }
 
+    override suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre> {
+        return db.genreDao().getGenresOfDifferentLanguage(languageCode)
+    }
+
+    override suspend fun updateAllGenres(genres: List<Genre>) {
+        db.genreDao().updateAll(genres)
+    }
+
     override suspend fun getLibraryBundlesWithCustomFilter(
         pageSize: Int,
         pageNumber: Int,
