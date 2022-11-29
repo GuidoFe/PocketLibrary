@@ -20,7 +20,6 @@ import androidx.compose.ui.window.Dialog
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.utils.TranslationPhase
 
-
 class TranslationDialogState() {
     var totalGenres by mutableStateOf(0)
     var genresTranslated by mutableStateOf(0)

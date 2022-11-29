@@ -5,19 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
+import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
-import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +22,7 @@ class SearchBookOnlineVM @Inject constructor(
     override val scaffoldState: ScaffoldState,
     override val snackbarHostState: SnackbarHostState,
     private val repo: LocalRepository,
+    private val dataStore: DataStoreRepository,
     metaRepo: BookMetaRepository
 ) : ViewModel(), ISearchBookOnlineVM {
     override val selectionManager = SelectionManager<String, ImportedBookData>(
@@ -33,6 +31,7 @@ class SearchBookOnlineVM @Inject constructor(
     override val listVM: IOnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)
     override var title: String by mutableStateOf("")
     override var author: String by mutableStateOf("")
+    override val settingsFlow = dataStore.settingsLiveData
     override fun search() {
         selectionManager.clearSelection()
         val map: MutableMap<QueryData.QueryKey, String> = mutableMapOf()
@@ -45,24 +44,4 @@ class SearchBookOnlineVM @Inject constructor(
 
     override var queryData: QueryData? by mutableStateOf(null)
         private set
-
-    override fun saveBook(
-        importedBook: ImportedBookData,
-        destination: BookDestination,
-        callback: (Long) -> Unit,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val id = importedBook.saveToDestination(destination, repo)
-            callback(id)
-        }
-    }
-
-    override fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            selectionManager.selectedItems.value.values.forEach {
-                it.saveToDestination(destination, repo)
-            }
-            callback()
-        }
-    }
 }

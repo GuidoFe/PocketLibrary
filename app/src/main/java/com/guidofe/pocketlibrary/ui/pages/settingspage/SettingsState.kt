@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.guidofe.pocketlibrary.AppSettings
 
-
-
 class SettingsState {
     var isLanguageDropdownOpen by mutableStateOf(false)
     var showThemeSelector by mutableStateOf(false)

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.Language
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
@@ -38,4 +39,10 @@ class SettingsVMPreview : ISettingsVM {
 
     override fun setMemoryAndTransferFiles(isExternal: Boolean, callback: (Boolean) -> Unit) {
     }
+
+    override fun setGenreTranslation(translate: Boolean) {
+    }
+
+    override val translationState: TranslationDialogState
+        get() = TranslationDialogState()
 }

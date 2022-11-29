@@ -13,5 +13,6 @@ data class Genre(
     @PrimaryKey(autoGenerate = true) val genreId: Long,
     @ColumnInfo val name: String,
     @ColumnInfo(name = "english_name") val englishName: String,
-    @ColumnInfo val lang: String
+    @ColumnInfo val lang: String,
+    @ColumnInfo val custom: Boolean = false
 ) : Parcelable

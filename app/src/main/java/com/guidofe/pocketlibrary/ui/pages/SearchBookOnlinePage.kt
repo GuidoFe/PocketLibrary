@@ -14,10 +14,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.PreviewBookDialog
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -34,7 +36,7 @@ fun SearchBookOnlinePage(
     destination: BookDestination,
     navigator: DestinationsNavigator,
     vm: ISearchBookOnlineVM = hiltViewModel<SearchBookOnlineVM>(),
-    importedVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
+    importVm: IImportedBookVM = hiltViewModel<ImportedBookVM>()
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -67,10 +69,10 @@ fun SearchBookOnlinePage(
                         onClick = {
                             val selectedItems = vm.selectionManager.selectedItems
                                 .value.values.toList()
-                            importedVm.checkIfImportedBooksAreAlreadyInLibrary(
+                            importVm.checkIfImportedBooksAreAlreadyInLibrary(
                                 selectedItems,
                                 onAllOk = {
-                                    importedVm.saveImportedBooks(selectedItems, destination) {
+                                    importVm.saveImportedBooks(selectedItems, destination) {
                                         Snackbars.bookSavedSnackbar(
                                             vm.snackbarHostState,
                                             context,
@@ -81,7 +83,7 @@ fun SearchBookOnlinePage(
                                     }
                                 },
                                 onConflict = { ok, duplicate ->
-                                    importedVm.saveImportedBooks(ok, destination) {}
+                                    importVm.saveImportedBooks(ok, destination) {}
                                     duplicate.forEach {
                                         Snackbars.bookAlreadyPresentSnackbarWithTitle(
                                             vm.snackbarHostState,
@@ -90,7 +92,9 @@ fun SearchBookOnlinePage(
                                             it.title,
                                             onDismiss = {}
                                         ) {
-                                            importedVm.saveImportedBook(it, destination) {}
+                                            importVm.saveImportedBooks(
+                                                listOf(it), destination
+                                            ) {}
                                         }
                                     }
                                     vm.selectionManager.clearSelection()
@@ -161,10 +165,11 @@ fun SearchBookOnlinePage(
             onSaveButtonClicked = {
                 isDialogOpen = false
                 selectedBook?.let { importedBook ->
-                    vm.saveBook(importedBook, destination) {
+                    importVm.saveImportedBooks(listOf(importedBook), destination) {
+                        if (it.isEmpty()) return@saveImportedBooks
                         coroutineScope.launch(Dispatchers.Main) {
                             if (destination == BookDestination.LIBRARY)
-                                navigator.navigate(ViewBookPageDestination(bookId = it))
+                                navigator.navigate(ViewBookPageDestination(bookId = it[0]))
                             else
                                 vm.selectionManager.clearSelection()
                         }
@@ -173,5 +178,8 @@ fun SearchBookOnlinePage(
             },
             onDismissRequest = { isDialogOpen = false }
         )
+    }
+    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
+        TranslationDialog(importVm.translationDialogState)
     }
 }

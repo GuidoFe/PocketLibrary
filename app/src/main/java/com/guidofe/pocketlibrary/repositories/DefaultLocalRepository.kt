@@ -6,15 +6,14 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.utils.TranslationPhase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(
@@ -404,29 +403,64 @@ class DefaultLocalRepository @Inject constructor(
         )
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun translationRequest(
+        translator: Translator,
+        genre: Genre,
+        targetLanguage: String
+    ) = suspendCancellableCoroutine { cont ->
+        translator.translate(genre.englishName)
+            .addOnSuccessListener { translatedText ->
+                Log.d(
+                    "debug",
+                    "${genre.englishName} translated to $translatedText"
+                )
+                cont.resume(
+                    genre.copy(
+                        name = translatedText, lang = targetLanguage
+                    )
+                ) {}
+            }
+            .addOnFailureListener {
+                // TODO: Manage failure
+                Log.e("debug", "Couldn't translate ${genre.englishName}")
+                it.printStackTrace()
+                cont.resume(null) {}
+            }
+    }
+
     override suspend fun translateGenres(
         targetLanguageCode: String,
         coroutineScope: CoroutineScope,
         onPhaseChanged: (TranslationPhase) -> Unit,
         onCountedTotalGenresToUpdate: (Int) -> Unit,
-        onTranslatedGenresCountUpdate: (Int) -> Unit
+        onTranslatedGenresCountUpdate: (Int) -> Unit,
+        onFinish: (success: Boolean) -> Unit
     ) {
         onPhaseChanged(TranslationPhase.FETCHING_GENRES)
         val genresToTranslate = getGenresOfDifferentLanguage(targetLanguageCode)
             .toMutableList()
+        Log.d(
+            "debug",
+            "Genres to translate: ${
+            genresToTranslate.joinToString(", ") { it.englishName }}"
+        )
         if (genresToTranslate.isEmpty()) {
             Log.w("debug", "No genres to translate")
             onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            onFinish(true)
             return
         }
         onCountedTotalGenresToUpdate(genresToTranslate.size)
         if (targetLanguageCode == "en") {
+            Log.d("debug", "Target language is en")
             onPhaseChanged(TranslationPhase.UPDATING_DB)
             genresToTranslate.forEachIndexed { index, genre ->
                 genresToTranslate[index] = genre.copy(name = genre.englishName, lang = "en")
             }
             updateAllGenres(genresToTranslate)
             onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            onFinish(true)
             return
         }
 
@@ -435,9 +469,10 @@ class DefaultLocalRepository @Inject constructor(
         onPhaseChanged(TranslationPhase.DOWNLOADING_TRANSLATOR)
         val targetLanguage = TranslateLanguage.fromLanguageTag(targetLanguageCode)
         if (targetLanguage == null) {
-            //TODO: Manage
+            // TODO: Manage
             Log.e("debug", "Target language is null")
             onPhaseChanged(TranslationPhase.NO_TRANSLATING)
+            onFinish(false)
             return
         }
         val translationOptions = TranslatorOptions.Builder()
@@ -445,41 +480,38 @@ class DefaultLocalRepository @Inject constructor(
             .setTargetLanguage(targetLanguage)
             .build()
         val translator = Translation.getClient(translationOptions)
-        val conditions = DownloadConditions.Builder() //TODO: support allowing for data?
+        val conditions = DownloadConditions.Builder() // TODO: support allowing for data?
             .requireWifi()
             .build()
         translator.downloadModelIfNeeded(conditions)
             .addOnFailureListener {
-                //TODO: Manage failure
+                // TODO: Manage failure
                 it.printStackTrace()
                 onPhaseChanged(TranslationPhase.NO_TRANSLATING)
             }
             .addOnSuccessListener {
-                onPhaseChanged(TranslationPhase.TRANSLATING)
-                var genresTranslated = 0
-                genresToTranslate.forEachIndexed { index, genre ->
-                    translator.translate(genre.englishName)
-                        .addOnSuccessListener {
-                            genresToTranslate[index] = genre.copy(
-                                name = it, lang = targetLanguageCode
-                            )
-                            genresTranslated += 1
-                            onTranslatedGenresCountUpdate(genresTranslated)
-                        }
-                        .addOnFailureListener {
-                            //TODO: Manage failure
-                            Log.e("debug", "Couldn't translate ${genre.englishName}")
-                            it.printStackTrace()
-                            genresTranslated += 1
-                            onTranslatedGenresCountUpdate(genresTranslated)
-                        }
-                }
-                onPhaseChanged(TranslationPhase.UPDATING_DB)
                 coroutineScope.launch(Dispatchers.IO) {
+                    onPhaseChanged(TranslationPhase.TRANSLATING)
+                    var totalGenresProcessed = 0
+                    genresToTranslate.forEachIndexed { index, genre ->
+                        translationRequest(translator, genre, targetLanguageCode)?.let {
+                            genresToTranslate[index] = it
+                        }
+                        totalGenresProcessed += 1
+                        onTranslatedGenresCountUpdate(totalGenresProcessed)
+                    }
+                    onPhaseChanged(TranslationPhase.UPDATING_DB)
+                    Log.d(
+                        "debug",
+                        "New genres: ${
+                        genresToTranslate.joinToString(", ") { it.name }
+                        }"
+                    )
                     updateAllGenres(genresToTranslate)
                     onPhaseChanged(TranslationPhase.NO_TRANSLATING)
                     Log.d("debug", "Translation success")
-                    //TODO: Message
+                    onFinish(true)
+                    // TODO: Message
                 }
             }
     }

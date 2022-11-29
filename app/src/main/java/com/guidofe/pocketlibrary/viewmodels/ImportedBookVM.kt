@@ -3,25 +3,29 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.ImageLoader
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
+import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
+import com.guidofe.pocketlibrary.ui.utils.translateGenresWithState
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ImportedBookVM @Inject constructor(
     private val localRepo: LocalRepository,
     private val metaRepo: BookMetaRepository,
     override val snackbarHostState: SnackbarHostState,
-    private val imageLoader: ImageLoader
+    dataStore: DataStoreRepository
 ) : ViewModel(), IImportedBookVM {
+    override val translationDialogState = TranslationDialogState()
+    override val settingsLiveData = dataStore.settingsLiveData
     override fun getImportedBooksFromIsbn(
         isbn: String,
         failureCallback: (message: String) -> Unit,
@@ -44,27 +48,36 @@ class ImportedBookVM @Inject constructor(
         }
     }
 
-    override fun saveImportedBook(
-        importedBook: ImportedBookData,
-        destination: BookDestination,
-        callback: (Long) -> Unit
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val id = importedBook.saveToDestination(destination, localRepo)
-            callback(id)
+    private suspend fun manageTranslation(callback: () -> Unit) {
+        settingsLiveData.value?.let { settings ->
+            if (settings.allowGenreTranslation && settings.language.code != "en") {
+                translateGenresWithState(
+                    code = settings.language.code,
+                    state = translationDialogState,
+                    coroutineScope = viewModelScope,
+                    repo = localRepo,
+                ) {
+                    // TODO: Manage result
+                    callback()
+                }
+            } else {
+                callback()
+            }
         }
     }
 
     override fun saveImportedBooks(
         importedBooks: List<ImportedBookData>,
         destination: BookDestination,
-        callback: () -> Unit
+        callback: (List<Long>) -> Unit
     ) {
+        val ids = mutableListOf<Long>()
         viewModelScope.launch(Dispatchers.IO) {
             importedBooks.forEach {
-                it.saveToDestination(destination, localRepo)
+                val id = it.saveToDestination(destination, localRepo)
+                ids.add(id)
             }
-            callback()
+            manageTranslation { callback(ids) }
         }
     }
 
@@ -88,7 +101,7 @@ class ImportedBookVM @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val id = importedBook.saveToDbAsBookBundle(localRepo)
-            callback(id)
+            manageTranslation { callback(id) }
         }
     }
 
@@ -100,7 +113,7 @@ class ImportedBookVM @Inject constructor(
             importedBooks.forEach {
                 it.saveToDbAsBookBundle(localRepo)
             }
-            callback()
+            manageTranslation { callback() }
         }
     }
 
@@ -124,8 +137,10 @@ class ImportedBookVM @Inject constructor(
                     onNoBookFound()
                 }
                 1 -> {
-                    saveImportedBook(importedList[0], destination) {
-                        onOneBookSaved()
+                    saveImportedBooks(listOf(importedList[0]), destination) {
+                        viewModelScope.launch(Dispatchers.IO) {
+                            manageTranslation { onOneBookSaved() }
+                        }
                     }
                 }
                 else -> {

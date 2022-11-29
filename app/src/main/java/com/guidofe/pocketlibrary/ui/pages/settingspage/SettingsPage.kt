@@ -53,6 +53,7 @@ fun SettingsPage(
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
+                .fillMaxWidth()
                 .padding(5.dp)
         ) {
             Row(
@@ -100,9 +101,7 @@ fun SettingsPage(
                 Text(stringResource(R.string.allow_genres_translation))
                 Switch(
                     checked = s.allowGenreTranslation,
-                    onCheckedChange = {
-
-                    }
+                    onCheckedChange = { vm.setGenreTranslation(!s.allowGenreTranslation) }
                 )
             }
             if (DynamicColors.isDynamicColorAvailable()) {

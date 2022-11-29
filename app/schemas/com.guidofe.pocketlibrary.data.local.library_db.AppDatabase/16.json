@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 15,
-    "identityHash": "62e3b69d63e176ae65cda7bb4368a9c5",
+    "version": 16,
+    "identityHash": "ed69a0eb3cb5590ff9432f4744172f00",
     "entities": [
       {
         "tableName": "Author",
@@ -310,7 +310,7 @@
       },
       {
         "tableName": "Genre",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`genreId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `english_name` TEXT NOT NULL, `lang` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`genreId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `english_name` TEXT NOT NULL, `lang` TEXT NOT NULL, `custom` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "genreId",
@@ -334,6 +334,12 @@
             "fieldPath": "lang",
             "columnName": "lang",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "custom",
+            "columnName": "custom",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -585,7 +591,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '62e3b69d63e176ae65cda7bb4368a9c5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed69a0eb3cb5590ff9432f4744172f00')"
     ]
   }
 }

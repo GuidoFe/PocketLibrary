@@ -69,6 +69,7 @@ data class ImportedBookData(
         }
         return bookId
     }
+
     suspend fun saveToDbAsBookBundle(localRepo: LocalRepository): Long {
         var bookId = -1L
         localRepo.withTransaction {

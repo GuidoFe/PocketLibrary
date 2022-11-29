@@ -6,8 +6,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.mlkit.common.model.RemoteModelManager
-import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
@@ -15,12 +13,12 @@ import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.translateGenresWithState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 @HiltViewModel
 class SettingsVM @Inject constructor(
@@ -38,23 +36,12 @@ class SettingsVM @Inject constructor(
             // delay(100)
             dataStore.setLanguage(language)
             AppCompatDelegate.setApplicationLocales(appLocale)
-            if(settingsLiveData.value?.allowGenreTranslation == true) {
-                startTranslation(language.code)
+            if (settingsLiveData.value?.allowGenreTranslation == true) {
+                translateGenresWithState(language.code, translationState, viewModelScope, repo) {}
             }
         }
     }
 
-    private fun startTranslation(code: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.translateGenres(
-                code,
-                viewModelScope,
-                onPhaseChanged = {translationState.translationPhase = it},
-                onCountedTotalGenresToUpdate = {translationState.totalGenres = it},
-                onTranslatedGenresCountUpdate = {translationState.genresTranslated = it}
-            )
-        }
-    }
     override fun getCurrentLanguageName(): String {
         val locale = AppCompatDelegate.getApplicationLocales().getFirstMatch(
             Language.values().map { it.code }.toList().toTypedArray()
@@ -87,9 +74,14 @@ class SettingsVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (translate) {
                 settingsLiveData.value?.language?.code?.let {
-                    startTranslation(it)
+                    Log.d("debug", "Translating to lang $it...")
+                    translateGenresWithState(it, translationState, viewModelScope, repo) {}
                 }
             } else {
+                val genres = repo.getGenresOfDifferentLanguage("en")
+                val updatedGenres = genres.map { it.copy(name = it.englishName, lang = "en") }
+                repo.updateAllGenres(updatedGenres)
+                /*
                 val modelManager = RemoteModelManager.getInstance()
                 modelManager.getDownloadedModels(TranslateRemoteModel::class.java)
                     .addOnFailureListener {
@@ -107,7 +99,7 @@ class SettingsVM @Inject constructor(
                                     e.printStackTrace()
                                 }
                         }
-                    }
+                    }ù*/
             }
         }
     }

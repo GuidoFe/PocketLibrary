@@ -21,9 +21,11 @@ import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.LibraryVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -275,8 +277,11 @@ fun LibraryPage(
                                 }
                             }
                             1 -> {
-                                importVm.saveImportedBook(it[0], BookDestination.LIBRARY) { id ->
-                                    navigator.navigate(ViewBookPageDestination(id))
+                                importVm.saveImportedBooks(
+                                    listOf(it[0]), BookDestination.LIBRARY
+                                ) { ids ->
+                                    if (ids.isNotEmpty())
+                                        navigator.navigate(ViewBookPageDestination(ids[0]))
                                 }
                             }
                             else -> navigator.navigate(
@@ -397,7 +402,7 @@ fun LibraryPage(
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBook(navResult.value, BookDestination.LIBRARY) {
+            importVm.saveImportedBooks(listOf(navResult.value), BookDestination.LIBRARY) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,
@@ -504,5 +509,8 @@ fun LibraryPage(
                 )
             }
         }
+    }
+    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
+        TranslationDialog(importVm.translationDialogState)
     }
 }

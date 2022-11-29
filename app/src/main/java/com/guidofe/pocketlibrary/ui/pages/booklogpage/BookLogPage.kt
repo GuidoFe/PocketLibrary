@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
@@ -22,6 +23,7 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.BookLogVM
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
@@ -342,7 +344,9 @@ fun BookLogPage(
 
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBook(navResult.value, BookDestination.BORROWED) {
+            importVm.saveImportedBooks(
+                listOf(navResult.value), BookDestination.BORROWED
+            ) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,
@@ -350,5 +354,8 @@ fun BookLogPage(
                 ) {}
             }
         }
+    }
+    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
+        TranslationDialog(importVm.translationDialogState)
     }
 }

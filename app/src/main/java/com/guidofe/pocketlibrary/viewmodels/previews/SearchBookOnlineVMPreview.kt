@@ -1,11 +1,13 @@
 package com.guidofe.pocketlibrary.viewmodels.previews
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
+import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
-import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
 
@@ -23,16 +25,8 @@ class SearchBookOnlineVMPreview : ISearchBookOnlineVM {
     override val selectionManager: SelectionManager<String, ImportedBookData>
         get() = SelectionManager { it.externalId }
 
-    override fun saveBook(
-        importedBook: ImportedBookData,
-        destination: BookDestination,
-        callback: (Long) -> Unit
-    ) {
-    }
-
-    override fun saveSelectedBooks(destination: BookDestination, callback: () -> Unit) {
-    }
-
     override val listVM: IOnlineBookListVM
         get() = OnlineBookListVMPreview()
+    override val settingsFlow: LiveData<AppSettings>
+        get() = liveData { emit(AppSettings()) }
 }

@@ -16,10 +16,12 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.NoBookFoundForIsbnDialog
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.ScanIsbnVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -154,7 +156,7 @@ fun ScanIsbnPage(
 
     resultRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBook(navResult.value, destination) {
+            importVm.saveImportedBooks(listOf(navResult.value), destination) {
                 Snackbars.bookSavedSnackbar(scanVm.snackbarHostState, context, coroutine) {}
             }
         }
@@ -173,6 +175,9 @@ fun ScanIsbnPage(
                 )
             }
         )
+    }
+    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
+        TranslationDialog(importVm.translationDialogState)
     }
 }
 

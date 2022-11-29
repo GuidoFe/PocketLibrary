@@ -120,7 +120,16 @@ class EditBookVM @Inject constructor(
                 repo.deleteBookGenreRelations(currentBookId)
             } else {
                 repo.deleteBookGenreRelations(currentBookId)
-                repo.insertAllGenres(state.genres.map { Genre(0L, it) })
+                repo.insertAllGenres(
+                    state.genres.map {
+                        Genre(
+                            genreId = 0L,
+                            name = it,
+                            englishName = it,
+                            lang = "en"
+                        )
+                    }
+                )
                 val genresIds = repo.getGenresByNames(state.genres).map { it.genreId }
                 repo.insertAllBookGenres(genresIds.map { id -> BookGenre(currentBookId, id) })
             }

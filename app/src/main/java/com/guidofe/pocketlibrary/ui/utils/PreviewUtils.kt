@@ -32,8 +32,8 @@ class PreviewUtils {
             ),
             listOf(Author(1, "J.R.R Tolkien"), Author(2, "Lewis")),
             genres = listOf(
-                Genre(1, "Fantasy"),
-                Genre(2, "Adventure")
+                Genre(1, "Fantasy", "Fantasy", "en"),
+                Genre(2, "Adventure", "Adventure", "en")
             ),
             note = Note(1, "It's a very good book")
         )

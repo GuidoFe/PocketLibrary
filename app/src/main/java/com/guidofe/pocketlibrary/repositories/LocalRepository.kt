@@ -97,6 +97,7 @@ interface LocalRepository {
         coroutineScope: CoroutineScope,
         onPhaseChanged: (TranslationPhase) -> Unit = {},
         onCountedTotalGenresToUpdate: (Int) -> Unit = {},
-        onTranslatedGenresCountUpdate: (Int) -> Unit = {}
+        onTranslatedGenresCountUpdate: (Int) -> Unit = {},
+        onFinish: (success: Boolean) -> Unit = {}
     )
 }
