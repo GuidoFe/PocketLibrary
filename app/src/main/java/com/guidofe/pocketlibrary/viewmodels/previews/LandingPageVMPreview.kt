@@ -10,14 +10,14 @@ class LandingPageVMPreview : ILandingPageVM {
         get() = ScaffoldState()
     override val stats: AppStats
         get() = AppStats(
-            200,
-            50,
+            100,
+            20,
             10,
-            4,
+            40,
             3,
             1,
-            1,
-            1,
+            2,
+            10,
             listOf(PreviewUtils.exampleBookBundle, PreviewUtils.exampleBookBundle)
         )
 

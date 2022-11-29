@@ -120,18 +120,39 @@ class EditBookVM @Inject constructor(
                 repo.deleteBookGenreRelations(currentBookId)
             } else {
                 repo.deleteBookGenreRelations(currentBookId)
-                repo.insertAllGenres(
-                    state.genres.map {
-                        Genre(
-                            genreId = 0L,
-                            name = it,
-                            englishName = it,
-                            lang = "en"
-                        )
+                val existingGenres = repo.getGenresByNames(state.genres)
+                val existingGenresNames = existingGenres.map { it.name.lowercase() }
+                val newGenresNames = state.genres.filter {
+                    !existingGenresNames.contains(it.lowercase())
+                }
+                // TODO: better manage null value
+                val currentLang = dataStore.settingsLiveData.value?.language?.code ?: "en"
+                val newGenresIds = repo.insertAllGenres(
+                    if (currentLang == "en") {
+                        newGenresNames.map {
+                            Genre(
+                                genreId = 0L,
+                                name = it,
+                                englishName = it,
+                                lang = "en"
+                            )
+                        }
+                    } else {
+                        newGenresNames.map {
+                            Genre(
+                                genreId = 0L,
+                                name = it,
+                                englishName = null,
+                                lang = currentLang
+                            )
+                        }
                     }
                 )
-                val genresIds = repo.getGenresByNames(state.genres).map { it.genreId }
-                repo.insertAllBookGenres(genresIds.map { id -> BookGenre(currentBookId, id) })
+                repo.insertAllBookGenres(
+                    existingGenres.map { it.genreId }.plus(newGenresIds).map {
+                        BookGenre(currentBookId, it)
+                    }
+                )
             }
         }
         return currentBookId

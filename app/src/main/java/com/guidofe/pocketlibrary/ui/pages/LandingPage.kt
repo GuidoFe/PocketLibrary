@@ -151,25 +151,32 @@ fun LandingPage(
             verticalArrangement = Arrangement.spacedBy(padding)
         ) {
             vm.stats?.let { stats ->
-                Text(
-                    stringResource(
-                        R.string.books_currently_reading
-                    ),
-                    modifier = Modifier.padding(padding)
-                )
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(padding)
-                ) {
-                    items(stats.booksCurrentlyReading) { item ->
-                        BookTile(
-                            item,
-                            modifier = Modifier.shadow(
-                                elevation = 6.dp,
-                                shape = MaterialTheme.shapes.small
-                            )
-                        ) {
-                            navigator.navigate(ViewBookPageDestination(item.book.bookId))
+                if (stats.booksCurrentlyReading.isEmpty()) {
+                    Text(
+                        stringResource(R.string.currently_not_reading_books),
+                        modifier = Modifier.padding(padding)
+                    )
+                } else {
+                    Text(
+                        stringResource(
+                            R.string.books_currently_reading
+                        ),
+                        modifier = Modifier.padding(padding)
+                    )
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        contentPadding = PaddingValues(padding)
+                    ) {
+                        items(stats.booksCurrentlyReading) { item ->
+                            BookTile(
+                                item,
+                                modifier = Modifier.shadow(
+                                    elevation = 6.dp,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                            ) {
+                                navigator.navigate(ViewBookPageDestination(item.book.bookId))
+                            }
                         }
                     }
                 }
@@ -280,6 +287,18 @@ fun LandingPage(
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
 @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
 private fun LandingPagePreview() {
+    PocketLibraryTheme(darkTheme = false) {
+        LandingPage(
+            EmptyDestinationsNavigator,
+            LandingPageVMPreview()
+        )
+    }
+}
+
+@Composable
+@Preview(device = Devices.PIXEL_4, showSystemUi = true)
+@androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
+private fun LandingPagePreviewDark() {
     PocketLibraryTheme(darkTheme = true) {
         LandingPage(
             EmptyDestinationsNavigator,

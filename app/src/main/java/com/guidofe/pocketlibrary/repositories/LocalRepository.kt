@@ -100,4 +100,6 @@ interface LocalRepository {
         onTranslatedGenresCountUpdate: (Int) -> Unit = {},
         onFinish: (success: Boolean) -> Unit = {}
     )
+
+    fun deleteDownloadedTranslators()
 }

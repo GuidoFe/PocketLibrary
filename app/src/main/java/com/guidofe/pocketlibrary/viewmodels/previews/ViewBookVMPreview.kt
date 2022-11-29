@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.viewmodels.previews
 import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.pages.viewbookpage.ProgressTabState
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 
@@ -19,7 +20,7 @@ class ViewBookVMPreview : IViewBookVM {
     override fun saveNote(callback: () -> Unit) {
     }
 
-    override val bundle: BookBundle? = null
+    override val bundle: BookBundle = PreviewUtils.exampleBookBundle
     override val progTabState: ProgressTabState
         get() = ProgressTabState()
 

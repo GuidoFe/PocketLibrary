@@ -9,8 +9,8 @@ interface GenreDao {
     suspend fun insertAll(genres: List<Genre>): List<Long>
 
     // TODO: manage string case in query
-    @Query("SELECT * FROM genre WHERE name IN (:names)")
-    suspend fun getGenresByNames(names: List<String>): List<Genre>
+    @Query("SELECT * FROM genre WHERE lower(name) IN ( :namesLowerCase )")
+    suspend fun getGenresByNames(namesLowerCase: List<String>): List<Genre>
 
     @Query("SELECT * FROM genre WHERE lower(name) LIKE lower(:start) || '%'")
     suspend fun getFromStartingLetters(start: String): List<Genre>

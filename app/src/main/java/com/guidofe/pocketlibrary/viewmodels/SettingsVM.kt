@@ -79,27 +79,11 @@ class SettingsVM @Inject constructor(
                 }
             } else {
                 val genres = repo.getGenresOfDifferentLanguage("en")
-                val updatedGenres = genres.map { it.copy(name = it.englishName, lang = "en") }
+                val updatedGenres = genres.filter { it.englishName != null }.map {
+                    it.copy(name = it.englishName!!, lang = "en")
+                }
                 repo.updateAllGenres(updatedGenres)
-                /*
-                val modelManager = RemoteModelManager.getInstance()
-                modelManager.getDownloadedModels(TranslateRemoteModel::class.java)
-                    .addOnFailureListener {
-                        Log.e("debug", "Couldn't get downloaded models to delete")
-                        it.printStackTrace()
-                    }
-                    .addOnSuccessListener {
-                        for (model in it) {
-                            modelManager.deleteDownloadedModel(model)
-                                .addOnSuccessListener {
-                                    Log.d("debug", "Model ${model.modelName} deleted")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("debug", "Couldn't delete ${model.modelName}")
-                                    e.printStackTrace()
-                                }
-                        }
-                    }ù*/
+                repo.deleteDownloadedTranslators()
             }
         }
     }

@@ -4,10 +4,8 @@ import android.util.Log
 import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.google.mlkit.common.model.DownloadConditions
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.Translator
-import com.google.mlkit.nl.translate.TranslatorOptions
+import com.google.mlkit.common.model.RemoteModelManager
+import com.google.mlkit.nl.translate.*
 import com.guidofe.pocketlibrary.data.local.library_db.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
@@ -209,7 +207,7 @@ class DefaultLocalRepository @Inject constructor(
     }
 
     override suspend fun getGenresByNames(names: List<String>): List<Genre> {
-        return db.genreDao().getGenresByNames(names)
+        return db.genreDao().getGenresByNames(names.map { it.lowercase() })
     }
 
     override suspend fun getGenresByStartingLetters(start: String): List<Genre> {
@@ -390,14 +388,14 @@ class DefaultLocalRepository @Inject constructor(
             } ${if (query.reverseOrder) "DESC" else "ASC"}"
         else ""
         } LIMIT ?,?;"
-        Log.d("debug", queryString)
+        Log.d("query", queryString)
         val args = arrayOf(
             *firstArgumentList.toTypedArray(),
             *lastArgumentList.toTypedArray(),
             pageNumber * pageSize,
             pageSize
         )
-        Log.d("debug", args.joinToString(", ") { it.toString() })
+        Log.d("query", args.joinToString(", ") { it.toString() })
         return db.libraryBundleDao().getLibraryBundlesWithCustomQuery(
             SimpleSQLiteQuery(queryString, args)
         )
@@ -409,6 +407,10 @@ class DefaultLocalRepository @Inject constructor(
         genre: Genre,
         targetLanguage: String
     ) = suspendCancellableCoroutine { cont ->
+        if (genre.englishName == null) {
+            cont.resume(null) {}
+            return@suspendCancellableCoroutine
+        }
         translator.translate(genre.englishName)
             .addOnSuccessListener { translatedText ->
                 Log.d(
@@ -438,12 +440,13 @@ class DefaultLocalRepository @Inject constructor(
         onFinish: (success: Boolean) -> Unit
     ) {
         onPhaseChanged(TranslationPhase.FETCHING_GENRES)
-        val genresToTranslate = getGenresOfDifferentLanguage(targetLanguageCode)
-            .toMutableList()
+        val genresToTranslate = getGenresOfDifferentLanguage(targetLanguageCode).filter {
+            it.englishName != null
+        }.toMutableList()
         Log.d(
             "debug",
             "Genres to translate: ${
-            genresToTranslate.joinToString(", ") { it.englishName }}"
+            genresToTranslate.joinToString(", ") { it.englishName!! }}"
         )
         if (genresToTranslate.isEmpty()) {
             Log.w("debug", "No genres to translate")
@@ -456,7 +459,7 @@ class DefaultLocalRepository @Inject constructor(
             Log.d("debug", "Target language is en")
             onPhaseChanged(TranslationPhase.UPDATING_DB)
             genresToTranslate.forEachIndexed { index, genre ->
-                genresToTranslate[index] = genre.copy(name = genre.englishName, lang = "en")
+                genresToTranslate[index] = genre.copy(name = genre.englishName!!, lang = "en")
             }
             updateAllGenres(genresToTranslate)
             onPhaseChanged(TranslationPhase.NO_TRANSLATING)
@@ -512,6 +515,27 @@ class DefaultLocalRepository @Inject constructor(
                     Log.d("debug", "Translation success")
                     onFinish(true)
                     // TODO: Message
+                }
+            }
+    }
+
+    override fun deleteDownloadedTranslators() {
+        val modelManager = RemoteModelManager.getInstance()
+        modelManager.getDownloadedModels(TranslateRemoteModel::class.java)
+            .addOnFailureListener {
+                Log.e("debug", "Couldn't get downloaded models to delete")
+                it.printStackTrace()
+            }
+            .addOnSuccessListener {
+                for (model in it) {
+                    modelManager.deleteDownloadedModel(model)
+                        .addOnSuccessListener {
+                            Log.d("debug", "Model ${model.modelName} deleted")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("debug", "Couldn't delete ${model.modelName}")
+                            e.printStackTrace()
+                        }
                 }
             }
     }

@@ -34,8 +34,9 @@ class SettingsVMPreview : ISettingsVM {
     }
 
     override val hasExternalStorage: Boolean = false
-    override val state: SettingsState
-        get() = SettingsState()
+    override val state: SettingsState = SettingsState().apply {
+        this.currentSettings = AppSettings()
+    }
 
     override fun setMemoryAndTransferFiles(isExternal: Boolean, callback: (Boolean) -> Unit) {
     }

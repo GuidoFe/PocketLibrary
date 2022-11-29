@@ -13,6 +13,14 @@ import com.guidofe.pocketlibrary.ui.pages.appDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 
+private val String.root: String
+    get() {
+        val i = indexOfFirst { it == '?' }
+        return if (i == -1)
+            this
+        else substring(0, i)
+    }
+
 @Composable
 fun MainBottomBar(navController: NavController) {
     val currentDestination: Destination? =
@@ -20,11 +28,11 @@ fun MainBottomBar(navController: NavController) {
     NavigationBar {
         BottomBarDestination.values().forEach { screen ->
             NavigationBarItem(
-                selected = currentDestination == screen.direction,
+                selected = currentDestination?.route?.root == screen.direction.route.root,
                 icon = { Icon(painterResource(screen.iconId), contentDescription = null) },
                 onClick = {
                     try {
-                        if (currentDestination != screen.direction) {
+                        if (currentDestination?.route?.root != screen.direction.route.root) {
                             navController.navigate(screen.direction, fun NavOptionsBuilder.() {
                                 launchSingleTop = true
                             })

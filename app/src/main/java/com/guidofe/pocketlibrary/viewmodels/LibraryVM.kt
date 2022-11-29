@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -15,7 +16,9 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.repositories.pagingsources.LibraryPagingSource
+import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageNavArgs
 import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
+import com.guidofe.pocketlibrary.ui.pages.navArgs
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
@@ -32,7 +35,8 @@ import javax.inject.Inject
 class LibraryVM @Inject constructor(
     private val repo: LocalRepository,
     override val scaffoldState: ScaffoldState,
-    override val snackbarHostState: SnackbarHostState
+    override val snackbarHostState: SnackbarHostState,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), ILibraryVM {
     override val state = LibraryPageState()
     override var duplicateIsbn: String = ""
@@ -53,6 +57,11 @@ class LibraryVM @Inject constructor(
     }
         private set
 
+    init {
+        val args = savedStateHandle.navArgs<LibraryPageNavArgs>()
+        if (args.genre != null)
+            customQuery = LibraryQuery(genre = args.genre)
+    }
     override fun invalidate() {
         currentPagingSource?.invalidate()
     }

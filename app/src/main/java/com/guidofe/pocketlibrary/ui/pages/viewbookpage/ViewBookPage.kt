@@ -23,6 +23,8 @@ import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.EmptyBookCover
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.LibraryPageDestination
+import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageNavArgs
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
@@ -141,7 +143,7 @@ fun ViewBookPage(
                         .widthIn(max = 80.dp)
                         .fillMaxHeight()
                 ) {
-                    var coverUri = vm.bundle?.book?.coverURI
+                    val coverUri = vm.bundle?.book?.coverURI
                     if (coverUri != null) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
@@ -184,13 +186,20 @@ fun ViewBookPage(
                         ) {
                             vm.bundle?.genres?.forEach {
                                 SuggestionChip(
-                                    onClick = {},
+                                    onClick = {
+                                        navigator.navigate(
+                                            LibraryPageDestination(
+                                                LibraryPageNavArgs(genre = it.name)
+                                            )
+                                        )
+                                    },
                                     label = {
                                         Text(
                                             it.name,
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                     },
+                                    modifier = Modifier.height(32.dp)
                                 )
                             }
                         }
@@ -283,6 +292,18 @@ fun ViewBookPage(
 @Preview(device = Devices.PIXEL_2, showSystemUi = true)
 private fun ViewBookPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
+        ViewBookPage(
+            3,
+            ViewBookVMPreview(),
+            EmptyDestinationsNavigator,
+        )
+    }
+}
+
+@Composable
+@Preview(device = Devices.PIXEL_2, showSystemUi = true)
+private fun ViewBookPagePreviewDark() {
+    PocketLibraryTheme(darkTheme = true) {
         ViewBookPage(
             3,
             ViewBookVMPreview(),

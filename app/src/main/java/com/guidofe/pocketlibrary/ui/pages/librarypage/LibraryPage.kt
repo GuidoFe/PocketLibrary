@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.librarypage
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -42,7 +43,7 @@ import java.time.format.FormatStyle
 // TODO: Undo delete action
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination
+@Destination(navArgsDelegate = LibraryPageNavArgs::class)
 @Composable
 fun LibraryPage(
     navigator: DestinationsNavigator,
@@ -141,7 +142,7 @@ fun LibraryPage(
                     FilledIconToggleButton(
                         colors = IconButtonDefaults.filledIconToggleButtonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.Unspecified
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ),
                         checked = vm.customQuery != null,
                         onCheckedChange = {
@@ -158,6 +159,9 @@ fun LibraryPage(
                 }
             )
         }
+    }
+    LaunchedEffect(vm.customQuery) {
+        Log.d("debug", "CustomQuery == null? ${vm.customQuery == null}")
     }
     LaunchedEffect(state.isbnToSearch) {
         state.isbnToSearch?.let {
