@@ -182,7 +182,9 @@ fun ViewBookPage(
                         }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.horizontalScroll(genreScrollState)
+                            modifier = Modifier
+                                .horizontalScroll(genreScrollState)
+                                .height(32.dp)
                         ) {
                             vm.bundle?.genres?.forEach {
                                 SuggestionChip(
@@ -199,7 +201,6 @@ fun ViewBookPage(
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                     },
-                                    modifier = Modifier.height(32.dp)
                                 )
                             }
                         }

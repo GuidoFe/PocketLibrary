@@ -116,10 +116,8 @@ class EditBookVM @Inject constructor(
             }
             repo.deleteBookAuthors(currentBookId)
             repo.insertAllBookAuthors(bookAuthorList)
-            if (state.genres.isEmpty()) {
-                repo.deleteBookGenreRelations(currentBookId)
-            } else {
-                repo.deleteBookGenreRelations(currentBookId)
+            repo.deleteBookGenreRelations(currentBookId)
+            if (state.genres.isNotEmpty()) {
                 val existingGenres = repo.getGenresByNames(state.genres)
                 val existingGenresNames = existingGenres.map { it.name.lowercase() }
                 val newGenresNames = state.genres.filter {

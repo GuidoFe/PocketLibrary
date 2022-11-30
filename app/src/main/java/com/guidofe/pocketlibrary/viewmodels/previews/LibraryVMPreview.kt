@@ -28,7 +28,7 @@ class LibraryVMPreview : ILibraryVM {
     override fun deleteSelectedBookAndRefresh() {
     }
 
-    override fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean) {
+    override fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean, callback: () -> Unit) {
     }
 
     override var duplicateIsbn: String = ""

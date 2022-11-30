@@ -14,6 +14,7 @@ import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.translateGenresWithState
+import com.guidofe.pocketlibrary.utils.TranslationService
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -83,7 +84,7 @@ class SettingsVM @Inject constructor(
                     it.copy(name = it.englishName!!, lang = "en")
                 }
                 repo.updateAllGenres(updatedGenres)
-                repo.deleteDownloadedTranslators()
+                TranslationService.deleteDownloadedTranslators()
             }
         }
     }

@@ -92,7 +92,7 @@ interface LocalRepository {
     suspend fun getAllGenres(): List<Genre>
     suspend fun updateAllGenres(genres: List<Genre>)
     suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre>
-    suspend fun translateGenres(
+    suspend fun translateGenresInDb(
         targetLanguageCode: String,
         coroutineScope: CoroutineScope,
         onPhaseChanged: (TranslationPhase) -> Unit = {},
@@ -101,5 +101,5 @@ interface LocalRepository {
         onFinish: (success: Boolean) -> Unit = {}
     )
 
-    fun deleteDownloadedTranslators()
+    suspend fun getGenresByEnglishNames(names: List<String>): List<Genre>
 }

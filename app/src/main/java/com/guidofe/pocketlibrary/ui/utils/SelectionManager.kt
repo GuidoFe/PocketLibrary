@@ -3,7 +3,9 @@ package com.guidofe.pocketlibrary.ui.utils
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class SelectionManager<K, V>(
     val getKey: (V) -> K
@@ -12,7 +14,7 @@ class SelectionManager<K, V>(
     // val isMultipleSelecting: StateFlow<Boolean> = _isMultipleSelecting.asStateFlow()
     var isMultipleSelecting by mutableStateOf(false)
         private set
-    var singleSelectedItem: V? = null
+    var singleSelectedItem: V? by mutableStateOf(null)
     private val _selectedItems: MutableStateFlow<Map<K, V>> = MutableStateFlow(mapOf())
     val selectedItems: StateFlow<Map<K, V>> = _selectedItems.asStateFlow()
     val selectedKeys: List<K>

@@ -12,6 +12,9 @@ interface GenreDao {
     @Query("SELECT * FROM genre WHERE lower(name) IN ( :namesLowerCase )")
     suspend fun getGenresByNames(namesLowerCase: List<String>): List<Genre>
 
+    @Query("SELECT * FROM genre WHERE lower(english_name) IN ( :namesLowerCase )")
+    suspend fun getGenresByEnglishNames(namesLowerCase: List<String>): List<Genre>
+
     @Query("SELECT * FROM genre WHERE lower(name) LIKE lower(:start) || '%'")
     suspend fun getFromStartingLetters(start: String): List<Genre>
 

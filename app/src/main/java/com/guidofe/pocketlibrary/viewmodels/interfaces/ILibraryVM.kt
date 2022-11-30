@@ -18,7 +18,7 @@ interface ILibraryVM {
     val selectionManager: SelectionManager<Long, LibraryBundle>
     fun deleteSelectedBooksAndRefresh()
     fun deleteSelectedBookAndRefresh()
-    fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean)
+    fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean, callback: () -> Unit)
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<LibraryBundle>>>
     fun invalidate()

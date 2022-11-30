@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemsIndexed
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
@@ -55,18 +55,26 @@ fun LibraryPage(
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val selectionManager = vm.selectionManager
     val state = vm.state
 
-    LaunchedEffect(selectionManager.isMultipleSelecting) {
-        if (selectionManager.isMultipleSelecting) {
+    LaunchedEffect(vm.selectionManager.singleSelectedItem) {
+        Log.d(
+            "debug",
+            "Selected book: " +
+                "${vm.selectionManager.singleSelectedItem?.bookBundle?.book?.title}" +
+                "\nIs favorite: ${vm.selectionManager.singleSelectedItem?.info?.isFavorite}"
+        )
+    }
+
+    LaunchedEffect(vm.selectionManager.isMultipleSelecting) {
+        if (vm.selectionManager.isMultipleSelecting) {
             state.isFavoriteButtonFilled = false
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            selectionManager.clearSelection()
+                            vm.selectionManager.clearSelection()
                         }
                     ) {
                         Icon(
@@ -90,9 +98,9 @@ fun LibraryPage(
                         onClick = {
                             state.isFavoriteButtonFilled = !state.isFavoriteButtonFilled
                             vm.setFavoriteAndRefresh(
-                                selectionManager.selectedKeys,
-                                state.isFavoriteButtonFilled
-                            )
+                                vm.selectionManager.selectedKeys,
+                                state.isFavoriteButtonFilled,
+                            ) {}
                         }
                     ) {
                         if (state.isFavoriteButtonFilled)
@@ -127,7 +135,7 @@ fun LibraryPage(
                                 text = { Text(stringResource(R.string.mark_as_returned)) },
                                 onClick = {
                                     vm.markSelectedLentBooksAsReturned {
-                                        selectionManager.clearSelection()
+                                        vm.selectionManager.clearSelection()
                                     }
                                 }
                             )
@@ -232,29 +240,31 @@ fun LibraryPage(
             )
         }
     LazyColumn {
-        items(
+        itemsIndexed(
             items = lazyPagingItems,
-            key = { it.value.info.bookId }
-        ) { item ->
+            key = { _, item ->
+                item.value.info.bookId
+            }
+        ) { index, item ->
             if (item == null)
-                return@items
+                return@itemsIndexed
             Box {
-                var itemDropdownOpen by remember { mutableStateOf(false) }
+                val bundle = item
                 LibraryListRow(
                     item,
                     onRowTap = {
-                        if (selectionManager.isMultipleSelecting) {
-                            selectionManager.multipleSelectToggle(item.value)
+                        if (vm.selectionManager.isMultipleSelecting) {
+                            vm.selectionManager.multipleSelectToggle(item.value)
                         } else
                             navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
                     },
                     onCoverLongPress = {
-                        if (!selectionManager.isMultipleSelecting) {
-                            selectionManager.startMultipleSelection(item.value)
+                        if (!vm.selectionManager.isMultipleSelecting) {
+                            vm.selectionManager.startMultipleSelection(item.value)
                         }
                     },
                     onRowLongPress = {
-                        vm.selectionManager.singleSelectedItem = item.value
+                        vm.selectionManager.singleSelectedItem = lazyPagingItems.peek(index)?.value
                         state.isContextMenuVisible = true
                     }
                 )
@@ -314,12 +324,12 @@ fun LibraryPage(
         ConfirmDeleteBookDialog(
             onDismiss = {
                 state.showConfirmDeleteBook = false
-                if (selectionManager.isMultipleSelecting)
-                    selectionManager.clearSelection()
+                if (vm.selectionManager.isMultipleSelecting)
+                    vm.selectionManager.clearSelection()
             },
-            isPlural = selectionManager.isMultipleSelecting && selectionManager.count > 1
+            isPlural = vm.selectionManager.isMultipleSelecting && vm.selectionManager.count > 1
         ) {
-            if (selectionManager.isMultipleSelecting)
+            if (vm.selectionManager.isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()
             else
                 vm.deleteSelectedBookAndRefresh()
@@ -333,7 +343,7 @@ fun LibraryPage(
     if (state.showLendBookDialog) {
         AlertDialog(
             onDismissRequest = {
-                selectionManager.clearSelection()
+                vm.selectionManager.clearSelection()
                 state.showLendBookDialog = false
             },
             confirmButton = {
@@ -342,13 +352,13 @@ fun LibraryPage(
                         whoError = true
                         return@Button
                     }
-                    if (selectionManager.isMultipleSelecting)
+                    if (vm.selectionManager.isMultipleSelecting)
                         vm.markSelectedItemsAsLent(whoString, lentDate) {
-                            selectionManager.clearSelection()
+                            vm.selectionManager.clearSelection()
                         }
                     else {
                         vm.markSelectedBookAsLent(whoString, lentDate) {
-                            selectionManager.clearSelection()
+                            vm.selectionManager.clearSelection()
                         }
                     }
                     state.showLendBookDialog = false
@@ -358,7 +368,7 @@ fun LibraryPage(
             },
             dismissButton = {
                 TextButton(onClick = {
-                    selectionManager.clearSelection()
+                    vm.selectionManager.clearSelection()
                     state.showLendBookDialog = false
                 }) {
                     Text(stringResource(R.string.cancel))
@@ -424,10 +434,45 @@ fun LibraryPage(
     }
     ModalBottomSheet(
         visible = state.isContextMenuVisible,
-        onDismiss = { state.isContextMenuVisible = false }
+        onDismiss = {
+            state.isContextMenuVisible = false
+        }
     ) {
-        val selectedItem = selectionManager.singleSelectedItem
-        selectedItem?.let { item ->
+        vm.selectionManager.singleSelectedItem?.let { item ->
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(
+                            if (item.info.isFavorite)
+                                R.drawable.heart_24px
+                            else
+                                R.drawable.heart_filled_24px
+                        ),
+                        stringResource(
+                            if (item.info.isFavorite)
+                                R.string.remove_from_favorites
+                            else
+                                R.string.add_to_favorites
+                        )
+                    )
+                },
+                onClick = {
+                    vm.setFavoriteAndRefresh(listOf(item.info.bookId), !item.info.isFavorite) {
+                        lazyPagingItems.refresh()
+                    }
+                    vm.selectionManager.singleSelectedItem = null
+                    state.isContextMenuVisible = false
+                }
+            ) {
+                Text(
+                    stringResource(
+                        if (item.info.isFavorite)
+                            R.string.remove_from_favorites
+                        else
+                            R.string.add_to_favorites
+                    )
+                )
+            }
             RowWithIcon(
                 icon = {
                     Icon(

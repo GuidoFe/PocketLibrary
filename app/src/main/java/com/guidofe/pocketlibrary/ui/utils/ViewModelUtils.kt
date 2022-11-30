@@ -11,7 +11,7 @@ suspend fun translateGenresWithState(
     repo: LocalRepository,
     onFinish: (success: Boolean) -> Unit
 ) {
-    repo.translateGenres(
+    repo.translateGenresInDb(
         code,
         coroutineScope,
         onPhaseChanged = { state.translationPhase = it },

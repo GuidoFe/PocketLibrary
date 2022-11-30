@@ -85,11 +85,12 @@ class LibraryVM @Inject constructor(
         }
     }
 
-    override fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean) {
+    override fun setFavoriteAndRefresh(ids: List<Long>, favorite: Boolean, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             if (ids.isEmpty()) return@launch
             repo.updateFavorite(ids, favorite)
-            currentPagingSource?.invalidate()
+            // currentPagingSource?.invalidate()
+            callback()
         }
     }
 

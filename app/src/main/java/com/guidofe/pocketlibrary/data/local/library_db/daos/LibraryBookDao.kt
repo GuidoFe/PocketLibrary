@@ -28,7 +28,7 @@ interface LibraryBookDao {
     @Query("UPDATE library_book SET isFavorite = :isFavorite WHERE bookId = :bookId")
     suspend fun updateFavorite(bookId: Long, isFavorite: Boolean)
 
-    @Query("UPDATE library_book SET isFavorite = :isFavorite WHERE bookId IN (:bookIds)")
+    @Query("UPDATE library_book SET isFavorite = :isFavorite WHERE bookId IN ( :bookIds )")
     suspend fun updateFavorite(bookIds: List<Long>, isFavorite: Boolean)
 
     @Query("SELECT COUNT(bookId) FROM library_book")
