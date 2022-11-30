@@ -433,6 +433,7 @@ class DefaultLocalRepository @Inject constructor(
         }
         onPhaseChanged(TranslationPhase.UPDATING_DB)
         updateAllGenres(updatedGenres)
+        onPhaseChanged(TranslationPhase.NO_TRANSLATING)
         onFinish(true)
     }
 }
