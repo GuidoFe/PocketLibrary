@@ -457,9 +457,7 @@ fun LibraryPage(
                     )
                 },
                 onClick = {
-                    vm.setFavoriteAndRefresh(listOf(item.info.bookId), !item.info.isFavorite) {
-                        lazyPagingItems.refresh()
-                    }
+                    vm.setFavoriteAndRefresh(listOf(item.info.bookId), !item.info.isFavorite) {}
                     vm.selectionManager.singleSelectedItem = null
                     state.isContextMenuVisible = false
                 }

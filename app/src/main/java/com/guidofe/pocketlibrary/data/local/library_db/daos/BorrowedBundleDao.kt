@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.data.local.library_db.daos
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -21,16 +22,10 @@ interface BorrowedBundleDao {
     fun getBorrowedBundles(): Flow<List<BorrowedBundle>>
 
     @Transaction
-    @Query("SELECT * FROM borrowed_book WHERE isReturned = 0 LIMIT :offset,:limit  ")
-    suspend fun getBorrowedBundlesWithoutReturned(
-        offset: Int,
-        limit: Int
-    ): List<BorrowedBundle>
+    @Query("SELECT * FROM borrowed_book WHERE isReturned = 0")
+    fun getBorrowedBundlesWithoutReturned(): PagingSource<Int, BorrowedBundle>
 
     @Transaction
-    @Query("SELECT * FROM borrowed_book ORDER BY isReturned LIMIT :offset,:limit")
-    suspend fun getBorrowedBundlesWithReturned(
-        offset: Int,
-        limit: Int
-    ): List<BorrowedBundle>
+    @Query("SELECT * FROM borrowed_book ORDER BY isReturned")
+    fun getBorrowedBundlesWithReturned(): PagingSource<Int, BorrowedBundle>
 }

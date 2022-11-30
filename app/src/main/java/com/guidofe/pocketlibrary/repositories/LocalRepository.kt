@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.repositories
 
+import androidx.paging.PagingSource
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
@@ -16,7 +17,7 @@ interface LocalRepository {
     suspend fun insertBookBundle(bundle: BookBundle): Long
     suspend fun getBookBundle(bookId: Long): BookBundle?
 
-    suspend fun getLibraryBundles(pageSize: Int, pageNumber: Int): List<LibraryBundle>
+    fun getLibraryBundlesPagingSource(): PagingSource<Int, LibraryBundle>
     suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle>
 
     suspend fun insertAllAuthors(authors: List<Author>): List<Long>
@@ -45,14 +46,12 @@ interface LocalRepository {
     suspend fun insertLibraryBook(libraryBook: LibraryBook)
     suspend fun getBooksInLibraryWithSameIsbn(isbn: String): List<Book>
     suspend fun getBooksInLibraryWithSameIsbns(isbns: List<String>): List<Book>
-    suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle>
+    fun getWishlistBundles(): PagingSource<Int, WishlistBundle>
     suspend fun insertWishlistBook(wishlistBook: WishlistBook)
     suspend fun getBooksInWishlistWithSameIsbn(isbn: String): List<Book>
     suspend fun moveBookFromWishlistToLibrary(bookId: Long)
     suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>)
 
-    fun getBorrowedBundles(isReturned: Boolean): Flow<List<BorrowedBundle>>
-    fun getBorrowedBundles(): Flow<List<BorrowedBundle>>
     suspend fun insertBorrowedBook(borrowedBook: BorrowedBook)
     suspend fun getBooksInBorrowedWithSameIsbn(isbn: String): List<Book>
     suspend fun updateBorrowedBook(borrowedBook: BorrowedBook)
@@ -73,21 +72,17 @@ interface LocalRepository {
     suspend fun setBorrowedBookStatus(bookIds: List<Long>, isReturned: Boolean)
     suspend fun deleteBorrowedBooks(ids: List<Long>)
     suspend fun insertLibraryBooks(libraryBooks: List<LibraryBook>)
-    suspend fun getBorrowedBundles(
-        pageSize: Int,
-        pageNumber: Int,
+    fun getBorrowedBundles(
         withReturned: Boolean
-    ): List<BorrowedBundle>
+    ): PagingSource<Int, BorrowedBundle>
 
     suspend fun getStats(): AppStats
     suspend fun getBookBundlesAtProgressPhase(phase: ProgressPhase): List<BookBundle>
     suspend fun countLibraryBooksAtEveryPhase(): Map<ProgressPhase, Int>
 
-    suspend fun getLibraryBundlesWithCustomFilter(
-        pageSize: Int,
-        pageNumber: Int,
+    fun getLibraryBundlesWithCustomFilter(
         query: LibraryQuery
-    ): List<LibraryBundle>
+    ): PagingSource<Int, LibraryBundle>
 
     suspend fun getAllGenres(): List<Genre>
     suspend fun updateAllGenres(genres: List<Genre>)

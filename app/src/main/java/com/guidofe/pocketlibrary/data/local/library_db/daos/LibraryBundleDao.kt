@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.data.local.library_db.daos
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
@@ -27,8 +28,8 @@ interface LibraryBundleDao {
     suspend fun getLibraryBundles(): List<LibraryBundle>
 
     @Transaction
-    @Query("SELECT * FROM library_book LIMIT :offset,:limit")
-    suspend fun getLibraryBundles(offset: Int, limit: Int): List<LibraryBundle>
+    @Query("SELECT * FROM library_book")
+    fun getLibraryBundlesPagingSource(): PagingSource<Int, LibraryBundle>
 
     @Transaction
     @Query(
@@ -38,6 +39,8 @@ interface LibraryBundleDao {
     suspend fun getLibraryBundlesWithSameIsbns(isbnList: List<String>): List<LibraryBundle>
 
     @Transaction
-    @RawQuery
-    suspend fun getLibraryBundlesWithCustomQuery(query: SupportSQLiteQuery): List<LibraryBundle>
+    @RawQuery(observedEntities = [LibraryBundle::class])
+    fun getLibraryBundlesWithCustomQuery(
+        query: SupportSQLiteQuery
+    ): PagingSource<Int, LibraryBundle>
 }

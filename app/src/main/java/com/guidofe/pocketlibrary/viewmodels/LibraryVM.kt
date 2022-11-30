@@ -7,15 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
-import androidx.paging.map
+import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.repositories.LocalRepository
-import com.guidofe.pocketlibrary.repositories.pagingsources.LibraryPagingSource
 import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageNavArgs
 import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
 import com.guidofe.pocketlibrary.ui.pages.navArgs
@@ -43,10 +39,15 @@ class LibraryVM @Inject constructor(
     override val selectionManager = SelectionManager<Long, LibraryBundle>(
         getKey = { it.info.bookId }
     )
-    private var currentPagingSource: LibraryPagingSource? = null
+    private var currentPagingSource: PagingSource<Int, LibraryBundle>? = null
     override var customQuery: LibraryQuery? by mutableStateOf(null)
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
-        LibraryPagingSource(repo, customQuery).also { currentPagingSource = it }
+        (
+            if (customQuery == null)
+                repo.getLibraryBundlesPagingSource()
+            else
+                repo.getLibraryBundlesWithCustomFilter(customQuery!!)
+            ).also { currentPagingSource = it }
     }.flow.cachedIn(viewModelScope).combine(selectionManager.selectedItems) { items, selected ->
         items.map {
             SelectableListItem(
@@ -89,7 +90,7 @@ class LibraryVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (ids.isEmpty()) return@launch
             repo.updateFavorite(ids, favorite)
-            // currentPagingSource?.invalidate()
+            currentPagingSource?.invalidate()
             callback()
         }
     }

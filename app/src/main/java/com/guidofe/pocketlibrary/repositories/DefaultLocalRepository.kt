@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.repositories
 
 import android.util.Log
+import androidx.paging.PagingSource
 import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.guidofe.pocketlibrary.data.local.library_db.*
@@ -98,24 +99,21 @@ class DefaultLocalRepository @Inject constructor(
         return db.bookBundleDao().getBookBundle(bookId)
     }
 
-    override suspend fun getLibraryBundles(pageSize: Int, pageNumber: Int): List<LibraryBundle> {
-        return db.libraryBundleDao().getLibraryBundles(pageNumber * pageSize, pageSize)
+    override fun getLibraryBundlesPagingSource(): PagingSource<Int, LibraryBundle> {
+        return db.libraryBundleDao().getLibraryBundlesPagingSource()
     }
 
-    override suspend fun getBorrowedBundles(
-        pageSize: Int,
-        pageNumber: Int,
+    override fun getBorrowedBundles(
         withReturned: Boolean
-    ): List<BorrowedBundle> {
-        val offset = pageNumber * pageSize
+    ): PagingSource<Int, BorrowedBundle> {
         return if (withReturned)
-            db.borrowedBundleDao().getBorrowedBundlesWithReturned(offset, pageSize)
+            db.borrowedBundleDao().getBorrowedBundlesWithReturned()
         else
-            db.borrowedBundleDao().getBorrowedBundlesWithoutReturned(offset, pageSize)
+            db.borrowedBundleDao().getBorrowedBundlesWithoutReturned()
     }
 
-    override suspend fun getWishlistBundles(pageSize: Int, pageNumber: Int): List<WishlistBundle> {
-        return db.wishlistBundleDao().getWishlistBundles(pageNumber * pageSize, pageSize)
+    override fun getWishlistBundles(): PagingSource<Int, WishlistBundle> {
+        return db.wishlistBundleDao().getWishlistBundles()
     }
     override suspend fun getLibraryBundlesWithSameIsbns(
         isbnList: List<String>
@@ -142,14 +140,6 @@ class DefaultLocalRepository @Inject constructor(
     override suspend fun moveBooksFromWishlistToLibrary(bookIds: List<Long>) {
         db.wishlistBookDao().deleteAll(bookIds)
         db.libraryBookDao().insertAll(bookIds.map { LibraryBook(it) })
-    }
-
-    override fun getBorrowedBundles(isReturned: Boolean): Flow<List<BorrowedBundle>> {
-        return db.borrowedBundleDao().getBorrowedBundles(isReturned)
-    }
-
-    override fun getBorrowedBundles(): Flow<List<BorrowedBundle>> {
-        return db.borrowedBundleDao().getBorrowedBundles()
     }
 
     override suspend fun deleteBorrowedBooks(ids: List<Long>) {
@@ -324,11 +314,9 @@ class DefaultLocalRepository @Inject constructor(
         return db.genreDao().getGenresByEnglishNames(names.map { it.lowercase() })
     }
 
-    override suspend fun getLibraryBundlesWithCustomFilter(
-        pageSize: Int,
-        pageNumber: Int,
+    override fun getLibraryBundlesWithCustomFilter(
         query: LibraryQuery,
-    ): List<LibraryBundle> {
+    ): PagingSource<Int, LibraryBundle> {
         var queryString = "SELECT library_book.* FROM library_book NATURAL JOIN book"
         val firstArgumentList = mutableListOf<Any>()
         val lastArgumentList = mutableListOf<Any>()
@@ -375,11 +363,11 @@ class DefaultLocalRepository @Inject constructor(
                 lastArgumentList.add(it.name)
             }
         }
-        queryString = "$queryString ${
+        queryString = "$queryString${
         if (whereList.isEmpty())
             ""
         else
-            "WHERE ${whereList.joinToString(" AND ")}"
+            " WHERE ${whereList.joinToString(" AND ")}"
         }${
         if (query.sortingField != null)
             " ORDER BY ${
@@ -389,13 +377,11 @@ class DefaultLocalRepository @Inject constructor(
             }
             } ${if (query.reverseOrder) "DESC" else "ASC"}"
         else ""
-        } LIMIT ?,?;"
+        }"
         Log.d("query", queryString)
         val args = arrayOf(
             *firstArgumentList.toTypedArray(),
-            *lastArgumentList.toTypedArray(),
-            pageNumber * pageSize,
-            pageSize
+            *lastArgumentList.toTypedArray()
         )
         Log.d("query", args.joinToString(", ") { it.toString() })
         return db.libraryBundleDao().getLibraryBundlesWithCustomQuery(

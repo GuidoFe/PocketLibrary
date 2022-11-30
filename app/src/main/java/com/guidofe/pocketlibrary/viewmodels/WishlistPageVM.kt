@@ -3,14 +3,10 @@ package com.guidofe.pocketlibrary.viewmodels
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
-import androidx.paging.map
+import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.repositories.LocalRepository
-import com.guidofe.pocketlibrary.repositories.pagingsources.WishlistPagingSource
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
@@ -31,10 +27,10 @@ class WishlistPageVM @Inject constructor(
     override val selectionManager = SelectionManager<Long, WishlistBundle>(
         getKey = { it.info.bookId }
     )
-    private var currentPagingSource: WishlistPagingSource? = null
+    private var currentPagingSource: PagingSource<Int, WishlistBundle>? = null
 
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
-        WishlistPagingSource(repo).also { currentPagingSource = it }
+        repo.getWishlistBundles().also { currentPagingSource = it }
     }.flow.cachedIn(viewModelScope).combine(selectionManager.selectedItems) { items, selected ->
         items.map {
             SelectableListItem(

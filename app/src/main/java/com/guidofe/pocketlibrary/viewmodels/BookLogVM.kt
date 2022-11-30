@@ -6,15 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
-import androidx.paging.map
+import androidx.paging.*
+import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
-import com.guidofe.pocketlibrary.repositories.pagingsources.BorrowedBooksPagingSource
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklogpage.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
@@ -35,10 +32,10 @@ class BookLogVM @Inject constructor(
     override val borrowedTabState = BorrowedTabState()
     override val lentTabState = LentTabState()
     override var tabIndex: Int by mutableStateOf(0)
-    private var currentBorrowedPagingSource: BorrowedBooksPagingSource? = null
+    private var currentBorrowedPagingSource: PagingSource<Int, BorrowedBundle>? = null
 
     override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 10)) {
-        BorrowedBooksPagingSource(repo, borrowedTabState.showReturnedBooks)
+        repo.getBorrowedBundles(borrowedTabState.showReturnedBooks)
             .also { currentBorrowedPagingSource = it }
     }.flow.cachedIn(viewModelScope)
         .combine(borrowedTabState.selectionManager.selectedItems) { items, selected ->
