@@ -62,7 +62,10 @@ fun BookLogPage(
             MaterialTheme.colorScheme.surface,
             MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             FastOutLinearInEasing.transform(
-                if (vm.scaffoldState.topAppBarState.overlappedFraction >= 0.01f) 1f else 0f
+                if ((vm.scaffoldState.scrollBehavior?.state?.overlappedFraction ?: 0f) >= 0.01f)
+                    1f
+                else
+                    0f
             )
         ),
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
@@ -342,7 +345,8 @@ fun BookLogPage(
                         vm.moveBorrowedBooksToLibrary(ids)
                     },
                     navigator = navigator,
-                    state = vm.borrowedTabState
+                    state = vm.borrowedTabState,
+                    setScrollBehavior = { vm.scaffoldState.scrollBehavior = it }
                 )
             }
             1 -> {
@@ -353,7 +357,8 @@ fun BookLogPage(
                         vm.removeLentStatus(list, callback)
                     },
                     state = vm.lentTabState,
-                    navigator = navigator
+                    navigator = navigator,
+                    setScrollBehavior = { vm.scaffoldState.scrollBehavior = it }
                 )
             }
         }

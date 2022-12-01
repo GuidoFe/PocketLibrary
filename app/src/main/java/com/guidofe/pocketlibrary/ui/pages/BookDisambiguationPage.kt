@@ -2,10 +2,10 @@ package com.guidofe.pocketlibrary.ui.pages
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,6 +25,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Destination
 fun BookDisambiguationPage(
@@ -34,6 +35,7 @@ fun BookDisambiguationPage(
 ) {
     var isDialogOpen: Boolean by remember { mutableStateOf(false) }
     var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
@@ -50,7 +52,9 @@ fun BookDisambiguationPage(
             }
         )
     }
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
+    ) {
         items(
             bookList.map { SelectableListItem(it, false) },
             { it.value.externalId }

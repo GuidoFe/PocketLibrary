@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
@@ -36,8 +37,11 @@ fun BorrowedTab(
     deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
     state: BorrowedTabState,
     navigator: DestinationsNavigator,
+    setScrollBehavior: @Composable (TopAppBarScrollBehavior) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    setScrollBehavior(scrollBehavior)
     val selectionManager = state.selectionManager
     Column(modifier = modifier.fillMaxSize()) {
         /*Row(
@@ -67,7 +71,9 @@ fun BorrowedTab(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-        LazyColumn() {
+        LazyColumn(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        ) {
             items(borrowedItems, key = { it.value.info.bookId }) { item ->
                 if (item == null)
                     return@items

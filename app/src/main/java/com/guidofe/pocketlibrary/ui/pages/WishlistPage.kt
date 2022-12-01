@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,6 +55,7 @@ fun WishlistPage(
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     var showConfirmDeleteBook by remember { mutableStateOf(false) }
     var isContextMenuVisible by remember { mutableStateOf(false) }
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
 // TODO add to borrowed
     LaunchedEffect(isMultipleSelecting) {
@@ -171,7 +173,9 @@ fun WishlistPage(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
+    ) {
         items(
             items = lazyPagingItems,
             key = { it.value.info.bookId }

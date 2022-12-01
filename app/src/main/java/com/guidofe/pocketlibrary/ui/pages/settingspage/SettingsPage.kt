@@ -11,6 +11,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +53,7 @@ fun SettingsPage(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val innerRowPadding = 10.dp
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
             title = context.getString(R.string.settings),
@@ -75,6 +77,7 @@ fun SettingsPage(
             Column(
                 modifier = Modifier
                     .verticalScroll(scrollState)
+                    .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
                     .fillMaxWidth()
                     .padding(5.dp)
             ) {

@@ -19,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,6 +74,7 @@ fun EditBookPage(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var imageRequest: ImageRequest? by remember { mutableStateOf(null) }
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val uploadFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia(),
@@ -167,6 +169,7 @@ fun EditBookPage(
         modifier = Modifier
             .verticalScroll(scrollState)
             .fillMaxWidth()
+            .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
             .padding(5.dp)
     ) {
         BoxWithConstraints {

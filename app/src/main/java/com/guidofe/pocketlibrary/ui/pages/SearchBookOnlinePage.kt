@@ -44,6 +44,7 @@ fun SearchBookOnlinePage(
     var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
     val selectionManager = vm.selectionManager
     val coroutineScope = rememberCoroutineScope()
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(context.getString(R.string.search_online))
     }
@@ -183,6 +184,7 @@ fun SearchBookOnlinePage(
                 },
                 selectionManager = vm.selectionManager,
                 vm = vm.listVM,
+                nestedScrollConnection = vm.scaffoldState.scrollBehavior!!.nestedScrollConnection,
                 modifier = Modifier.fillMaxSize()
             )
         }

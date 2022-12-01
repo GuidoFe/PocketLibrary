@@ -11,10 +11,7 @@ class ScaffoldState {
     var actions: @Composable RowScope.() -> Unit by mutableStateOf({})
     var fab: @Composable () -> Unit by mutableStateOf({})
     var hiddenBar: Boolean by mutableStateOf(false)
-    var topAppBarState = TopAppBarState(-Float.MAX_VALUE, 0f, 0f)
-
-    @Composable
-    fun scrollBehavior() = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
+    var scrollBehavior: TopAppBarScrollBehavior? by mutableStateOf(null)
 
     fun refreshBar(
         title: String = "",

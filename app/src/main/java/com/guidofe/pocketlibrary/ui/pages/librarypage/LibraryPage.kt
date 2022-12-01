@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,15 +57,7 @@ fun LibraryPage(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val state = vm.state
-
-    LaunchedEffect(vm.selectionManager.singleSelectedItem) {
-        Log.d(
-            "debug",
-            "Selected book: " +
-                "${vm.selectionManager.singleSelectedItem?.bookBundle?.book?.title}" +
-                "\nIs favorite: ${vm.selectionManager.singleSelectedItem?.info?.isFavorite}"
-        )
-    }
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     LaunchedEffect(vm.selectionManager.isMultipleSelecting) {
         if (vm.selectionManager.isMultipleSelecting) {
@@ -239,7 +232,9 @@ fun LibraryPage(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
+    ) {
         itemsIndexed(
             items = lazyPagingItems,
             key = { _, item ->

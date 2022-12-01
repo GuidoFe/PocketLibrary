@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -113,6 +114,7 @@ private fun NumberTile(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph(start = true)
 @Destination
 @Composable
@@ -124,6 +126,7 @@ fun LandingPage(
     val padding = 10.dp
     val context = LocalContext.current
     val scroll = rememberScrollState()
+    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
             context.getString(R.string.home),
@@ -145,6 +148,7 @@ fun LandingPage(
     Surface(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
+            .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
             .verticalScroll(scroll)
     ) {
         Column(

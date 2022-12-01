@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.guidofe.pocketlibrary.R
@@ -34,8 +35,11 @@ fun LentTab(
     removeLentStatus: (books: List<LentBook>, callback: () -> Unit) -> Unit,
     state: LentTabState,
     navigator: DestinationsNavigator,
+    setScrollBehavior: @Composable (TopAppBarScrollBehavior) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    setScrollBehavior(scrollBehavior)
     val selectionManager = state.selectionManager
     Column(modifier = modifier) {
         if (lentItems.isEmpty())
@@ -46,7 +50,9 @@ fun LentTab(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-        LazyColumn {
+        LazyColumn(
+            modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        ) {
             items(lentItems, key = { it.value.info.bookId }) { item ->
                 Box {
                     val xOffset = remember { Animatable(0f) }

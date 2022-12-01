@@ -5,7 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,8 +23,6 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
     val navController = rememberNavController()
     val scaffoldState = viewModel.scaffoldState
-    val scrollBehavior = viewModel.scaffoldState.scrollBehavior()
-    scrollBehavior.state.overlappedFraction
     LaunchedEffect(key1 = true) {
         navController.addOnDestinationChangedListener { _, _, _ ->
             scaffoldState.fab = {}
@@ -33,8 +30,6 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
         }
     }
     Scaffold(
-        Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = {
             // reuse default SnackbarHost to have default animation and timing handling
             SnackbarHost(viewModel.snackbarHostState) { data ->
@@ -97,7 +92,7 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
                     },
                     actions = scaffoldState.actions,
                     navigationIcon = scaffoldState.navigationIcon,
-                    scrollBehavior = scrollBehavior,
+                    scrollBehavior = viewModel.scaffoldState.scrollBehavior,
                 )
             }
         },
