@@ -50,7 +50,6 @@ fun WishlistPage(
     val context = LocalContext.current
     var isExpanded: Boolean by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val isMultipleSelecting = vm.selectionManager.isMultipleSelecting
     var showDoubleIsbnDialog by remember { mutableStateOf(false) }
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     var showConfirmDeleteBook by remember { mutableStateOf(false) }
@@ -58,8 +57,8 @@ fun WishlistPage(
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
 // TODO add to borrowed
-    LaunchedEffect(isMultipleSelecting) {
-        if (isMultipleSelecting) {
+    LaunchedEffect(vm.selectionManager.isMultipleSelecting) {
+        if (vm.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = context.getString(R.string.selecting),
                 navigationIcon = {
@@ -186,21 +185,22 @@ fun WishlistPage(
                 WishlistRow(
                     item,
                     onRowTap = {
-                        if (isMultipleSelecting) {
+                        if (vm.selectionManager.isMultipleSelecting) {
                             vm.selectionManager.multipleSelectToggle(item.value)
                         } else {
                             navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
                         }
                     },
                     onCoverLongPress = {
-                        if (!isMultipleSelecting) {
+                        if (!vm.selectionManager.isMultipleSelecting) {
                             vm.selectionManager.startMultipleSelection(item.value)
                         }
                     },
                     onRowLongPress = {
-                        if (isMultipleSelecting) return@WishlistRow
-                        vm.selectionManager.singleSelectedItem = item.value
-                        isContextMenuVisible = true
+                        if (!vm.selectionManager.isMultipleSelecting) {
+                            vm.selectionManager.singleSelectedItem = item.value
+                            isContextMenuVisible = true
+                        }
                     }
                 )
             }
@@ -259,12 +259,12 @@ fun WishlistPage(
         ConfirmDeleteBookDialog(
             onDismiss = {
                 showConfirmDeleteBook = false
-                if (isMultipleSelecting)
+                if (vm.selectionManager.isMultipleSelecting)
                     vm.selectionManager.clearSelection()
             },
-            isPlural = isMultipleSelecting && vm.selectionManager.count > 1
+            isPlural = vm.selectionManager.isMultipleSelecting && vm.selectionManager.count > 1
         ) {
-            if (isMultipleSelecting)
+            if (vm.selectionManager.isMultipleSelecting)
                 vm.deleteSelectedBooksAndRefresh()
             else {
                 vm.selectionManager.singleSelectedItem?.bookBundle?.book?.let { book ->

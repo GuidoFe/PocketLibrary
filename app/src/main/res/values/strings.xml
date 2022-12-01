@@ -168,9 +168,9 @@
     <string name="downloading_translator_dots">Downloading translator...</string>
     <string name="fetching_genres_dots">Fetching genres...</string>
     <string name="updating_db_dots">Updating database...</string>
-    <string name="NO_STRING">NO STRING</string>
+    <string name="NO_STRING" translatable="false">NO STRING</string>
     <string name="translating_dots">Translating...</string>
-    <string name="EMPTY_STRING" />
+    <string name="EMPTY_STRING" translatable="false" />
     <string name="allow_genres_translation">Translate genres using Google Translate</string>
     <string name="currently_not_reading_books">Currently you are not reading any books</string>
     <string name="dismiss">Dismiss</string>
