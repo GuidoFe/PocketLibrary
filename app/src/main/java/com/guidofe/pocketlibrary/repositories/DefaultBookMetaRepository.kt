@@ -9,9 +9,9 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.utils.NetworkResponse
 import com.guidofe.pocketlibrary.utils.NetworkResponseAdapterFactory
 import com.guidofe.pocketlibrary.utils.Resource
-import java.lang.Integer.min
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Integer.min
 
 class DefaultBookMetaRepository : BookMetaRepository {
     private val retrofit = Retrofit.Builder()
@@ -81,6 +81,7 @@ class DefaultBookMetaRepository : BookMetaRepository {
                     null,
                     query
                 ),
+                null,
                 pageSize,
                 startIndex
             )
@@ -95,6 +96,7 @@ class DefaultBookMetaRepository : BookMetaRepository {
 
     override suspend fun searchVolumesByQuery(
         query: QueryData?,
+        langRestrict: String?,
         startIndex: Int,
         pageSize: Int
     ): Resource<List<ImportedBookData>> {
@@ -102,6 +104,7 @@ class DefaultBookMetaRepository : BookMetaRepository {
         query?.let {
             val response = service.getVolumesByQuery(
                 query,
+                langRestrict,
                 pageSize,
                 startIndex
             )

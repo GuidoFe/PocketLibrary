@@ -1,9 +1,7 @@
 package com.guidofe.pocketlibrary.ui.modules
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,7 +47,6 @@ fun BorrowedBookRow(
             MaterialTheme.colorScheme.surfaceVariant
         else
             MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp,
         modifier = modifier
 
     ) {
@@ -66,10 +63,12 @@ fun BorrowedBookRow(
                     onRowTap,
                     onCoverLongPress,
                     progress = item.value.bookBundle.progress?.phase,
-                    colorFilter = if (item.value.info.isReturned)
-                        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-                    else
-                        null
+                    colorFilter = remember {
+                        if (item.value.info.isReturned)
+                            ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                        else
+                            null
+                    }
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -99,16 +98,16 @@ fun BorrowedBookRow(
                                 maxLines = 1,
                             )
                             Text(
-                                text = bookBundle.authors.joinToString(", ") {
-                                    it.name
+                                text = remember {
+                                    bookBundle.authors.joinToString(", ") {
+                                        it.name
+                                    }
                                 },
                                 fontStyle = FontStyle.Italic,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                             )
                         }
-                        Divider()
-
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxHeight()
@@ -117,7 +116,11 @@ fun BorrowedBookRow(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable { onLenderTap() }
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { onLenderTap() }
+                                        )
+                                    }
                             ) {
                                 Text(
                                     stringResource(R.string.lender_colon),
@@ -133,7 +136,11 @@ fun BorrowedBookRow(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable { onStartTap() }
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { onStartTap() }
+                                        )
+                                    }
                             ) {
                                 Text(
                                     stringResource(R.string.start_colon),
@@ -141,7 +148,7 @@ fun BorrowedBookRow(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    item.value.info.start.toString(),
+                                    remember { item.value.info.start.toString() },
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             }
@@ -150,7 +157,11 @@ fun BorrowedBookRow(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable { onReturnByTap() }
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { onReturnByTap() }
+                                        )
+                                    }
                             ) {
                                 Text(
                                     stringResource(R.string.return_by_colon),
@@ -158,7 +169,7 @@ fun BorrowedBookRow(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    item.value.info.end?.toString() ?: "-",
+                                    remember { item.value.info.end?.toString() ?: "-" },
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             }

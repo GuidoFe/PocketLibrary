@@ -67,7 +67,7 @@ fun WishlistPage(
                         }
                     ) {
                         Icon(
-                            painterResource(R.drawable.arrow_back_24px),
+                            painterResource(R.drawable.backspace_24px),
                             stringResource(R.string.clear_selection)
                         )
                     }
@@ -223,8 +223,8 @@ fun WishlistPage(
                                 }
                             }
                             1 -> {
-                                importVm.saveImportedBooks(
-                                    listOf(it[0]), BookDestination.WISHLIST
+                                importVm.saveImportedBook(
+                                    it[0], BookDestination.WISHLIST
                                 ) {
                                     vm.invalidate()
                                 }
@@ -273,7 +273,7 @@ fun WishlistPage(
 
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBooks(listOf(navResult.value), BookDestination.WISHLIST) {
+            importVm.saveImportedBook(navResult.value, BookDestination.WISHLIST) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,

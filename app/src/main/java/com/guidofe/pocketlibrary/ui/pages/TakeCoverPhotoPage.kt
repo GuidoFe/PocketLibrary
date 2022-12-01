@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,7 +62,19 @@ fun TakeCoverPhotoPage(
         }
     }
     LaunchedEffect(key1 = true) {
-        vm.scaffoldState.refreshBar(title = context.getString(R.string.take_photo_of_cover))
+        vm.scaffoldState.refreshBar(
+            title = context.getString(R.string.take_photo_of_cover),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navigator.navigateUp()
+                }) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back_24px),
+                        stringResource(R.string.back)
+                    )
+                }
+            }
+        )
     }
     val cameraPermissionState = rememberPermissionState(
         Manifest.permission.CAMERA

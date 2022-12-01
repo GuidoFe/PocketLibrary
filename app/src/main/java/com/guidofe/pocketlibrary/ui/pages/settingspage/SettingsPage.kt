@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,8 @@ import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import com.guidofe.pocketlibrary.viewmodels.previews.SettingsVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -41,7 +44,8 @@ import java.util.*
 @Destination
 @Composable
 fun SettingsPage(
-    vm: ISettingsVM = hiltViewModel<SettingsVM>()
+    vm: ISettingsVM = hiltViewModel<SettingsVM>(),
+    navigator: DestinationsNavigator
 ) {
     val context = LocalContext.current
     val settings: AppSettings? by vm.settingsLiveData.observeAsState()
@@ -49,7 +53,19 @@ fun SettingsPage(
     val coroutineScope = rememberCoroutineScope()
     val innerRowPadding = 10.dp
     LaunchedEffect(true) {
-        vm.scaffoldState.refreshBar(title = context.getString(R.string.settings))
+        vm.scaffoldState.refreshBar(
+            title = context.getString(R.string.settings),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navigator.navigateUp()
+                }) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back_24px),
+                        stringResource(R.string.back)
+                    )
+                }
+            }
+        )
     }
     LaunchedEffect(settings) {
         settings?.let { vm.state.currentSettings = it }
@@ -257,6 +273,6 @@ fun SettingsPage(
 @Preview(showSystemUi = false, device = Devices.PIXEL_4)
 private fun SettingsPagePreview() {
     PreviewUtils.ThemeColumn() {
-        SettingsPage(SettingsVMPreview())
+        SettingsPage(SettingsVMPreview(), EmptyDestinationsNavigator)
     }
 }

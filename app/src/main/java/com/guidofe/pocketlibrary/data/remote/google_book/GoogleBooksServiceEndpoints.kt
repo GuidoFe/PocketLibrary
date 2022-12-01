@@ -15,6 +15,7 @@ interface GoogleBooksServiceEndpoints {
     @GET("volumes")
     suspend fun getVolumesByQuery(
         @Query("q") values: QueryData,
+        @Query("langRestrict") langRestrict: String? = null,
         @Query("maxResults") pageSize: Int = 40,
         @Query("startIndex") startIndex: Int = 0
     ): NetworkResponse<RawVolumeListResponse, RawErrorResponse>

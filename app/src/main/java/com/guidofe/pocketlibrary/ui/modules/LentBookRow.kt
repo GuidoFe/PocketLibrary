@@ -1,9 +1,7 @@
 package com.guidofe.pocketlibrary.ui.modules
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,7 +41,6 @@ fun LentBookRow(
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp,
         modifier = modifier
     ) {
         Row(
@@ -104,7 +101,6 @@ fun LentBookRow(
                                     }
                             )
                         }
-                        Divider()
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxHeight()
@@ -113,7 +109,11 @@ fun LentBookRow(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable(areButtonsActive) { onBorrowerTap() }
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { onBorrowerTap() }
+                                        )
+                                    }
                             ) {
                                 Text(
                                     stringResource(R.string.lent_to_colon),
@@ -129,7 +129,11 @@ fun LentBookRow(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable(areButtonsActive) { onStartTap() }
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { onStartTap() }
+                                        )
+                                    }
                             ) {
                                 Text(
                                     stringResource(R.string.start_colon),

@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -62,10 +63,25 @@ fun LibraryFilterPage(
     vm: ILibraryFilterVM = hiltViewModel<LibraryFilterVM>(),
     navigator: ResultBackNavigator<LibraryQuery?>
 ) {
-
+    val context = LocalContext.current
     LaunchedEffect(startQuery) {
         vm.initializeGenresList()
         vm.initializeState(startQuery)
+    }
+    LaunchedEffect(Unit) {
+        vm.scaffoldState.refreshBar(
+            title = context.getString(R.string.filter),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navigator.navigateBack()
+                }) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back_24px),
+                        stringResource(R.string.back)
+                    )
+                }
+            }
+        )
     }
     val scrollState = rememberScrollState()
     val innerPadding = 10.dp

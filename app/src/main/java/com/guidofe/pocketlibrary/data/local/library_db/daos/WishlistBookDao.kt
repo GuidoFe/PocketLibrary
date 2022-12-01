@@ -5,12 +5,14 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.WishlistBook
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WishlistBookDao {
     @Insert
     suspend fun insert(wishlist: WishlistBook)
+
+    @Insert
+    suspend fun insertAll(wishlists: List<WishlistBook>)
 
     @Query("SELECT * FROM wishlist_book")
     suspend fun getWishlistBooks(): List<WishlistBook>

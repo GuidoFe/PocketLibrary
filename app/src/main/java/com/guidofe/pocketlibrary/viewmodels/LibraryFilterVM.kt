@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryFilterVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryFilterVM @Inject constructor(
-    private val repo: LocalRepository
+    private val repo: LocalRepository,
+    override val scaffoldState: ScaffoldState
 ) : ViewModel(), ILibraryFilterVM {
     override var title by mutableStateOf("")
     override var author by mutableStateOf("")

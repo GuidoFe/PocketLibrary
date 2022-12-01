@@ -176,6 +176,9 @@ dependencies {
 
     // compose-destinations
     implementation 'io.github.raamcosta.compose-destinations:core:1.7.21-beta'
+
+    // For changing status bar color
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
     ksp 'io.github.raamcosta.compose-destinations:ksp:1.7.21-beta'
 
     // Coil

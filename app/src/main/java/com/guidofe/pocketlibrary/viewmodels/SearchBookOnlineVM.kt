@@ -31,6 +31,7 @@ class SearchBookOnlineVM @Inject constructor(
     override val listVM: IOnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)
     override var title: String by mutableStateOf("")
     override var author: String by mutableStateOf("")
+    override var lang: String by mutableStateOf("")
     override val settingsFlow = dataStore.settingsLiveData
     override fun search() {
         selectionManager.clearSelection()
@@ -39,6 +40,7 @@ class SearchBookOnlineVM @Inject constructor(
             map[QueryData.QueryKey.intitle] = title
         if (author.isNotBlank())
             map[QueryData.QueryKey.inauthor] = author
+        // if (lang.isNotBlank())
         queryData = QueryData(null, map)
     }
 

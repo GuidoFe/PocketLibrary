@@ -55,13 +55,20 @@ class ImportedBookVM @Inject constructor(
         destination: BookDestination,
         callback: (List<Long>) -> Unit
     ) {
-        val ids = mutableListOf<Long>()
         viewModelScope.launch(Dispatchers.IO) {
-            importedBooks.forEach {
-                val id = saveImportedBookToDestination(it, destination)
-                ids.add(id)
-            }
+            val ids = saveImportedBooksToDestination(importedBooks, destination)
             callback(ids)
+        }
+    }
+
+    override fun saveImportedBook(
+        importedBook: ImportedBookData,
+        destination: BookDestination,
+        callback: (Long) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = saveImportedBookToDestination(importedBook, destination)
+            callback(id)
         }
     }
 
@@ -76,28 +83,6 @@ class ImportedBookVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInBorrowedWithSameIsbn(isbn)
             callback(list)
-        }
-    }
-
-    override fun saveImportedBookAsBookBundle(
-        importedBook: ImportedBookData,
-        callback: (Long) -> Unit
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val id = saveImportedBookAsBookBundle(importedBook)
-            callback(id)
-        }
-    }
-
-    override fun saveImportedBooksAsBookBundles(
-        importedBooks: List<ImportedBookData>,
-        callback: () -> Unit
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            importedBooks.forEach {
-                saveImportedBookAsBookBundle(it)
-            }
-            callback()
         }
     }
 
@@ -121,7 +106,7 @@ class ImportedBookVM @Inject constructor(
                     onNoBookFound()
                 }
                 1 -> {
-                    saveImportedBooks(listOf(importedList[0]), destination) {
+                    saveImportedBook(importedList[0], destination) {
                         onOneBookSaved()
                     }
                 }
@@ -161,12 +146,26 @@ class ImportedBookVM @Inject constructor(
         }
     }
 
-    private suspend fun insertImportedGenres(genres: List<String>): List<Long>? {
-        val existingEnglishGenres = localRepo.getGenresByEnglishNames(genres)
-        val genresIds = existingEnglishGenres.map { it.genreId }.toMutableList()
+    private suspend fun insertImportedAuthors(authors: List<String>): Map<String, Long> {
+        val distinctAuthors = authors.distinct()
+        val existingAuthors = localRepo.getExistingAuthors(distinctAuthors)
+        val existingAuthorsNames = existingAuthors.map { it.name }
+        val authorsMap = existingAuthors.associate { Pair(it.name, it.authorId) }.toMutableMap()
+        val authorsToInsert = distinctAuthors.filter { !existingAuthorsNames.contains(it) }
+        val newAuthorsIds = localRepo.insertAllAuthors(authorsToInsert.map { Author(0L, it) })
+        authorsMap.putAll(authorsToInsert.zip(newAuthorsIds).toMap())
+        return authorsMap
+    }
+
+    private suspend fun insertImportedGenres(genres: List<String>): Map<String, Long>? {
+        val distinctGenres = genres.distinct()
+        val existingEnglishGenres = localRepo.getGenresByEnglishNames(distinctGenres)
+        val map = existingEnglishGenres.associate {
+            Pair(it.englishName!!, it.genreId)
+        }.toMutableMap()
         val genresToInsert = mutableListOf<Genre>()
         val existingEnglishGenresNames = existingEnglishGenres.map { it.englishName!!.lowercase() }
-        val genresToTranslate = genres.filter {
+        val genresToTranslate = distinctGenres.filter {
             !existingEnglishGenresNames.contains(it.lowercase())
         }
         if (genresToTranslate.isNotEmpty()) {
@@ -190,17 +189,17 @@ class ImportedBookVM @Inject constructor(
             translator.close()
             val translatedGenresNames = translatedGenres.map { it.name }
             val existingTranslatedGenres = localRepo.getGenresByNames(translatedGenresNames)
+            map.putAll(existingTranslatedGenres.associate { Pair(it.englishName!!, it.genreId) })
             val existingTranslatedGenresNames = existingTranslatedGenres.map { it.name.lowercase() }
-            genresIds.addAll(existingTranslatedGenres.map { it.genreId })
             genresToInsert.addAll(
                 translatedGenres.filter {
                     !existingTranslatedGenresNames.contains(it.name.lowercase())
                 }
             )
             val newIds = localRepo.insertAllGenres(genresToInsert)
-            genresIds.addAll(newIds)
+            map.putAll(genresToInsert.map { it.englishName!! }.zip(newIds))
         }
-        return genresIds
+        return map
     }
 
     private suspend fun saveImportedBookAsBookBundle(importedBook: ImportedBookData): Long {
@@ -230,14 +229,52 @@ class ImportedBookVM @Inject constructor(
             }
         )
         if (importedBook.genres.isNotEmpty()) {
-            val ids = insertImportedGenres(importedBook.genres)
+            val genreMap = insertImportedGenres(importedBook.genres)
             // TODO: Manage failure
-            if (ids != null)
-                localRepo.insertAllBookGenres(ids.map { BookGenre(bookId, it) })
+            if (genreMap != null)
+                localRepo.insertAllBookGenres(genreMap.values.map { BookGenre(bookId, it) })
             else
                 Log.e("debug", "Inserting imported genres failed")
         }
         return bookId
+    }
+
+    private suspend fun saveImportedBooksAsBookBundles(
+        importedBooks: List<ImportedBookData>
+    ): List<Long> {
+        val books = importedBooks.map {
+            Book(
+                bookId = 0L,
+                title = it.title,
+                subtitle = it.subtitle,
+                description = it.description,
+                publisher = it.publisher,
+                published = it.published,
+                coverURI = it.coverUrl?.let { Uri.parse(it) },
+                identifier = it.identifier,
+                isEbook = it.isEbook,
+                language = it.language,
+                pageCount = it.pageCount
+            )
+        }
+        val bookIds = localRepo.insertAllBooks(books)
+        val importedBooksMap = bookIds.zip(importedBooks).toMap()
+        val authorsMap = insertImportedAuthors(importedBooks.flatMap { it.authors })
+        val bookAuthorsToInsert = importedBooksMap.flatMap {
+            it.value.authors.mapIndexed { i, a -> BookAuthor(it.key, authorsMap[a]!!, i) }
+        }
+        localRepo.insertAllBookAuthors(bookAuthorsToInsert)
+        val importedGenres = importedBooks.flatMap { it.genres }
+        val genreMap = insertImportedGenres(importedBooks.flatMap { it.genres })
+        // TODO: Manage failure
+        if (genreMap != null) {
+            val bookGenresToInsert = importedBooksMap.flatMap {
+                it.value.genres.map { g -> BookGenre(it.key, genreMap[g]!!) }
+            }
+            localRepo.insertAllBookGenres(bookGenresToInsert)
+        } else
+            Log.e("debug", "Inserting imported genres failed")
+        return bookIds
     }
 
     private suspend fun saveImportedBookToDestination(
@@ -251,5 +288,24 @@ class ImportedBookVM @Inject constructor(
             BookDestination.LIBRARY -> localRepo.insertLibraryBook(LibraryBook(id))
         }
         return id
+    }
+
+    private suspend fun saveImportedBooksToDestination(
+        importedBooks: List<ImportedBookData>,
+        destination: BookDestination
+    ): List<Long> {
+        val ids = saveImportedBooksAsBookBundles(importedBooks)
+        when (destination) {
+            BookDestination.BORROWED -> localRepo.insertBorrowedBooks(
+                ids.map { BorrowedBook(it) }
+            )
+            BookDestination.WISHLIST -> localRepo.insertWishlistBooks(
+                ids.map { WishlistBook(it) }
+            )
+            BookDestination.LIBRARY -> localRepo.insertLibraryBooks(
+                ids.map { LibraryBook(it) }
+            )
+        }
+        return ids
     }
 }

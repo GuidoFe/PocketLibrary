@@ -97,4 +97,7 @@ interface LocalRepository {
     )
 
     suspend fun getGenresByEnglishNames(names: List<String>): List<Genre>
+    suspend fun insertAllBooks(books: List<Book>): List<Long>
+    suspend fun insertBorrowedBooks(borrowedBooks: List<BorrowedBook>)
+    suspend fun insertWishlistBooks(wishlistBooks: List<WishlistBook>)
 }

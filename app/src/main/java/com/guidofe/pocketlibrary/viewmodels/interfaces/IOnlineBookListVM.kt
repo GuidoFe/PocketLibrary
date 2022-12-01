@@ -11,4 +11,5 @@ interface IOnlineBookListVM {
     val selectionManager: SelectionManager<String, ImportedBookData>
     val pager: Flow<PagingData<SelectableListItem<ImportedBookData>>>
     var query: QueryData?
+    var langRestrict: String?
 }

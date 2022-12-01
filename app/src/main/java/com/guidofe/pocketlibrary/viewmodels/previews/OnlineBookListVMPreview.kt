@@ -15,4 +15,5 @@ class OnlineBookListVMPreview : IOnlineBookListVM {
     override val pager: Flow<PagingData<SelectableListItem<ImportedBookData>>>
         get() = emptyFlow()
     override var query: QueryData? = null
+    override var langRestrict: String? = null
 }

@@ -29,4 +29,5 @@ class SearchBookOnlineVMPreview : ISearchBookOnlineVM {
         get() = OnlineBookListVMPreview()
     override val settingsFlow: LiveData<AppSettings>
         get() = liveData { emit(AppSettings()) }
+    override var lang: String = ""
 }

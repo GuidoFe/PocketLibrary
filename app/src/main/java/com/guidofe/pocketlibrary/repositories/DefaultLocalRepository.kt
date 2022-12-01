@@ -79,8 +79,16 @@ class DefaultLocalRepository @Inject constructor(
         db.wishlistBookDao().insert(wishlistBook)
     }
 
+    override suspend fun insertWishlistBooks(wishlistBooks: List<WishlistBook>) {
+        db.wishlistBookDao().insertAll(wishlistBooks)
+    }
+
     override suspend fun insertBorrowedBook(borrowedBook: BorrowedBook) {
         db.borrowedBookDao().insert(borrowedBook)
+    }
+
+    override suspend fun insertBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
+        db.borrowedBookDao().insertAll(borrowedBooks)
     }
 
     override suspend fun deleteBooks(books: List<Book>) {
@@ -160,6 +168,10 @@ class DefaultLocalRepository @Inject constructor(
 
     override suspend fun insertBook(book: Book): Long {
         return db.bookDao().insert(book)
+    }
+
+    override suspend fun insertAllBooks(books: List<Book>): List<Long> {
+        return db.bookDao().insertAll(books)
     }
 
     override suspend fun updateBook(book: Book) {
@@ -326,8 +338,6 @@ class DefaultLocalRepository @Inject constructor(
             queryString += " NATURAL JOIN (SELECT bookId, INSTR(lower(title), " +
                 "lower( ? )) as title_count FROM book WHERE title_count != 0)"
             firstArgumentList.add(query.title)
-        } else {
-            queryString += " NATURAL JOIN book"
         }
         if (query.onlyFavorite) {
             whereList.add("library_book.isFavorite = 1")

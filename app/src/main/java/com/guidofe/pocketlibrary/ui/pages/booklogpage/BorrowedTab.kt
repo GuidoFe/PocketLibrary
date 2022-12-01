@@ -39,8 +39,8 @@ fun BorrowedTab(
     modifier: Modifier = Modifier
 ) {
     val selectionManager = state.selectionManager
-    Column(modifier = modifier) {
-        Row(
+    Column(modifier = modifier.fillMaxSize()) {
+        /*Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -56,7 +56,7 @@ fun BorrowedTab(
                     borrowedItems.refresh()
                 }
             )
-        }
+        }*/
         if (borrowedItems.loadState.refresh != LoadState.Loading &&
             borrowedItems.itemCount == 0
         )
@@ -107,6 +107,7 @@ fun BorrowedTab(
                     },
                     areButtonsActive = !selectionManager.isMultipleSelecting
                 )
+                Divider()
             }
         }
     }

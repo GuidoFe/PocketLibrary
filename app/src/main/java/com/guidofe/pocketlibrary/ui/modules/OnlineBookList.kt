@@ -4,7 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,6 +25,7 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
 fun OnlineBookList(
     queryData: QueryData?,
     modifier: Modifier = Modifier,
+    langRestrict: String? = null,
     singleTapAction: (SelectableListItem<ImportedBookData>) -> Unit = {},
     longPressAction: (SelectableListItem<ImportedBookData>) -> Unit = {},
     selectionManager: SelectionManager<String, ImportedBookData> = SelectionManager(
@@ -34,8 +36,9 @@ fun OnlineBookList(
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
 
-    LaunchedEffect(queryData) {
+    LaunchedEffect(queryData, langRestrict) {
         vm.query = queryData
+        vm.langRestrict = langRestrict
         lazyPagingItems.refresh()
     }
 

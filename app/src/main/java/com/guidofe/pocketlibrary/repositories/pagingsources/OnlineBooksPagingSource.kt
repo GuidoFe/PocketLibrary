@@ -9,7 +9,8 @@ import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 
 class OnlineBooksPagingSource(
     val queryData: QueryData?,
-    val repo: BookMetaRepository
+    val repo: BookMetaRepository,
+    val langRestrict: String? = null
 ) : PagingSource<Int, ImportedBookData>() {
     override fun getRefreshKey(state: PagingState<Int, ImportedBookData>): Int? {
         return state.anchorPosition?.let {
@@ -25,6 +26,7 @@ class OnlineBooksPagingSource(
         val pageNumber = params.key ?: 0
         val res = repo.searchVolumesByQuery(
             query = queryData,
+            langRestrict = langRestrict,
             startIndex = pageNumber * params.loadSize,
             pageSize = params.loadSize
         )

@@ -2,21 +2,25 @@
 
 package com.guidofe.pocketlibrary.ui.pages.viewbookpage
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -60,7 +64,19 @@ fun ViewBookPage(
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        vm.scaffoldState.refreshBar(context.getString(R.string.book_details))
+        vm.scaffoldState.refreshBar(
+            title = context.getString(R.string.book_details),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navigator.navigateUp()
+                }) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back_24px),
+                        stringResource(R.string.back)
+                    )
+                }
+            }
+        )
         vm.scaffoldState.fab = {}
     }
     LaunchedEffect(key1 = true) {
@@ -75,6 +91,7 @@ fun ViewBookPage(
     val genreScrollState = rememberScrollState()
     var hasNoteBeenModified by remember { mutableStateOf(false) }
     var hasProgressBeenModified by remember { mutableStateOf(false) }
+    var showTitlePopup by remember { mutableStateOf(false) }
 
     LaunchedEffect(hasNoteBeenModified || hasProgressBeenModified) {
         if (hasNoteBeenModified || hasProgressBeenModified) {
@@ -132,16 +149,16 @@ fun ViewBookPage(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .height(IntrinsicSize.Min)
+                // .fillMaxWidth()
+                // .padding(10.dp)
+                // .height()
             ) {
                 Box(
                     Modifier
-                        .widthIn(max = 80.dp)
-                        .fillMaxHeight()
+                        .height(125.dp)
+                        .padding(5.dp, 0.dp)
                 ) {
                     val coverUri = vm.bundle?.book?.coverURI
                     if (coverUri != null) {
@@ -150,35 +167,52 @@ fun ViewBookPage(
                                 .data(coverUri)
                                 .build(),
                             contentDescription = stringResource(id = R.string.cover),
+                            contentScale = ContentScale.FillHeight,
                             modifier = Modifier.fillMaxHeight()
                         )
                     } else {
-                        EmptyBookCover(Modifier.fillMaxHeight())
+                        EmptyBookCover(
+                            Modifier
+                            // .fillMaxHeight()
+                        )
                     }
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
                 ) {
-                    Column() {
-                        Text(
-                            vm.bundle?.book?.title ?: "",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        vm.bundle?.book?.subtitle?.let {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.clickable { showTitlePopup = true }
+                        ) {
                             Text(
-                                it,
-                                style = MaterialTheme.typography.bodyMedium,
+                                vm.bundle?.book?.title ?: "",
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
                             )
-                        }
-                        vm.bundle?.authors?.let { authorsList ->
-                            val authorsString =
-                                authorsList.joinToString(", ") { it.name }
-                            Text(
-                                authorsString,
-                                style = MaterialTheme.typography.labelLarge
-                                    .copy(fontStyle = FontStyle.Italic)
-                            )
+                            vm.bundle?.book?.subtitle?.let {
+                                Text(
+                                    it,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            vm.bundle?.authors?.let { authorsList ->
+                                val authorsString =
+                                    authorsList.joinToString(", ") { it.name }
+                                Text(
+                                    authorsString,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontStyle = FontStyle.Italic,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontWeight = FontWeight.Thin
+                                )
+                            }
                         }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -257,11 +291,13 @@ fun ViewBookPage(
                                     .align(Alignment.Center)
                             )
                         } else {
-                            Text(
-                                text = vm.bundle?.book?.description
-                                    ?: stringResource(R.string.no_description),
-                                modifier = Modifier.verticalScroll(summaryScrollState)
-                            )
+                            SelectionContainer() {
+                                Text(
+                                    text = vm.bundle?.book?.description
+                                        ?: stringResource(R.string.no_description),
+                                    modifier = Modifier.verticalScroll(summaryScrollState)
+                                )
+                            }
                         }
                     }
                     LocalTab.DETAILS -> {
@@ -282,6 +318,58 @@ fun ViewBookPage(
                             modifier = Modifier
                                 .fillMaxSize()
                         )
+                    }
+                }
+            }
+        }
+    }
+    if (showTitlePopup) {
+        Dialog(
+            onDismissRequest = { showTitlePopup = false },
+        ) {
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(20.dp)
+
+                ) {
+                    SelectionContainer() {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            vm.bundle?.book?.title?.let {
+                                Text(
+                                    it,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                            vm.bundle?.book?.subtitle?.let {
+                                Text(
+                                    it,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Normal,
+                                    fontStyle = FontStyle.Italic
+                                )
+                            }
+                            vm.bundle?.authors?.joinToString(", ") { it.name }?.let {
+                                Text(
+                                    it,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Thin
+                                )
+                            }
+                        }
+                    }
+                    Button(
+                        onClick = { showTitlePopup = false },
+                        modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp)
+                    ) {
+                        Text(stringResource(R.string.dismiss))
                     }
                 }
             }

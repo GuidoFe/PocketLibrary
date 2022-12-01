@@ -18,6 +18,7 @@ interface BookMetaRepository {
 
     suspend fun searchVolumesByQuery(
         query: QueryData?,
+        langRestrict: String?,
         startIndex: Int,
         pageSize: Int
     ): Resource<List<ImportedBookData>>

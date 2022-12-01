@@ -17,7 +17,6 @@ interface IImportedBookVM {
         callback: (books: List<ImportedBookData>) -> Unit,
     )
 
-    fun saveImportedBookAsBookBundle(importedBook: ImportedBookData, callback: (Long) -> Unit = {})
     fun getAndSaveBookFromIsbnFlow(
         isbn: String,
         destination: BookDestination,
@@ -36,7 +35,6 @@ interface IImportedBookVM {
         ) -> Unit
     )
 
-    fun saveImportedBooksAsBookBundles(importedBooks: List<ImportedBookData>, callback: () -> Unit)
     fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
     fun saveImportedBooks(
         importedBooks: List<ImportedBookData>,
@@ -47,4 +45,9 @@ interface IImportedBookVM {
     fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
     val translationDialogState: TranslationDialogState
     val settingsLiveData: LiveData<AppSettings>
+    fun saveImportedBook(
+        importedBook: ImportedBookData,
+        destination: BookDestination,
+        callback: (Long) -> Unit
+    )
 }

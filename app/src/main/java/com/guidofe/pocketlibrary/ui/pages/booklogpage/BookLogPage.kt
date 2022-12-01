@@ -1,5 +1,9 @@
 package com.guidofe.pocketlibrary.ui.pages.booklogpage
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
@@ -51,6 +57,16 @@ fun BookLogPage(
     var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
+    val appBarColor = animateColorAsState(
+        targetValue = lerp(
+            MaterialTheme.colorScheme.surface,
+            MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+            FastOutLinearInEasing.transform(
+                if (vm.scaffoldState.topAppBarState.overlappedFraction >= 0.01f) 1f else 0f
+            )
+        ),
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+    )
     LaunchedEffect(Unit) {
         vm.invalidateBorrowedPagingSource()
     }
@@ -69,7 +85,7 @@ fun BookLogPage(
                         }
                     ) {
                         Icon(
-                            painterResource(R.drawable.arrow_back_24px),
+                            painterResource(R.drawable.backspace_24px),
                             stringResource(R.string.clear_selection)
                         )
                     }
@@ -159,7 +175,7 @@ fun BookLogPage(
                         }
                     ) {
                         Icon(
-                            painterResource(R.drawable.arrow_back_24px),
+                            painterResource(R.drawable.backspace_24px),
                             stringResource(R.string.clear_selection)
                         )
                     }
@@ -297,7 +313,8 @@ fun BookLogPage(
     ) {
         TabRow(
             selectedTabIndex = vm.tabIndex,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = appBarColor.value
         ) {
             Tab(
                 selected = vm.tabIndex == 0,
@@ -344,8 +361,8 @@ fun BookLogPage(
 
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBooks(
-                listOf(navResult.value), BookDestination.BORROWED
+            importVm.saveImportedBook(
+                navResult.value, BookDestination.BORROWED
             ) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,

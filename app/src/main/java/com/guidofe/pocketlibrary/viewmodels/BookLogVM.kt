@@ -34,7 +34,7 @@ class BookLogVM @Inject constructor(
     override var tabIndex: Int by mutableStateOf(0)
     private var currentBorrowedPagingSource: PagingSource<Int, BorrowedBundle>? = null
 
-    override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 10)) {
+    override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 20)) {
         repo.getBorrowedBundles(borrowedTabState.showReturnedBooks)
             .also { currentBorrowedPagingSource = it }
     }.flow.cachedIn(viewModelScope)

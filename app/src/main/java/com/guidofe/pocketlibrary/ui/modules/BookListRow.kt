@@ -116,12 +116,10 @@ private fun GenericListRow(
     onCoverLongPress: (Offset) -> Unit = {},
     progress: ProgressPhase? = null
 ) {
-    val elevation = 3.dp
     var tapZoneOffset: Offset by remember { mutableStateOf(Offset.Zero) }
     BoxWithConstraints(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = elevation,
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides MaterialTheme.colorScheme.onSurface

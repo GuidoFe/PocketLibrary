@@ -78,7 +78,7 @@ fun LibraryPage(
                         }
                     ) {
                         Icon(
-                            painterResource(R.drawable.arrow_back_24px),
+                            painterResource(R.drawable.backspace_24px),
                             stringResource(R.string.clear_selection)
                         )
                     }
@@ -291,11 +291,11 @@ fun LibraryPage(
                                 }
                             }
                             1 -> {
-                                importVm.saveImportedBooks(
-                                    listOf(it[0]), BookDestination.LIBRARY
-                                ) { ids ->
-                                    if (ids.isNotEmpty())
-                                        navigator.navigate(ViewBookPageDestination(ids[0]))
+                                importVm.saveImportedBook(
+                                    it[0], BookDestination.LIBRARY
+                                ) { id ->
+                                    if (id > 0)
+                                        navigator.navigate(ViewBookPageDestination(id))
                                 }
                             }
                             else -> navigator.navigate(
@@ -416,7 +416,7 @@ fun LibraryPage(
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBooks(listOf(navResult.value), BookDestination.LIBRARY) {
+            importVm.saveImportedBook(navResult.value, BookDestination.LIBRARY) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,

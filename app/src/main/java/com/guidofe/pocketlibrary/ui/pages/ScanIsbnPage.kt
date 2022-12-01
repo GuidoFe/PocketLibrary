@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +53,19 @@ fun ScanIsbnPage(
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     var showBookNotFoundDialog by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {
-        scanVm.scaffoldState.refreshBar(title = context.getString(R.string.scan_isbn))
+        scanVm.scaffoldState.refreshBar(
+            title = context.getString(R.string.scan_isbn),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navigator.navigateUp()
+                }) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back_24px),
+                        stringResource(R.string.back)
+                    )
+                }
+            }
+        )
     }
     val cameraPermissionState = rememberPermissionState(
         Manifest.permission.CAMERA
@@ -156,7 +169,7 @@ fun ScanIsbnPage(
 
     resultRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBooks(listOf(navResult.value), destination) {
+            importVm.saveImportedBook(navResult.value, destination) {
                 Snackbars.bookSavedSnackbar(scanVm.snackbarHostState, context, coroutine) {}
             }
         }

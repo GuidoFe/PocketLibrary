@@ -21,12 +21,6 @@ class ImportedBookVMPreview : IImportedBookVM {
     ) {
     }
 
-    override fun saveImportedBookAsBookBundle(
-        importedBook: ImportedBookData,
-        callback: (Long) -> Unit
-    ) {
-    }
-
     override fun getAndSaveBookFromIsbnFlow(
         isbn: String,
         destination: BookDestination,
@@ -44,12 +38,6 @@ class ImportedBookVMPreview : IImportedBookVM {
             booksOk: List<ImportedBookData>,
             duplicateBooks: List<ImportedBookData>
         ) -> Unit
-    ) {
-    }
-
-    override fun saveImportedBooksAsBookBundles(
-        importedBooks: List<ImportedBookData>,
-        callback: () -> Unit
     ) {
     }
 
@@ -73,4 +61,10 @@ class ImportedBookVMPreview : IImportedBookVM {
         get() = TODO("Not yet implemented")
     override val settingsLiveData: LiveData<AppSettings>
         get() = TODO("Not yet implemented")
+
+    override fun saveImportedBook(
+        importedBook: ImportedBookData,
+        destination: BookDestination,
+        callback: (Long) -> Unit
+    ) { callback(1L) }
 }

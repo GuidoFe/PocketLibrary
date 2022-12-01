@@ -1,8 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,11 +8,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.PreviewBookDialog
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
+import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
@@ -59,7 +59,7 @@ fun SearchBookOnlinePage(
                         }
                     ) {
                         Icon(
-                            painterResource(R.drawable.arrow_back_24px),
+                            painterResource(R.drawable.backspace_24px),
                             stringResource(R.string.clear_selection)
                         )
                     }
@@ -92,8 +92,8 @@ fun SearchBookOnlinePage(
                                             it.title,
                                             onDismiss = {}
                                         ) {
-                                            importVm.saveImportedBooks(
-                                                listOf(it), destination
+                                            importVm.saveImportedBook(
+                                                it, destination
                                             ) {}
                                         }
                                     }
@@ -111,29 +111,56 @@ fun SearchBookOnlinePage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.search_online)
+                title = context.getString(R.string.search_online),
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navigator.navigateUp()
+                    }) {
+                        Icon(
+                            painterResource(R.drawable.arrow_back_24px),
+                            stringResource(R.string.back)
+                        )
+                    }
+                }
             )
         }
     }
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(10.dp)
     ) {
-        Column {
+        val interSpace = 5.dp
+        Column(
+            verticalArrangement = Arrangement.spacedBy(interSpace)
+        ) {
             OutlinedTextField(
                 value = vm.title,
                 onValueChange = {
                     vm.title = it
                 },
                 label = { Text(stringResource(R.string.title)) },
-                singleLine = true
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
-                value = vm.author,
-                onValueChange = { vm.author = it },
-                label = { Text(stringResource(R.string.author)) },
-                singleLine = true
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(interSpace)
+            ) {
+                OutlinedTextField(
+                    value = vm.author,
+                    onValueChange = { vm.author = it },
+                    label = { Text(stringResource(R.string.author)) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                )
+                LanguageAutocomplete(
+                    text = vm.lang,
+                    onTextChange = { vm.lang = it },
+                    label = { Text(stringResource(R.string.language)) },
+                    onOptionSelected = { vm.lang = it },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             IconButton(
                 onClick = {
                     focusManager.clearFocus()
@@ -148,6 +175,7 @@ fun SearchBookOnlinePage(
             }
             OnlineBookList(
                 queryData = vm.queryData,
+                langRestrict = vm.lang.ifBlank { null },
                 multipleSelectionEnabled = true,
                 singleTapAction = {
                     selectedBook = it.value
@@ -165,11 +193,12 @@ fun SearchBookOnlinePage(
             onSaveButtonClicked = {
                 isDialogOpen = false
                 selectedBook?.let { importedBook ->
-                    importVm.saveImportedBooks(listOf(importedBook), destination) {
-                        if (it.isEmpty()) return@saveImportedBooks
+                    importVm.saveImportedBook(importedBook, destination) {
+                        // TODO: Manage error
+                        if (it < 0) return@saveImportedBook
                         coroutineScope.launch(Dispatchers.Main) {
                             if (destination == BookDestination.LIBRARY)
-                                navigator.navigate(ViewBookPageDestination(bookId = it[0]))
+                                navigator.navigate(ViewBookPageDestination(bookId = it))
                             else
                                 vm.selectionManager.clearSelection()
                         }

@@ -179,7 +179,7 @@ fun EditBookPage(
                     AsyncImage(
                         model = imageRequest,
                         contentDescription = stringResource(id = R.string.cover),
-                        Modifier.size(200.dp, 200.dp)
+                        Modifier.height(200.dp)
                     )
                 } else
                     EmptyBookCover(Modifier.width(90.dp))

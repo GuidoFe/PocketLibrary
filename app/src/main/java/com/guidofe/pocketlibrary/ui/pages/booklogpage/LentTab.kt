@@ -77,6 +77,7 @@ fun LentTab(
                         areButtonsActive = !selectionManager.isMultipleSelecting,
                     )
                 }
+                Divider()
             }
         }
     }

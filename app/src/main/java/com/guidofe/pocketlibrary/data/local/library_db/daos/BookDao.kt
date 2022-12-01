@@ -7,7 +7,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 @Dao
 interface BookDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAll(vararg books: Book)
+    suspend fun insertAll(books: List<Book>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(book: Book): Long

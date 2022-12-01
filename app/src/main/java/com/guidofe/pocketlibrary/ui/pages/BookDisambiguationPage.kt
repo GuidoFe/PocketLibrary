@@ -2,9 +2,13 @@ package com.guidofe.pocketlibrary.ui.pages
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,7 +36,19 @@ fun BookDisambiguationPage(
     var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        vm.scaffoldState.title = context.getString(R.string.choose_book)
+        vm.scaffoldState.refreshBar(
+            title = context.getString(R.string.choose_book),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navigator.navigateBack()
+                }) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back_24px),
+                        stringResource(R.string.back)
+                    )
+                }
+            }
+        )
     }
     LazyColumn {
         items(
