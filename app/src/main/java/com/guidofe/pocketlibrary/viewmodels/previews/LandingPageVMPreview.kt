@@ -1,11 +1,14 @@
 package com.guidofe.pocketlibrary.viewmodels.previews
 
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILandingPageVM
 
-class LandingPageVMPreview : ILandingPageVM {
+class LandingPageVMPreview(
+    private val bookList: List<BookBundle> = List(2) { PreviewUtils.exampleBookBundle }
+) : ILandingPageVM {
     override val scaffoldState: ScaffoldState
         get() = ScaffoldState()
     override val stats: AppStats
@@ -18,7 +21,7 @@ class LandingPageVMPreview : ILandingPageVM {
             1,
             2,
             10,
-            listOf(PreviewUtils.exampleBookBundle, PreviewUtils.exampleBookBundle)
+            bookList
         )
 
     override fun initStats() {

@@ -13,18 +13,16 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 
@@ -129,7 +127,10 @@ private fun GenericListRow(
                     modifier = Modifier
                         .height(115.dp)
                         .width(maxWidth)
-                        .padding(10.dp, 10.dp)
+                        .padding(
+                            BookRowDefaults.horizontalPadding,
+                            BookRowDefaults.verticalPadding
+                        )
                 ) {
                     SelectableBookCover(
                         coverURI,
@@ -161,7 +162,7 @@ private fun GenericListRow(
                                 )
                             }
                     ) {
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
                         Column(
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier
@@ -169,8 +170,7 @@ private fun GenericListRow(
                         ) {
                             Text(
                                 text = title,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 5.em,
+                                style = BookRowDefaults.titleStyle,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                             )
@@ -179,10 +179,11 @@ private fun GenericListRow(
                                     text = subtitle,
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 1,
+                                    style = BookRowDefaults.subtitleStyle
                                 )
                             Text(
                                 text = authors,
-                                fontStyle = FontStyle.Italic,
+                                style = BookRowDefaults.authorStyle,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                             )

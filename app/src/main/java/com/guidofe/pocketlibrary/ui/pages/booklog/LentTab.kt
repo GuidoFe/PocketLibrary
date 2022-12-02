@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages.booklog
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,12 +54,16 @@ fun LentTab(
         ) {
             items(lentItems, key = { it.value.info.bookId }) { item ->
                 Box {
-                    val xOffset = remember { Animatable(0f) }
                     LentBookRow(
                         item,
                         onRowTap = {
                             if (selectionManager.isMultipleSelecting)
                                 selectionManager.multipleSelectToggle(item.value)
+                            else {
+                                navigator.navigate(
+                                    ViewBookPageDestination(item.value.info.bookId)
+                                )
+                            }
                         },
                         onCoverLongPress = {
                             if (!selectionManager.isMultipleSelecting)

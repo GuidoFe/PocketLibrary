@@ -14,16 +14,14 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
+import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
@@ -50,12 +48,15 @@ fun BorrowedBookRow(
         modifier = modifier
 
     ) {
-        Box(modifier = Modifier.height(100.dp)) {
+        Box(modifier = Modifier.height(120.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(5.dp)
+                    .padding(
+                        BookRowDefaults.horizontalPadding,
+                        BookRowDefaults.verticalPadding
+                    )
             ) {
                 SelectableBookCover(
                     bookBundle.book.coverURI,
@@ -70,6 +71,7 @@ fun BorrowedBookRow(
                             null
                     }
                 )
+                Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -78,11 +80,12 @@ fun BorrowedBookRow(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(5.dp, 0.dp)
                     ) {
                         Column(
+                            verticalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .weight(1f)
                                 .pointerInput(Unit) {
                                     detectTapGestures(
                                         onTap = { onRowTap(it) },
@@ -92,8 +95,7 @@ fun BorrowedBookRow(
                         ) {
                             Text(
                                 text = bookBundle.book.title,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 5.em,
+                                style = BookRowDefaults.titleStyle,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                             )
@@ -103,14 +105,14 @@ fun BorrowedBookRow(
                                         it.name
                                     }
                                 },
-                                fontStyle = FontStyle.Italic,
+                                style = BookRowDefaults.authorStyle,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                             )
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxHeight()
+                            modifier = Modifier.height(IntrinsicSize.Min)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -125,12 +127,11 @@ fun BorrowedBookRow(
                                 Text(
                                     stringResource(R.string.lender_colon),
                                     maxLines = 1,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = BookRowDefaults.buttonLabelStyle
                                 )
                                 Text(
                                     item.value.info.who ?: "???",
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = BookRowDefaults.buttonTextStyle,
                                 )
                             }
                             Column(
@@ -146,12 +147,11 @@ fun BorrowedBookRow(
                                 Text(
                                     stringResource(R.string.start_colon),
                                     maxLines = 1,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = BookRowDefaults.buttonLabelStyle
                                 )
                                 Text(
                                     remember { item.value.info.start.toString() },
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = BookRowDefaults.buttonTextStyle
                                 )
                             }
 
@@ -168,12 +168,11 @@ fun BorrowedBookRow(
                                 Text(
                                     stringResource(R.string.return_by_colon),
                                     maxLines = 1,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = BookRowDefaults.buttonLabelStyle
                                 )
                                 Text(
                                     remember { item.value.info.end?.toString() ?: "-" },
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = BookRowDefaults.buttonTextStyle
                                 )
                             }
                         }

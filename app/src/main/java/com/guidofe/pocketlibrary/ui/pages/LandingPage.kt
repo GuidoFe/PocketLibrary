@@ -158,7 +158,8 @@ fun LandingPage(
                 if (stats.booksCurrentlyReading.isEmpty()) {
                     Text(
                         stringResource(R.string.currently_not_reading_books),
-                        modifier = Modifier.padding(padding)
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(padding)
                     )
                 } else {
                     Text(
@@ -294,7 +295,7 @@ private fun LandingPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
         LandingPage(
             EmptyDestinationsNavigator,
-            LandingPageVMPreview()
+            LandingPageVMPreview(bookList = listOf())
         )
     }
 }

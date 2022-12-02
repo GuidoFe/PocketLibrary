@@ -8,7 +8,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -77,8 +77,8 @@ fun ModalBottomSheet(
                 ) {
                     Surface(
                         shape = MaterialTheme.shapes.extraLarge.copy(
-                            bottomStart = CornerSize(0.dp),
-                            bottomEnd = CornerSize(0.dp)
+                            bottomStart = ZeroCornerSize,
+                            bottomEnd = ZeroCornerSize
                         ),
                         shadowElevation = 1.dp,
                         tonalElevation = 1.dp,

@@ -174,4 +174,7 @@
     <string name="allow_genres_translation">Translate genres using Google Translate</string>
     <string name="currently_not_reading_books">Currently you are not reading any books</string>
     <string name="dismiss">Dismiss</string>
+    <string name="open_search_box">Open search box</string>
+    <string name="please_insert_serch_term">Please insert a search term</string>
+    <string name="no_result_found">Sorry! No result found :(</string>
 </resources>

@@ -12,16 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import java.sql.Date
@@ -46,9 +44,12 @@ fun LentBookRow(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(100.dp)
+                .height(120.dp)
                 .fillMaxWidth()
-                .padding(5.dp)
+                .padding(
+                    BookRowDefaults.horizontalPadding,
+                    BookRowDefaults.verticalPadding
+                )
         ) {
             SelectableBookCover(
                 bookBundle.book.coverURI,
@@ -57,6 +58,7 @@ fun LentBookRow(
                 onCoverLongPress,
                 progress = item.value.bookBundle.progress?.phase
             )
+            Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
             Box(
                 modifier = Modifier
                     .weight(1f, true)
@@ -67,43 +69,36 @@ fun LentBookRow(
                     Column(
                         modifier = Modifier
                             .weight(3f)
-                            .padding(5.dp, 0.dp)
                     ) {
-                        Box(
-                            modifier = Modifier.height(IntrinsicSize.Min)
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = { onRowLongPress() },
+                                        onTap = onRowTap
+                                    )
+                                }
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = bookBundle.book.title,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 5.em,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                )
-                                Text(
-                                    text = bookBundle.authors
-                                        .joinToString(", ") { it.name },
-                                    fontStyle = FontStyle.Italic,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onLongPress = { onRowLongPress() }
-                                        )
-                                    }
+                            Text(
+                                text = bookBundle.book.title,
+                                style = BookRowDefaults.titleStyle,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                            )
+                            Text(
+                                text = bookBundle.authors
+                                    .joinToString(", ") { it.name },
+                                style = BookRowDefaults.authorStyle,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
                             )
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxHeight()
+                            modifier = Modifier.height(IntrinsicSize.Min)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -117,12 +112,11 @@ fun LentBookRow(
                             ) {
                                 Text(
                                     stringResource(R.string.lent_to_colon),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = BookRowDefaults.buttonLabelStyle,
                                 )
                                 Text(
                                     item.value.lent?.who ?: "???",
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = BookRowDefaults.buttonTextStyle,
                                 )
                             }
                             Column(
@@ -137,12 +131,11 @@ fun LentBookRow(
                             ) {
                                 Text(
                                     stringResource(R.string.start_colon),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = BookRowDefaults.buttonLabelStyle,
                                 )
                                 Text(
                                     item.value.lent?.start?.toString() ?: "-",
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = BookRowDefaults.buttonTextStyle,
                                 )
                             }
                         }
@@ -156,7 +149,7 @@ fun LentBookRow(
 @Composable
 @Preview(device = Devices.PIXEL_4)
 private fun LibraryListRowPreview() {
-    PreviewUtils.ThemeColumn() {
+    PreviewUtils.ThemeColumn(padding = 0.dp) {
         LentBookRow(
             item = SelectableListItem(
                 PreviewUtils.exampleLibraryBundle.copy(

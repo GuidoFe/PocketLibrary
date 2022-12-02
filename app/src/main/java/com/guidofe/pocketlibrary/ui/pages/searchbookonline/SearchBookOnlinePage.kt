@@ -1,11 +1,18 @@
 package com.guidofe.pocketlibrary.ui.pages
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -15,10 +22,11 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.PreviewBookDialog
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
-import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
+import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.ui.pages.searchbookonline.SearchBox
 import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.TranslationPhase
@@ -31,7 +39,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 @Destination(route = "search_book_online")
 fun SearchBookOnlinePage(
@@ -46,7 +54,11 @@ fun SearchBookOnlinePage(
     var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
     val selectionManager = vm.selectionManager
     val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val boxShape = ShapeDefaults.Large.copy(topStart = ZeroCornerSize, topEnd = ZeroCornerSize)
     val appBarColor by appBarColorAnimation(vm.scaffoldState.scrollBehavior)
+    var searchBoxYOffset by remember { mutableStateOf(0f) }
+    var isSearchBoxVisible by remember { mutableStateOf(true) }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(context.getString(R.string.search_online))
@@ -125,77 +137,72 @@ fun SearchBookOnlinePage(
                             stringResource(R.string.back)
                         )
                     }
+                },
+                actions = {
+                    AnimatedVisibility(
+                        enter = fadeIn() + scaleIn(),
+                        exit = fadeOut() + scaleOut(),
+                        visible = !isSearchBoxVisible
+                    ) {
+                        IconButton(
+                            onClick = { isSearchBoxVisible = true }
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.search_24px),
+                                stringResource(R.string.open_search_box)
+                            )
+                        }
+                    }
                 }
             )
         }
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val interSpace = 5.dp
-        Column(
-            verticalArrangement = Arrangement.spacedBy(interSpace)
+    Box(modifier = Modifier.fillMaxSize()) {
+        OnlineBookList(
+            queryData = vm.queryData,
+            langRestrict = vm.langRestrict,
+            multipleSelectionEnabled = true,
+            singleTapAction = {
+                selectedBook = it.value
+                isDialogOpen = true
+            },
+            selectionManager = vm.selectionManager,
+            vm = vm.listVM,
+            nestedScrollConnection = vm.scaffoldState.scrollBehavior!!.nestedScrollConnection,
+            modifier = Modifier.fillMaxSize()
+        )
+        AnimatedVisibility(
+            isSearchBoxVisible,
+            enter = slideInVertically(initialOffsetY = { -it }),
+            exit = slideOutVertically(targetOffsetY = { -it })
         ) {
-            val searchPadding = 10.dp
-            Column(
+            SearchBox(
+                title = vm.title,
+                author = vm.author,
+                lang = vm.langField,
+                setTitle = { vm.title = it },
+                setAuthor = { vm.author = it },
+                setLang = { vm.langField = it },
+                onStartSearch = {
+                    focusManager.clearFocus()
+                    vm.search()
+                    isSearchBoxVisible = false
+                },
+                onEmptyFieldsError = {
+                    focusManager.clearFocus()
+                    coroutineScope.launch {
+                        vm.snackbarHostState.showSnackbar(
+                            CustomSnackbarVisuals(
+                                message = context.getString(R.string.please_insert_serch_term)
+                            )
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(appBarColor)
-                    .padding(searchPadding, searchPadding, searchPadding, 0.dp)
-            ) {
-                OutlinedTextField(
-                    value = vm.title,
-                    onValueChange = {
-                        vm.title = it
-                    },
-                    label = { Text(stringResource(R.string.title)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(interSpace)
-                ) {
-                    OutlinedTextField(
-                        value = vm.author,
-                        onValueChange = { vm.author = it },
-                        label = { Text(stringResource(R.string.author)) },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
-                    )
-                    LanguageAutocomplete(
-                        text = vm.langField,
-                        onTextChange = { vm.langField = it },
-                        label = { Text(stringResource(R.string.language)) },
-                        onOptionSelected = { vm.langField = it },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        focusManager.clearFocus()
-                        vm.search()
-                        // lazyPagingItems.refresh()
-                    },
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.search_24px),
-                        contentDescription = stringResource(R.string.search)
-                    )
-                }
-            }
-            OnlineBookList(
-                queryData = vm.queryData,
-                langRestrict = vm.langRestrict,
-                multipleSelectionEnabled = true,
-                singleTapAction = {
-                    selectedBook = it.value
-                    isDialogOpen = true
-                },
-                selectionManager = vm.selectionManager,
-                vm = vm.listVM,
-                nestedScrollConnection = vm.scaffoldState.scrollBehavior!!.nestedScrollConnection,
-                modifier = Modifier.fillMaxSize()
+                    .shadow(3.dp, shape = boxShape)
+                    .background(appBarColor, boxShape)
+                    .padding(10.dp)
             )
         }
     }
@@ -217,7 +224,8 @@ fun SearchBookOnlinePage(
                     }
                 }
             },
-            onDismissRequest = { isDialogOpen = false }
+            onDismissRequest = { isDialogOpen = false },
+            modifier = Modifier.background(appBarColor)
         )
     }
     if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {

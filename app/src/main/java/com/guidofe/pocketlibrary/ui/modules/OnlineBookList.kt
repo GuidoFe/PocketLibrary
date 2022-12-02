@@ -1,13 +1,16 @@
 package com.guidofe.pocketlibrary.ui.modules
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -22,6 +25,7 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.OnlineBookListVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
+import kotlinx.coroutines.delay
 
 @Composable
 fun OnlineBookList(
@@ -38,25 +42,36 @@ fun OnlineBookList(
     vm: IOnlineBookListVM = hiltViewModel<OnlineBookListVM>()
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
-
+    val errorMessageAlpha = remember { Animatable(0f) }
     LaunchedEffect(queryData, langRestrict) {
         vm.query = queryData
         vm.langRestrict = langRestrict
         lazyPagingItems.refresh()
     }
-
     Box(modifier = modifier) {
         when (lazyPagingItems.loadState.refresh) {
             is LoadState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             is LoadState.Error -> {
+
                 Text(
                     stringResource(R.string.network_error_sadface),
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
             else -> {
+                if (lazyPagingItems.itemCount == 0 && queryData != null) {
+                    LaunchedEffect(Unit) {
+                        delay(500)
+                        errorMessageAlpha.snapTo(1f)
+                    }
+                    Text(
+                        stringResource(R.string.no_result_found),
+                        modifier = Modifier.align(Alignment.Center)
+                            .alpha(errorMessageAlpha.value)
+                    )
+                }
                 LazyColumn(
                     modifier = Modifier.nestedScroll(nestedScrollConnection)
                 ) {

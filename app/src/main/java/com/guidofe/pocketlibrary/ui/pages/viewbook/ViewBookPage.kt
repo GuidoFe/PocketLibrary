@@ -151,14 +151,13 @@ fun ViewBookPage(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 modifier = Modifier
-                // .fillMaxWidth()
-                // .padding(10.dp)
+                    // .fillMaxWidth()
+                    .padding(10.dp)
                 // .height()
             ) {
                 Box(
                     Modifier
                         .height(125.dp)
-                        .padding(5.dp, 0.dp)
                 ) {
                     val coverUri = vm.bundle?.book?.coverURI
                     if (coverUri != null) {
@@ -210,7 +209,7 @@ fun ViewBookPage(
                                     fontStyle = FontStyle.Italic,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    fontWeight = FontWeight.Thin
+                                    fontWeight = FontWeight.Light
                                 )
                             }
                         }
