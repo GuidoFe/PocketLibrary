@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
 import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
@@ -44,6 +46,7 @@ fun SearchBookOnlinePage(
     var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
     val selectionManager = vm.selectionManager
     val coroutineScope = rememberCoroutineScope()
+    val appBarColor by appBarColorAnimation(vm.scaffoldState.scrollBehavior)
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(context.getString(R.string.search_online))
@@ -129,54 +132,61 @@ fun SearchBookOnlinePage(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
     ) {
         val interSpace = 5.dp
         Column(
             verticalArrangement = Arrangement.spacedBy(interSpace)
         ) {
-            OutlinedTextField(
-                value = vm.title,
-                onValueChange = {
-                    vm.title = it
-                },
-                label = { Text(stringResource(R.string.title)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(interSpace)
+            val searchPadding = 10.dp
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(appBarColor)
+                    .padding(searchPadding, searchPadding, searchPadding, 0.dp)
             ) {
                 OutlinedTextField(
-                    value = vm.author,
-                    onValueChange = { vm.author = it },
-                    label = { Text(stringResource(R.string.author)) },
+                    value = vm.title,
+                    onValueChange = {
+                        vm.title = it
+                    },
+                    label = { Text(stringResource(R.string.title)) },
                     singleLine = true,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth()
                 )
-                LanguageAutocomplete(
-                    text = vm.lang,
-                    onTextChange = { vm.lang = it },
-                    label = { Text(stringResource(R.string.language)) },
-                    onOptionSelected = { vm.lang = it },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            IconButton(
-                onClick = {
-                    focusManager.clearFocus()
-                    vm.search()
-                    // lazyPagingItems.refresh()
-                },
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.search_24px),
-                    contentDescription = stringResource(R.string.search)
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(interSpace)
+                ) {
+                    OutlinedTextField(
+                        value = vm.author,
+                        onValueChange = { vm.author = it },
+                        label = { Text(stringResource(R.string.author)) },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    LanguageAutocomplete(
+                        text = vm.langField,
+                        onTextChange = { vm.langField = it },
+                        label = { Text(stringResource(R.string.language)) },
+                        onOptionSelected = { vm.langField = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        focusManager.clearFocus()
+                        vm.search()
+                        // lazyPagingItems.refresh()
+                    },
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.search_24px),
+                        contentDescription = stringResource(R.string.search)
+                    )
+                }
             }
             OnlineBookList(
                 queryData = vm.queryData,
-                langRestrict = vm.lang.ifBlank { null },
+                langRestrict = vm.langRestrict,
                 multipleSelectionEnabled = true,
                 singleTapAction = {
                     selectedBook = it.value

@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.settingspage
+package com.guidofe.pocketlibrary.ui.pages.settings
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

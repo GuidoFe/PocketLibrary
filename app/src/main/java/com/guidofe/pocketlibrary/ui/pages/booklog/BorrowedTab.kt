@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.booklogpage
+package com.guidofe.pocketlibrary.ui.pages.booklog
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

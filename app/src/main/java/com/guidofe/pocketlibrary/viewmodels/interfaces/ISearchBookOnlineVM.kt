@@ -18,5 +18,6 @@ interface ISearchBookOnlineVM {
     val selectionManager: SelectionManager<String, ImportedBookData>
     val listVM: IOnlineBookListVM
     val settingsFlow: LiveData<AppSettings>
-    var lang: String
+    var langField: String
+    val langRestrict: String?
 }

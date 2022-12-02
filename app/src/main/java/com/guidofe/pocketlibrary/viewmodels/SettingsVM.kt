@@ -10,7 +10,7 @@ import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
-import com.guidofe.pocketlibrary.ui.pages.settingspage.SettingsState
+import com.guidofe.pocketlibrary.ui.pages.settings.SettingsState
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.translateGenresWithState

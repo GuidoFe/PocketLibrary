@@ -12,8 +12,8 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.repositories.LocalRepository
-import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageNavArgs
-import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageState
+import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageNavArgs
+import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageState
 import com.guidofe.pocketlibrary.ui.pages.navArgs
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem

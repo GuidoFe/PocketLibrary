@@ -124,6 +124,7 @@ fun BorrowedBookRow(
                             ) {
                                 Text(
                                     stringResource(R.string.lender_colon),
+                                    maxLines = 1,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -144,6 +145,7 @@ fun BorrowedBookRow(
                             ) {
                                 Text(
                                     stringResource(R.string.start_colon),
+                                    maxLines = 1,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -165,6 +167,7 @@ fun BorrowedBookRow(
                             ) {
                                 Text(
                                     stringResource(R.string.return_by_colon),
+                                    maxLines = 1,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

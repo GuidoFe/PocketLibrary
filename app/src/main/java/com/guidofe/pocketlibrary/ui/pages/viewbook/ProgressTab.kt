@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.viewbookpage
+package com.guidofe.pocketlibrary.ui.pages.viewbook
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

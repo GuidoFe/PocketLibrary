@@ -1,9 +1,5 @@
-package com.guidofe.pocketlibrary.ui.pages.booklogpage
+package com.guidofe.pocketlibrary.ui.pages.booklog
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
@@ -28,6 +22,7 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDes
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
+import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.BookLogVM
@@ -57,19 +52,7 @@ fun BookLogPage(
     var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
-    val appBarColor = animateColorAsState(
-        targetValue = lerp(
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-            FastOutLinearInEasing.transform(
-                if ((vm.scaffoldState.scrollBehavior?.state?.overlappedFraction ?: 0f) >= 0.01f)
-                    1f
-                else
-                    0f
-            )
-        ),
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-    )
+    val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
     LaunchedEffect(Unit) {
         vm.invalidateBorrowedPagingSource()
     }

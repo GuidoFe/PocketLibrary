@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
-import com.guidofe.pocketlibrary.ui.pages.editbookpage.EditBookState
+import com.guidofe.pocketlibrary.ui.pages.editbook.EditBookState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.Constants

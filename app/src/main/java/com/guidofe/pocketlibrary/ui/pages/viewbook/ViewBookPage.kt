@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
-package com.guidofe.pocketlibrary.ui.pages.viewbookpage
+package com.guidofe.pocketlibrary.ui.pages.viewbook
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -28,7 +28,7 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.EmptyBookCover
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.LibraryPageDestination
-import com.guidofe.pocketlibrary.ui.pages.librarypage.LibraryPageNavArgs
+import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageNavArgs
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM

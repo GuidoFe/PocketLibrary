@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.editbookpage
+package com.guidofe.pocketlibrary.ui.pages.editbook
 
 import android.Manifest
 import android.content.ActivityNotFoundException

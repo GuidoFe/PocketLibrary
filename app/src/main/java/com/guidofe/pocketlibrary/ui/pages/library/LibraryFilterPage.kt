@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages.librarypage
+package com.guidofe.pocketlibrary.ui.pages.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

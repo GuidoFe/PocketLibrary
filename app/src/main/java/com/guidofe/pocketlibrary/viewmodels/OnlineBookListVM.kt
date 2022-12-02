@@ -23,7 +23,7 @@ class OnlineBookListVM(
     override var query: QueryData? by mutableStateOf(null)
     override var langRestrict: String? by mutableStateOf(null)
     override var pager = Pager(PagingConfig(20, initialLoadSize = 20)) {
-        OnlineBooksPagingSource(query, repo = metaRepo)
+        OnlineBooksPagingSource(query, langRestrict = langRestrict, repo = metaRepo)
     }.flow.map { pagingData ->
         val idSet: HashSet<String> = hashSetOf()
         pagingData.filter {
