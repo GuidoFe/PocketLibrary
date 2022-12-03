@@ -171,10 +171,15 @@
     <string name="NO_STRING" translatable="false">NO STRING</string>
     <string name="translating_dots">Translating...</string>
     <string name="EMPTY_STRING" translatable="false" />
-    <string name="allow_genres_translation">Translate genres using Google Translate</string>
+    <string name="allow_genres_translation">Translate genres with Google</string>
     <string name="currently_not_reading_books">Currently you are not reading any books</string>
     <string name="dismiss">Dismiss</string>
     <string name="open_search_box">Open search box</string>
     <string name="please_insert_serch_term">Please insert a search term</string>
     <string name="no_result_found">Sorry! No result found :(</string>
+    <string name="about">About</string>
+    <string name="backup_restore">Backup / Restore</string>
+    <string name="logo">Logo</string>
+    <string name="google_translate_attribution">Powered by Google Translate</string>
+    <string name="powered_by_google">Powered by Google</string>
 </resources>

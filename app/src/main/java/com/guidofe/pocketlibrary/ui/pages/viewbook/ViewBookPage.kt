@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -236,6 +237,17 @@ fun ViewBookPage(
                                     },
                                 )
                             }
+                        }
+                        if (vm.bundle?.genres?.any {
+                            it.englishName != null && it.lang != "en"
+                        } == true
+                        ) {
+                            Image(
+                                painterResource(R.drawable.google_translate_attribution_2x),
+                                stringResource(R.string.google_translate_attribution),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                                modifier = Modifier.padding(5.dp, 2.dp)
+                            )
                         }
                     }
                 }

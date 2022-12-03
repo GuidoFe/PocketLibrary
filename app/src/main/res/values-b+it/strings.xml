@@ -23,7 +23,7 @@
     <string name="isbn_camera_rationale">Per favore concedi l\'accesso alla fotocamera se desideri scansionare un codice ISBN.</string>
     <string name="request_permission">Richiedi permesso</string>
     <string name="permission_required">Permesso richiesto</string>
-    <string name="cancel">Cancella</string>
+    <string name="cancel">Annulla</string>
     <string name="book_not_found">Libro non trovato</string>
     <string name="error">Errore</string>
     <string name="library">Libreria</string>
@@ -164,10 +164,15 @@
     <string name="dialog_translation_text">Per favore non chiudere la app mentre le categorie vengono tradotte...</string>
     <string name="show_only_favorites">Mostra solo favoriti</string>
     <string name="sort_by">Ordina per</string>
-    <string name="allow_genres_translation">Permetti la traduzione delle categorie</string>
+    <string name="allow_genres_translation">Traduci le categorie con Google</string>
     <string name="translating_dots">Sto traducendo...</string>
     <string name="translation_in_progress">Traduzione in corso...</string>
     <string name="updating_db_dots">Sto aggiornando il database...</string>
     <string name="you_have_no_borrowed">Non hai preso in prestito alcun libro</string>
     <string name="you_have_no_lent">Non hai dato in prestito nessuno dei tuoi libri</string>
+    <string name="open_search_box">Apri la finestra di ricerca</string>
+    <string name="please_insert_serch_term">Inserisci un termine</string>
+    <string name="no_result_found">Nessun risultato trovato :(</string>
+    <string name="about">Informazioni</string>
+    <string name="backup_restore">Backup / Ripristino</string>
 </resources>

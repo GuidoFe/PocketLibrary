@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.searchbookonline
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -7,9 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,8 +29,15 @@ fun SearchBox(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
     ) {
+        Image(
+            painter = painterResource(R.drawable.powered_by_google),
+            contentDescription = stringResource(R.string.powered_by_google),
+            // colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier.width(100.dp)
+        )
         OutlinedTextField(
             value = title,
             onValueChange = {
@@ -55,7 +65,6 @@ fun SearchBox(
                 modifier = Modifier.weight(1f)
             )
         }
-        Spacer(Modifier.height(10.dp))
         ElevatedButton(
             onClick = {
                 if (title.isBlank() && author.isBlank())
@@ -76,5 +85,15 @@ fun SearchBox(
                 Text(stringResource(R.string.search).uppercase())
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun SearchBoxPreview() {
+    PreviewUtils.ThemeColumn() {
+        SearchBox(
+            "", "", "", {}, {}, {}, {}, {}
+        )
     }
 }

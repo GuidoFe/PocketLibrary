@@ -9,8 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,7 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.BookTile
+import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
 import com.guidofe.pocketlibrary.ui.modules.PieChart
+import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
+import com.guidofe.pocketlibrary.ui.pages.destinations.CreditsPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SettingsPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.*
@@ -127,18 +129,19 @@ fun LandingPage(
     val context = LocalContext.current
     val scroll = rememberScrollState()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var showMoreMenu by remember { mutableStateOf(false) }
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
             context.getString(R.string.home),
             actions = {
                 IconButton(
                     onClick = {
-                        navigator.navigate(SettingsPageDestination)
+                        showMoreMenu = true
                     }
                 ) {
                     Icon(
-                        painterResource(R.drawable.settings_24px),
-                        stringResource(R.string.settings)
+                        painterResource(R.drawable.more_vert_24px),
+                        stringResource(R.string.more)
                     )
                 }
             }
@@ -159,7 +162,9 @@ fun LandingPage(
                     Text(
                         stringResource(R.string.currently_not_reading_books),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(padding)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(padding)
                     )
                 } else {
                     Text(
@@ -284,6 +289,50 @@ fun LandingPage(
                     }
                 }
             }
+        }
+    }
+    ModalBottomSheet(
+        showMoreMenu,
+        onDismiss = { showMoreMenu = false }
+    ) {
+        RowWithIcon(
+            icon = {
+                Icon(
+                    painterResource(R.drawable.settings_24px),
+                    stringResource(R.string.settings)
+                )
+            },
+            onClick = {
+                navigator.navigate(SettingsPageDestination)
+            }
+        ) {
+            Text(stringResource(R.string.settings))
+        }
+        RowWithIcon(
+            icon = {
+                Icon(
+                    painterResource(R.drawable.info_24px),
+                    stringResource(R.string.about)
+                )
+            },
+            onClick = {
+                navigator.navigate(CreditsPageDestination)
+            }
+        ) {
+            Text(stringResource(R.string.about))
+        }
+        RowWithIcon(
+            icon = {
+                Icon(
+                    painterResource(R.drawable.settings_backup_restore_24px),
+                    stringResource(R.string.backup_restore)
+                )
+            },
+            onClick = {
+                // navigator.navigate(SettingsPageDestination)
+            }
+        ) {
+            Text(stringResource(R.string.backup_restore))
         }
     }
 }
