@@ -182,4 +182,7 @@
     <string name="logo">Logo</string>
     <string name="google_translate_attribution">Powered by Google Translate</string>
     <string name="powered_by_google">Powered by Google</string>
+    <string name="created_by_me">Created by Guido Ferri</string>
+    <string name="mail">Mail</string>
+    <string name="github">GitHub</string>
 </resources>
