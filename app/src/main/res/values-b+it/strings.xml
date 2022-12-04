@@ -135,8 +135,8 @@
     <string name="mark_as_not_returned">Segna come non riconsegnato</string>
     <string name="books_in_your_library">Libri nella tua libreria</string>
     <string name="books_read">Libri letti</string>
-    <string name="borrowed_books">Libri prestati</string>
-    <string name="lent_books">Libri presi in prestito</string>
+    <string name="borrowed_books">Libri presi in prestito</string>
+    <string name="lent_books">Libri prestati</string>
     <string name="return_to_library">Sposta nella libreria</string>
     <string name="books_currently_reading">Libri che stai leggendo</string>
     <string name="currently_reading">Attualmente in lettura</string>
