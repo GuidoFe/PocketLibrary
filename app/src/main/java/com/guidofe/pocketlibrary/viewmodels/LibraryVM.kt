@@ -12,6 +12,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
 import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageNavArgs
 import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageState
 import com.guidofe.pocketlibrary.ui.pages.navArgs
@@ -39,6 +40,7 @@ class LibraryVM @Inject constructor(
     override val selectionManager = SelectionManager<Long, LibraryBundle>(
         getKey = { it.info.bookId }
     )
+    override val translationState = TranslationDialogState()
     private var currentPagingSource: PagingSource<Int, LibraryBundle>? = null
     override var customQuery: LibraryQuery? by mutableStateOf(null)
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {

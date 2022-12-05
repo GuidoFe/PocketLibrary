@@ -10,21 +10,6 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 
 interface IImportedBookVM {
     val snackbarHostState: SnackbarHostState
-    fun getImportedBooksFromIsbn(
-        isbn: String,
-        failureCallback: (message: String) -> Unit,
-        maxResults: Int = 40,
-        callback: (books: List<ImportedBookData>) -> Unit,
-    )
-
-    fun getAndSaveBookFromIsbnFlow(
-        isbn: String,
-        destination: BookDestination,
-        onNetworkError: () -> Unit,
-        onNoBookFound: () -> Unit,
-        onOneBookSaved: () -> Unit,
-        onMultipleBooksFound: (List<ImportedBookData>) -> Unit,
-    )
 
     fun checkIfImportedBooksAreAlreadyInLibrary(
         list: List<ImportedBookData>,
@@ -36,18 +21,37 @@ interface IImportedBookVM {
     )
 
     fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
+    fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
+    fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
+    val settingsLiveData: LiveData<AppSettings>
+    fun getImportedBooksFromIsbn(
+        isbn: String,
+        failureCallback: (message: String) -> Unit,
+        maxResults: Int,
+        callback: (books: List<ImportedBookData>) -> Unit
+    )
+
     fun saveImportedBooks(
         importedBooks: List<ImportedBookData>,
         destination: BookDestination,
+        translationDialogState: TranslationDialogState?,
         callback: (List<Long>) -> Unit
     )
-    fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
-    fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit)
-    val translationDialogState: TranslationDialogState
-    val settingsLiveData: LiveData<AppSettings>
+
     fun saveImportedBook(
         importedBook: ImportedBookData,
         destination: BookDestination,
+        translationDialogState: TranslationDialogState?,
         callback: (Long) -> Unit
+    )
+
+    fun getAndSaveBookFromIsbnFlow(
+        isbn: String,
+        destination: BookDestination,
+        onNetworkError: () -> Unit,
+        onNoBookFound: () -> Unit,
+        onOneBookSaved: () -> Unit,
+        onMultipleBooksFound: (List<ImportedBookData>) -> Unit,
+        translationDialogState: TranslationDialogState?
     )
 }

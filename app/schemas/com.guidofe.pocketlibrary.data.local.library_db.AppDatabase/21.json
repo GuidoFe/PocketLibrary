@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 19,
-    "identityHash": "ab62fc4f4aafd32985042fd321435ea0",
+    "version": 21,
+    "identityHash": "4b2d99c726a1046e61653e3da0f76d98",
     "entities": [
       {
         "tableName": "Author",
@@ -345,14 +345,13 @@
         },
         "indices": [
           {
-            "name": "index_Genre_name_lang",
-            "unique": false,
+            "name": "index_Genre_name",
+            "unique": true,
             "columnNames": [
-              "name",
-              "lang"
+              "name"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Genre_name_lang` ON `${TABLE_NAME}` (`name`, `lang`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Genre_name` ON `${TABLE_NAME}` (`name`)"
           }
         ],
         "foreignKeys": []
@@ -586,7 +585,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ab62fc4f4aafd32985042fd321435ea0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4b2d99c726a1046e61653e3da0f76d98')"
     ]
   }
 }

@@ -28,6 +28,8 @@ class TranslationDialogState() {
 
 @Composable
 fun TranslationDialog(state: TranslationDialogState) {
+    if (state.translationPhase == TranslationPhase.NO_TRANSLATING)
+        return
     Dialog(onDismissRequest = {}) {
         Column(
             modifier = Modifier

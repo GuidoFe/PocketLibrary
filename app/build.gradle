@@ -40,7 +40,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.pocketlibrary"
+        applicationId "com.guidofe.pocketlibrary"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -232,6 +232,21 @@ dependencies {
 
     //Google translate
     implementation 'com.google.mlkit:translate:17.0.1'
+
+    //Google Login
+    implementation 'com.google.android.gms:play-services-auth:20.4.0'
+
+    //Drive
+    implementation('com.google.api-client:google-api-client-android:1.23.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude module: 'guava-jdk5'
+    }
+    implementation('com.google.apis:google-api-services-drive:v3-rev136-1.25.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude module: 'guava-jdk5'
+    }
+    // Keep it at the end of the list
+    implementation 'com.google.guava:guava:27.0.1-android'
 
 // Testing =====================================
     testImplementation 'junit:junit:4.13.2'

@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages.library
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -20,14 +19,10 @@ import androidx.paging.compose.itemsIndexed
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
-import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
-import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
-import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
-import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
+import com.guidofe.pocketlibrary.ui.dialogs.*
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
 import com.guidofe.pocketlibrary.utils.BookDestination
-import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.LibraryVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -161,9 +156,6 @@ fun LibraryPage(
             )
         }
     }
-    LaunchedEffect(vm.customQuery) {
-        Log.d("debug", "CustomQuery == null? ${vm.customQuery == null}")
-    }
     LaunchedEffect(state.isbnToSearch) {
         state.isbnToSearch?.let {
             importVm.getAndSaveBookFromIsbnFlow(
@@ -188,7 +180,8 @@ fun LibraryPage(
                 },
                 onMultipleBooksFound = { list ->
                     navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
-                }
+                },
+                translationDialogState = vm.translationState
             )
         }
     }
@@ -287,7 +280,7 @@ fun LibraryPage(
                             }
                             1 -> {
                                 importVm.saveImportedBook(
-                                    it[0], BookDestination.LIBRARY
+                                    it[0], BookDestination.LIBRARY, vm.translationState
                                 ) { id ->
                                     if (id > 0)
                                         navigator.navigate(ViewBookPageDestination(id))
@@ -411,7 +404,9 @@ fun LibraryPage(
     }
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBook(navResult.value, BookDestination.LIBRARY) {
+            importVm.saveImportedBook(
+                navResult.value, BookDestination.LIBRARY, vm.translationState
+            ) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,
@@ -552,7 +547,5 @@ fun LibraryPage(
             }
         }
     }
-    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
-        TranslationDialog(importVm.translationDialogState)
-    }
+    TranslationDialog(vm.translationState)
 }

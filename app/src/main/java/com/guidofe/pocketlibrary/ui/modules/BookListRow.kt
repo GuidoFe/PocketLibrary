@@ -95,7 +95,8 @@ fun ImportedBookListRow(
         isSelected = item.isSelected,
         onRowTap = onRowTap,
         onRowLongPress = onRowLongPress,
-        onCoverLongPress = onCoverLongPress
+        onCoverLongPress = onCoverLongPress,
+        enableCoverDiskCache = false
     )
 }
 
@@ -112,7 +113,8 @@ private fun GenericListRow(
     onRowTap: (Offset) -> Unit = {},
     onRowLongPress: (Offset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {},
-    progress: ProgressPhase? = null
+    progress: ProgressPhase? = null,
+    enableCoverDiskCache: Boolean = true
 ) {
     var tapZoneOffset: Offset by remember { mutableStateOf(Offset.Zero) }
     BoxWithConstraints(modifier = modifier) {
@@ -138,7 +140,8 @@ private fun GenericListRow(
                         onRowTap,
                         onCoverLongPress,
                         isLent,
-                        progress
+                        progress,
+                        enableDiskCache = enableCoverDiskCache
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

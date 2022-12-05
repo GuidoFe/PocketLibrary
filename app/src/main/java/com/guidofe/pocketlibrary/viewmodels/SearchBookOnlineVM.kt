@@ -9,6 +9,7 @@ import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.BookMetaRepository
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
@@ -29,6 +30,7 @@ class SearchBookOnlineVM @Inject constructor(
     override val listVM: IOnlineBookListVM = OnlineBookListVM(selectionManager, metaRepo)
     override var title: String by mutableStateOf("")
     override var author: String by mutableStateOf("")
+    override val translationState = TranslationDialogState()
     override var langField: String by mutableStateOf("")
     override val settingsFlow = dataStore.settingsLiveData
     override fun search() {

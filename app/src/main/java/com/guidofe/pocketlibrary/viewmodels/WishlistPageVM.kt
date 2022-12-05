@@ -7,6 +7,7 @@ import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
@@ -24,6 +25,7 @@ class WishlistPageVM @Inject constructor(
     override val snackbarHostState: SnackbarHostState
 ) : ViewModel(), IWishlistPageVM {
     override var duplicateIsbn: String = ""
+    override val translationState = TranslationDialogState()
     override val selectionManager = SelectionManager<Long, WishlistBundle>(
         getKey = { it.info.bookId }
     )

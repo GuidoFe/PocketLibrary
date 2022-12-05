@@ -31,7 +31,6 @@ import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
-import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import com.guidofe.pocketlibrary.viewmodels.previews.SettingsVMPreview
@@ -267,9 +266,7 @@ fun SettingsPage(
             }
         }
     }
-    if (vm.translationState.translationPhase != TranslationPhase.NO_TRANSLATING) {
-        TranslationDialog(vm.translationState)
-    }
+    TranslationDialog(vm.translationState)
 }
 
 @Composable

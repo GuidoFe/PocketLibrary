@@ -30,6 +30,7 @@ import com.guidofe.pocketlibrary.ui.modules.BookTile
 import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
 import com.guidofe.pocketlibrary.ui.modules.PieChart
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
+import com.guidofe.pocketlibrary.ui.pages.destinations.BackupPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.CreditsPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SettingsPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
@@ -329,7 +330,7 @@ fun LandingPage(
                 )
             },
             onClick = {
-                // navigator.navigate(SettingsPageDestination)
+                navigator.navigate(BackupPageDestination)
             }
         ) {
             Text(stringResource(R.string.backup_restore))

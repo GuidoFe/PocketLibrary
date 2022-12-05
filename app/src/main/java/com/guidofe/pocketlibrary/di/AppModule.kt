@@ -15,8 +15,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.*
 import javax.inject.Singleton
+import kotlinx.coroutines.*
 
 @Module
 @InstallIn(SingletonComponent::class)

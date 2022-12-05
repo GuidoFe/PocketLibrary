@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryQuery
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
@@ -54,4 +55,6 @@ class LibraryVMPreview : ILibraryVM {
     override val state: LibraryPageState
         get() = LibraryPageState()
     override var customQuery: LibraryQuery? = null
+    override val translationState: TranslationDialogState
+        get() = TranslationDialogState()
 }

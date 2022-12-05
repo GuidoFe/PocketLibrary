@@ -24,7 +24,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.views.SortedBookAuthor
         WishlistBook::class,
     ],
     views = [SortedBookAuthor::class],
-    version = 19,
+    version = 21,
     exportSchema = true,
     autoMigrations = []
 )

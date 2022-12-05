@@ -6,6 +6,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
@@ -28,4 +29,5 @@ interface IBookLogVM {
     val borrowedPager: Flow<PagingData<SelectableListItem<BorrowedBundle>>>
     fun invalidateBorrowedPagingSource()
     var tabIndex: Int
+    val translationState: TranslationDialogState
 }

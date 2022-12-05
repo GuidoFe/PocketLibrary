@@ -24,7 +24,6 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
 import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
-import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.BookLogVM
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
@@ -260,7 +259,8 @@ fun BookLogPage(
                 },
                 onMultipleBooksFound = { list ->
                     navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
-                }
+                },
+                translationDialogState = vm.translationState
             )
         }
     }
@@ -350,7 +350,7 @@ fun BookLogPage(
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
             importVm.saveImportedBook(
-                navResult.value, BookDestination.BORROWED
+                navResult.value, BookDestination.BORROWED, vm.translationState
             ) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
@@ -360,7 +360,5 @@ fun BookLogPage(
             }
         }
     }
-    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
-        TranslationDialog(importVm.translationDialogState)
-    }
+    TranslationDialog(vm.translationState)
 }

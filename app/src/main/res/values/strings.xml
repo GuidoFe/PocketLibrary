@@ -185,4 +185,7 @@
     <string name="created_by_me">Created by Guido Ferri</string>
     <string name="mail">Mail</string>
     <string name="github">GitHub</string>
+    <string name="backup_on_gd">Backup on Google Drive</string>
+    <string name="error_login_gdrive">Error: couldn\'t login on Google Drive</string>
+    <string name="error_perm_not_granted_gdrive">Error: you have not granted the permission to save files on your Google Drive</string>
 </resources>

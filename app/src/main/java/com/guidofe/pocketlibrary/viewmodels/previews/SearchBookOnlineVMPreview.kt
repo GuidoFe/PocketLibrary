@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IOnlineBookListVM
@@ -32,4 +33,6 @@ class SearchBookOnlineVMPreview : ISearchBookOnlineVM {
     override var langField: String = ""
     override val langRestrict: String?
         get() = null
+    override val translationState: TranslationDialogState
+        get() = TranslationDialogState()
 }

@@ -4,6 +4,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.LifecycleOwner
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 
@@ -22,4 +23,7 @@ class ScanIsbnVMPreview : IScanIsbnVM {
 
     override fun restartAnalysis(lifecycleOwner: LifecycleOwner) {
     }
+
+    override val translationDialogState: TranslationDialogState
+        get() = TranslationDialogState()
 }

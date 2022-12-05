@@ -9,9 +9,9 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.utils.NetworkResponse
 import com.guidofe.pocketlibrary.utils.NetworkResponseAdapterFactory
 import com.guidofe.pocketlibrary.utils.Resource
+import java.lang.Integer.min
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Integer.min
 
 class DefaultBookMetaRepository : BookMetaRepository {
     private val retrofit = Retrofit.Builder()

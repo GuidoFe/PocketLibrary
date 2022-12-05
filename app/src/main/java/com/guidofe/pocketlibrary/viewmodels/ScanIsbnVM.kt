@@ -17,6 +17,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,7 @@ class ScanIsbnVM @Inject constructor(
     private var imageAnalysis: ImageAnalysis? = null
     private val scanner = BarcodeScanning.getClient(scannerOptions)
     override var scannedCode: String? by mutableStateOf(null)
+    override val translationDialogState = TranslationDialogState()
     // private set
     override fun getImageAnalysis(): ImageAnalysis {
         if (imageAnalysis == null) {

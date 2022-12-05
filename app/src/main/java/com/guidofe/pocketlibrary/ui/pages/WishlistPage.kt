@@ -24,7 +24,6 @@ import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
 import com.guidofe.pocketlibrary.utils.BookDestination
-import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.WishlistPageVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -133,7 +132,8 @@ fun WishlistPage(
                 },
                 onMultipleBooksFound = { list ->
                     navigator.navigate(BookDisambiguationPageDestination(list.toTypedArray()))
-                }
+                },
+                translationDialogState = vm.translationState
             )
         }
     }
@@ -228,7 +228,7 @@ fun WishlistPage(
                             }
                             1 -> {
                                 importVm.saveImportedBook(
-                                    it[0], BookDestination.WISHLIST
+                                    it[0], BookDestination.WISHLIST, vm.translationState
                                 ) {
                                     vm.invalidate()
                                 }
@@ -277,7 +277,9 @@ fun WishlistPage(
 
     disambiguationRecipient.onNavResult { navResult ->
         if (navResult is NavResult.Value) {
-            importVm.saveImportedBook(navResult.value, BookDestination.WISHLIST) {
+            importVm.saveImportedBook(
+                navResult.value, BookDestination.WISHLIST, vm.translationState
+            ) {
                 Snackbars.bookSavedSnackbar(
                     importVm.snackbarHostState,
                     context,
@@ -361,7 +363,5 @@ fun WishlistPage(
             }
         }
     }
-    if (importVm.translationDialogState.translationPhase != TranslationPhase.NO_TRANSLATING) {
-        TranslationDialog(importVm.translationDialogState)
-    }
+    TranslationDialog(vm.translationState)
 }

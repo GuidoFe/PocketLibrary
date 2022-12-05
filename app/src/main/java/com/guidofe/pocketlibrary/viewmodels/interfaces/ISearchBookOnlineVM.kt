@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.data.remote.google_book.QueryData
 import com.guidofe.pocketlibrary.model.ImportedBookData
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 
@@ -20,4 +21,5 @@ interface ISearchBookOnlineVM {
     val settingsFlow: LiveData<AppSettings>
     var langField: String
     val langRestrict: String?
+    val translationState: TranslationDialogState
 }

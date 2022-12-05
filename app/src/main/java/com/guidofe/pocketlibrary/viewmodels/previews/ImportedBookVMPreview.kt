@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.viewmodels.previews
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import com.guidofe.pocketlibrary.AppSettings
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
@@ -21,15 +22,33 @@ class ImportedBookVMPreview : IImportedBookVM {
     ) {
     }
 
+    override fun saveImportedBooks(
+        importedBooks: List<ImportedBookData>,
+        destination: BookDestination,
+        translationDialogState: TranslationDialogState?,
+        callback: (List<Long>) -> Unit
+    ) {
+        callback(emptyList())
+    }
+
+    override fun saveImportedBook(
+        importedBook: ImportedBookData,
+        destination: BookDestination,
+        translationDialogState: TranslationDialogState?,
+        callback: (Long) -> Unit
+    ) {
+        callback(1L)
+    }
+
     override fun getAndSaveBookFromIsbnFlow(
         isbn: String,
         destination: BookDestination,
         onNetworkError: () -> Unit,
         onNoBookFound: () -> Unit,
         onOneBookSaved: () -> Unit,
-        onMultipleBooksFound: (List<ImportedBookData>) -> Unit
-    ) {
-    }
+        onMultipleBooksFound: (List<ImportedBookData>) -> Unit,
+        translationDialogState: TranslationDialogState?
+    ) {}
 
     override fun checkIfImportedBooksAreAlreadyInLibrary(
         list: List<ImportedBookData>,
@@ -44,27 +63,11 @@ class ImportedBookVMPreview : IImportedBookVM {
     override fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
     }
 
-    override fun saveImportedBooks(
-        importedBooks: List<ImportedBookData>,
-        destination: BookDestination,
-        callback: (List<Long>) -> Unit
-    ) {
-    }
-
     override fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
     }
 
     override fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
     }
-
-    override val translationDialogState: TranslationDialogState
-        get() = TODO("Not yet implemented")
     override val settingsLiveData: LiveData<AppSettings>
-        get() = TODO("Not yet implemented")
-
-    override fun saveImportedBook(
-        importedBook: ImportedBookData,
-        destination: BookDestination,
-        callback: (Long) -> Unit
-    ) { callback(1L) }
+        get() = liveData { AppSettings() }
 }

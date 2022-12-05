@@ -12,16 +12,17 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
+import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class BookLogVM @Inject constructor(
@@ -33,6 +34,7 @@ class BookLogVM @Inject constructor(
     override val lentTabState = LentTabState()
     override var tabIndex: Int by mutableStateOf(0)
     private var currentBorrowedPagingSource: PagingSource<Int, BorrowedBundle>? = null
+    override val translationState = TranslationDialogState()
 
     override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 20)) {
         repo.getBorrowedBundles(borrowedTabState.showReturnedBooks)

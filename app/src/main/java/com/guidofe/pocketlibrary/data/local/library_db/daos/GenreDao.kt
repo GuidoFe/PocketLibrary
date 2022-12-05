@@ -24,6 +24,6 @@ interface GenreDao {
     @Query("SELECT * FROM genre WHERE lang != :languageCode")
     suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre>
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun updateAll(genres: List<Genre>)
 }
