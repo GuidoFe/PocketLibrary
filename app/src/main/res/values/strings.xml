@@ -201,4 +201,8 @@
     <string name="book_log_label">Book Log</string>
     <string name="covers_upload_success">Covers uploaded successfully</string>
     <string name="covers_upload_failed">Failed to upload covers</string>
+    <string name="gallery_rationale">The permission to access your gallery is necessary if you want to upload a custom cover.</string>
+    <string name="gallery_denied">You have denied the permission to access your gallery. If you want to restore it, change it manually in Settings.</string>
+    <string name="deny">Deny</string>
+    <string name="ask_again">Ask again</string>
 </resources>

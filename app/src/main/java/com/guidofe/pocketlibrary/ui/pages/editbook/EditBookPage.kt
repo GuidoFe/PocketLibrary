@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.ui.pages.editbook
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,10 +30,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.TakeCoverPhotoPageDestination
 import com.guidofe.pocketlibrary.utils.BookDestination
+import com.guidofe.pocketlibrary.utils.isPermanentlyDenied
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import com.guidofe.pocketlibrary.viewmodels.previews.EditBookVMPreview
@@ -42,15 +48,15 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 val verticalSpace = 5.dp
 val horizontalSpace = 5.dp
 @OptIn(
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class
 )
 @Destination
 @Composable
@@ -74,6 +80,9 @@ fun EditBookPage(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var imageRequest: ImageRequest? by remember { mutableStateOf(null) }
+    var showRationaleDialog by remember { mutableStateOf(false) }
+    var showPermissionDeniedDialog by remember { mutableStateOf(false) }
+
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val uploadFileLauncher = rememberLauncherForActivityResult(
@@ -91,17 +100,21 @@ fun EditBookPage(
             }
         }
     )
-    val readMediaPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        if (it) {
-            uploadFileLauncher.launch(
-                PickVisualMediaRequest(
-                    ActivityResultContracts.PickVisualMedia.ImageOnly
+    val permissionState = rememberPermissionState(
+        permission =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            Manifest.permission.READ_MEDIA_IMAGES
+        else Manifest.permission.READ_EXTERNAL_STORAGE,
+        onPermissionResult = {
+            if (it) {
+                uploadFileLauncher.launch(
+                    PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
                 )
-            )
+            }
         }
-    }
+    )
     LaunchedEffect(vm.state.coverUri) {
         imageRequest = vm.state.coverUri?.let { uri ->
             ImageRequest.Builder(context)
@@ -356,7 +369,18 @@ fun EditBookPage(
                 Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
             },
             onClick = {
-                readMediaPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                when {
+                    permissionState.status.isGranted -> {
+                        Log.d("debug", "Permission granted")
+                        permissionState.launchPermissionRequest()
+                    }
+                    permissionState.status.shouldShowRationale -> {
+                        showRationaleDialog = true
+                    }
+                    permissionState.status.isPermanentlyDenied -> {
+                        showPermissionDeniedDialog = true
+                    }
+                }
                 vm.state.showCoverMenu = false
             }
         ) {
@@ -378,6 +402,40 @@ fun EditBookPage(
         ) {
             Text(stringResource(R.string.clear_cover))
         }
+    }
+    if (showRationaleDialog) {
+        AlertDialog(
+            onDismissRequest = { showRationaleDialog = false },
+            confirmButton = {
+                Button(onClick = { showRationaleDialog = false }) {
+                    Text(stringResource(R.string.deny))
+                }
+            },
+            title = { Text(stringResource(R.string.permission_required)) },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        permissionState.launchPermissionRequest()
+                        showRationaleDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.ask_again))
+                }
+            },
+            text = { Text(stringResource(R.string.gallery_rationale)) }
+        )
+    }
+
+    if (showPermissionDeniedDialog) {
+        AlertDialog(
+            onDismissRequest = { showPermissionDeniedDialog = false },
+            confirmButton = {
+                Button(onClick = { showPermissionDeniedDialog = false }) {
+                    Text(stringResource(R.string.ok_label))
+                }
+            },
+            text = { Text(stringResource(R.string.gallery_denied)) }
+        )
     }
 }
 

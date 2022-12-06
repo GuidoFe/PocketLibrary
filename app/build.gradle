@@ -213,7 +213,7 @@ dependencies {
     implementation "androidx.camera:camera-extensions:${camerax_version}"
 
     // Permission inside Compose
-    implementation "com.google.accompanist:accompanist-permissions:0.26.3-beta"
+    implementation "com.google.accompanist:accompanist-permissions:0.28.0"
 
     // Coil
     implementation("io.coil-kt:coil-base:2.2.1")
