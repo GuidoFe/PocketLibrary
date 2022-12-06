@@ -13,9 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -45,9 +43,7 @@ fun TakeCoverPhotoPage(
     imageEditorRecipient: ResultRecipient<CoverEditorPageDestination, Uri>
 ) {
     val context = LocalContext.current
-    val configuration = LocalConfiguration.current
     val coroutineScope = rememberCoroutineScope()
-    val lifecycleOwner = LocalLifecycleOwner.current
     val lineAlpha = 0.5f
     val lineSize = 3.dp
     val lineColor = Color.Black.copy(lineAlpha)

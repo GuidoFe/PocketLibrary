@@ -31,6 +31,4 @@ class EditBookVMPreview : IEditBookVM {
     override fun getTempCoverUri(): Uri {
         return Uri.parse("")
     }
-
-    override var isInitialized: Boolean = true
 }

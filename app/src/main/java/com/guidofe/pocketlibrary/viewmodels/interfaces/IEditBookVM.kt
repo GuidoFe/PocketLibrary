@@ -17,5 +17,4 @@ interface IEditBookVM {
     fun updateExistingGenres(startingLetters: String)
     fun getLocalCoverFileUri(): Uri
     fun getTempCoverUri(): Uri
-    var isInitialized: Boolean
 }

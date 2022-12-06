@@ -23,7 +23,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
     val navController = rememberNavController()
     val scaffoldState = viewModel.scaffoldState
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(navController) {
         navController.addOnDestinationChangedListener { _, _, _ ->
             scaffoldState.fab = {}
             scaffoldState.actions = {}

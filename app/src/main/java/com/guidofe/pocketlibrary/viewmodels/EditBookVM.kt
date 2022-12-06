@@ -16,10 +16,10 @@ import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.Constants
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IEditBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.io.File
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import javax.inject.Inject
 
 @HiltViewModel
 class EditBookVM @Inject constructor(
@@ -32,7 +32,6 @@ class EditBookVM @Inject constructor(
     //    private set
     private var currentBookId: Long = 0L
     override var state: EditBookState by mutableStateOf(EditBookState())
-    override var isInitialized: Boolean = false
 
     override suspend fun initialiseFromDatabase(
         id: Long

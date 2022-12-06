@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,12 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -82,6 +84,31 @@ fun EditBookPage(
     var imageRequest: ImageRequest? by remember { mutableStateOf(null) }
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showPermissionDeniedDialog by remember { mutableStateOf(false) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> {
+                    coroutineScope.launch {
+                        bookId?.let { vm.initialiseFromDatabase(it) }
+                        isbn?.let {
+                            Log.d("debug", "Setting isbn $it")
+                            vm.state.identifier = it
+                        }
+                    }
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    File(vm.getTempCoverUri().path!!).delete()
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -121,10 +148,6 @@ fun EditBookPage(
                 .data(uri)
                 .build()
         }
-    }
-    BackHandler() {
-        File(vm.getTempCoverUri().path!!).delete()
-        navigator.navigateUp()
     }
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
@@ -167,14 +190,6 @@ fun EditBookPage(
                 }
             }
         )
-        if (!vm.isInitialized) {
-            bookId?.let { vm.initialiseFromDatabase(it) }
-            isbn?.let {
-                Log.d("debug", "Setting isbn $it")
-                vm.state.identifier = it
-            }
-            vm.isInitialized = true
-        }
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
