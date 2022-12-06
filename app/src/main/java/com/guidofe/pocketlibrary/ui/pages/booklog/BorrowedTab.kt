@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.items
@@ -67,8 +69,9 @@ fun BorrowedTab(
             Box(modifier = Modifier.fillMaxSize()) {
                 Text(
                     stringResource(R.string.you_have_no_borrowed),
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.padding(10.dp).align(Alignment.Center)
                 )
             }
         LazyColumn(

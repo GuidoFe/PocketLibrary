@@ -9,14 +9,15 @@ import coil.memory.MemoryCache
 import com.guidofe.pocketlibrary.data.local.library_db.AppDatabase
 import com.guidofe.pocketlibrary.repositories.*
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
+import com.guidofe.pocketlibrary.utils.Constants
 import com.guidofe.pocketlibrary.utils.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import kotlinx.coroutines.*
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -90,7 +91,7 @@ object AppModule {
         return Room.databaseBuilder(
             appContext,
             AppDatabase::class.java,
-            "PocketLibrary"
+            Constants.dbName
         ).fallbackToDestructiveMigration().build()
         // TODO: remove fallback to destructive migration
     }

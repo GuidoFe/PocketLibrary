@@ -13,8 +13,8 @@ enum class BottomBarDestination(
     val labelId: Int,
     @DrawableRes val iconId: Int
 ) {
-    LandingPageScreen(LandingPageDestination, R.string.home, R.drawable.home_24px),
-    LibraryScreen(LibraryPageDestination(), R.string.my_library, R.drawable.collections_24px),
-    WishlistScreen(WishlistPageDestination, R.string.wishlist, R.drawable.star_24px),
-    BookLogScreen(BookLogPageDestination, R.string.book_log, R.drawable.book_hand_right_24px)
+    LandingPageScreen(LandingPageDestination, R.string.home_label, R.drawable.home_24px),
+    LibraryScreen(LibraryPageDestination(), R.string.my_library_label, R.drawable.collections_24px),
+    WishlistScreen(WishlistPageDestination, R.string.wishlist_label, R.drawable.star_24px),
+    BookLogScreen(BookLogPageDestination, R.string.book_log_label, R.drawable.book_hand_right_24px)
 }

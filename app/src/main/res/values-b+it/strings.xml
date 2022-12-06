@@ -1,5 +1,5 @@
 <resources>
-    <string name="home">Pagina Iniziale</string>
+    <string name="home">Home</string>
     <string name="my_library">La Mia Libreria</string>
     <string name="lent_tab">Prestati</string>
     <string name="lent_adj">Prestato</string>
@@ -151,23 +151,23 @@
     <string name="currently_not_reading_books">Attualmente non stai leggendo libri</string>
     <string name="data_transfer_in_progress">Spostamento dei file in corso</string>
     <string name="dismiss">Chiudi</string>
-    <string name="downloading_translator_dots">Scaricamento del traduttore in corso...</string>
+    <string name="downloading_translator_dots">Scaricamento del traduttore in corso…</string>
     <string name="error_transfering_files">Errore: non è stato possibile trasferire i file.</string>
-    <string name="fetching_genres_dots">Sto raccogliendo le categorie...</string>
+    <string name="fetching_genres_dots">Sto raccogliendo le categorie…</string>
     <string name="files_moved_successfully">File trasferiti con successo</string>
     <string name="filter">Filtro</string>
     <string name="genre">Categoria</string>
     <string name="no_book_match_search">Nessun libro corrisponde alla tua ricerca</string>
     <string name="only_books">Solo libri</string>
     <string name="only_ebooks">Solo e-book</string>
-    <string name="data_transfer_text">Per favore non chiudere la app mentre i file vengono trasferiti...</string>
-    <string name="dialog_translation_text">Per favore non chiudere la app mentre le categorie vengono tradotte...</string>
+    <string name="data_transfer_text">Per favore non chiudere la app mentre i file vengono trasferiti…</string>
+    <string name="dialog_translation_text">Per favore non chiudere la app mentre le categorie vengono tradotte…</string>
     <string name="show_only_favorites">Mostra solo favoriti</string>
     <string name="sort_by">Ordina per</string>
     <string name="allow_genres_translation">Traduci le categorie con Google</string>
-    <string name="translating_dots">Sto traducendo...</string>
-    <string name="translation_in_progress">Traduzione in corso...</string>
-    <string name="updating_db_dots">Sto aggiornando il database...</string>
+    <string name="translating_dots">Sto traducendo…</string>
+    <string name="translation_in_progress">Traduzione in corso…</string>
+    <string name="updating_db_dots">Sto aggiornando il database…</string>
     <string name="you_have_no_borrowed">Non hai preso in prestito alcun libro</string>
     <string name="you_have_no_lent">Non hai dato in prestito nessuno dei tuoi libri</string>
     <string name="open_search_box">Apri la finestra di ricerca</string>
@@ -175,4 +175,22 @@
     <string name="no_result_found">Nessun risultato trovato :(</string>
     <string name="about">Informazioni</string>
     <string name="backup_restore">Backup / Ripristino</string>
+    <string name="logo">Logo</string>
+    <string name="created_by_me">App creata da Guido Ferri</string>
+    <string name="mail">Mail</string>
+    <string name="backup_on_gd">Backup su Google Drive</string>
+    <string name="error_login_gdrive">Errore: impossibile loggarsi a Google Drive</string>
+    <string name="error_perm_not_granted_gdrive">Errore: non hai permesso di salvare file sul tuo Google Drive</string>
+    <string name="login_on_gdrive">Log in su Google Drive</string>
+    <string name="backup_intro">Tutto è salvato automaticamente sul tuo Google Drive, tranne le foto delle copertine che hai scattato o caricato manualmente.\nPer caricare le copertine, log in sul tuo account Google Drive e caricale manualmente cliccando il bottone \"Carica copertine su Google Drive\".</string>
+    <string name="backup_covers">Carica copertine su Google Drive</string>
+    <string name="first_log_in_error">Devi prima essere loggato</string>
+    <string name="sign_out">Disconnetti l\'account</string>
+    <string name="sign_out_success">Disconnessione avvenuta con successo</string>
+    <string name="sign_out_failed">Errore: impossibile disconnettersi. Controlla la tua connessione internet e riprova più tardi.</string>
+    <string name="home_label">Home</string>
+    <string name="my_library_label">Libreria</string>
+    <string name="wishlist_label">Wishlist</string>
+    <string name="book_log_label">Movimenti</string>
+
 </resources>

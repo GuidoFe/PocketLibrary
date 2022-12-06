@@ -25,4 +25,7 @@ interface DataStoreRepository {
     fun getCoverFile(fileName: String, external: Boolean): File?
     fun getCoverDir(isExternal: Boolean): File?
     suspend fun setGenreTranslation(translate: Boolean)
+    fun getDir(dir: String, isExternal: Boolean): File?
+    suspend fun saveMediaBackupLocally(external: Boolean): File?
+    fun getFileInRootDir(name: String, isExternal: Boolean): File?
 }

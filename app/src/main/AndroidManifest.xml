@@ -16,6 +16,8 @@
         android:supportsRtl="true"
         android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.PocketLibrary"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/backup_rules_12"
         tools:targetApi="tiramisu">
         <activity
             android:name="com.guidofe.pocketlibrary.MainActivity"

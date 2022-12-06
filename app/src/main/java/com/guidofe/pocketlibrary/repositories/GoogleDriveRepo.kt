@@ -8,10 +8,12 @@ import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.http.FileContent
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.guidofe.pocketlibrary.R
+import java.io.File
 
 class GoogleDriveRepo(
     private val context: Context
@@ -67,5 +69,20 @@ class GoogleDriveRepo(
 
     fun getDriverInstance(): Drive? {
         return Companion.getDriverInstance(context)
+    }
+
+    fun uploadFile(file: File, mime: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        try {
+            getDriverInstance()?.let { drive ->
+                val gFile = com.google.api.services.drive.model.File()
+                gFile.name = file.name
+                val fileContent = FileContent(mime, file)
+                drive.Files().create(gFile, fileContent).execute()
+                onSuccess()
+            }
+        } catch (e: Exception) {
+            onFailure()
+            e.printStackTrace()
+        }
     }
 }

@@ -16,4 +16,5 @@ object Constants {
         "tn", "to", "tr", "ts", "tt", "tw", "ty", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "wa",
         "wo", "xh", "yi", "yo", "za", "zh", "zu",
     )
+    val dbName: String = "PocketLibrary"
 }

@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -30,6 +32,7 @@ fun MainBottomBar(navController: NavController) {
             NavigationBarItem(
                 selected = currentDestination?.route?.root == screen.direction.route.root,
                 icon = { Icon(painterResource(screen.iconId), contentDescription = null) },
+                label = { Text(stringResource(screen.labelId)) },
                 onClick = {
                     try {
                         if (currentDestination?.route?.root != screen.direction.route.root) {

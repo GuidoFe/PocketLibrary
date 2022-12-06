@@ -13,11 +13,16 @@ import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.ui.theme.Theme
-import java.io.File
-import java.io.FileOutputStream
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import javax.inject.Inject
 
 private val Context.dataStore by dataStore(
     fileName = "app-settings.json",
@@ -41,10 +46,7 @@ class DefaultDataStoreRepository @Inject constructor(
     }
 
     override fun getCoverDir(isExternal: Boolean): File? {
-        return if (isExternal)
-            context.getExternalFilesDir(COVER_DIR)
-        else
-            context.getDir(COVER_DIR, Context.MODE_PRIVATE)
+        return getDir(COVER_DIR, isExternal)
     }
 
     override fun getInternalCoverFile(fileName: String): File? {
@@ -60,6 +62,20 @@ class DefaultDataStoreRepository @Inject constructor(
             getExternalCoverFile(fileName)
         else
             getInternalCoverFile(fileName)
+    }
+
+    override fun getDir(dir: String, isExternal: Boolean): File? {
+        return if (isExternal)
+            context.getExternalFilesDir(dir)
+        else
+            context.getDir(dir, Context.MODE_PRIVATE)
+    }
+
+    override fun getFileInRootDir(name: String, isExternal: Boolean): File? {
+        return if (isExternal)
+            File(context.getExternalFilesDir(null), name)
+        else
+            File(context.filesDir, name)
     }
 
     override fun getCover(fileName: String): File? {
@@ -133,6 +149,32 @@ class DefaultDataStoreRepository @Inject constructor(
             fOut.flush()
             fOut.close()
             callback()
+        }
+    }
+
+    override suspend fun saveMediaBackupLocally(external: Boolean): File? {
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val formatted = LocalDateTime.now().format(formatter)
+        val backupName = "pocket_library_backup_$formatted.zip"
+        val coverFolder = getCoverDir(external) ?: return null
+        val backupZip = getFileInRootDir(backupName, external) ?: return null
+        zipFolder(coverFolder, backupZip)
+        return backupZip
+    }
+
+    private suspend fun zipFolder(folder: File, outputZipFile: File) {
+        withContext(Dispatchers.IO) {
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(outputZipFile))).use { zos ->
+                folder.walkTopDown().forEach { file ->
+                    val zipFileName =
+                        file.absolutePath.removePrefix(folder.absolutePath).removePrefix("/")
+                    val entry = ZipEntry("$zipFileName${(if (file.isDirectory) "/" else "")}")
+                    zos.putNextEntry(entry)
+                    if (file.isFile) {
+                        file.inputStream().copyTo(zos)
+                    }
+                }
+            }
         }
     }
 }

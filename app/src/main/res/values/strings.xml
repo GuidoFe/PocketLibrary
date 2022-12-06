@@ -180,12 +180,25 @@
     <string name="about">About</string>
     <string name="backup_restore">Backup / Restore</string>
     <string name="logo">Logo</string>
-    <string name="google_translate_attribution">Powered by Google Translate</string>
-    <string name="powered_by_google">Powered by Google</string>
+    <string name="google_translate_attribution" translatable="false">Powered by Google Translate</string>
+    <string name="powered_by_google" translatable="false">Powered by Google</string>
     <string name="created_by_me">Created by Guido Ferri</string>
     <string name="mail">Mail</string>
-    <string name="github">GitHub</string>
+    <string name="github" translatable="false">GitHub</string>
     <string name="backup_on_gd">Backup on Google Drive</string>
     <string name="error_login_gdrive">Error: couldn\'t login on Google Drive</string>
     <string name="error_perm_not_granted_gdrive">Error: you have not granted the permission to save files on your Google Drive</string>
+    <string name="login_on_gdrive">Login on Google Drive</string>
+    <string name="backup_intro">Everything is backed up automatically on your Google Drive, except for the cover images that have been taken or uploaded manually by you.\nFor uploading the covers, log in with your Google Drive account and upload it manually by clicking on the button \"Upload covers to Google Drive\".</string>
+    <string name="first_log_in_error">You need to log in first</string>
+    <string name="sign_out">Sign out</string>
+    <string name="sign_out_success">Signed out successfully</string>
+    <string name="sign_out_failed">Error: couldn\'t sign out, check your Internet connection and try later.</string>
+    <string name="backup_covers">Upload backup of your covers</string>
+    <string name="home_label">Home</string>
+    <string name="my_library_label">My Library</string>
+    <string name="wishlist_label">Wishlist</string>
+    <string name="book_log_label">Book Log</string>
+    <string name="covers_upload_success">Covers uploaded successfully</string>
+    <string name="covers_upload_failed">Failed to upload covers</string>
 </resources>
