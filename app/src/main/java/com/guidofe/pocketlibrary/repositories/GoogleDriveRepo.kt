@@ -12,8 +12,10 @@ import com.google.api.client.http.FileContent
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.google.api.services.drive.model.FileList
 import com.guidofe.pocketlibrary.R
 import java.io.File
+import java.io.OutputStream
 
 class GoogleDriveRepo(
     private val context: Context
@@ -84,5 +86,15 @@ class GoogleDriveRepo(
             onFailure()
             e.printStackTrace()
         }
+    }
+
+    fun getFiles(stringInName: String, mimeType: String): FileList? {
+        return getDriverInstance()?.Files()?.list()?.setQ(
+            "name contains '$stringInName' and mimeType = '$mimeType'"
+        )?.execute()
+    }
+
+    fun downloadFile(id: String, output: OutputStream) {
+        getDriverInstance()?.Files()?.get(id)?.executeMediaAndDownloadTo(output)
     }
 }

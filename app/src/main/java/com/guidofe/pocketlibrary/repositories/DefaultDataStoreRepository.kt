@@ -15,12 +15,11 @@ import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileOutputStream
+import java.io.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
@@ -34,6 +33,7 @@ class DefaultDataStoreRepository @Inject constructor(
 ) : DataStoreRepository {
     override val settingsLiveData: LiveData<AppSettings> = context.dataStore.data.asLiveData()
     override val COVER_DIR = "covers"
+    override val BACKUP_FILE_ROOT = "pocket_library_backup"
 
     override fun getCoverDir(): File? {
         return settingsLiveData.value?.let { settings ->
@@ -155,14 +155,14 @@ class DefaultDataStoreRepository @Inject constructor(
     override suspend fun saveMediaBackupLocally(external: Boolean): File? {
         val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
         val formatted = LocalDateTime.now().format(formatter)
-        val backupName = "pocket_library_backup_$formatted.zip"
+        val backupName = "${BACKUP_FILE_ROOT}_$formatted.zip"
         val coverFolder = getCoverDir(external) ?: return null
         val backupZip = getFileInRootDir(backupName, external) ?: return null
         zipFolder(coverFolder, backupZip)
         return backupZip
     }
 
-    private suspend fun zipFolder(folder: File, outputZipFile: File) {
+    override suspend fun zipFolder(folder: File, outputZipFile: File) {
         withContext(Dispatchers.IO) {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(outputZipFile))).use { zos ->
                 folder.walkTopDown().forEach { file ->
@@ -177,4 +177,61 @@ class DefaultDataStoreRepository @Inject constructor(
             }
         }
     }
+
+    /**
+     * @param zipFilePath
+     * @param destDirectory
+     * @throws IOException
+     */
+    @Throws(IOException::class)
+    override fun unzip(zipFilePath: File, destDirectory: String) {
+
+        File(destDirectory).run {
+            if (!exists()) {
+                mkdirs()
+            }
+        }
+
+        ZipFile(zipFilePath).use { zip ->
+
+            zip.entries().asSequence().forEach { entry ->
+
+                zip.getInputStream(entry).use { input ->
+
+                    val filePath = destDirectory + File.separator + entry.name
+
+                    if (!entry.isDirectory) {
+                        // if the entry is a file, extracts it
+                        extractFile(input, filePath)
+                    } else {
+                        // if the entry is a directory, make the directory
+                        val dir = File(filePath)
+                        dir.mkdir()
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Extracts a zip entry (file entry)
+     * @param inputStream
+     * @param destFilePath
+     * @throws IOException
+     */
+    @Throws(IOException::class)
+    private fun extractFile(inputStream: InputStream, destFilePath: String) {
+        val bos = BufferedOutputStream(FileOutputStream(destFilePath))
+        val bytesIn = ByteArray(BUFFER_SIZE)
+        var read: Int
+        while (inputStream.read(bytesIn).also { read = it } != -1) {
+            bos.write(bytesIn, 0, read)
+        }
+        bos.close()
+    }
+
+    /**
+     * Size of the buffer to read/write data
+     */
+    private val BUFFER_SIZE = 4096
 }

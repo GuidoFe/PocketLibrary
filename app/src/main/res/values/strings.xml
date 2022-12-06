@@ -205,4 +205,7 @@
     <string name="gallery_denied">You have denied the permission to access your gallery. If you want to restore it, change it manually in Settings.</string>
     <string name="deny">Deny</string>
     <string name="ask_again">Ask again</string>
+    <string name="restore_covers">Restore covers</string>
+    <string name="covers_restored_success">Covers restored successfully</string>
+    <string name="covers_restore_failed">Failed to restore the covers</string>
 </resources>

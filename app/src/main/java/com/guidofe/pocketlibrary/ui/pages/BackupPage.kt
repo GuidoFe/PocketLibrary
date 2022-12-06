@@ -245,8 +245,47 @@ fun BackupPage(
                         enabled = vm.isLoggedInState
                     ) {
                         Icon(
-                            painterResource(R.drawable.upload_24px),
+                            painterResource(R.drawable.cloud_upload_24px),
                             stringResource(R.string.backup_covers)
+                        )
+                    }
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(R.string.restore_covers),
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedIconButton(
+                        onClick = {
+                            vm.restoreLastBackup(
+                                onSuccess = {
+                                    coroutineScope.launch {
+                                        vm.snackbarHostState.showSnackbar(
+                                            CustomSnackbarVisuals(
+                                                context.getString(R.string.covers_restored_success),
+                                            )
+                                        )
+                                    }
+                                },
+                                onFailure = {
+                                    coroutineScope.launch {
+                                        vm.snackbarHostState.showSnackbar(
+                                            CustomSnackbarVisuals(
+                                                context.getString(R.string.covers_restore_failed),
+                                                isError = true
+                                            )
+                                        )
+                                    }
+                                }
+                            )
+                        },
+                        enabled = vm.isLoggedInState
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.cloud_download_24px),
+                            stringResource(R.string.restore_covers)
                         )
                     }
                 }

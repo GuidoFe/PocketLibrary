@@ -18,6 +18,7 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IBackupPageVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +37,7 @@ class BackupPageVM @Inject constructor(
             isLoggedInState = isLoggedIn()
         }
     }
+    private val zipMime = "application/zip"
     override fun isLoggedIn(): Boolean {
         return _gdRepo?.isUserSignedIn() ?: false
     }
@@ -89,11 +91,40 @@ class BackupPageVM @Inject constructor(
             if (zipFile != null) {
                 _gdRepo?.uploadFile(
                     zipFile,
-                    "application/zip",
+                    zipMime,
                     onSuccess,
                     onFailure
                 )
             } else onFailure()
         }
+    }
+
+    override fun restoreLastBackup(onSuccess: () -> Unit, onFailure: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getLastBackupFileId()?.let {
+                val file = dataStore.getFileInRootDir("backup.zip", false)
+                if (file == null) {
+                    onFailure()
+                }
+                val stream = FileOutputStream(file)
+                _gdRepo?.downloadFile(it, stream)
+                stream.flush()
+                stream.close()
+                dataStore.getDir("backup_cover", false)?.path?.let { coverPath ->
+                    dataStore.unzip(file!!, coverPath)
+                    onSuccess()
+                } ?: onFailure()
+            }
+        }
+    }
+
+    private fun getLastBackupFileId(): String? {
+        _gdRepo?.getFiles(dataStore.BACKUP_FILE_ROOT, zipMime)?.files?.let { fileList ->
+            fileList.sortByDescending {
+                it.name
+            }
+            return fileList.getOrNull(0)?.id
+        }
+        return null
     }
 }

@@ -75,7 +75,8 @@ fun EditBookPage(
         if (result is NavResult.Value) {
             Log.d("debug", "EditPage result is valid, == ${result.value}")
             vm.state.coverUri = result.value
-            Log.d("debug", "Reread, == ${result.value}")
+        } else {
+            Log.e("debug", "EditPage result is not valid")
         }
     }
     val scrollState = rememberScrollState()
@@ -89,8 +90,12 @@ fun EditBookPage(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
-                    coroutineScope.launch {
-                        bookId?.let { vm.initialiseFromDatabase(it) }
+                    coroutineScope.launch(Dispatchers.IO) {
+                        bookId?.let { id ->
+                            val previousUri = vm.state.coverUri
+                            vm.initialiseFromDatabase(id)
+                            previousUri?.let { vm.state.coverUri = it }
+                        }
                         isbn?.let {
                             Log.d("debug", "Setting isbn $it")
                             vm.state.identifier = it

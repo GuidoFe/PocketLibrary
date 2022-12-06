@@ -28,4 +28,7 @@ interface DataStoreRepository {
     fun getDir(dir: String, isExternal: Boolean): File?
     suspend fun saveMediaBackupLocally(external: Boolean): File?
     fun getFileInRootDir(name: String, isExternal: Boolean): File?
+    val BACKUP_FILE_ROOT: String
+    fun unzip(zipFilePath: File, destDirectory: String)
+    suspend fun zipFolder(folder: File, outputZipFile: File)
 }

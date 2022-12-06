@@ -25,4 +25,5 @@ interface IBackupPageVM {
     val isLoggedInState: Boolean
     fun signOut(onComplete: () -> Unit, onFailure: () -> Unit)
     fun backupMedia(onSuccess: () -> Unit, onFailure: () -> Unit)
+    fun restoreLastBackup(onSuccess: () -> Unit, onFailure: () -> Unit)
 }
