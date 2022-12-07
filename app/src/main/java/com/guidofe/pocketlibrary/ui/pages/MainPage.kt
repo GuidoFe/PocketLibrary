@@ -47,7 +47,7 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
                 }
 
                 Snackbar(
-                    modifier = Modifier.padding(5.dp),
+                    modifier = Modifier.padding(8.dp),
                     action = {
                         data.visuals.actionLabel?.let {
                             TextButton(

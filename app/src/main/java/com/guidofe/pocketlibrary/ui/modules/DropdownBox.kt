@@ -36,7 +36,7 @@ fun DropdownBox(
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(10.dp)
+                        .padding(8.dp)
                         .widthIn(min = 40.dp)
                 ) {
                     text()

@@ -25,7 +25,7 @@ fun RowWithIcon(
     modifier: Modifier = Modifier,
     gap: Dp = 0.dp,
     boxPadding: Dp = 0.dp,
-    boxWidth: Dp = 50.dp,
+    boxWidth: Dp = 48.dp,
     background: Color = MaterialTheme.colorScheme.surface,
     onClick: () -> Unit,
     content: @Composable () -> Unit

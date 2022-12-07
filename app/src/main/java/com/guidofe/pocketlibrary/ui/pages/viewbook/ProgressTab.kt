@@ -37,7 +37,7 @@ fun ProgressTab(
     val scrollState = rememberScrollState()
     Column(
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(5.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
             .fillMaxWidth()
             .verticalScroll(scrollState)
@@ -80,7 +80,7 @@ fun ProgressTab(
         if (state.selectedPhase != null && state.selectedPhase != ProgressPhase.READ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(stringResource(R.string.track_pages), modifier = Modifier.weight(1f))
                 Switch(state.trackPages, {

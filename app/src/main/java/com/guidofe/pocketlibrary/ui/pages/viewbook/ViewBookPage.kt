@@ -165,10 +165,10 @@ fun ViewBookPage(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     // .fillMaxWidth()
-                    .padding(10.dp)
+                    .padding(8.dp)
                 // .height()
             ) {
                 Box(
@@ -197,7 +197,7 @@ fun ViewBookPage(
                         .weight(1f)
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Column(
                             modifier = Modifier.clickable { showTitlePopup = true }

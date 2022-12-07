@@ -31,7 +31,7 @@ private fun SmallFabWithLabel(
     onClick: () -> Unit,
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
@@ -46,7 +46,7 @@ private fun SmallFabWithLabel(
             Text(
                 label,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(5.dp)
+                modifier = Modifier.padding(4.dp)
             )
         }
         SmallFloatingActionButton(onClick = onClick) {

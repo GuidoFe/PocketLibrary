@@ -22,8 +22,8 @@ fun DetailsTab(
     modifier: Modifier = Modifier,
     book: Book?
 ) {
-    val boxPadding = 10.dp
-    val gap = 5.dp
+    val boxPadding = 8.dp
+    val gap = 4.dp
     Column(
         modifier = modifier.fillMaxWidth()
     ) {

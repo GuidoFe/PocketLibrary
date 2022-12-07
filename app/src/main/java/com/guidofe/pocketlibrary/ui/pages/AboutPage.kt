@@ -64,7 +64,7 @@ fun CreditsPage(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth().verticalScroll(scroll)
         ) {
             ResourcesCompat.getDrawable(
@@ -96,11 +96,11 @@ fun CreditsPage(
                     style = MaterialTheme.typography.labelSmall
                 )
             }
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
             Text(stringResource(R.string.created_by_me))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedIconButton(
                     onClick = { uriHandler.openUri("mailto:$email") }

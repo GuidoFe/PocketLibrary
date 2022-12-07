@@ -22,7 +22,7 @@ fun InsertIsbnDialog(
         title = {
             Text(
                 stringResource(R.string.type_the_isbn),
-                modifier = Modifier.padding(bottom = 10.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
 
             )
         },

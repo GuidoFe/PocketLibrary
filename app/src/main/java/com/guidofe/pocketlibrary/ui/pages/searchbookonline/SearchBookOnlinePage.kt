@@ -205,7 +205,7 @@ fun SearchBookOnlinePage(
                     .fillMaxWidth()
                     .shadow(3.dp, shape = boxShape)
                     .background(appBarColor, boxShape)
-                    .padding(10.dp)
+                    .padding(8.dp)
             )
         }
     }

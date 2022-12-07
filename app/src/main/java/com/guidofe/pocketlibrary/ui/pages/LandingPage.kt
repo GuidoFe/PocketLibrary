@@ -55,7 +55,7 @@ private fun StatsTile(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(10.dp),
+            .padding(8.dp),
         content = content
     )
 }
@@ -69,13 +69,13 @@ private fun LegendRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
         Box(
             modifier = Modifier
                 .size(10.dp)
-                .clip(RoundedCornerShape(3.dp))
+                .clip(RoundedCornerShape(4.dp))
                 .background(color)
         )
         Text(
@@ -129,7 +129,7 @@ fun LandingPage(
     navigator: DestinationsNavigator,
     vm: ILandingPageVM = hiltViewModel<LandingPageVM>(),
 ) {
-    val padding = 10.dp
+    val padding = 8.dp
     val context = LocalContext.current
     val scroll = rememberScrollState()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -190,7 +190,7 @@ fun LandingPage(
                         modifier = Modifier.padding(padding)
                     )
                     LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp),
                         contentPadding = PaddingValues(padding)
                     ) {
                         items(stats.booksCurrentlyReading) { item ->
@@ -206,13 +206,13 @@ fun LandingPage(
                         }
                     }
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
                 Column(
                     verticalArrangement = Arrangement.spacedBy(padding),
                     modifier = Modifier.padding(padding)
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.height(IntrinsicSize.Min)
                     ) {
                         NumberTile(
@@ -227,7 +227,7 @@ fun LandingPage(
                         )
                     }
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.height(IntrinsicSize.Min)
                     ) {
                         NumberTile(

@@ -69,7 +69,7 @@ class PreviewUtils {
         @Composable
         fun ThemeRow(
             modifier: Modifier = Modifier,
-            padding: Dp = 10.dp,
+            padding: Dp = 8.dp,
             content: @Composable () -> Unit
         ) {
             Row(modifier = modifier) {
@@ -97,7 +97,7 @@ class PreviewUtils {
         @Composable
         fun ThemeColumn(
             modifier: Modifier = Modifier,
-            padding: Dp = 10.dp,
+            padding: Dp = 8.dp,
             content: @Composable () -> Unit
         ) {
             Column(modifier = modifier) {

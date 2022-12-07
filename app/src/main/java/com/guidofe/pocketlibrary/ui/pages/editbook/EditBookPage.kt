@@ -55,8 +55,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-val verticalSpace = 5.dp
-val horizontalSpace = 5.dp
+val verticalSpace = 8.dp
+val horizontalSpace = 8.dp
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class
 )
@@ -203,7 +203,7 @@ fun EditBookPage(
             .verticalScroll(scrollState)
             .fillMaxWidth()
             .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
-            .padding(5.dp)
+            .padding(8.dp)
     ) {
         BoxWithConstraints {
             Box(
@@ -240,7 +240,7 @@ fun EditBookPage(
             modifier = Modifier.fillMaxWidth()
         )
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             items(items = vm.state.genres) { genre ->
