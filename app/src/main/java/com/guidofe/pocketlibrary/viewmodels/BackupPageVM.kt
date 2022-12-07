@@ -110,8 +110,9 @@ class BackupPageVM @Inject constructor(
                 _gdRepo?.downloadFile(it, stream)
                 stream.flush()
                 stream.close()
-                dataStore.getDir("backup_cover", false)?.path?.let { coverPath ->
+                dataStore.getCoverDir()?.path?.let { coverPath ->
                     dataStore.unzip(file!!, coverPath)
+                    deleteOldCloudBackups()
                     onSuccess()
                 } ?: onFailure()
             }
@@ -126,5 +127,26 @@ class BackupPageVM @Inject constructor(
             return fileList.getOrNull(0)?.id
         }
         return null
+    }
+
+    private fun getOldBackupFilesIds(): List<String>? {
+        _gdRepo?.getFiles(dataStore.BACKUP_FILE_ROOT, zipMime)?.files?.let { fileList ->
+            fileList.sortByDescending {
+                it.name
+            }
+            if (fileList.size <= 1)
+                return emptyList()
+            else
+                return fileList.subList(1, fileList.size).map { it.id }
+        }
+        return null
+    }
+
+    override fun deleteOldCloudBackups() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getOldBackupFilesIds()?.let {
+                _gdRepo?.deleteFiles(it)
+            }
+        }
     }
 }

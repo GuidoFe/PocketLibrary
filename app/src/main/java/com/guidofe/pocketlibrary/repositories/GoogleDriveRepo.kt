@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary.repositories
 
 import android.content.Context
+import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -96,5 +97,16 @@ class GoogleDriveRepo(
 
     fun downloadFile(id: String, output: OutputStream) {
         getDriverInstance()?.Files()?.get(id)?.executeMediaAndDownloadTo(output)
+    }
+
+    fun deleteFiles(ids: List<String>) {
+        val gFiles = getDriverInstance()?.Files()
+        if (gFiles == null) {
+            Log.e("debug", "couldn't delete old files")
+            return
+        }
+        ids.forEach {
+            gFiles.delete(it).execute()
+        }
     }
 }

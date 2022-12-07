@@ -208,4 +208,6 @@
     <string name="restore_covers">Restore covers</string>
     <string name="covers_restored_success">Covers restored successfully</string>
     <string name="covers_restore_failed">Failed to restore the covers</string>
+    <string name="download_db_covers_locally">Backup database and covers locally</string>
+    <string name="restore_local_backup">Restore local backup</string>
 </resources>
