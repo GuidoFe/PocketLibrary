@@ -58,7 +58,7 @@ fun LibraryPage(
         if (vm.selectionManager.isMultipleSelecting) {
             state.isFavoriteButtonFilled = false
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.selecting),
+                title = { Text(stringResource(R.string.selecting)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -133,7 +133,7 @@ fun LibraryPage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.library),
+                title = { Text(stringResource(R.string.library)) },
                 actions = {
                     FilledIconToggleButton(
                         colors = IconButtonDefaults.filledIconToggleButtonColors(

@@ -47,19 +47,16 @@ fun WishlistPage(
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
-    var isExpanded: Boolean by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    var showDoubleIsbnDialog by remember { mutableStateOf(false) }
-    var isbnToSearch: String? by remember { mutableStateOf(null) }
-    var showConfirmDeleteBook by remember { mutableStateOf(false) }
-    var isContextMenuVisible by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
 // TODO add to borrowed
-    LaunchedEffect(vm.selectionManager.isMultipleSelecting) {
+    LaunchedEffect(vm.selectionManager.isMultipleSelecting, vm.state.isSearching) {
         if (vm.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.selecting),
+                title = { Text(stringResource(R.string.selecting)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -92,7 +89,7 @@ fun WishlistPage(
                     }
                     IconButton(
                         onClick = {
-                            showConfirmDeleteBook = true
+                            vm.state.showConfirmDeleteBook = true
                         }
                     ) {
                         Icon(
@@ -104,12 +101,53 @@ fun WishlistPage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.wishlist)
+                title = {
+                    if (vm.state.isSearching)
+                        SearchField(
+                            value = vm.state.searchField,
+                            onValueChange = { vm.state.searchField = it }
+                        ) {
+                            vm.search()
+                            if (vm.state.searchField.isBlank())
+                                vm.state.isSearching = false
+                        }
+                    else {
+                        Text(stringResource(R.string.wishlist))
+                    }
+                },
+                actions = if (vm.state.isSearching) {
+                    {}
+                } else {
+                    {
+                        IconButton(
+                            onClick = { vm.state.isSearching = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.search_24px),
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
+                    }
+                },
+                navigationIcon = {
+                    if (vm.state.isSearching) {
+                        IconButton(onClick = {
+                            vm.state.searchField = ""
+                            vm.search()
+                            vm.state.isSearching = false
+                        }) {
+                            Icon(
+                                painter = painterResource(R.drawable.arrow_back_24px),
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
+                    }
+                }
             )
         }
     }
-    LaunchedEffect(isbnToSearch) {
-        isbnToSearch?.let {
+    LaunchedEffect(vm.state.isbnToSearch) {
+        vm.state.isbnToSearch?.let {
             importVm.getAndSaveBookFromIsbnFlow(
                 it,
                 BookDestination.WISHLIST,
@@ -142,11 +180,11 @@ fun WishlistPage(
         vm.invalidate()
         vm.scaffoldState.fab = {
             AddBookFab(
-                isExpanded = isExpanded,
-                onMainFabClick = { isExpanded = !isExpanded },
-                onDismissRequest = { isExpanded = false },
+                isExpanded = vm.state.isExpanded,
+                onMainFabClick = { vm.state.isExpanded = !vm.state.isExpanded },
+                onDismissRequest = { vm.state.isExpanded = false },
                 onIsbnTyped = {
-                    isbnToSearch = it
+                    vm.state.isbnToSearch = it
                 },
                 onInsertManually = {
                     navigator.navigate(
@@ -199,7 +237,7 @@ fun WishlistPage(
                     onRowLongPress = {
                         if (!vm.selectionManager.isMultipleSelecting) {
                             vm.selectionManager.singleSelectedItem = item.value
-                            isContextMenuVisible = true
+                            vm.state.isContextMenuVisible = true
                         }
                     }
                 )
@@ -207,14 +245,14 @@ fun WishlistPage(
         }
         // TODO manage what happens when added library book is in wishlist
     }
-    if (showDoubleIsbnDialog) {
+    if (vm.state.showDoubleIsbnDialog) {
         DuplicateIsbnDialog(
             onAddAnyway = {
                 importVm.getImportedBooksFromIsbn(
                     vm.duplicateIsbn,
                     maxResults = 2,
                     callback = {
-                        showDoubleIsbnDialog = false
+                        vm.state.showDoubleIsbnDialog = false
                         when (it.size) {
                             0 -> {
                                 scope.launch {
@@ -247,18 +285,18 @@ fun WishlistPage(
                                 )
                             )
                         }
-                        showDoubleIsbnDialog = false
+                        vm.state.showDoubleIsbnDialog = false
                     },
                 )
             },
-            onCancel = { showDoubleIsbnDialog = false }
+            onCancel = { vm.state.showDoubleIsbnDialog = false }
         )
     }
 
-    if (showConfirmDeleteBook) {
+    if (vm.state.showConfirmDeleteBook) {
         ConfirmDeleteBookDialog(
             onDismiss = {
-                showConfirmDeleteBook = false
+                vm.state.showConfirmDeleteBook = false
                 if (vm.selectionManager.isMultipleSelecting)
                     vm.selectionManager.clearSelection()
             },
@@ -271,7 +309,7 @@ fun WishlistPage(
                     vm.deleteBookAndRefresh(book)
                 }
             }
-            showConfirmDeleteBook = false
+            vm.state.showConfirmDeleteBook = false
         }
     }
 
@@ -290,8 +328,8 @@ fun WishlistPage(
         }
     }
     ModalBottomSheet(
-        visible = isContextMenuVisible,
-        onDismiss = { isContextMenuVisible = false }
+        visible = vm.state.isContextMenuVisible,
+        onDismiss = { vm.state.isContextMenuVisible = false }
     ) {
         val selectedItem = vm.selectionManager.singleSelectedItem
         selectedItem?.let { item ->
@@ -304,7 +342,7 @@ fun WishlistPage(
                 },
                 onClick = {
                     vm.moveBookToLibraryAndRefresh(item.info.bookId) {}
-                    isContextMenuVisible = false
+                    vm.state.isContextMenuVisible = false
                 }
             ) {
                 Text(stringResource(R.string.add_to_library))
@@ -320,7 +358,7 @@ fun WishlistPage(
                     navigator.navigate(
                         ViewBookPageDestination(item.info.bookId)
                     )
-                    isContextMenuVisible = false
+                    vm.state.isContextMenuVisible = false
                 }
             ) {
                 Text(
@@ -338,7 +376,7 @@ fun WishlistPage(
                     navigator.navigate(
                         EditBookPageDestination(item.info.bookId)
                     )
-                    isContextMenuVisible = false
+                    vm.state.isContextMenuVisible = false
                 }
             ) {
                 Text(
@@ -353,8 +391,8 @@ fun WishlistPage(
                     )
                 },
                 onClick = {
-                    showConfirmDeleteBook = true
-                    isContextMenuVisible = false
+                    vm.state.showConfirmDeleteBook = true
+                    vm.state.isContextMenuVisible = false
                 }
             ) {
                 Text(

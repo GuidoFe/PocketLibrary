@@ -156,7 +156,7 @@ fun EditBookPage(
     }
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
-            title = context.getString(R.string.edit_book),
+            title = { Text(stringResource(R.string.edit_book)) },
             actions = {
                 IconButton(
                     onClick = {

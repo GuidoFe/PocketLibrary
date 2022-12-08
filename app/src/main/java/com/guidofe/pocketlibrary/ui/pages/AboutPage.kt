@@ -43,7 +43,7 @@ fun CreditsPage(
     val email = "guido.ferri@protonmail.com"
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
-            context.getString(R.string.about),
+            title = { Text(stringResource(R.string.about)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateUp()

@@ -60,13 +60,12 @@ fun SearchBookOnlinePage(
     var isSearchBoxVisible by remember { mutableStateOf(true) }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
-        vm.scaffoldState.refreshBar(context.getString(R.string.search_online))
+        vm.scaffoldState.refreshBar({ Text(stringResource(R.string.search_online)) })
     }
 
     LaunchedEffect(selectionManager.isMultipleSelecting) {
         if (selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
-                title = "",
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -130,7 +129,7 @@ fun SearchBookOnlinePage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.search_online),
+                title = { Text(stringResource(R.string.search_online)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navigator.navigateUp()

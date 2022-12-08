@@ -55,7 +55,7 @@ fun SettingsPage(
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
-            title = context.getString(R.string.settings),
+            title = { Text(stringResource(R.string.settings)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateUp()

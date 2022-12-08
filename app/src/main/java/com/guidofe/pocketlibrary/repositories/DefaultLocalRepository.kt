@@ -9,9 +9,9 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.utils.TranslationService
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(
     private val db: AppDatabase,
@@ -445,5 +445,11 @@ class DefaultLocalRepository @Inject constructor(
         updateAllGenres(updatedGenres)
         onPhaseChanged(TranslationPhase.NO_TRANSLATING)
         onFinish(true)
+    }
+
+    override fun getWishlistBundlesByString(
+        lowerString: String
+    ): PagingSource<Int, WishlistBundle> {
+        return db.wishlistBundleDao().getWishlistBundlesByString(lowerString)
     }
 }

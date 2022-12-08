@@ -18,7 +18,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -105,7 +107,7 @@ fun BackupPage(
     }
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
-            context.getString(R.string.backup_restore),
+            title = { Text(stringResource(R.string.backup_restore)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateUp()
@@ -288,6 +290,31 @@ fun BackupPage(
                             stringResource(R.string.restore_covers)
                         )
                     }
+                }
+            }
+        }
+    }
+    if (vm.isTransferingFiles) {
+        Popup(
+            popupPositionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset = IntOffset(0, 0)
+            },
+            onDismissRequest = {}
+        ) {
+            BoxWithConstraints {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f))
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             }
         }

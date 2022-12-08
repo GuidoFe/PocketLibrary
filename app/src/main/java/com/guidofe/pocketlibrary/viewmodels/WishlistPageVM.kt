@@ -8,6 +8,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
+import com.guidofe.pocketlibrary.ui.pages.wishlist.WishlistState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
@@ -26,13 +27,19 @@ class WishlistPageVM @Inject constructor(
 ) : ViewModel(), IWishlistPageVM {
     override var duplicateIsbn: String = ""
     override val translationState = TranslationDialogState()
+    override val state = WishlistState()
     override val selectionManager = SelectionManager<Long, WishlistBundle>(
         getKey = { it.info.bookId }
     )
     private var currentPagingSource: PagingSource<Int, WishlistBundle>? = null
 
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
-        repo.getWishlistBundles().also { currentPagingSource = it }
+        (
+            if (state.searchField.isNotBlank())
+                repo.getWishlistBundlesByString(state.searchField.lowercase())
+            else
+                repo.getWishlistBundles()
+            ).also { currentPagingSource = it }
     }.flow.cachedIn(viewModelScope).combine(selectionManager.selectedItems) { items, selected ->
         items.map {
             SelectableListItem(
@@ -78,5 +85,9 @@ class WishlistPageVM @Inject constructor(
             selectionManager.clearSelection()
             callback()
         }
+    }
+
+    override fun search() {
+        currentPagingSource?.invalidate()
     }
 }

@@ -15,4 +15,12 @@ interface WishlistBundleDao {
     @Transaction
     @Query("SELECT * FROM wishlist_book")
     fun getWishlistBundles(): PagingSource<Int, WishlistBundle>
+
+    @Transaction
+    @Query(
+        "SELECT wishlist_book.* FROM wishlist_book NATURAL JOIN book NATURAL JOIN bookauthor " +
+            "NATURAL JOIN Author WHERE lower( book.title ) LIKE '%' || :lowerString || '%' OR " +
+            "lower( Author.name ) LIKE '%' || :lowerString || '%'"
+    )
+    fun getWishlistBundlesByString(lowerString: String): PagingSource<Int, WishlistBundle>
 }

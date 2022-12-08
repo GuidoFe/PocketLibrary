@@ -70,7 +70,7 @@ fun ViewBookPage(
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
-            title = context.getString(R.string.book_details),
+            title = { Text(stringResource(R.string.book_details)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateUp()

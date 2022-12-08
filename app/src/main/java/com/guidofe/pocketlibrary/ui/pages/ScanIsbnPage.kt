@@ -53,7 +53,7 @@ fun ScanIsbnPage(
     var showBookNotFoundDialog by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {
         scanVm.scaffoldState.refreshBar(
-            title = context.getString(R.string.scan_isbn),
+            title = { Text(stringResource(R.string.scan_isbn)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateUp()

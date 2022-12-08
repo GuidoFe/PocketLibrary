@@ -149,7 +149,7 @@ fun LandingPage(
     }
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
-            context.getString(R.string.home),
+            title = { Text(stringResource(R.string.home)) },
             actions = {
                 IconButton(
                     onClick = {

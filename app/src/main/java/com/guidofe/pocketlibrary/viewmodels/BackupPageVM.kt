@@ -44,6 +44,8 @@ class BackupPageVM @Inject constructor(
     override fun getIntent(): Intent? {
         return _gdRepo?.signInIntent
     }
+    override var isTransferingFiles by mutableStateOf(false)
+        private set
     override fun handleSignInData(
         intent: Intent,
         onError: (e: Exception) -> Unit,
@@ -53,6 +55,7 @@ class BackupPageVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             GoogleSignIn.getSignedInAccountFromIntent(intent)
                 .addOnCompleteListener {
+                    isTransferingFiles = false
                     try {
                         if (!it.result.grantedScopes.contains(Scope(Scopes.DRIVE_FILE))) {
                             onPermissionsNotGranted()
@@ -67,6 +70,7 @@ class BackupPageVM @Inject constructor(
                     }
                 }
                 .addOnFailureListener {
+                    isTransferingFiles = false
                     isLoggedInState = false
                     onError(it)
                     it.printStackTrace()
@@ -76,15 +80,24 @@ class BackupPageVM @Inject constructor(
 
     override fun signOut(onComplete: () -> Unit, onFailure: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
+            isTransferingFiles = true
             _gdRepo?.signOut(
-                onComplete = { isLoggedInState = false; onComplete() },
-                onFailure = onFailure
+                onComplete = {
+                    isTransferingFiles = false
+                    isLoggedInState = false
+                    onComplete()
+                },
+                onFailure = {
+                    isTransferingFiles = false
+                    onFailure()
+                }
             ) ?: onFailure()
         }
     }
 
     override fun backupMedia(onSuccess: () -> Unit, onFailure: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
+            isTransferingFiles = true
             val zipFile = dataStore.settingsLiveData.value?.let { settings ->
                 dataStore.saveMediaBackupLocally(settings.saveInExternal)
             }
@@ -92,29 +105,49 @@ class BackupPageVM @Inject constructor(
                 _gdRepo?.uploadFile(
                     zipFile,
                     zipMime,
-                    onSuccess,
-                    onFailure
+                    onSuccess = {
+                        isTransferingFiles = false
+                        onSuccess()
+                    },
+                    onFailure = {
+                        isTransferingFiles = false
+                        onFailure()
+                    }
                 )
-            } else onFailure()
+            } else {
+                isTransferingFiles = false
+                onFailure()
+            }
         }
     }
 
     override fun restoreLastBackup(onSuccess: () -> Unit, onFailure: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             getLastBackupFileId()?.let {
-                val file = dataStore.getFileInRootDir("backup.zip", false)
-                if (file == null) {
+                isTransferingFiles = true
+                try {
+                    val file = dataStore.getFileInRootDir("backup.zip", false)
+                    if (file == null) {
+                        isTransferingFiles = false
+                        onFailure()
+                    }
+                    val stream = FileOutputStream(file)
+                    _gdRepo?.downloadFile(it, stream)
+                    stream.flush()
+                    stream.close()
+                    dataStore.getCoverDir()?.path?.let { coverPath ->
+                        dataStore.unzip(file!!, coverPath)
+                        deleteOldCloudBackups()
+                        isTransferingFiles = false
+                        onSuccess()
+                    } ?: run {
+                        isTransferingFiles = false
+                        onFailure()
+                    }
+                } catch (e: Exception) {
+                    isTransferingFiles = false
                     onFailure()
                 }
-                val stream = FileOutputStream(file)
-                _gdRepo?.downloadFile(it, stream)
-                stream.flush()
-                stream.close()
-                dataStore.getCoverDir()?.path?.let { coverPath ->
-                    dataStore.unzip(file!!, coverPath)
-                    deleteOldCloudBackups()
-                    onSuccess()
-                } ?: onFailure()
             }
         }
     }
@@ -142,7 +175,7 @@ class BackupPageVM @Inject constructor(
         return null
     }
 
-    override fun deleteOldCloudBackups() {
+    private fun deleteOldCloudBackups() {
         viewModelScope.launch(Dispatchers.IO) {
             getOldBackupFilesIds()?.let {
                 _gdRepo?.deleteFiles(it)

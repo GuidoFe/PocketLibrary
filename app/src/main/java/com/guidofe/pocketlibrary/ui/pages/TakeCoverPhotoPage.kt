@@ -59,7 +59,7 @@ fun TakeCoverPhotoPage(
     }
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
-            title = context.getString(R.string.take_photo_of_cover),
+            title = { Text(stringResource(R.string.take_photo_of_cover)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateUp()

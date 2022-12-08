@@ -62,7 +62,7 @@ fun BookLogPage(
     ) {
         if (vm.tabIndex == 0 && vm.borrowedTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.selecting),
+                title = { Text(stringResource(R.string.selecting)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -152,7 +152,7 @@ fun BookLogPage(
             )
         } else if (vm.tabIndex == 1 && vm.lentTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.selecting),
+                title = { Text(stringResource(R.string.selecting)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -225,7 +225,7 @@ fun BookLogPage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = context.getString(R.string.book_log)
+                title = { Text(stringResource(R.string.book_log)) }
             )
         }
     }

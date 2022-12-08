@@ -1,9 +1,6 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42,7 +39,7 @@ class LibraryVM @Inject constructor(
     )
     override val translationState = TranslationDialogState()
     private var currentPagingSource: PagingSource<Int, LibraryBundle>? = null
-    override var customQuery: LibraryQuery? by mutableStateOf(null)
+    override var customQuery: LibraryQuery? = null
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
         (
             if (customQuery == null)

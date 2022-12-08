@@ -70,7 +70,7 @@ fun LibraryFilterPage(
     }
     LaunchedEffect(Unit) {
         vm.scaffoldState.refreshBar(
-            title = context.getString(R.string.filter),
+            title = { Text(stringResource(R.string.filter)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateBack()

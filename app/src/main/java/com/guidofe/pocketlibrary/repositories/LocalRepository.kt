@@ -100,4 +100,5 @@ interface LocalRepository {
     suspend fun insertAllBooks(books: List<Book>): List<Long>
     suspend fun insertBorrowedBooks(borrowedBooks: List<BorrowedBook>)
     suspend fun insertWishlistBooks(wishlistBooks: List<WishlistBook>)
+    fun getWishlistBundlesByString(lowerString: String): PagingSource<Int, WishlistBundle>
 }

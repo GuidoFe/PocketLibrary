@@ -39,7 +39,7 @@ fun BookDisambiguationPage(
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
-            title = context.getString(R.string.choose_book),
+            title = { Text(stringResource(R.string.choose_book)) },
             navigationIcon = {
                 IconButton(onClick = {
                     navigator.navigateBack()
