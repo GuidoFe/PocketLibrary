@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
@@ -17,19 +19,25 @@ import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.AddBookFab
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
+import com.guidofe.pocketlibrary.ui.modules.SearchField
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.BookDisambiguationPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
+import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.BookLogVM
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
+import com.guidofe.pocketlibrary.viewmodels.previews.BookLogVMPreview
+import com.guidofe.pocketlibrary.viewmodels.previews.ImportedBookVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -46,21 +54,20 @@ fun BookLogPage(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
-    var isFabExpanded: Boolean by remember { mutableStateOf(false) }
-    var isBorrowTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
-    var isLentTabMenuExpanded: Boolean by remember { mutableStateOf(false) }
-    var isbnToSearch: String? by remember { mutableStateOf(null) }
+
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
     val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
     LaunchedEffect(Unit) {
         vm.invalidateBorrowedPagingSource()
     }
     LaunchedEffect(
-        vm.tabIndex,
+        vm.state.tabIndex,
+        vm.borrowedTabState.searchFieldState.isSearching,
+        vm.lentTabState.searchFieldState.isSearching,
         vm.borrowedTabState.selectionManager.isMultipleSelecting,
         vm.lentTabState.selectionManager.isMultipleSelecting
     ) {
-        if (vm.tabIndex == 0 && vm.borrowedTabState.selectionManager.isMultipleSelecting) {
+        if (vm.state.tabIndex == 0 && vm.borrowedTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = { Text(stringResource(R.string.selecting)) },
                 navigationIcon = {
@@ -98,7 +105,7 @@ fun BookLogPage(
                     }
                     Box {
                         IconButton(
-                            onClick = { isBorrowTabMenuExpanded = true }
+                            onClick = { vm.state.isBorrowTabMenuExpanded = true }
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -106,20 +113,20 @@ fun BookLogPage(
                             )
                         }
                         DropdownMenu(
-                            expanded = isBorrowTabMenuExpanded,
-                            onDismissRequest = { isBorrowTabMenuExpanded = false }
+                            expanded = vm.state.isBorrowTabMenuExpanded,
+                            onDismissRequest = { vm.state.isBorrowTabMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.change_lender)) },
                                 onClick = {
-                                    isBorrowTabMenuExpanded = false
+                                    vm.state.isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.isLenderDialogVisible = true
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.change_start_date)) },
                                 onClick = {
-                                    isBorrowTabMenuExpanded = false
+                                    vm.state.isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.fieldToChange = BorrowedField.START
                                     vm.borrowedTabState.isCalendarVisible = true
                                 }
@@ -127,21 +134,21 @@ fun BookLogPage(
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.mark_as_returned)) },
                                 onClick = {
-                                    isBorrowTabMenuExpanded = false
+                                    vm.state.isBorrowTabMenuExpanded = false
                                     vm.setStatusOfSelectedBorrowedBooks(true)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.mark_as_not_returned)) },
                                 onClick = {
-                                    isBorrowTabMenuExpanded = false
+                                    vm.state.isBorrowTabMenuExpanded = false
                                     vm.setStatusOfSelectedBorrowedBooks(false)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.change_return_by_date)) },
                                 onClick = {
-                                    isBorrowTabMenuExpanded = false
+                                    vm.state.isBorrowTabMenuExpanded = false
                                     vm.borrowedTabState.fieldToChange = BorrowedField.RETURN_BY
                                     vm.borrowedTabState.isCalendarVisible = true
                                 }
@@ -150,7 +157,7 @@ fun BookLogPage(
                     }
                 }
             )
-        } else if (vm.tabIndex == 1 && vm.lentTabState.selectionManager.isMultipleSelecting) {
+        } else if (vm.state.tabIndex == 1 && vm.lentTabState.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = { Text(stringResource(R.string.selecting)) },
                 navigationIcon = {
@@ -193,7 +200,7 @@ fun BookLogPage(
                     }
                     Box {
                         IconButton(
-                            onClick = { isLentTabMenuExpanded = true }
+                            onClick = { vm.state.isLentTabMenuExpanded = true }
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -201,20 +208,20 @@ fun BookLogPage(
                             )
                         }
                         DropdownMenu(
-                            expanded = isLentTabMenuExpanded,
-                            onDismissRequest = { isLentTabMenuExpanded = false }
+                            expanded = vm.state.isLentTabMenuExpanded,
+                            onDismissRequest = { vm.state.isLentTabMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.change_borrower)) },
                                 onClick = {
-                                    isLentTabMenuExpanded = false
+                                    vm.state.isLentTabMenuExpanded = false
                                     vm.lentTabState.isBorrowerDialogVisible = true
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.change_start_date)) },
                                 onClick = {
-                                    isLentTabMenuExpanded = false
+                                    vm.state.isLentTabMenuExpanded = false
                                     vm.lentTabState.fieldToChange = LentField.START
                                     vm.lentTabState.isCalendarVisible = true
                                 }
@@ -224,13 +231,53 @@ fun BookLogPage(
                 }
             )
         } else {
-            vm.scaffoldState.refreshBar(
-                title = { Text(stringResource(R.string.book_log)) }
-            )
+            if (vm.currentSearchFieldState().isSearching) {
+                vm.scaffoldState.refreshBar(
+                    title = {
+                        SearchField(
+                            value = vm.currentSearchFieldState().value,
+                            onValueChange = {
+                                vm.currentSearchFieldState().value = it
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            vm.search()
+                            if (vm.currentSearchFieldState().value.isBlank())
+                                vm.currentSearchFieldState().isSearching = false
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            vm.currentSearchFieldState().value = ""
+                            vm.search()
+                            vm.currentSearchFieldState().isSearching = false
+                        }) {
+                            Icon(
+                                painter = painterResource(R.drawable.arrow_back_24px),
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
+                    },
+                )
+            } else {
+                vm.scaffoldState.refreshBar(
+                    title = { Text(stringResource(R.string.book_log)) },
+                    actions = {
+                        IconButton(onClick = {
+                            vm.currentSearchFieldState().isSearching = true
+                        }) {
+                            Icon(
+                                painter = painterResource(R.drawable.search_24px),
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
-    LaunchedEffect(isbnToSearch) {
-        isbnToSearch?.let {
+    LaunchedEffect(vm.state.isbnToSearch) {
+        vm.state.isbnToSearch?.let {
             importVm.getAndSaveBookFromIsbnFlow(
                 it,
                 BookDestination.BORROWED,
@@ -264,15 +311,15 @@ fun BookLogPage(
             )
         }
     }
-    LaunchedEffect(vm.tabIndex) {
-        if (vm.tabIndex == 0) {
+    LaunchedEffect(vm.state.tabIndex) {
+        if (vm.state.tabIndex == 0) {
             vm.scaffoldState.fab = {
                 AddBookFab(
-                    isExpanded = isFabExpanded,
-                    onMainFabClick = { isFabExpanded = !isFabExpanded },
-                    onDismissRequest = { isFabExpanded = false },
+                    isExpanded = vm.state.isFabExpanded,
+                    onMainFabClick = { vm.state.isFabExpanded = !vm.state.isFabExpanded },
+                    onDismissRequest = { vm.state.isFabExpanded = false },
                     onIsbnTyped = {
-                        isbnToSearch = it
+                        vm.state.isbnToSearch = it
                     },
                     onInsertManually = {
                         navigator.navigate(
@@ -298,22 +345,22 @@ fun BookLogPage(
             .fillMaxSize()
     ) {
         TabRow(
-            selectedTabIndex = vm.tabIndex,
+            selectedTabIndex = vm.state.tabIndex,
             modifier = Modifier.fillMaxWidth(),
             containerColor = appBarColor.value
         ) {
             Tab(
-                selected = vm.tabIndex == 0,
-                onClick = { vm.tabIndex = 0 },
+                selected = vm.state.tabIndex == 0,
+                onClick = { vm.state.tabIndex = 0 },
                 text = { Text(stringResource(R.string.borrowed)) }
             )
             Tab(
-                selected = vm.tabIndex == 1,
-                onClick = { vm.tabIndex = 1 },
+                selected = vm.state.tabIndex == 1,
+                onClick = { vm.state.tabIndex = 1 },
                 text = { Text(stringResource(R.string.lent_tab)) }
             )
         }
-        when (vm.tabIndex) {
+        when (vm.state.tabIndex) {
             0 -> {
                 BorrowedTab(
                     lazyBorrowedPagingItems,
@@ -361,4 +408,17 @@ fun BookLogPage(
         }
     }
     TranslationDialog(vm.translationState)
+}
+
+@Composable
+@Preview(device = Devices.PIXEL_4, showSystemUi = true)
+private fun BookLogPagePreview() {
+    PocketLibraryTheme() {
+        BookLogPage(
+            EmptyDestinationsNavigator,
+            vm = BookLogVMPreview(),
+            importVm = ImportedBookVMPreview(),
+            EmptyResultRecipient()
+        )
+    }
 }

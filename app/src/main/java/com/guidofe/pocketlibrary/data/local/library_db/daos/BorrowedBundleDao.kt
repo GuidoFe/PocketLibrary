@@ -28,4 +28,12 @@ interface BorrowedBundleDao {
     @Transaction
     @Query("SELECT * FROM borrowed_book ORDER BY isReturned")
     fun getBorrowedBundlesWithReturned(): PagingSource<Int, BorrowedBundle>
+
+    @Transaction
+    @Query(
+        "SELECT DISTINCT borrowed_book.* FROM borrowed_book NATURAL JOIN book " +
+            "NATURAL JOIN bookauthor NATURAL JOIN Author WHERE lower( book.title ) LIKE " +
+            "'%' || :lowerString || '%' OR lower( Author.name ) LIKE '%' || :lowerString || '%'"
+    )
+    fun getBorrowedBundlesByString(lowerString: String): PagingSource<Int, BorrowedBundle>
 }

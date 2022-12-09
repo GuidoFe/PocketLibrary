@@ -7,16 +7,18 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
+import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 
-class BookLogVMPreview : IBookLogVM {
+class BookLogVMPreview() : IBookLogVM {
     override val scaffoldState: ScaffoldState
         get() = ScaffoldState()
     override val snackbarState: SnackbarHostState
@@ -57,7 +59,14 @@ class BookLogVMPreview : IBookLogVM {
     override fun invalidateBorrowedPagingSource() {
     }
 
-    override var tabIndex: Int = 0
     override val translationState: TranslationDialogState
         get() = TranslationDialogState()
+
+    override val state: BookLogState
+        get() = BookLogState()
+
+    override fun search() {
+    }
+
+    override fun currentSearchFieldState() = SearchFieldState()
 }

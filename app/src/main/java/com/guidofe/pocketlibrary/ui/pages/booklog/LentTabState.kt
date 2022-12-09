@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
+import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
+import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class LentField { BORROWER, START }
 
@@ -16,4 +18,6 @@ class LentTabState {
     var isCalendarVisible by mutableStateOf(false)
     var fieldToChange: LentField? = null
     var isContextMenuVisible by mutableStateOf(false)
+    var searchQuery = MutableStateFlow("")
+    val searchFieldState = SearchFieldState()
 }

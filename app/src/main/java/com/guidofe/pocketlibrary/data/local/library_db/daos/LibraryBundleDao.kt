@@ -43,4 +43,13 @@ interface LibraryBundleDao {
     fun getLibraryBundlesWithCustomQuery(
         query: SupportSQLiteQuery
     ): PagingSource<Int, LibraryBundle>
+
+    @Transaction
+    @Query(
+        "SELECT DISTINCT library_book.* FROM lent_book NATURAL JOIN library_book " +
+            "NATURAL JOIN book NATURAL JOIN bookauthor NATURAL JOIN Author WHERE " +
+            "lower( book.title ) LIKE '%' || :lowerString || '%' OR lower( Author.name ) " +
+            "LIKE '%' || :lowerString || '%'"
+    )
+    fun getLentBundlesByString(lowerString: String): Flow<List<LibraryBundle>>
 }

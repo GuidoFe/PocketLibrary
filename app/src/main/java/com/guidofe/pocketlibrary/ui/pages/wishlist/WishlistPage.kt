@@ -48,8 +48,6 @@ fun WishlistPage(
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    val coroutineScope = rememberCoroutineScope()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
 // TODO add to borrowed
@@ -100,9 +98,9 @@ fun WishlistPage(
                 }
             )
         } else {
-            vm.scaffoldState.refreshBar(
-                title = {
-                    if (vm.state.isSearching)
+            if (vm.state.isSearching) {
+                vm.scaffoldState.refreshBar(
+                    title = {
                         SearchField(
                             value = vm.state.searchField,
                             onValueChange = { vm.state.searchField = it }
@@ -111,26 +109,8 @@ fun WishlistPage(
                             if (vm.state.searchField.isBlank())
                                 vm.state.isSearching = false
                         }
-                    else {
-                        Text(stringResource(R.string.wishlist))
-                    }
-                },
-                actions = if (vm.state.isSearching) {
-                    {}
-                } else {
-                    {
-                        IconButton(
-                            onClick = { vm.state.isSearching = true }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.search_24px),
-                                contentDescription = stringResource(R.string.search)
-                            )
-                        }
-                    }
-                },
-                navigationIcon = {
-                    if (vm.state.isSearching) {
+                    },
+                    navigationIcon = {
                         IconButton(onClick = {
                             vm.state.searchField = ""
                             vm.search()
@@ -142,8 +122,24 @@ fun WishlistPage(
                             )
                         }
                     }
-                }
-            )
+                )
+            } else {
+                vm.scaffoldState.refreshBar(
+                    title = {
+                        Text(stringResource(R.string.wishlist))
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { vm.state.isSearching = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.search_24px),
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
     LaunchedEffect(vm.state.isbnToSearch) {

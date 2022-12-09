@@ -1,9 +1,6 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
@@ -13,17 +10,21 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
+import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
+import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BookLogVM @Inject constructor(
     val repo: LocalRepository,
@@ -32,13 +33,17 @@ class BookLogVM @Inject constructor(
 ) : ViewModel(), IBookLogVM {
     override val borrowedTabState = BorrowedTabState()
     override val lentTabState = LentTabState()
-    override var tabIndex: Int by mutableStateOf(0)
+    override val state = BookLogState()
     private var currentBorrowedPagingSource: PagingSource<Int, BorrowedBundle>? = null
     override val translationState = TranslationDialogState()
 
     override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 20)) {
-        repo.getBorrowedBundles(borrowedTabState.showReturnedBooks)
-            .also { currentBorrowedPagingSource = it }
+        (
+            if (borrowedTabState.searchQuery.isBlank()) {
+                repo.getBorrowedBundles(borrowedTabState.showReturnedBooks)
+            } else
+                repo.getBorrowedBundlesByString(borrowedTabState.searchQuery)
+            ).also { currentBorrowedPagingSource = it }
     }.flow.cachedIn(viewModelScope)
         .combine(borrowedTabState.selectionManager.selectedItems) { items, selected ->
             items.map {
@@ -54,12 +59,16 @@ class BookLogVM @Inject constructor(
         currentBorrowedPagingSource?.invalidate()
     }
 
-    override val lentItems = repo.getLentLibraryBundles()
-        .combine(lentTabState.selectionManager.selectedItems) { books, selected ->
-            books.map {
-                SelectableListItem(it, selected.containsKey(it.info.bookId))
-            }
+    override val lentItems = lentTabState.searchQuery.flatMapLatest {
+        if (it.isBlank())
+            repo.getLentLibraryBundles()
+        else
+            repo.getLentBundlesByString(it)
+    }.combine(lentTabState.selectionManager.selectedItems) { list, selected ->
+        list.map {
+            SelectableListItem(it, selected.containsKey(it.info.bookId))
         }
+    }
 
     override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -108,6 +117,22 @@ class BookLogVM @Inject constructor(
             repo.deleteBorrowedBooks(bookIds)
             repo.insertLibraryBooks(bookIds.map { LibraryBook(it) })
             invalidateBorrowedPagingSource()
+        }
+    }
+
+    override fun currentSearchFieldState(): SearchFieldState {
+        return if (state.tabIndex == 0)
+            borrowedTabState.searchFieldState
+        else
+            lentTabState.searchFieldState
+    }
+
+    override fun search() {
+        if (state.tabIndex == 0) {
+            borrowedTabState.searchQuery = borrowedTabState.searchFieldState.value
+            currentBorrowedPagingSource?.invalidate()
+        } else {
+            lentTabState.searchQuery.value = lentTabState.searchFieldState.value
         }
     }
 }

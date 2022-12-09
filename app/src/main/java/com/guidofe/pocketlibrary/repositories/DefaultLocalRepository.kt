@@ -448,8 +448,16 @@ class DefaultLocalRepository @Inject constructor(
     }
 
     override fun getWishlistBundlesByString(
-        lowerString: String
+        string: String
     ): PagingSource<Int, WishlistBundle> {
-        return db.wishlistBundleDao().getWishlistBundlesByString(lowerString)
+        return db.wishlistBundleDao().getWishlistBundlesByString(string.lowercase())
+    }
+
+    override fun getBorrowedBundlesByString(string: String): PagingSource<Int, BorrowedBundle> {
+        return db.borrowedBundleDao().getBorrowedBundlesByString(string.lowercase())
+    }
+
+    override fun getLentBundlesByString(string: String): Flow<List<LibraryBundle>> {
+        return db.libraryBundleDao().getLentBundlesByString(string.lowercase())
     }
 }
