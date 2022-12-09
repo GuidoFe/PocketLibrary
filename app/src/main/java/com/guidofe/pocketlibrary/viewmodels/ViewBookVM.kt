@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Note
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Progress
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.pages.viewbook.ProgressTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
@@ -60,7 +61,7 @@ class ViewBookVM @Inject constructor(
     override fun saveProgress(callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             progTabState.selectedPhase.let { phase ->
-                if (phase == null)
+                if (phase == null || phase == ProgressPhase.NOT_READ)
                     bundle?.book?.bookId?.let { repo.deleteProgress(it) }
                 else {
                     bundle?.book?.bookId?.let { id ->

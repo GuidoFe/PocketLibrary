@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.viewmodels.previews
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.paging.PagingData
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryFilter
@@ -42,7 +43,7 @@ class LibraryVMPreview : ILibraryVM {
     override fun invalidate() {
     }
 
-    override fun markSelectedItemsAsLent(who: String, start: LocalDate, callback: () -> Unit) {
+    override fun markSelectedBooksAsLent(who: String, start: LocalDate, callback: () -> Unit) {
     }
 
     override fun markSelectedLentBooksAsReturned(callback: () -> Unit) {
@@ -61,4 +62,10 @@ class LibraryVMPreview : ILibraryVM {
         get() = TranslationDialogState()
     override val searchFieldManager: SearchFieldManager
         get() = PreviewUtils.emptySearchFieldManager
+
+    override fun markSelectedBooksAsRead(callback: () -> Unit) {
+    }
+
+    override fun markBookAsRead(bundle: BookBundle) {
+    }
 }

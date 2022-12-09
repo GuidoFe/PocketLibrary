@@ -8,8 +8,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import com.guidofe.pocketlibrary.data.local.library_db.entities.Progress
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
@@ -116,7 +119,7 @@ class LibraryVM @Inject constructor(
         }
     }
 
-    override fun markSelectedItemsAsLent(who: String, start: LocalDate, callback: () -> Unit) {
+    override fun markSelectedBooksAsLent(who: String, start: LocalDate, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val lentBooks = selectionManager.selectedKeys.map {
                 LentBook(it, who, Date.valueOf(start.toString()))
@@ -139,6 +142,40 @@ class LibraryVM @Inject constructor(
             repo.deleteLentBooks(selectionManager.selectedItems.value.mapNotNull { it.value.lent })
             currentPagingSource?.invalidate()
             callback()
+        }
+    }
+
+    override fun markSelectedBooksAsRead(callback: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.updateAllProgress(
+                selectionManager.selectedItems.value.values.mapNotNull {
+                    it.bookBundle.progress?.let { progress ->
+                        progress.copy(phase = ProgressPhase.READ)
+                    }
+                }
+            )
+            repo.insertAllProgress(
+                selectionManager.selectedItems.value.values.mapNotNull {
+                    if (it.bookBundle.progress != null)
+                        null
+                    else
+                        Progress(it.info.bookId, ProgressPhase.READ)
+                }
+            )
+            callback()
+        }
+    }
+
+    override fun markBookAsRead(bundle: BookBundle) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (bundle.progress == null)
+                repo.insertAllProgress(
+                    listOf(Progress(bundle.book.bookId, ProgressPhase.READ))
+                )
+            else
+                repo.upsertProgress(
+                    bundle.progress.copy(phase = ProgressPhase.READ)
+                )
         }
     }
 }

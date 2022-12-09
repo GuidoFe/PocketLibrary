@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.viewmodels.interfaces
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.paging.PagingData
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.repositories.LibraryFilter
@@ -24,7 +25,7 @@ interface ILibraryVM {
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<LibraryBundle>>>
     fun invalidate()
-    fun markSelectedItemsAsLent(who: String, start: LocalDate, callback: () -> Unit)
+    fun markSelectedBooksAsLent(who: String, start: LocalDate, callback: () -> Unit)
     fun markSelectedLentBooksAsReturned(callback: () -> Unit)
     fun markLentBookAsReturned(lentBook: LentBook)
     fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit)
@@ -32,4 +33,6 @@ interface ILibraryVM {
     var customQuery: LibraryFilter?
     val translationState: TranslationDialogState
     val searchFieldManager: SearchFieldManager
+    fun markSelectedBooksAsRead(callback: () -> Unit)
+    fun markBookAsRead(bundle: BookBundle)
 }

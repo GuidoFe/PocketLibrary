@@ -464,4 +464,12 @@ class DefaultLocalRepository @Inject constructor(
     override fun getLentBundlesByString(string: String): Flow<List<LibraryBundle>> {
         return db.libraryBundleDao().getLentBundlesByString(string.lowercase())
     }
+
+    override suspend fun updateAllProgress(progress: List<Progress>) {
+        db.progressDao().updateAll(progress)
+    }
+
+    override suspend fun insertAllProgress(progress: List<Progress>): List<Long> {
+        return db.progressDao().insertAll(progress)
+    }
 }

@@ -29,6 +29,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.dialogs.ConfirmExitDialog
 import com.guidofe.pocketlibrary.ui.modules.EmptyBookCover
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.LibraryPageDestination
@@ -67,13 +68,24 @@ fun ViewBookPage(
     vm: IViewBookVM = hiltViewModel<ViewBookVM>(),
     navigator: DestinationsNavigator,
 ) {
-    val context = LocalContext.current
+    var tabState by remember { mutableStateOf(LocalTab.PROGRESS) }
+    val detailsScrollState = rememberScrollState()
+    val summaryScrollState = rememberScrollState()
+    val genreScrollState = rememberScrollState()
+    var hasNoteBeenModified by remember { mutableStateOf(false) }
+    var hasProgressBeenModified by remember { mutableStateOf(false) }
+    var showTitlePopup by remember { mutableStateOf(false) }
+    var showConfirmExitDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.book_details)) },
             navigationIcon = {
                 IconButton(onClick = {
-                    navigator.navigateUp()
+                    if (hasProgressBeenModified || hasNoteBeenModified)
+                        showConfirmExitDialog = true
+                    else
+                        navigator.navigateUp()
                 }) {
                     Icon(
                         painterResource(R.drawable.arrow_back_24px),
@@ -100,14 +112,6 @@ fun ViewBookPage(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-
-    var tabState by remember { mutableStateOf(LocalTab.PROGRESS) }
-    val detailsScrollState = rememberScrollState()
-    val summaryScrollState = rememberScrollState()
-    val genreScrollState = rememberScrollState()
-    var hasNoteBeenModified by remember { mutableStateOf(false) }
-    var hasProgressBeenModified by remember { mutableStateOf(false) }
-    var showTitlePopup by remember { mutableStateOf(false) }
 
     LaunchedEffect(hasNoteBeenModified || hasProgressBeenModified) {
         if (hasNoteBeenModified || hasProgressBeenModified) {
@@ -400,6 +404,12 @@ fun ViewBookPage(
                 }
             }
         }
+    }
+    if (showConfirmExitDialog) {
+        ConfirmExitDialog(
+            onCancel = { showConfirmExitDialog = false },
+            onConfirm = { navigator.navigateUp() }
+        )
     }
 }
 

@@ -66,10 +66,7 @@ fun ProgressTab(
                     DropdownMenuItem(
                         text = { Text(progressToString(it)) },
                         onClick = {
-                            if (state.selectedPhase == ProgressPhase.NOT_READ)
-                                state.selectedPhase = null
-                            else
-                                state.selectedPhase = it
+                            state.selectedPhase = it
                             state.isDropdownExpanded = false
                             onValuesChanged()
                         }
@@ -77,7 +74,11 @@ fun ProgressTab(
                 }
             }
         }
-        if (state.selectedPhase != null && state.selectedPhase != ProgressPhase.READ) {
+        if (
+            state.selectedPhase != null &&
+            state.selectedPhase != ProgressPhase.READ &&
+            state.selectedPhase != ProgressPhase.NOT_READ
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

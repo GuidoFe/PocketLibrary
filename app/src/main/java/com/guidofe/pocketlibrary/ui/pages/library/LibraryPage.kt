@@ -18,6 +18,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.ui.dialogs.*
@@ -125,6 +126,14 @@ fun LibraryPage(
                                 text = { Text(stringResource(R.string.mark_as_returned)) },
                                 onClick = {
                                     vm.markSelectedLentBooksAsReturned {
+                                        vm.selectionManager.clearSelection()
+                                    }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.mark_as_read)) },
+                                onClick = {
+                                    vm.markSelectedBooksAsRead {
                                         vm.selectionManager.clearSelection()
                                     }
                                 }
@@ -382,7 +391,7 @@ fun LibraryPage(
                         return@Button
                     }
                     if (vm.selectionManager.isMultipleSelecting)
-                        vm.markSelectedItemsAsLent(whoString, lentDate) {
+                        vm.markSelectedBooksAsLent(whoString, lentDate) {
                             vm.selectionManager.clearSelection()
                         }
                     else {
@@ -538,21 +547,23 @@ fun LibraryPage(
                     )
                 )
             }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.info_24px),
-                        stringResource(R.string.details)
+            if (item.bookBundle.progress?.phase != ProgressPhase.READ) {
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.check_24px),
+                            stringResource(R.string.mark_as_read)
+                        )
+                    },
+                    onClick = {
+                        state.isContextMenuVisible = false
+                        vm.markBookAsRead(item.bookBundle)
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.mark_as_read)
                     )
-                },
-                onClick = {
-                    state.isContextMenuVisible = false
-                    navigator.navigate(ViewBookPageDestination(item.info.bookId))
                 }
-            ) {
-                Text(
-                    stringResource(R.string.details)
-                )
             }
             RowWithIcon(
                 icon = {

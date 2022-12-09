@@ -103,4 +103,7 @@ interface LocalRepository {
         searchString: String?,
         filter: LibraryFilter?
     ): PagingSource<Int, LibraryBundle>
+
+    suspend fun updateAllProgress(progress: List<Progress>)
+    suspend fun insertAllProgress(progress: List<Progress>): List<Long>
 }

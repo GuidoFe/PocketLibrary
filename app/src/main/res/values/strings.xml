@@ -210,4 +210,8 @@
     <string name="covers_restore_failed">Failed to restore the covers</string>
     <string name="download_db_covers_locally">Backup database and covers locally</string>
     <string name="restore_local_backup">Restore local backup</string>
+    <string name="yes">Yes</string>
+    <string name="data_not_saved_dialog">You have not saved your changes. Are you sure you want to exit?</string>
+    <string name="imsure">I\'m sure</string>
+    <string name="mark_as_read">Mark as read</string>
 </resources>
