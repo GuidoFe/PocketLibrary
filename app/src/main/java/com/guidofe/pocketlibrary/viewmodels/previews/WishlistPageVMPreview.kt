@@ -6,9 +6,11 @@ import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.wishlist.WishlistState
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -49,4 +51,6 @@ class WishlistPageVMPreview : IWishlistPageVM {
 
     override val state: WishlistState
         get() = WishlistState()
+    override val searchFieldManager: SearchFieldManager
+        get() = PreviewUtils.emptySearchFieldManager
 }

@@ -5,9 +5,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class LibraryQuery(
-    val title: String? = null,
-    val author: String? = null,
+data class LibraryFilter(
     val genre: String? = null,
     val onlyFavorite: Boolean = false,
     val progress: ProgressPhase? = null,
@@ -20,7 +18,7 @@ data class LibraryQuery(
     enum class LibrarySortField { CREATION, TITLE }
 
     companion object {
-        val Empty = LibraryQuery()
+        val Empty = LibraryFilter()
     }
 
     val isEmpty: Boolean

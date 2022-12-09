@@ -1,6 +1,9 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
@@ -14,8 +17,8 @@ import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +39,25 @@ class BookLogVM @Inject constructor(
     override val state = BookLogState()
     private var currentBorrowedPagingSource: PagingSource<Int, BorrowedBundle>? = null
     override val translationState = TranslationDialogState()
+
+    override val borrowedSearchManager = object : SearchFieldManager {
+        override fun searchLogic() {
+            borrowedTabState.searchQuery = searchField
+            currentBorrowedPagingSource?.invalidate()
+        }
+        override var searchField by mutableStateOf("")
+        override var isSearching by mutableStateOf(false)
+        override var shouldSearchBarRequestFocus by mutableStateOf(true)
+    }
+
+    override val lentSearchManager = object : SearchFieldManager {
+        override fun searchLogic() {
+            lentTabState.searchQuery.value = searchField
+        }
+        override var searchField by mutableStateOf("")
+        override var isSearching by mutableStateOf(false)
+        override var shouldSearchBarRequestFocus by mutableStateOf(true)
+    }
 
     override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 20)) {
         (
@@ -120,19 +142,10 @@ class BookLogVM @Inject constructor(
         }
     }
 
-    override fun currentSearchFieldState(): SearchFieldState {
+    override fun currentSearchFieldManager(): SearchFieldManager {
         return if (state.tabIndex == 0)
-            borrowedTabState.searchFieldState
+            borrowedSearchManager
         else
-            lentTabState.searchFieldState
-    }
-
-    override fun search() {
-        if (state.tabIndex == 0) {
-            borrowedTabState.searchQuery = borrowedTabState.searchFieldState.value
-            currentBorrowedPagingSource?.invalidate()
-        } else {
-            lentTabState.searchQuery.value = lentTabState.searchFieldState.value
-        }
+            lentSearchManager
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -18,7 +19,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
-import com.guidofe.pocketlibrary.repositories.LibraryQuery
+import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.ui.dialogs.*
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
@@ -46,12 +47,13 @@ fun LibraryPage(
     vm: ILibraryVM = hiltViewModel<LibraryVM>(),
     importVm: IImportedBookVM = hiltViewModel<ImportedBookVM>(),
     disambiguationRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>,
-    filterRecipient: ResultRecipient<LibraryFilterPageDestination, LibraryQuery?>
+    filterRecipient: ResultRecipient<LibraryFilterPageDestination, LibraryFilter?>
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val state = vm.state
+    val focusManager = LocalFocusManager.current
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     LaunchedEffect(vm.selectionManager.isMultipleSelecting) {
@@ -133,8 +135,33 @@ fun LibraryPage(
             )
         } else {
             vm.scaffoldState.refreshBar(
-                title = { Text(stringResource(R.string.library)) },
+                title = {
+
+                    if (vm.searchFieldManager.isSearching) {
+                        SearchField(
+                            value = vm.searchFieldManager.searchField,
+                            onValueChange = { vm.searchFieldManager.searchField = it },
+                            shouldRequestFocus = vm.searchFieldManager.shouldSearchBarRequestFocus
+                        ) {
+                            vm.searchFieldManager.onSearchTriggered(focusManager)
+                        }
+                    } else {
+                        Text(stringResource(R.string.library))
+                    }
+                },
                 actions = {
+                    if (!vm.searchFieldManager.isSearching) {
+                        IconButton(
+                            onClick = {
+                                vm.searchFieldManager.isSearching = true
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.search_24px),
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
+                    }
                     FilledIconToggleButton(
                         colors = IconButtonDefaults.filledIconToggleButtonColors(
                             containerColor = Color.Transparent,
@@ -151,6 +178,20 @@ fun LibraryPage(
                             painterResource(R.drawable.filter_list_24px),
                             stringResource(R.string.filter),
                         )
+                    }
+                },
+                navigationIcon = {
+                    if (vm.searchFieldManager.isSearching) {
+                        IconButton(
+                            onClick = {
+                                vm.searchFieldManager.onClosingSearch()
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.arrow_back_24px),
+                                contentDescription = stringResource(R.string.clear)
+                            )
+                        }
                     }
                 }
             )

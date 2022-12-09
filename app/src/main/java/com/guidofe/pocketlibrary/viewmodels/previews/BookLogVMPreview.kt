@@ -10,9 +10,10 @@ import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
+import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -65,8 +66,9 @@ class BookLogVMPreview() : IBookLogVM {
     override val state: BookLogState
         get() = BookLogState()
 
-    override fun search() {
-    }
-
-    override fun currentSearchFieldState() = SearchFieldState()
+    override fun currentSearchFieldManager(): SearchFieldManager = borrowedSearchManager
+    override val lentSearchManager: SearchFieldManager
+        get() = PreviewUtils.emptySearchFieldManager
+    override val borrowedSearchManager: SearchFieldManager
+        get() = PreviewUtils.emptySearchFieldManager
 }

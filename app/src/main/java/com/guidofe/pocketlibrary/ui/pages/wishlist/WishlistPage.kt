@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,10 +49,11 @@ fun WishlistPage(
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
 // TODO add to borrowed
-    LaunchedEffect(vm.selectionManager.isMultipleSelecting, vm.state.isSearching) {
+    LaunchedEffect(vm.selectionManager.isMultipleSelecting, vm.searchFieldManager.isSearching) {
         if (vm.selectionManager.isMultipleSelecting) {
             vm.scaffoldState.refreshBar(
                 title = { Text(stringResource(R.string.selecting)) },
@@ -98,23 +100,20 @@ fun WishlistPage(
                 }
             )
         } else {
-            if (vm.state.isSearching) {
+            if (vm.searchFieldManager.isSearching) {
                 vm.scaffoldState.refreshBar(
                     title = {
                         SearchField(
-                            value = vm.state.searchField,
-                            onValueChange = { vm.state.searchField = it }
+                            value = vm.searchFieldManager.searchField,
+                            onValueChange = { vm.searchFieldManager.searchField = it },
+                            shouldRequestFocus = vm.searchFieldManager.shouldSearchBarRequestFocus
                         ) {
-                            vm.search()
-                            if (vm.state.searchField.isBlank())
-                                vm.state.isSearching = false
+                            vm.searchFieldManager.onSearchTriggered(focusManager)
                         }
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            vm.state.searchField = ""
-                            vm.search()
-                            vm.state.isSearching = false
+                            vm.searchFieldManager.onClosingSearch()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.arrow_back_24px),
@@ -130,7 +129,7 @@ fun WishlistPage(
                     },
                     actions = {
                         IconButton(
-                            onClick = { vm.state.isSearching = true }
+                            onClick = { vm.searchFieldManager.isSearching = true }
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.search_24px),

@@ -4,14 +4,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
-import com.guidofe.pocketlibrary.repositories.LibraryQuery
+import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
-import java.time.LocalDate
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 interface ILibraryVM {
     val scaffoldState: ScaffoldState
@@ -28,6 +29,7 @@ interface ILibraryVM {
     fun markLentBookAsReturned(lentBook: LentBook)
     fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit)
     val state: LibraryPageState
-    var customQuery: LibraryQuery?
+    var customQuery: LibraryFilter?
     val translationState: TranslationDialogState
+    val searchFieldManager: SearchFieldManager
 }

@@ -9,6 +9,7 @@ import com.guidofe.pocketlibrary.ui.pages.wishlist.WishlistState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import kotlinx.coroutines.flow.Flow
 
 interface IWishlistPageVM {
@@ -25,4 +26,5 @@ interface IWishlistPageVM {
     val translationState: TranslationDialogState
     fun search()
     val state: WishlistState
+    val searchFieldManager: SearchFieldManager
 }

@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 
 enum class BorrowedField { LENDER, START, RETURN_BY }
@@ -20,5 +19,4 @@ class BorrowedTabState {
     var showReturnedBooks by mutableStateOf(false)
     var isContextMenuVisible by mutableStateOf(false)
     var searchQuery = ""
-    val searchFieldState = SearchFieldState()
 }

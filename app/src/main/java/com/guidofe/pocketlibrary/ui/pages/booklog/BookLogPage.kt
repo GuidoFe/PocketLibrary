@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
@@ -54,6 +55,7 @@ fun BookLogPage(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
+    val focusManager = LocalFocusManager.current
 
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
     val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
@@ -62,8 +64,8 @@ fun BookLogPage(
     }
     LaunchedEffect(
         vm.state.tabIndex,
-        vm.borrowedTabState.searchFieldState.isSearching,
-        vm.lentTabState.searchFieldState.isSearching,
+        vm.borrowedSearchManager.isSearching,
+        vm.lentSearchManager.isSearching,
         vm.borrowedTabState.selectionManager.isMultipleSelecting,
         vm.lentTabState.selectionManager.isMultipleSelecting
     ) {
@@ -231,26 +233,24 @@ fun BookLogPage(
                 }
             )
         } else {
-            if (vm.currentSearchFieldState().isSearching) {
+            if (vm.currentSearchFieldManager().isSearching) {
                 vm.scaffoldState.refreshBar(
                     title = {
                         SearchField(
-                            value = vm.currentSearchFieldState().value,
+                            value = vm.currentSearchFieldManager().searchField,
                             onValueChange = {
-                                vm.currentSearchFieldState().value = it
+                                vm.currentSearchFieldManager().searchField = it
                             },
+                            shouldRequestFocus = vm.currentSearchFieldManager()
+                                .shouldSearchBarRequestFocus,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            vm.search()
-                            if (vm.currentSearchFieldState().value.isBlank())
-                                vm.currentSearchFieldState().isSearching = false
+                            vm.currentSearchFieldManager().onSearchTriggered(focusManager)
                         }
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            vm.currentSearchFieldState().value = ""
-                            vm.search()
-                            vm.currentSearchFieldState().isSearching = false
+                            vm.currentSearchFieldManager().onClosingSearch()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.arrow_back_24px),
@@ -264,7 +264,7 @@ fun BookLogPage(
                     title = { Text(stringResource(R.string.book_log)) },
                     actions = {
                         IconButton(onClick = {
-                            vm.currentSearchFieldState().isSearching = true
+                            vm.currentSearchFieldManager().isSearching = true
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.search_24px),

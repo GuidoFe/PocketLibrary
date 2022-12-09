@@ -52,4 +52,12 @@ interface LibraryBundleDao {
             "LIKE '%' || :lowerString || '%'"
     )
     fun getLentBundlesByString(lowerString: String): Flow<List<LibraryBundle>>
+
+    @Transaction
+    @Query(
+        "SELECT DISTINCT library_book.* FROM library_book NATURAL JOIN book NATURAL JOIN " +
+            "bookauthor NATURAL JOIN Author WHERE lower( book.title ) LIKE " +
+            "'%' || :lowerString || '%' OR lower( Author.name ) LIKE '%' || :lowerString || '%'"
+    )
+    fun getLibraryBundlesByString(lowerString: String): PagingSource<Int, LibraryBundle>
 }

@@ -80,10 +80,6 @@ interface LocalRepository {
     suspend fun getBookBundlesAtProgressPhase(phase: ProgressPhase): List<BookBundle>
     suspend fun countLibraryBooksAtEveryPhase(): Map<ProgressPhase, Int>
 
-    fun getLibraryBundlesWithCustomFilter(
-        query: LibraryQuery
-    ): PagingSource<Int, LibraryBundle>
-
     suspend fun getAllGenres(): List<Genre>
     suspend fun updateAllGenres(genres: List<Genre>)
     suspend fun getGenresOfDifferentLanguage(languageCode: String): List<Genre>
@@ -103,4 +99,8 @@ interface LocalRepository {
     fun getWishlistBundlesByString(string: String): PagingSource<Int, WishlistBundle>
     fun getBorrowedBundlesByString(string: String): PagingSource<Int, BorrowedBundle>
     fun getLentBundlesByString(string: String): Flow<List<LibraryBundle>>
+    fun getLibraryBundlesWithCustomFilter(
+        searchString: String?,
+        filter: LibraryFilter?
+    ): PagingSource<Int, LibraryBundle>
 }

@@ -10,6 +10,4 @@ class WishlistState {
     var isbnToSearch: String? by mutableStateOf(null)
     var showConfirmDeleteBook by mutableStateOf(false)
     var isContextMenuVisible by mutableStateOf(false)
-    var isSearching by mutableStateOf(false)
-    var searchField by mutableStateOf("")
 }

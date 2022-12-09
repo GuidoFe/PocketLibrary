@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
-import com.guidofe.pocketlibrary.repositories.LibraryQuery
+import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryFilterVM
@@ -20,14 +20,12 @@ class LibraryFilterVM @Inject constructor(
     private val repo: LocalRepository,
     override val scaffoldState: ScaffoldState
 ) : ViewModel(), ILibraryFilterVM {
-    override var title by mutableStateOf("")
-    override var author by mutableStateOf("")
     override var genre by mutableStateOf("")
     override var onlyFavorite by mutableStateOf(false)
     override var progress: ProgressPhase? by mutableStateOf(null)
-    override var mediaFilter by mutableStateOf(LibraryQuery.MediaFilter.ANY)
+    override var mediaFilter by mutableStateOf(LibraryFilter.MediaFilter.ANY)
     override var language by mutableStateOf("")
-    override var sortingField: LibraryQuery.LibrarySortField? by mutableStateOf(null)
+    override var sortingField: LibraryFilter.LibrarySortField? by mutableStateOf(null)
     override var isOrderReversed: Boolean by mutableStateOf(false)
 
     override var isProgressDropdownExpanded by mutableStateOf(false)
@@ -42,22 +40,18 @@ class LibraryFilterVM @Inject constructor(
         }
     }
 
-    override fun initializeState(query: LibraryQuery?) {
-        title = query?.title ?: ""
-        author = query?.author ?: ""
+    override fun initializeState(query: LibraryFilter?) {
         genre = query?.genre ?: ""
         onlyFavorite = query?.onlyFavorite ?: false
         progress = query?.progress
-        mediaFilter = query?.mediaFilter ?: LibraryQuery.MediaFilter.ANY
+        mediaFilter = query?.mediaFilter ?: LibraryFilter.MediaFilter.ANY
         language = query?.language ?: ""
         sortingField = query?.sortingField
         isOrderReversed = query?.reverseOrder ?: false
     }
 
-    override fun createQuery(): LibraryQuery? {
-        val query = LibraryQuery(
-            title = title.ifBlank { null },
-            author = author.ifBlank { null },
+    override fun createQuery(): LibraryFilter? {
+        val query = LibraryFilter(
             genre = genre.ifBlank { null },
             onlyFavorite = onlyFavorite,
             progress = progress,

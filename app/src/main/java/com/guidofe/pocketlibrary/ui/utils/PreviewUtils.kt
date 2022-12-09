@@ -15,6 +15,7 @@ import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import java.sql.Date
 
 class PreviewUtils {
@@ -120,6 +121,15 @@ class PreviewUtils {
                     }
                 }
             }
+        }
+
+        val emptySearchFieldManager = object : SearchFieldManager {
+            override fun searchLogic() {
+            }
+
+            override var searchField: String = ""
+            override var isSearching: Boolean = false
+            override var shouldSearchBarRequestFocus: Boolean = true
         }
     }
 }

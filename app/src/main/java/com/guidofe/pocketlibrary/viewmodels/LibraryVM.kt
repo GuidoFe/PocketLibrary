@@ -1,13 +1,16 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
-import com.guidofe.pocketlibrary.repositories.LibraryQuery
+import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageNavArgs
@@ -16,6 +19,8 @@ import com.guidofe.pocketlibrary.ui.pages.navArgs
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
+import com.guidofe.pocketlibrary.utils.nullIfEmptyOrBlank
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -37,16 +42,23 @@ class LibraryVM @Inject constructor(
     override val selectionManager = SelectionManager<Long, LibraryBundle>(
         getKey = { it.info.bookId }
     )
+
+    override val searchFieldManager = object : SearchFieldManager {
+        override fun searchLogic() {
+            invalidate()
+        }
+        override var searchField by mutableStateOf("")
+        override var isSearching by mutableStateOf(false)
+        override var shouldSearchBarRequestFocus by mutableStateOf(true)
+    }
     override val translationState = TranslationDialogState()
     private var currentPagingSource: PagingSource<Int, LibraryBundle>? = null
-    override var customQuery: LibraryQuery? = null
+    override var customQuery: LibraryFilter? = null
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
-        (
-            if (customQuery == null)
-                repo.getLibraryBundlesPagingSource()
-            else
-                repo.getLibraryBundlesWithCustomFilter(customQuery!!)
-            ).also { currentPagingSource = it }
+        repo.getLibraryBundlesWithCustomFilter(
+            searchFieldManager.searchField.nullIfEmptyOrBlank(),
+            customQuery
+        ).also { currentPagingSource = it }
     }.flow.cachedIn(viewModelScope).combine(selectionManager.selectedItems) { items, selected ->
         items.map {
             SelectableListItem(
@@ -60,7 +72,7 @@ class LibraryVM @Inject constructor(
     init {
         val args = savedStateHandle.navArgs<LibraryPageNavArgs>()
         if (args.genre != null)
-            customQuery = LibraryQuery(genre = args.genre)
+            customQuery = LibraryFilter(genre = args.genre)
     }
     override fun invalidate() {
         currentPagingSource?.invalidate()

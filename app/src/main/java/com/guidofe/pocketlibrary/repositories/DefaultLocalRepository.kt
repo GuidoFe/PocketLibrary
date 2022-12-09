@@ -327,43 +327,47 @@ class DefaultLocalRepository @Inject constructor(
     }
 
     override fun getLibraryBundlesWithCustomFilter(
-        query: LibraryQuery,
+        searchString: String?,
+        filter: LibraryFilter?,
     ): PagingSource<Int, LibraryBundle> {
+        if (searchString == null && filter == null)
+            return db.libraryBundleDao().getLibraryBundlesPagingSource()
+        else if (filter == null)
+            return db.libraryBundleDao().getLibraryBundlesByString(searchString!!.lowercase())
+
         var queryString = "SELECT library_book.* FROM library_book NATURAL JOIN book"
         val firstArgumentList = mutableListOf<Any>()
         val lastArgumentList = mutableListOf<Any>()
 
         val whereList = mutableListOf<String>()
-        if (query.title != null) {
-            queryString += " NATURAL JOIN (SELECT bookId, INSTR(lower(title), " +
-                "lower( ? )) as title_count FROM book WHERE title_count != 0)"
-            firstArgumentList.add(query.title)
+        if (searchString != null) {
+            queryString += " NATURAL JOIN (SELECT DISTINCT bookId FROM (SELECT bookId, " +
+                "INSTR(lower(title), lower( ? )) as title_count, " +
+                "INSTR(lower(author.name), lower( ? )) as author_count FROM book NATURAL JOIN " +
+                "bookauthor NATURAL JOIN author WHERE title_count != 0 OR author_count != 0))"
+            firstArgumentList.add(searchString)
+            firstArgumentList.add(searchString)
         }
-        if (query.onlyFavorite) {
+        if (filter.onlyFavorite) {
             whereList.add("library_book.isFavorite = 1")
         }
-        if (query.mediaFilter != LibraryQuery.MediaFilter.ANY) {
-            if (query.mediaFilter == LibraryQuery.MediaFilter.ONLY_BOOKS) {
+        if (filter.mediaFilter != LibraryFilter.MediaFilter.ANY) {
+            if (filter.mediaFilter == LibraryFilter.MediaFilter.ONLY_BOOKS) {
                 whereList.add("book.isEbook = 0")
             } else {
                 whereList.add("book.isEbook = 1")
             }
         }
-        query.language?.let {
+        filter.language?.let {
             whereList.add("book.language = ?")
             lastArgumentList.add(it)
         }
-        query.author?.let {
-            queryString += " NATURAL JOIN (SELECT bookId, INSTR(lower( name ), lower( ? )) as " +
-                "author_count FROM BookAuthor NATURAL JOIN Author WHERE author_count != 0 )"
-            firstArgumentList.add(it)
-        }
-        query.genre?.let {
+        filter.genre?.let {
             queryString += " NATURAL JOIN BookGenre NATURAL JOIN Genre"
             whereList.add("Genre.name = ?")
             lastArgumentList.add(it)
         }
-        query.progress?.let {
+        filter.progress?.let {
             if (it == ProgressPhase.NOT_READ) {
                 queryString += " LEFT JOIN progress ON book.bookId = progress.bookId"
                 whereList.add("progress.bookId IS NULL")
@@ -379,13 +383,13 @@ class DefaultLocalRepository @Inject constructor(
         else
             " WHERE ${whereList.joinToString(" AND ")}"
         }${
-        if (query.sortingField != null)
+        if (filter.sortingField != null)
             " ORDER BY ${
-            when (query.sortingField) {
-                LibraryQuery.LibrarySortField.CREATION -> "library_book.creation"
-                LibraryQuery.LibrarySortField.TITLE -> "book.title"
+            when (filter.sortingField) {
+                LibraryFilter.LibrarySortField.CREATION -> "library_book.creation"
+                LibraryFilter.LibrarySortField.TITLE -> "book.title"
             }
-            } ${if (query.reverseOrder) "DESC" else "ASC"}"
+            } ${if (filter.reverseOrder) "DESC" else "ASC"}"
         else ""
         }"
         Log.d("query", queryString)

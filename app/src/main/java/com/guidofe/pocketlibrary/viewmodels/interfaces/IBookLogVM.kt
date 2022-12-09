@@ -11,8 +11,8 @@ import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BorrowedTabState
 import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
-import com.guidofe.pocketlibrary.ui.utils.SearchFieldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import kotlinx.coroutines.flow.Flow
 
 interface IBookLogVM {
@@ -32,6 +32,7 @@ interface IBookLogVM {
     fun invalidateBorrowedPagingSource()
     val translationState: TranslationDialogState
     val state: BookLogState
-    fun search()
-    fun currentSearchFieldState(): SearchFieldState
+    fun currentSearchFieldManager(): SearchFieldManager
+    val lentSearchManager: SearchFieldManager
+    val borrowedSearchManager: SearchFieldManager
 }

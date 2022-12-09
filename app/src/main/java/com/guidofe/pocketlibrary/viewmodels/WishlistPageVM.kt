@@ -1,6 +1,9 @@
 package com.guidofe.pocketlibrary.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
@@ -12,6 +15,7 @@ import com.guidofe.pocketlibrary.ui.pages.wishlist.WishlistState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
+import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IWishlistPageVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,12 +35,21 @@ class WishlistPageVM @Inject constructor(
     override val selectionManager = SelectionManager<Long, WishlistBundle>(
         getKey = { it.info.bookId }
     )
+    override val searchFieldManager = object : SearchFieldManager {
+        override fun searchLogic() {
+            invalidate()
+        }
+        override var searchField by mutableStateOf("")
+        override var isSearching by mutableStateOf(false)
+        override var shouldSearchBarRequestFocus by mutableStateOf(true)
+    }
+
     private var currentPagingSource: PagingSource<Int, WishlistBundle>? = null
 
     override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
         (
-            if (state.searchField.isNotBlank())
-                repo.getWishlistBundlesByString(state.searchField)
+            if (searchFieldManager.searchField.isNotBlank())
+                repo.getWishlistBundlesByString(searchFieldManager.searchField)
             else
                 repo.getWishlistBundles()
             ).also { currentPagingSource = it }

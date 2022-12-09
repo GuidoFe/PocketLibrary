@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
-import com.guidofe.pocketlibrary.repositories.LibraryQuery
+import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
 import com.guidofe.pocketlibrary.ui.modules.DropdownBoxWithTrailingButton
 import com.guidofe.pocketlibrary.ui.modules.LanguageAutocomplete
@@ -37,19 +37,19 @@ private fun progressToString(progress: ProgressPhase?): String {
 }
 
 @Composable
-private fun mediaFilterToString(filter: LibraryQuery.MediaFilter): String {
+private fun mediaFilterToString(filter: LibraryFilter.MediaFilter): String {
     return when (filter) {
-        LibraryQuery.MediaFilter.ANY -> stringResource(R.string.any)
-        LibraryQuery.MediaFilter.ONLY_BOOKS -> stringResource(R.string.only_books)
-        LibraryQuery.MediaFilter.ONLY_EBOOKS -> stringResource(R.string.only_ebooks)
+        LibraryFilter.MediaFilter.ANY -> stringResource(R.string.any)
+        LibraryFilter.MediaFilter.ONLY_BOOKS -> stringResource(R.string.only_books)
+        LibraryFilter.MediaFilter.ONLY_EBOOKS -> stringResource(R.string.only_ebooks)
     }
 }
 
 @Composable
-private fun sortingFieldToString(field: LibraryQuery.LibrarySortField?): String {
+private fun sortingFieldToString(field: LibraryFilter.LibrarySortField?): String {
     return when (field) {
-        LibraryQuery.LibrarySortField.CREATION -> stringResource(R.string.creation_date)
-        LibraryQuery.LibrarySortField.TITLE -> stringResource(R.string.title)
+        LibraryFilter.LibrarySortField.CREATION -> stringResource(R.string.creation_date)
+        LibraryFilter.LibrarySortField.TITLE -> stringResource(R.string.title)
         null -> "-"
     }
 }
@@ -58,9 +58,9 @@ private fun sortingFieldToString(field: LibraryQuery.LibrarySortField?): String 
 @Destination
 @Composable
 fun LibraryFilterPage(
-    startQuery: LibraryQuery?,
+    startQuery: LibraryFilter?,
     vm: ILibraryFilterVM = hiltViewModel<LibraryFilterVM>(),
-    navigator: ResultBackNavigator<LibraryQuery?>
+    navigator: ResultBackNavigator<LibraryFilter?>
 ) {
     LaunchedEffect(startQuery) {
         vm.initializeGenresList()
@@ -91,22 +91,6 @@ fun LibraryFilterPage(
             .padding(20.dp)
             .verticalScroll(scrollState)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(innerPadding)
-        ) {
-            OutlinedTextField(
-                value = vm.title,
-                onValueChange = { vm.title = it },
-                label = { Text(stringResource(R.string.title)) },
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = vm.author,
-                onValueChange = { vm.author = it },
-                label = { Text(stringResource(R.string.author)) },
-                modifier = Modifier.weight(1f)
-            )
-        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(innerPadding)
@@ -169,7 +153,7 @@ fun LibraryFilterPage(
                     expanded = vm.isMediaDropdownExpanded,
                     onDismissRequest = { vm.isMediaDropdownExpanded = false }
                 ) {
-                    for (value in LibraryQuery.MediaFilter.values()) {
+                    for (value in LibraryFilter.MediaFilter.values()) {
                         DropdownMenuItem(
                             text = { Text(mediaFilterToString(value)) },
                             onClick = {
@@ -263,7 +247,7 @@ fun LibraryFilterPage(
                             vm.isSortDropdownExpanded = false
                         }
                     )
-                    for (value in LibraryQuery.LibrarySortField.values()) {
+                    for (value in LibraryFilter.LibrarySortField.values()) {
                         DropdownMenuItem(
                             text = { Text(sortingFieldToString(value)) },
                             onClick = {
