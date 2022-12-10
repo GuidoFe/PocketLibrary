@@ -215,4 +215,6 @@
     <string name="imsure">I\'m sure</string>
     <string name="mark_as_read">Mark as read</string>
     <string name="camera_denied">You have denied the permission to use the camera. If you want to re-enable it, click the button below or change the permission in Settings.</string>
+    <string name="ask_wifi_for_translation_message">In order for the translation of the categories to work, it is necessary to download a translator, but you are using mobile data. Do you want to download it anyway?</string>
+    <string name="download_anyway">Download anyway</string>
 </resources>

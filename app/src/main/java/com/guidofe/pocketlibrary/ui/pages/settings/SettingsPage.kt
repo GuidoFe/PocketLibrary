@@ -1,5 +1,7 @@
 package com.guidofe.pocketlibrary.ui.pages.settings
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,8 +31,10 @@ import com.guidofe.pocketlibrary.ui.dialogs.ThemeTile
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
+import com.guidofe.pocketlibrary.ui.pages.settings.SettingsState.WifiRequester
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
+import com.guidofe.pocketlibrary.utils.TranslationService
 import com.guidofe.pocketlibrary.viewmodels.SettingsVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISettingsVM
 import com.guidofe.pocketlibrary.viewmodels.previews.SettingsVMPreview
@@ -52,6 +56,10 @@ fun SettingsPage(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val innerRowPadding = 10.dp
+    val cm = remember {
+        context.getSystemService(Context.CONNECTIVITY_SERVICE)
+            as ConnectivityManager
+    }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
@@ -114,8 +122,25 @@ fun SettingsPage(
                                         Text(language.localizedName)
                                     }, onClick = {
                                         vm.state.isLanguageDropdownOpen = false
-                                        // vm.lastSettings = s
-                                        vm.setLanguage(language)
+                                        if (s.allowGenreTranslation && cm.isActiveNetworkMetered &&
+                                            language.code != "en"
+                                        ) {
+                                            TranslationService.hasTranslator(language.code) {
+                                                if (it == null) {
+                                                    Log.e("debug", "HasTranslator null")
+                                                } else {
+                                                    if (it)
+                                                        vm.setLanguage(language)
+                                                    else {
+                                                        vm.state.wifiRequester =
+                                                            WifiRequester.LanguageDropdown(language)
+                                                        vm.state.showAskForWifi = true
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            vm.setLanguage(language)
+                                        }
                                     })
                                 }
                             }
@@ -133,7 +158,27 @@ fun SettingsPage(
                     Spacer(Modifier.width(innerRowPadding))
                     Switch(
                         checked = s.allowGenreTranslation,
-                        onCheckedChange = { vm.setGenreTranslation(!s.allowGenreTranslation) }
+                        onCheckedChange = {
+                            if (!s.allowGenreTranslation && cm.isActiveNetworkMetered &&
+                                s.language.code != "en"
+                            ) {
+                                TranslationService.hasTranslator(s.language.code) {
+                                    if (it == null) {
+                                        Log.e("debug", "HasTranslator returned null")
+                                    } else {
+                                        if (it)
+                                            vm.setGenreTranslation(true)
+                                        else {
+                                            vm.state.wifiRequester =
+                                                WifiRequester.TranslationSwitch
+                                            vm.state.showAskForWifi = true
+                                        }
+                                    }
+                                }
+                            } else {
+                                vm.setGenreTranslation(!s.allowGenreTranslation)
+                            }
+                        }
                     )
                 }
                 if (DynamicColors.isDynamicColorAvailable()) {
@@ -266,6 +311,38 @@ fun SettingsPage(
             }
         }
     }
+
+    if (vm.state.showAskForWifi) {
+        AlertDialog(
+            onDismissRequest = {
+                vm.state.wifiRequester = null
+                vm.state.showAskForWifi = false
+            },
+            text = { Text(stringResource(R.string.ask_wifi_for_translation_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        when (vm.state.wifiRequester) {
+                            is WifiRequester.LanguageDropdown -> vm.setLanguage(
+                                (vm.state.wifiRequester as WifiRequester.LanguageDropdown).language
+                            )
+                            is WifiRequester.TranslationSwitch -> vm.setGenreTranslation(true)
+                            else -> {}
+                        }
+                        vm.state.showAskForWifi = false
+                    }
+                ) {
+                    Text(stringResource(R.string.download_anyway))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { vm.state.showAskForWifi = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
     TranslationDialog(vm.translationState)
 }
 

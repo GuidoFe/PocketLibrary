@@ -30,6 +30,17 @@ class TranslationService(private val targetLanguageCode: String) {
                     }
                 }
         }
+        fun hasTranslator(language: String, onResponse: (Boolean?) -> Unit) {
+            val modelManager = RemoteModelManager.getInstance()
+            val model = TranslateLanguage.fromLanguageTag(language)
+            if (model == null) {
+                onResponse(null)
+                return
+            }
+            modelManager.isModelDownloaded(TranslateRemoteModel.Builder(model).build())
+                .addOnFailureListener { onResponse(null) }
+                .addOnSuccessListener { onResponse(it) }
+        }
     }
 
     private var translator: Translator? = null
@@ -48,7 +59,7 @@ class TranslationService(private val targetLanguageCode: String) {
             .build()
         translator = Translation.getClient(translationOptions)
         val conditions = DownloadConditions.Builder()
-            .requireWifi()
+            // .requireWifi()
             .build()
         translator!!.downloadModelIfNeeded(conditions)
             .addOnFailureListener { cont.resume(false) { translator?.close() } }

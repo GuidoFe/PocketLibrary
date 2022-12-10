@@ -38,7 +38,12 @@ class SettingsVM @Inject constructor(
             dataStore.setLanguage(language)
             AppCompatDelegate.setApplicationLocales(appLocale)
             if (settingsLiveData.value?.allowGenreTranslation == true) {
-                translateGenresWithState(language.code, translationState, viewModelScope, repo) {}
+                translateGenresWithState(language.code, translationState, viewModelScope, repo) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        if (!it)
+                            dataStore.setGenreTranslation(false)
+                    }
+                }
             }
         }
     }
@@ -69,14 +74,16 @@ class SettingsVM @Inject constructor(
     }
 
     override fun setGenreTranslation(translate: Boolean) {
-        viewModelScope.launch(Dispatchers.Main) {
-            dataStore.setGenreTranslation(translate)
-        }
         viewModelScope.launch(Dispatchers.IO) {
             if (translate) {
                 settingsLiveData.value?.language?.code?.let {
                     Log.d("debug", "Translating to lang $it...")
-                    translateGenresWithState(it, translationState, viewModelScope, repo) {}
+                    translateGenresWithState(it, translationState, viewModelScope, repo) {
+                        viewModelScope.launch(Dispatchers.IO) {
+                            if (it)
+                                dataStore.setGenreTranslation(true)
+                        }
+                    }
                 }
             } else {
                 val genres = repo.getGenresOfDifferentLanguage("en")
@@ -85,6 +92,7 @@ class SettingsVM @Inject constructor(
                 }
                 repo.updateAllGenres(updatedGenres)
                 TranslationService.deleteDownloadedTranslators()
+                dataStore.setGenreTranslation(false)
             }
         }
     }
