@@ -1,10 +1,13 @@
 package com.guidofe.pocketlibrary.ui.pages
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -99,7 +102,16 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
             viewModel.scaffoldState.fab()
         }
     ) { paddingValues ->
-        Surface(modifier = Modifier.padding(paddingValues)) {
+        val focusManager = LocalFocusManager.current
+        Surface(
+            modifier = Modifier
+                .padding(paddingValues)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { focusManager.clearFocus() }
+                    )
+                }
+        ) {
             DestinationsNavHost(navGraph = NavGraphs.root, navController = navController)
         }
     }

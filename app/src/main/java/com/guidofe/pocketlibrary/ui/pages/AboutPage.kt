@@ -36,7 +36,6 @@ fun CreditsPage(
     vm: IBasicPageVM = hiltViewModel<BasicPageVM>(),
     navigator: DestinationsNavigator
 ) {
-    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val email = "guido.ferri@protonmail.com"
     LaunchedEffect(true) {
