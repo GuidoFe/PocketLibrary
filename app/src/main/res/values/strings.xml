@@ -214,4 +214,5 @@
     <string name="data_not_saved_dialog">You have not saved your changes. Are you sure you want to exit?</string>
     <string name="imsure">I\'m sure</string>
     <string name="mark_as_read">Mark as read</string>
+    <string name="camera_denied">You have denied the permission to use the camera. If you want to re-enable it, click the button below or change the permission in Settings.</string>
 </resources>

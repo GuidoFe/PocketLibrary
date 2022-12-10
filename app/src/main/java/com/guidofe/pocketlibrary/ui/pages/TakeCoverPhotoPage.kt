@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages
 
-import android.Manifest
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
@@ -19,8 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.CoverEditorPageDestination
@@ -72,110 +69,75 @@ fun TakeCoverPhotoPage(
             }
         )
     }
-    val cameraPermissionState = rememberPermissionState(
-        Manifest.permission.CAMERA
-    )
-    when (cameraPermissionState.status) {
-        // If the camera permission is granted, then show screen with the feature enabled
-        PermissionStatus.Granted -> {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                CameraView(
-                    additionalUseCases = arrayOf(vm.getImageCapture()),
-                    onCameraProviderSet = {
-                        vm.cameraProvider = it
-                    }
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(lineSize)
-                        .offset(0.dp, maxHeight / 3)
-                        .background(lineColor)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(lineSize)
-                        .offset(0.dp, maxHeight / 3 * 2)
-                        .background(lineColor)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(lineSize)
-                        .offset(maxWidth / 3, 0.dp)
-                        .background(lineColor)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(lineSize)
-                        .offset(maxWidth / 3 * 2, 0.dp)
-                        .background(lineColor)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.BottomCenter)
-                        .padding(10.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .clickable {
-                            vm.takePhoto(
-                                fileUri,
-                                onError = {
-                                    vm.cameraProvider?.unbindAll()
-                                    coroutineScope.launch {
-                                        vm.snackbarHostState.showSnackbar(
-                                            CustomSnackbarVisuals(
-                                                message = context.getString(
-                                                    R.string.error_couldnt_save_image
-                                                ),
-                                                isError = true
-                                            )
-                                        )
-                                    }
-                                }
-                            ) { result ->
-                                vm.cameraProvider?.unbindAll()
-                                result.savedUri?.let {
-                                    navigator.navigate(
-                                        CoverEditorPageDestination(it)
+    // If the camera permission is granted, then show screen with the feature enabled
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        CameraView(
+            additionalUseCases = arrayOf(vm.getImageCapture()),
+            onCameraPermissionDenied = { navigator.navigateUp() },
+            onCameraProviderSet = {
+                vm.cameraProvider = it
+            }
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(lineSize)
+                .offset(0.dp, maxHeight / 3)
+                .background(lineColor)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(lineSize)
+                .offset(0.dp, maxHeight / 3 * 2)
+                .background(lineColor)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(lineSize)
+                .offset(maxWidth / 3, 0.dp)
+                .background(lineColor)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(lineSize)
+                .offset(maxWidth / 3 * 2, 0.dp)
+                .background(lineColor)
+        )
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .align(Alignment.BottomCenter)
+                .padding(10.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable {
+                    vm.takePhoto(
+                        fileUri,
+                        onError = {
+                            vm.cameraProvider?.unbindAll()
+                            coroutineScope.launch {
+                                vm.snackbarHostState.showSnackbar(
+                                    CustomSnackbarVisuals(
+                                        message = context.getString(
+                                            R.string.error_couldnt_save_image
+                                        ),
+                                        isError = true
                                     )
-                                }
+                                )
                             }
                         }
-                )
-            }
-        }
-        is PermissionStatus.Denied -> {
-            if ((cameraPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
-                AlertDialog(
-                    title = { Text(stringResource(R.string.permission_required)) },
-                    text = { Text(stringResource(R.string.isbn_camera_rationale)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            cameraPermissionState.launchPermissionRequest()
-                        }) {
-                            Text(stringResource(R.string.request_permission))
+                    ) { result ->
+                        vm.cameraProvider?.unbindAll()
+                        result.savedUri?.let {
+                            navigator.navigate(
+                                CoverEditorPageDestination(it)
+                            )
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            navigator.navigateUp()
-                        }) {
-                            Text(stringResource(id = R.string.cancel))
-                        }
-                    },
-                    onDismissRequest = {
-                        navigator.navigateUp()
                     }
-                )
-            } else {
-                LaunchedEffect(key1 = cameraPermissionState.status) {
-                    cameraPermissionState.launchPermissionRequest()
                 }
-            }
-        }
+        )
     }
 }

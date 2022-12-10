@@ -1,6 +1,5 @@
 package com.guidofe.pocketlibrary.ui.pages
 
-import android.Manifest
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -11,8 +10,6 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.model.ImportedBookData
@@ -51,6 +48,7 @@ fun ScanIsbnPage(
     val lifecycleOwner = LocalLifecycleOwner.current
     var isbnToSearch: String? by remember { mutableStateOf(null) }
     var showBookNotFoundDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = true) {
         scanVm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.scan_isbn)) },
@@ -65,47 +63,6 @@ fun ScanIsbnPage(
                 }
             }
         )
-    }
-    val cameraPermissionState = rememberPermissionState(
-        Manifest.permission.CAMERA
-    )
-    when (cameraPermissionState.status) {
-        // If the camera permission is granted, then show screen with the feature enabled
-        PermissionStatus.Granted -> {
-            CameraView(
-                additionalUseCases = arrayOf(scanVm.getImageAnalysis()),
-                onCameraProviderSet = { scanVm.cameraProvider = it }
-            )
-        }
-        is PermissionStatus.Denied -> {
-            if ((cameraPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
-                AlertDialog(
-                    title = { Text(stringResource(R.string.permission_required)) },
-                    text = { Text(stringResource(R.string.isbn_camera_rationale)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            cameraPermissionState.launchPermissionRequest()
-                        }) {
-                            Text(stringResource(R.string.request_permission))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            navigator.navigateUp()
-                        }) {
-                            Text(stringResource(id = R.string.cancel))
-                        }
-                    },
-                    onDismissRequest = {
-                        navigator.navigateUp()
-                    }
-                )
-            } else {
-                LaunchedEffect(key1 = cameraPermissionState.status) {
-                    cameraPermissionState.launchPermissionRequest()
-                }
-            }
-        }
     }
 
     LaunchedEffect(scanVm.scannedCode) {
@@ -174,6 +131,11 @@ fun ScanIsbnPage(
             }
         }
     }
+    CameraView(
+        additionalUseCases = arrayOf(scanVm.getImageAnalysis()),
+        onCameraProviderSet = { scanVm.cameraProvider = it },
+        onCameraPermissionDenied = { navigator.navigateUp() }
+    )
     if (showBookNotFoundDialog) {
         NoBookFoundForIsbnDialog(
             onDismiss = {
