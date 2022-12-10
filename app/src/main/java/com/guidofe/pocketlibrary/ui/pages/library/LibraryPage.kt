@@ -1,11 +1,14 @@
 package com.guidofe.pocketlibrary.ui.pages.library
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -50,13 +53,19 @@ fun LibraryPage(
     disambiguationRecipient: ResultRecipient<BookDisambiguationPageDestination, ImportedBookData>,
     filterRecipient: ResultRecipient<LibraryFilterPageDestination, LibraryFilter?>
 ) {
+    val focusManager = LocalFocusManager.current
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
+    val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val state = vm.state
-    val focusManager = LocalFocusManager.current
+    val fabFocusRequester = remember { FocusRequester() }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (lazyListState.isScrollInProgress) {
+            vm.state.isFabExpanded = false
+        }
+    }
     LaunchedEffect(vm.selectionManager.isMultipleSelecting) {
         if (vm.selectionManager.isMultipleSelecting) {
             state.isFavoriteButtonFilled = false
@@ -235,12 +244,17 @@ fun LibraryPage(
             )
         }
     }
+
     LaunchedEffect(Unit) {
         vm.invalidate()
         vm.scaffoldState.fab = {
             AddBookFab(
                 isExpanded = state.isFabExpanded,
-                onMainFabClick = { state.isFabExpanded = !state.isFabExpanded },
+                onMainFabClick = {
+                    state.isFabExpanded = !state.isFabExpanded
+                    if (state.isFabExpanded)
+                        fabFocusRequester.requestFocus()
+                },
                 onDismissRequest = { state.isFabExpanded = false },
                 onIsbnTyped = {
                     state.isbnToSearch = it
@@ -255,11 +269,17 @@ fun LibraryPage(
                 },
                 onSearchOnline = {
                     navigator.navigate(SearchBookOnlinePageDestination(BookDestination.LIBRARY))
-                }
+                },
+                modifier = Modifier
+                    .focusRequester(fabFocusRequester)
+                    .onFocusChanged {
+                        if (!it.hasFocus)
+                            state.isFabExpanded = false
+                    }
+                    .focusable()
             )
         }
     }
-
     if (lazyPagingItems.loadState.refresh != LoadState.Loading &&
         lazyPagingItems.itemCount == 0
     )
@@ -276,7 +296,8 @@ fun LibraryPage(
             )
         }
     LazyColumn(
-        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
+        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection),
+        state = lazyListState,
     ) {
         itemsIndexed(
             items = lazyPagingItems,

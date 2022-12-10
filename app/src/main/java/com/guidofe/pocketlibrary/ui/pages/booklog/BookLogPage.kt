@@ -1,5 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.booklog
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -56,6 +60,7 @@ fun BookLogPage(
     val coroutineScope = rememberCoroutineScope()
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
     val focusManager = LocalFocusManager.current
+    val fabFocusRequester = remember { FocusRequester() }
 
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
     val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
@@ -315,9 +320,13 @@ fun BookLogPage(
         if (vm.state.tabIndex == 0) {
             vm.scaffoldState.fab = {
                 AddBookFab(
-                    isExpanded = vm.state.isFabExpanded,
-                    onMainFabClick = { vm.state.isFabExpanded = !vm.state.isFabExpanded },
-                    onDismissRequest = { vm.state.isFabExpanded = false },
+                    isExpanded = vm.borrowedTabState.isFabExpanded,
+                    onMainFabClick = {
+                        vm.borrowedTabState.isFabExpanded = !vm.borrowedTabState.isFabExpanded
+                        if (vm.borrowedTabState.isFabExpanded)
+                            fabFocusRequester.requestFocus()
+                    },
+                    onDismissRequest = { vm.borrowedTabState.isFabExpanded = false },
                     onIsbnTyped = {
                         vm.state.isbnToSearch = it
                     },
@@ -333,7 +342,14 @@ fun BookLogPage(
                         navigator.navigate(
                             SearchBookOnlinePageDestination(BookDestination.BORROWED)
                         )
-                    }
+                    },
+                    modifier = Modifier
+                        .focusRequester(fabFocusRequester)
+                        .onFocusChanged {
+                            if (!it.hasFocus)
+                                vm.borrowedTabState.isFabExpanded = false
+                        }
+                        .focusable()
                 )
             }
         } else {

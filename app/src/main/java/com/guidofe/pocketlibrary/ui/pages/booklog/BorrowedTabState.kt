@@ -18,5 +18,6 @@ class BorrowedTabState {
     var showConfirmDeleteBook by mutableStateOf(false)
     var showReturnedBooks by mutableStateOf(false)
     var isContextMenuVisible by mutableStateOf(false)
+    var isFabExpanded by mutableStateOf(false)
     var searchQuery = ""
 }

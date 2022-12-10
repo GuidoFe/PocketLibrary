@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.ui.pages.booklog
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,24 +46,13 @@ fun BorrowedTab(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     setScrollBehavior(scrollBehavior)
     val selectionManager = state.selectionManager
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (lazyListState.isScrollInProgress) {
+            state.isFabExpanded = false
+        }
+    }
     Column(modifier = modifier.fillMaxSize()) {
-        /*Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                stringResource(R.string.show_returned_books),
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = state.showReturnedBooks,
-                onCheckedChange = {
-                    if (state.showReturnedBooks)
-                        state.selectionManager.clearSelection()
-                    state.showReturnedBooks = !state.showReturnedBooks
-                    borrowedItems.refresh()
-                }
-            )
-        }*/
         if (borrowedItems.loadState.refresh != LoadState.Loading &&
             borrowedItems.itemCount == 0
         )
@@ -75,6 +65,7 @@ fun BorrowedTab(
                 )
             }
         LazyColumn(
+            state = lazyListState,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
             items(borrowedItems, key = { it.value.info.bookId }) { item ->

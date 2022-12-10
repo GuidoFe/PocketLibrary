@@ -1,13 +1,18 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import android.util.Log
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -50,8 +55,15 @@ fun WishlistPage(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
+    val lazyListState = rememberLazyListState()
+    val fabFocusRequester = remember { FocusRequester() }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (lazyListState.isScrollInProgress) {
+            vm.state.isFabExpanded = false
+        }
+    }
 // TODO add to borrowed
     LaunchedEffect(vm.selectionManager.isMultipleSelecting, vm.searchFieldManager.isSearching) {
         if (vm.selectionManager.isMultipleSelecting) {
@@ -175,9 +187,13 @@ fun WishlistPage(
         vm.invalidate()
         vm.scaffoldState.fab = {
             AddBookFab(
-                isExpanded = vm.state.isExpanded,
-                onMainFabClick = { vm.state.isExpanded = !vm.state.isExpanded },
-                onDismissRequest = { vm.state.isExpanded = false },
+                isExpanded = vm.state.isFabExpanded,
+                onMainFabClick = {
+                    vm.state.isFabExpanded = !vm.state.isFabExpanded
+                    if (vm.state.isFabExpanded)
+                        fabFocusRequester.requestFocus()
+                },
+                onDismissRequest = { vm.state.isFabExpanded = false },
                 onIsbnTyped = {
                     vm.state.isbnToSearch = it
                 },
@@ -191,7 +207,14 @@ fun WishlistPage(
                 },
                 onSearchOnline = {
                     navigator.navigate(SearchBookOnlinePageDestination(BookDestination.WISHLIST))
-                }
+                },
+                modifier = Modifier
+                    .focusRequester(fabFocusRequester)
+                    .onFocusChanged {
+                        if (!it.hasFocus)
+                            vm.state.isFabExpanded = false
+                    }
+                    .focusable()
             )
         }
     }
@@ -206,6 +229,7 @@ fun WishlistPage(
             )
         }
     LazyColumn(
+        state = lazyListState,
         modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
     ) {
         items(
