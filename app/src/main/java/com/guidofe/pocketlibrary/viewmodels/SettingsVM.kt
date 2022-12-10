@@ -35,6 +35,10 @@ class SettingsVM @Inject constructor(
         viewModelScope.launch(Dispatchers.Main) {
             val appLocale = LocaleListCompat.forLanguageTags(language.code)
             // delay(100)
+            settingsLiveData.value?.language?.let { oldLang ->
+                if (oldLang != language)
+                    TranslationService.deleteDownloadedTranslators()
+            }
             dataStore.setLanguage(language)
             AppCompatDelegate.setApplicationLocales(appLocale)
             if (settingsLiveData.value?.allowGenreTranslation == true) {
@@ -91,7 +95,6 @@ class SettingsVM @Inject constructor(
                     it.copy(name = it.englishName!!, lang = "en")
                 }
                 repo.updateAllGenres(updatedGenres)
-                TranslationService.deleteDownloadedTranslators()
                 dataStore.setGenreTranslation(false)
             }
         }

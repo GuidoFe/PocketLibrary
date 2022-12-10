@@ -113,37 +113,19 @@ fun SettingsPage(
                         // it glitches the animation of the closing dropdown. An alternative is
                         // setting a delay before the language change in vm
                         if (vm.state.isLanguageDropdownOpen) {
-                            DropdownMenu(
-                                expanded = true,
-                                onDismissRequest = { vm.state.isLanguageDropdownOpen = false }
-                            ) {
-                                for (language in Language.values()) {
-                                    DropdownMenuItem(text = {
-                                        Text(language.localizedName)
-                                    }, onClick = {
-                                        vm.state.isLanguageDropdownOpen = false
-                                        if (s.allowGenreTranslation && cm.isActiveNetworkMetered &&
-                                            language.code != "en"
-                                        ) {
-                                            TranslationService.hasTranslator(language.code) {
-                                                if (it == null) {
-                                                    Log.e("debug", "HasTranslator null")
-                                                } else {
-                                                    if (it)
-                                                        vm.setLanguage(language)
-                                                    else {
-                                                        vm.state.wifiRequester =
-                                                            WifiRequester.LanguageDropdown(language)
-                                                        vm.state.showAskForWifi = true
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            vm.setLanguage(language)
-                                        }
-                                    })
+                            LanguageSettingDropdown(
+                                settings = s,
+                                connManager = cm,
+                                closeDropdown = { vm.state.isLanguageDropdownOpen = false },
+                                onWifiRequested = {
+                                    vm.state.wifiRequester =
+                                        WifiRequester.LanguageDropdown(it)
+                                    vm.state.showAskForWifi = true
+                                },
+                                setLanguage = {
+                                    vm.setLanguage(it)
                                 }
-                            }
+                            )
                         }
                     }
                 }
@@ -336,7 +318,15 @@ fun SettingsPage(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { vm.state.showAskForWifi = false }) {
+                OutlinedButton(onClick = {
+                    if (vm.state.wifiRequester is WifiRequester.LanguageDropdown) {
+                        val lang = (vm.state.wifiRequester as WifiRequester.LanguageDropdown)
+                            .language
+                        vm.setGenreTranslation(false)
+                        vm.setLanguage(lang)
+                    }
+                    vm.state.showAskForWifi = false
+                }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -344,6 +334,45 @@ fun SettingsPage(
     }
 
     TranslationDialog(vm.translationState)
+}
+
+@Composable
+private fun LanguageSettingDropdown(
+    settings: AppSettings,
+    connManager: ConnectivityManager,
+    closeDropdown: () -> Unit,
+    onWifiRequested: (Language) -> Unit,
+    setLanguage: (Language) -> Unit
+) {
+    DropdownMenu(
+        expanded = true,
+        onDismissRequest = { closeDropdown() }
+    ) {
+        for (language in Language.values()) {
+            DropdownMenuItem(text = {
+                Text(language.localizedName)
+            }, onClick = {
+                closeDropdown()
+                if (settings.allowGenreTranslation && connManager.isActiveNetworkMetered &&
+                    language.code != "en"
+                ) {
+                    TranslationService.hasTranslator(language.code) {
+                        if (it == null) {
+                            Log.e("debug", "HasTranslator null")
+                        } else {
+                            if (it)
+                                setLanguage(language)
+                            else {
+                                onWifiRequested(language)
+                            }
+                        }
+                    }
+                } else {
+                    setLanguage(language)
+                }
+            })
+        }
+    }
 }
 
 @Composable
