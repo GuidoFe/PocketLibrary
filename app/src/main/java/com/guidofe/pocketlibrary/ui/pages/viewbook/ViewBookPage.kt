@@ -337,16 +337,12 @@ fun ViewBookPage(
                         )
                     }
                     LocalTab.NOTE -> {
-                        OutlinedTextField(
+                        NoteTab(
                             value = vm.editedNote,
-                            placeholder = { Text(stringResource(R.string.note_placeholder)) },
-
                             onValueChange = {
                                 vm.editedNote = it
                                 hasNoteBeenModified = true
-                            },
-                            modifier = Modifier
-                                .fillMaxSize()
+                            }
                         )
                     }
                 }
