@@ -10,7 +10,7 @@ class LandingPageVMPreview(
     private val bookList: List<BookBundle> = List(2) { PreviewUtils.exampleBookBundle }
 ) : ILandingPageVM {
     override val scaffoldState: ScaffoldState
-        get() = ScaffoldState()
+        get() = PreviewUtils.emptyScaffoldState
     override val stats: AppStats
         get() = AppStats(
             100,

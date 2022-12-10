@@ -497,7 +497,7 @@ fun LibraryPage(
         visible = state.isContextMenuVisible,
         onDismiss = {
             state.isContextMenuVisible = false
-        }
+        },
     ) {
         vm.selectionManager.singleSelectedItem?.let { item ->
             RowWithIcon(

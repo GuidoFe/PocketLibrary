@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -29,7 +28,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 fun ModalBottomSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val visibleState = remember {
@@ -63,7 +62,10 @@ fun ModalBottomSheet(
             },
             onDismissRequest = { onDismiss() }
         ) {
-            BoxWithConstraints {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -75,28 +77,30 @@ fun ModalBottomSheet(
                             )
                         }
                 ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge.copy(
-                            bottomStart = ZeroCornerSize,
-                            bottomEnd = ZeroCornerSize
-                        ),
-                        shadowElevation = 1.dp,
-                        tonalElevation = 1.dp,
-                        modifier = Modifier
-                            // .fillMaxWidth()
-                            .width(
-                                min(
-                                    640.dp,
-                                    with(LocalDensity.current) {
-                                        configuration.screenWidthDp.dp
-                                    }
-                                )
-                            )
-                            .align(Alignment.BottomCenter)
-                            .offset(0.dp, y = this@BoxWithConstraints.maxHeight * yOffset)
+                    BoxWithConstraints(
+                        modifier = Modifier.align(Alignment.BottomCenter)
                     ) {
-                        Column {
-                            content()
+                        Surface(
+                            shape = MaterialTheme.shapes.extraLarge.copy(
+                                bottomStart = ZeroCornerSize,
+                                bottomEnd = ZeroCornerSize
+                            ),
+                            shadowElevation = 1.dp,
+                            modifier = Modifier
+                                .width(
+                                    min(
+                                        640.dp,
+                                        configuration.screenWidthDp.dp
+                                    )
+                                )
+                                .offset(
+                                    0.dp,
+                                    y = this@BoxWithConstraints.maxHeight * yOffset
+                                )
+                        ) {
+                            Column {
+                                content()
+                            }
                         }
                     }
                 }

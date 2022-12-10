@@ -1,7 +1,7 @@
-package com.guidofe.pocketlibrary.ui.pages
+package com.guidofe.pocketlibrary.ui
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,28 +10,33 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.guidofe.pocketlibrary.R
-import com.guidofe.pocketlibrary.ui.MainBottomBar
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
-import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.pages.NavGraphs
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.guidofe.pocketlibrary.viewmodels.MainActivityVM
+import com.guidofe.pocketlibrary.viewmodels.interfaces.IMainActivityVM
 import com.ramcosta.composedestinations.DestinationsNavHost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
+fun AppScreen(
+    viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>(),
+) {
     val navController = rememberNavController()
     val scaffoldState = viewModel.scaffoldState
+    val windowInfo = rememberWindowInfo()
     LaunchedEffect(navController) {
         navController.addOnDestinationChangedListener { _, _, _ ->
             scaffoldState.fab = {}
             scaffoldState.actions = {}
         }
     }
+
     Scaffold(
         snackbarHost = {
             // reuse default SnackbarHost to have default animation and timing handling
@@ -54,7 +59,12 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
                     action = {
                         data.visuals.actionLabel?.let {
                             TextButton(
-                                onClick = { if (isError) data.dismiss() else data.performAction() },
+                                onClick = {
+                                    if (isError)
+                                        data.dismiss()
+                                    else
+                                        data.performAction()
+                                },
                                 colors = buttonColor
                             ) { Text(it) }
                         }
@@ -86,16 +96,19 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
                 }
             }
         },
-        bottomBar = { MainBottomBar(navController) },
         topBar = {
+
             if (!scaffoldState.hiddenBar) {
                 TopAppBar(
                     title = scaffoldState.title,
                     actions = scaffoldState.actions,
                     navigationIcon = scaffoldState.navigationIcon,
-                    scrollBehavior = viewModel.scaffoldState.scrollBehavior,
+                    scrollBehavior = viewModel.scaffoldState.scrollBehavior
                 )
             }
+        },
+        bottomBar = {
+            if (windowInfo.isBottomAppBarLayout()) MainBottomBar(navController)
         },
         floatingActionButton = {
             // TODO: Animate fab changing
@@ -105,22 +118,28 @@ fun MainPage(viewModel: MainActivityVM = hiltViewModel()) {
         val focusManager = LocalFocusManager.current
         Surface(
             modifier = Modifier
-                .padding(paddingValues)
+                .padding(
+                    if (windowInfo.isBottomAppBarLayout())
+                        paddingValues
+                    else
+                        PaddingValues(
+                            0.dp,
+                            paddingValues.calculateTopPadding(),
+                            paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                            paddingValues.calculateBottomPadding()
+                        )
+                )
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { focusManager.clearFocus() }
                     )
                 }
         ) {
-            DestinationsNavHost(navGraph = NavGraphs.root, navController = navController)
+            Row() {
+                if (!windowInfo.isBottomAppBarLayout())
+                    MainNavigationRail(navController)
+                DestinationsNavHost(NavGraphs.root, navController = navController)
+            }
         }
-    }
-}
-
-@Composable
-@Preview
-private fun MainPagePreview() {
-    PocketLibraryTheme {
-        MainPage()
     }
 }

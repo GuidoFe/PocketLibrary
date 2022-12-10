@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
-import com.guidofe.pocketlibrary.ui.pages.MainPage
+import com.guidofe.pocketlibrary.ui.AppScreen
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.viewmodels.MainActivityVM
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                     LaunchedEffect(true) {
                         UriConverter.baseUri = viewModel.getCoverDir() ?: Uri.parse("")
                     }
-                    MainPage()
+                    AppScreen()
                 }
             }
         }

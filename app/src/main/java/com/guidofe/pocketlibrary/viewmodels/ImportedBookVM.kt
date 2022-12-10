@@ -12,7 +12,6 @@ import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.utils.BookDestination
-import com.guidofe.pocketlibrary.utils.Stopwatch
 import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.utils.TranslationService
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
@@ -170,17 +169,15 @@ class ImportedBookVM @Inject constructor(
         genres: List<String>,
         translationDialogState: TranslationDialogState?
     ): Map<String, Long>? {
-        val s = Stopwatch()
         val distinctGenres = genres.distinct()
-        s.lap("a")
         val l = settingsLiveData.value?.language?.code
         val targetLanguage = if (l == null) {
             Log.e("debug", "Language code is null")
             "en"
         } else l
-        if (targetLanguage == "en") {
+        val translateGenres = settingsLiveData.value?.allowGenreTranslation ?: false
+        if (targetLanguage == "en" || !translateGenres) {
             localRepo.insertAllGenres(distinctGenres.map { Genre(0L, it, it, "en") })
-            s.lap("b")
             return localRepo.getGenresByNames(distinctGenres).associate {
                 Pair(it.name, it.genreId)
             }
@@ -192,11 +189,8 @@ class ImportedBookVM @Inject constructor(
         if (genresToTranslate.isNotEmpty()) {
             translationDialogState?.totalGenres = genresToTranslate.size
             translationDialogState?.translationPhase = TranslationPhase.DOWNLOADING_TRANSLATOR
-            s.lap("c")
             val translator = TranslationService(targetLanguage)
-            s.lap("d")
             val res = translator.initTranslator()
-            s.lap("e")
             if (!res) {
                 Log.e("debug", "Error initializing translator")
                 // TODO: Manage error
@@ -217,12 +211,10 @@ class ImportedBookVM @Inject constructor(
                     Genre(0L, translation, it, targetLanguage)
                 }
             }
-            s.lap("f")
             translator.close()
             translationDialogState?.translationPhase = TranslationPhase.UPDATING_DB
             localRepo.insertAllGenres(translatedGenres)
         }
-        s.lap("g")
         translationDialogState?.translationPhase = TranslationPhase.NO_TRANSLATING
         return localRepo.getGenresByEnglishNames(distinctGenres).associate {
             Pair(it.englishName!!, it.genreId)
