@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -96,17 +97,7 @@ fun AppScreen(
                 }
             }
         },
-        topBar = {
-
-            if (!scaffoldState.hiddenBar) {
-                TopAppBar(
-                    title = scaffoldState.title,
-                    actions = scaffoldState.actions,
-                    navigationIcon = scaffoldState.navigationIcon,
-                    scrollBehavior = viewModel.scaffoldState.scrollBehavior
-                )
-            }
-        },
+        topBar = viewModel.scaffoldState.topAppBar,
         bottomBar = {
             if (windowInfo.isBottomAppBarLayout()) MainBottomBar(navController)
         },
@@ -134,6 +125,7 @@ fun AppScreen(
                         onTap = { focusManager.clearFocus() }
                     )
                 }
+                .nestedScroll(viewModel.scaffoldState.nestedScrollCollection)
         ) {
             Row() {
                 if (!windowInfo.isBottomAppBarLayout())

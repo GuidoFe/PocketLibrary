@@ -13,7 +13,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,7 +59,6 @@ fun SettingsPage(
         context.getSystemService(Context.CONNECTIVITY_SERVICE)
             as ConnectivityManager
     }
-    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.settings)) },
@@ -84,7 +82,7 @@ fun SettingsPage(
             Column(
                 modifier = Modifier
                     .verticalScroll(scrollState)
-                    .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
+                    // .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
                     .fillMaxWidth()
                     .padding(5.dp)
             ) {

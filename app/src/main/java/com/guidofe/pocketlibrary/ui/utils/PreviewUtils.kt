@@ -1,8 +1,6 @@
 package com.guidofe.pocketlibrary.ui.utils
 
 import android.graphics.Bitmap
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
@@ -147,20 +142,7 @@ class PreviewUtils {
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
-        val emptyScaffoldState = ScaffoldState().also {
-            it.scrollBehavior = object : TopAppBarScrollBehavior {
-                override val flingAnimationSpec: DecayAnimationSpec<Float>?
-                    get() = null
-                override val isPinned: Boolean
-                    get() = true
-                override val nestedScrollConnection: NestedScrollConnection
-                    get() = object : NestedScrollConnection {}
-                override val snapAnimationSpec: AnimationSpec<Float>?
-                    get() = null
-                override val state: TopAppBarState
-                    get() = TopAppBarState(-Float.MAX_VALUE, 0f, 0f)
-            }
-        }
+        val emptyScaffoldState = ScaffoldState()
     }
 
     val fakeDataStoreRepository = object : DataStoreRepository {

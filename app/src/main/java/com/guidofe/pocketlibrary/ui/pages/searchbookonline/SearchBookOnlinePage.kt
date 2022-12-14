@@ -1,7 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +26,6 @@ import com.guidofe.pocketlibrary.ui.modules.OnlineBookList
 import com.guidofe.pocketlibrary.ui.modules.Snackbars
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.searchbookonline.SearchBox
-import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
@@ -55,10 +53,9 @@ fun SearchBookOnlinePage(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val boxShape = ShapeDefaults.Large.copy(topStart = ZeroCornerSize, topEnd = ZeroCornerSize)
-    val appBarColor by appBarColorAnimation(vm.scaffoldState.scrollBehavior)
+    // val appBarColor by appBarColorAnimation(vm.scaffoldState.scrollBehavior)
     var searchBoxYOffset by remember { mutableStateOf(0f) }
     var isSearchBoxVisible by remember { mutableStateOf(true) }
-    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar({ Text(stringResource(R.string.search_online)) })
     }
@@ -170,7 +167,7 @@ fun SearchBookOnlinePage(
             },
             selectionManager = vm.selectionManager,
             vm = vm.listVM,
-            nestedScrollConnection = vm.scaffoldState.scrollBehavior!!.nestedScrollConnection,
+            // nestedScrollConnection = vm.scaffoldState.scrollBehavior!!.nestedScrollConnection,
             modifier = Modifier.fillMaxSize()
         )
         AnimatedVisibility(
@@ -203,7 +200,7 @@ fun SearchBookOnlinePage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(3.dp, shape = boxShape)
-                    .background(appBarColor, boxShape)
+                    // .background(appBarColor, boxShape)
                     .padding(8.dp)
             )
         }
@@ -227,7 +224,7 @@ fun SearchBookOnlinePage(
                 }
             },
             onDismissRequest = { isDialogOpen = false },
-            modifier = Modifier.background(appBarColor)
+            // modifier = Modifier.background(appBarColor)
         )
     }
     TranslationDialog(vm.translationState)

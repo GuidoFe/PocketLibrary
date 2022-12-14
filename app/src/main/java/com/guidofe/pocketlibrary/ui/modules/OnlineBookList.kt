@@ -11,8 +11,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -38,7 +36,7 @@ fun OnlineBookList(
         getKey = { it.externalId }
     ),
     multipleSelectionEnabled: Boolean = true,
-    nestedScrollConnection: NestedScrollConnection,
+    // nestedScrollConnection: NestedScrollConnection,
     vm: IOnlineBookListVM = hiltViewModel<OnlineBookListVM>()
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
@@ -73,7 +71,7 @@ fun OnlineBookList(
                     )
                 }
                 LazyColumn(
-                    modifier = Modifier.nestedScroll(nestedScrollConnection)
+                    // modifier = Modifier.nestedScroll(nestedScrollConnection)
                 ) {
                     if (lazyPagingItems.loadState.prepend == LoadState.Loading) {
                         item {

@@ -31,7 +31,6 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
-import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.BookLogVM
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
@@ -63,7 +62,7 @@ fun BookLogPage(
     val fabFocusRequester = remember { FocusRequester() }
 
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
-    val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
+    // val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
     LaunchedEffect(Unit) {
         vm.invalidateBorrowedPagingSource()
     }
@@ -363,7 +362,7 @@ fun BookLogPage(
         TabRow(
             selectedTabIndex = vm.state.tabIndex,
             modifier = Modifier.fillMaxWidth(),
-            containerColor = appBarColor.value
+            // containerColor = appBarColor.value
         ) {
             Tab(
                 selected = vm.state.tabIndex == 0,
@@ -392,7 +391,9 @@ fun BookLogPage(
                     },
                     navigator = navigator,
                     state = vm.borrowedTabState,
-                    setScrollBehavior = { vm.scaffoldState.scrollBehavior = it }
+                    setScrollBehavior = {
+                        // vm.scaffoldState.scrollBehavior = it
+                    }
                 )
             }
             1 -> {
@@ -404,7 +405,9 @@ fun BookLogPage(
                     },
                     state = vm.lentTabState,
                     navigator = navigator,
-                    setScrollBehavior = { vm.scaffoldState.scrollBehavior = it }
+                    setScrollBehavior = {
+                        // vm.scaffoldState.scrollBehavior = it
+                    }
                 )
             }
         }
