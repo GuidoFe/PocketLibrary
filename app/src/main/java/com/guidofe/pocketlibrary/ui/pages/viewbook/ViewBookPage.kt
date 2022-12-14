@@ -2,6 +2,7 @@
 
 package com.guidofe.pocketlibrary.ui.pages.viewbook
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -9,16 +10,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,15 +23,15 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmExitDialog
-import com.guidofe.pocketlibrary.ui.modules.EmptyBookCover
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.LibraryPageDestination
 import com.guidofe.pocketlibrary.ui.pages.library.LibraryPageNavArgs
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.utils.WindowType
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.guidofe.pocketlibrary.viewmodels.ViewBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import com.guidofe.pocketlibrary.viewmodels.previews.ViewBookVMPreview
@@ -43,7 +40,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.launch
 
-private enum class LocalTab { PROGRESS, SUMMARY, DETAILS, NOTE }
+internal enum class LocalTab { PROGRESS, SUMMARY, DETAILS, NOTE }
 
 @Composable
 private fun EditIcon(navigator: DestinationsNavigator, id: Long) {
@@ -69,13 +66,11 @@ fun ViewBookPage(
     navigator: DestinationsNavigator,
 ) {
     var tabState by remember { mutableStateOf(LocalTab.PROGRESS) }
-    val detailsScrollState = rememberScrollState()
-    val summaryScrollState = rememberScrollState()
-    val genreScrollState = rememberScrollState()
     var hasNoteBeenModified by remember { mutableStateOf(false) }
     var hasProgressBeenModified by remember { mutableStateOf(false) }
     var showTitlePopup by remember { mutableStateOf(false) }
     var showConfirmExitDialog by remember { mutableStateOf(false) }
+    val windowInfo = rememberWindowInfo()
 
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
@@ -131,6 +126,7 @@ fun ViewBookPage(
                             if (vm.progTabState.isReadPagesError ||
                                 vm.progTabState.isTotalPagesError
                             ) {
+                                Log.e("debug", "ViewBook: Read pages error")
                                 return@IconButton
                             }
                             vm.saveProgress() {
@@ -163,189 +159,117 @@ fun ViewBookPage(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    // .fillMaxWidth()
-                    .padding(8.dp)
-                // .height()
-            ) {
-                Box(
-                    Modifier
-                        .height(125.dp)
-                ) {
-                    val coverUri = vm.bundle?.book?.coverURI
-                    if (coverUri != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(coverUri)
-                                .build(),
-                            contentDescription = stringResource(id = R.string.cover),
-                            contentScale = ContentScale.FillHeight,
-                            modifier = Modifier.fillMaxHeight()
-                        )
-                    } else {
-                        EmptyBookCover(
-                            Modifier
-                            // .fillMaxHeight()
-                        )
-                    }
-                }
-                Box(
+        when {
+            windowInfo.screenHeightInfo == WindowType.COMPAT &&
+                windowInfo.screenWidthInfo == WindowType.COMPAT -> {
+                val scrollState = rememberScrollState()
+                Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .verticalScroll(scrollState)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
+                    vm.bundle?.let { bundle ->
+                        HorizontalCompactBookHeading(
+                            bundle = bundle,
+                            onHeadingClick = { showTitlePopup = true },
+                            onGenreClick = {
+                                navigator.navigate(
+                                    LibraryPageDestination(
+                                        LibraryPageNavArgs(genre = it)
+                                    )
+                                )
+                            }
+                        )
+                    }
+                    ViewBookTabRow(tabState) { tabState = it }
+                    TabHost(
+                        bundle = vm.bundle,
+                        tabState = tabState,
+                        progTabState = vm.progTabState,
+                        editedNote = vm.editedNote,
+                        onEditedNoteChange = {
+                            vm.editedNote = it
+                            hasNoteBeenModified = true
+                        },
+                        onProgressChanged = { hasProgressBeenModified = true },
+                        areTabsScrollable = false
+                    )
+                }
+            }
+            windowInfo.screenHeightInfo == WindowType.COMPAT -> {
+                Row {
+                    vm.bundle?.let { bundle ->
+                        VerticalCompactBookHeading(
+                            bundle = bundle,
+                            onHeadingClick = { showTitlePopup = true },
+                            onGenreClick = {
+                                navigator.navigate(
+                                    LibraryPageDestination(
+                                        LibraryPageNavArgs(genre = it)
+                                    )
+                                )
+                            },
+                            modifier = Modifier.widthIn(max = 280.dp)
+                        )
                         Column(
-                            modifier = Modifier.clickable { showTitlePopup = true }
+                            // modifier = Modifier.weight(1f)
                         ) {
-                            Text(
-                                vm.bundle?.book?.title ?: "",
-                                style = MaterialTheme.typography.titleMedium,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            vm.bundle?.book?.subtitle?.let {
-                                Text(
-                                    it,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            vm.bundle?.authors?.let { authorsList ->
-                                val authorsString =
-                                    authorsList.joinToString(", ") { it.name }
-                                Text(
-                                    authorsString,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontStyle = FontStyle.Italic,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    fontWeight = FontWeight.Light
-                                )
-                            }
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier
-                                .horizontalScroll(genreScrollState)
-                                .height(32.dp)
-                        ) {
-                            vm.bundle?.genres?.forEach {
-                                SuggestionChip(
-                                    onClick = {
-                                        navigator.navigate(
-                                            LibraryPageDestination(
-                                                LibraryPageNavArgs(genre = it.name)
-                                            )
-                                        )
-                                    },
-                                    label = {
-                                        Text(
-                                            it.name,
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
-                                    },
-                                )
-                            }
-                        }
-                        if (vm.bundle?.genres?.any {
-                            it.englishName != null && it.lang != "en"
-                        } == true
-                        ) {
-                            Image(
-                                painterResource(R.drawable.google_translate_attribution_2x),
-                                stringResource(R.string.google_translate_attribution),
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                                modifier = Modifier.padding(5.dp, 2.dp)
+                            ViewBookTabRow(tabState) { tabState = it }
+                            TabHost(
+                                bundle = vm.bundle,
+                                tabState = tabState,
+                                progTabState = vm.progTabState,
+                                editedNote = vm.editedNote,
+                                onEditedNoteChange = {
+                                    vm.editedNote = it
+                                    hasNoteBeenModified = true
+                                },
+                                onProgressChanged = { hasProgressBeenModified = true },
+                                areTabsScrollable = true
                             )
                         }
                     }
                 }
             }
-            ScrollableTabRow(
-                selectedTabIndex = tabState.ordinal,
-                edgePadding = 0.dp,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Tab(
-                    selected = tabState == LocalTab.PROGRESS,
-                    onClick = { tabState = LocalTab.PROGRESS },
-                    text = { Text(stringResource(R.string.progress_label)) }
-                )
-                Tab(
-                    selected = tabState == LocalTab.SUMMARY,
-                    onClick = { tabState = LocalTab.SUMMARY },
-                    text = { Text(stringResource(R.string.summary)) }
-                )
-                Tab(
-                    selected = tabState == LocalTab.DETAILS,
-                    onClick = { tabState = LocalTab.DETAILS },
-                    text = { Text(stringResource(R.string.details)) }
-                )
-                Tab(
-                    selected = tabState == LocalTab.NOTE,
-                    onClick = { tabState = LocalTab.NOTE },
-                    text = { Text(stringResource(R.string.note)) }
-                )
-            }
-            Box(
-                Modifier
-                    .padding(10.dp)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.TopStart
-            ) {
-                when (tabState) {
-                    LocalTab.PROGRESS -> {
-                        ProgressTab(
-                            vm.progTabState
-                        ) {
-                            if (!hasProgressBeenModified)
-                                hasProgressBeenModified = true
-                        }
-                    }
-                    LocalTab.SUMMARY -> {
-                        // TODO Fix unscrollable long summaries
-                        if (vm.bundle?.book?.description.isNullOrBlank()) {
-                            Text(
-                                stringResource(R.string.no_description),
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                            )
-                        } else {
-                            SelectionContainer() {
-                                Text(
-                                    text = vm.bundle?.book?.description
-                                        ?: stringResource(R.string.no_description),
-                                    modifier = Modifier.verticalScroll(summaryScrollState)
+            windowInfo.screenWidthInfo == WindowType.COMPAT -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    vm.bundle?.let { bundle ->
+                        HorizontalCompactBookHeading(
+                            bundle = bundle,
+                            onHeadingClick = { showTitlePopup = true },
+                            onGenreClick = {
+                                navigator.navigate(
+                                    LibraryPageDestination(
+                                        LibraryPageNavArgs(genre = it)
+                                    )
                                 )
                             }
-                        }
-                    }
-                    LocalTab.DETAILS -> {
-                        DetailsTab(
-                            modifier = Modifier.verticalScroll(detailsScrollState),
-                            book = vm.bundle?.book
                         )
                     }
-                    LocalTab.NOTE -> {
-                        NoteTab(
-                            value = vm.editedNote,
-                            onValueChange = {
+                    ViewBookTabRow(tabState) { tabState = it }
+                    Box(
+                        Modifier
+                            .padding(10.dp)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.TopStart
+                    ) {
+                        TabHost(
+                            bundle = vm.bundle,
+                            tabState = tabState,
+                            progTabState = vm.progTabState,
+                            editedNote = vm.editedNote,
+                            onEditedNoteChange = {
                                 vm.editedNote = it
                                 hasNoteBeenModified = true
-                            }
+                            },
+                            onProgressChanged = { hasProgressBeenModified = true },
+                            areTabsScrollable = true
                         )
                     }
                 }
+            } else -> {
             }
         }
     }
@@ -410,19 +334,81 @@ fun ViewBookPage(
 }
 
 @Composable
-@Preview(device = Devices.PIXEL_2, showSystemUi = true)
-private fun ViewBookPagePreview() {
-    PocketLibraryTheme(darkTheme = false) {
-        ViewBookPage(
-            3,
-            ViewBookVMPreview(),
-            EmptyDestinationsNavigator,
+internal fun TabHost(
+    bundle: BookBundle?,
+    tabState: LocalTab,
+    progTabState: ProgressTabState,
+    editedNote: String,
+    areTabsScrollable: Boolean,
+    onEditedNoteChange: (String) -> Unit,
+    onProgressChanged: () -> Unit
+) {
+    when (tabState) {
+        LocalTab.PROGRESS -> {
+            ProgressTab(
+                progTabState,
+                isScrollable = areTabsScrollable
+            ) {
+                onProgressChanged()
+            }
+        }
+        LocalTab.SUMMARY -> {
+            SummaryTab(
+                bundle?.book?.description,
+                modifier = Modifier.fillMaxSize(),
+                isScrollable = areTabsScrollable
+            )
+        }
+        LocalTab.DETAILS -> {
+            DetailsTab(
+                book = bundle?.book,
+                isScrollable = areTabsScrollable
+            )
+        }
+        LocalTab.NOTE -> {
+            NoteTab(
+                value = editedNote,
+                onValueChange = {
+                    onEditedNoteChange(it)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ViewBookTabRow(tabState: LocalTab, setTabState: (LocalTab) -> Unit) {
+    ScrollableTabRow(
+        selectedTabIndex = tabState.ordinal,
+        edgePadding = 0.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Tab(
+            selected = tabState == LocalTab.PROGRESS,
+            onClick = { setTabState(LocalTab.PROGRESS) },
+            text = { Text(stringResource(R.string.progress_label)) }
+        )
+        Tab(
+            selected = tabState == LocalTab.SUMMARY,
+            onClick = { setTabState(LocalTab.SUMMARY) },
+            text = { Text(stringResource(R.string.summary)) }
+        )
+        Tab(
+            selected = tabState == LocalTab.DETAILS,
+            onClick = { setTabState(LocalTab.DETAILS) },
+            text = { Text(stringResource(R.string.details)) }
+        )
+        Tab(
+            selected = tabState == LocalTab.NOTE,
+            onClick = { setTabState(LocalTab.NOTE) },
+            text = { Text(stringResource(R.string.note)) }
         )
     }
 }
 
 @Composable
-@Preview(device = Devices.PIXEL_2, showSystemUi = true)
+@Preview(device = Devices.PHONE, showSystemUi = true)
+@Preview(device = Devices.TABLET, showSystemUi = true)
 private fun ViewBookPagePreviewDark() {
     PocketLibraryTheme(darkTheme = true) {
         ViewBookPage(

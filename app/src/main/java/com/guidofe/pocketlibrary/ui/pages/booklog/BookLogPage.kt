@@ -378,6 +378,7 @@ fun BookLogPage(
         }
         when (vm.state.tabIndex) {
             0 -> {
+                vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
                 BorrowedTab(
                     lazyBorrowedPagingItems,
                     setReturnStatus = { id, isReturned ->
@@ -392,10 +393,10 @@ fun BookLogPage(
                     },
                     navigator = navigator,
                     state = vm.borrowedTabState,
-                    setScrollBehavior = { vm.scaffoldState.scrollBehavior = it }
                 )
             }
             1 -> {
+                vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
                 LentTab(
                     lentItems = lentList,
                     updateLent = { vm.updateLent(it) },
@@ -404,7 +405,6 @@ fun BookLogPage(
                     },
                     state = vm.lentTabState,
                     navigator = navigator,
-                    setScrollBehavior = { vm.scaffoldState.scrollBehavior = it }
                 )
             }
         }

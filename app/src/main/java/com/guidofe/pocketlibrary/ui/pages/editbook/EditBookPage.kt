@@ -19,9 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -87,7 +85,6 @@ fun EditBookPage(
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showPermissionDeniedDialog by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
-    val focusManager = LocalFocusManager.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -204,7 +201,6 @@ fun EditBookPage(
         modifier = Modifier
             .verticalScroll(scrollState)
             .fillMaxWidth()
-            .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
             .padding(8.dp)
     ) {
         BoxWithConstraints {

@@ -149,7 +149,7 @@ internal fun PieStatsTile(
                         )
                         LegendRow(
                             stringResource(R.string.did_not_finish) +
-                                ": ${stats.libraryBooksSuspended}",
+                                ": ${stats.libraryBooksDnf}",
                             color = CustomRed
                         )
                         LegendRow(

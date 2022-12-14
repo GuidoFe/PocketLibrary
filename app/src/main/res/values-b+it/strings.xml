@@ -34,7 +34,7 @@
     <string name="media_type">Tipo di media</string>
     <string name="book">Libro</string>
     <string name="ebook">E-Book</string>
-    <string name="note_placeholder">Opinioni, note, …</string>
+    <string name="note_placeholder">Scrivi le tue opinioni, annotazioni, …</string>
     <string name="edit_details">Modifica i dettagli</string>
     <string name="save">Salva</string>
     <string name="error_no_connection">Errore: nessuna connessione</string>
@@ -192,5 +192,25 @@
     <string name="my_library_label">Libreria</string>
     <string name="wishlist_label">Wishlist</string>
     <string name="book_log_label">Movimenti</string>
+    <string name="ask_again">Chiedi ancora</string>
+    <string name="ask_wifi_for_translation_message">Per poter tradurre le categorie dei libri, è necessario scaricare il servizio di traduzione da internet, ma stai usando i dati mobili. Vuoi scaricalro ugualmente?</string>
+    <string name="camera_denied">Ha negato il permesso di usare la fotocamera. Se vuoi ripristinarlo, clicca il pulsante sotto o abilita il permesso in Impostazioni</string>
+    <string name="covers_restore_failed">Ripristino delle copertine fallito</string>
+    <string name="covers_restored_success">Copertine ripristinate con successo</string>
+    <string name="covers_upload_failed">Caricamento online delle copertine fallito</string>
+    <string name="covers_upload_success">Copertine caricate online correttamente</string>
+    <string name="data_not_saved_dialog">Non hai salvato le tue modifiche. Uscire ugualmente?</string>
+    <string name="deny">Vieta</string>
+    <string name="download_anyway">Scarica ugualmente</string>
+    <string name="download_db_covers_locally">Scarica le cover nella memoria locale</string>
+    <string name="gallery_denied">Hai negato il permesso di accedere alla galleria. Se vuoi ripristinarlo, cambia manualmente il permesso in Impostazioni.</string>
+    <string name="gallery_rationale">Il permesso di accedere alla galleria è necessario se desideri caricare una copertina dalle tue immagini.</string>
+    <string name="imsure">Conferma</string>
+    <string name="mark_as_read">Contrassegna come letto</string>
+    <string name="privacy_policy">Politica sulla privacy</string>
+    <string name="restore_covers">Ripristina copertine</string>
+    <string name="restore_local_backup">Ripristina un backup locale</string>
+    <string name="terms_and_conditions">Termini e condizioni</string>
+    <string name="yes">Sì</string>
 
 </resources>

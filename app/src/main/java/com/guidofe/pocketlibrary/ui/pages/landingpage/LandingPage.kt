@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -93,7 +92,6 @@ fun LandingPage(
     Surface(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
-            .nestedScroll(vm.scaffoldState.scrollBehavior!!.nestedScrollConnection)
             .verticalScroll(scroll)
     ) {
         Column(

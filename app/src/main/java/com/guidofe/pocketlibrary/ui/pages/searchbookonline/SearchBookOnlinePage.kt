@@ -170,7 +170,6 @@ fun SearchBookOnlinePage(
             },
             selectionManager = vm.selectionManager,
             vm = vm.listVM,
-            nestedScrollConnection = vm.scaffoldState.scrollBehavior!!.nestedScrollConnection,
             modifier = Modifier.fillMaxSize()
         )
         AnimatedVisibility(

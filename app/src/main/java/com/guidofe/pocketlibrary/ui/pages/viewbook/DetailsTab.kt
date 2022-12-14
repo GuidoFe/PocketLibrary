@@ -2,6 +2,8 @@ package com.guidofe.pocketlibrary.ui.pages.viewbook
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,12 +22,17 @@ import com.guidofe.pocketlibrary.ui.utils.languageName
 @Composable
 fun DetailsTab(
     modifier: Modifier = Modifier,
-    book: Book?
+    book: Book?,
+    isScrollable: Boolean
 ) {
     val boxPadding = 8.dp
     val gap = 4.dp
+    val scrollState = rememberScrollState()
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = if (isScrollable)
+            modifier.fillMaxWidth().verticalScroll(scrollState)
+        else
+            modifier.fillMaxWidth()
     ) {
         RowWithIconAndSubtitle(
             icon = {
@@ -99,7 +106,10 @@ fun DetailsTab(
 private fun DetailsTabPreview() {
     MaterialTheme {
         Surface {
-            DetailsTab(book = PreviewUtils.exampleBookBundle.book)
+            DetailsTab(
+                book = PreviewUtils.exampleBookBundle.book,
+                isScrollable = false
+            )
         }
     }
 }
