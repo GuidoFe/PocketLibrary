@@ -4,9 +4,7 @@ import android.graphics.Canvas
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -30,6 +28,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun CreditsPage(
@@ -38,6 +37,7 @@ fun CreditsPage(
 ) {
     val uriHandler = LocalUriHandler.current
     val email = "guido.ferri@protonmail.com"
+    var text by remember { mutableStateOf("Very long text") }
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.about)) },
@@ -66,6 +66,7 @@ fun CreditsPage(
                 .fillMaxSize()
                 .verticalScroll(scroll)
         ) {
+            OutlinedTextField(value = text, onValueChange = { text = it })
             ResourcesCompat.getDrawable(
                 LocalContext.current.resources,
                 R.mipmap.ic_launcher_round, LocalContext.current.theme

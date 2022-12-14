@@ -31,17 +31,18 @@ private fun progressToString(progress: ProgressPhase?): String {
 @Composable
 fun ProgressTab(
     state: ProgressTabState,
+    isScrollable: Boolean,
     modifier: Modifier = Modifier,
-    onValuesChanged: () -> Unit
+    onValuesChanged: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(scrollState)
-            .padding(20.dp)
+        modifier = if (isScrollable)
+            modifier.fillMaxWidth().verticalScroll(scrollState).padding(20.dp)
+        else
+            modifier.fillMaxWidth().padding(20.dp)
     ) {
         ExposedDropdownMenuBox(
             expanded = state.isDropdownExpanded,
@@ -145,7 +146,8 @@ private fun ProgressTabPreview() {
     MaterialTheme {
         Surface {
             ProgressTab(
-                state = ProgressTabState()
+                state = ProgressTabState(),
+                isScrollable = false
             ) {}
         }
     }
