@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -294,37 +295,40 @@ fun LibraryPage(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-    LazyColumn(
-        state = lazyListState,
-    ) {
-        itemsIndexed(
-            items = lazyPagingItems,
-            key = { _, item ->
-                item.value.info.bookId
-            }
-        ) { index, item ->
-            if (item == null)
-                return@itemsIndexed
-            Box {
-                val bundle = item
-                LibraryListRow(
-                    item,
-                    onRowTap = {
-                        if (vm.selectionManager.isMultipleSelecting) {
-                            vm.selectionManager.multipleSelectToggle(item.value)
-                        } else
-                            navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
-                    },
-                    onCoverLongPress = {
-                        if (!vm.selectionManager.isMultipleSelecting) {
-                            vm.selectionManager.startMultipleSelection(item.value)
+    Box(modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)) {
+        LazyColumn(
+            state = lazyListState,
+        ) {
+            itemsIndexed(
+                items = lazyPagingItems,
+                key = { _, item ->
+                    item.value.info.bookId
+                }
+            ) { index, item ->
+                if (item == null)
+                    return@itemsIndexed
+                Box {
+                    val bundle = item
+                    LibraryListRow(
+                        item,
+                        onRowTap = {
+                            if (vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.multipleSelectToggle(item.value)
+                            } else
+                                navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
+                        },
+                        onCoverLongPress = {
+                            if (!vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.startMultipleSelection(item.value)
+                            }
+                        },
+                        onRowLongPress = {
+                            vm.selectionManager.singleSelectedItem =
+                                lazyPagingItems.peek(index)?.value
+                            state.isContextMenuVisible = true
                         }
-                    },
-                    onRowLongPress = {
-                        vm.selectionManager.singleSelectedItem = lazyPagingItems.peek(index)?.value
-                        state.isContextMenuVisible = true
-                    }
-                )
+                    )
+                }
             }
         }
     }

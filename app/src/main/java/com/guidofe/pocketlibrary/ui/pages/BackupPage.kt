@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -125,6 +126,7 @@ fun BackupPage(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
             .padding(20.dp)
+            .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),

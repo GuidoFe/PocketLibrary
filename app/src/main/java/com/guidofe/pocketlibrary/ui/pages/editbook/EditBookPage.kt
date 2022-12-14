@@ -19,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -195,165 +196,167 @@ fun EditBookPage(
             }
         )
     }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(verticalSpace),
-        modifier = Modifier
-            .verticalScroll(scrollState)
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        BoxWithConstraints {
-            Box(
-                modifier = Modifier
-                    .clickable { vm.state.showCoverMenu = true }
-            ) {
-                if (imageRequest != null) {
-                    // TODO: placeholder for book cover
-                    AsyncImage(
-                        model = imageRequest,
-                        contentDescription = stringResource(id = R.string.cover),
-                        Modifier.height(200.dp)
-                    )
-                } else
-                    EmptyBookCover(Modifier.width(90.dp))
-            }
-        }
-        OutlinedTextField(
-            value = vm.state.title,
-            label = { Text(stringResource(id = R.string.title) + "*") },
-            onValueChange = { vm.state.title = it },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = vm.state.subtitle,
-            label = { Text(stringResource(id = R.string.subtitle)) },
-            singleLine = true,
-            onValueChange = { vm.state.subtitle = it },
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = vm.state.authors,
-            onValueChange = { vm.state.authors = it },
-            singleLine = true,
-            label = { Text(stringResource(R.string.authors)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+    Box(modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(verticalSpace),
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
-            items(items = vm.state.genres) { genre ->
-                InputChip(
-                    selected = true,
-                    onClick = {},
-                    label = { Text(genre) },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                vm.state.genres -= genre
-                            },
-                            modifier = Modifier.size(InputChipDefaults.IconSize)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.close_24px),
-                                contentDescription = stringResource(R.string.delete)
-                            )
-                        }
-                    }
-                )
-            }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedAutocomplete(
-                text = vm.state.genreInput,
-                onTextChange = {
-                    vm.state.genreInput = it
-                    if (it.length == 3)
-                        vm.updateExistingGenres(it)
-                },
-                options = vm.state.existingGenres,
-                label = { Text(stringResource(R.string.new_genre)) },
-                onOptionSelected = { vm.state.genreInput = it },
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(
-                onClick = {
-                    if (vm.state.genreInput.isBlank())
-                        return@IconButton
-                    vm.state.genres += vm.state.genreInput
-                    vm.state.genreInput = ""
+            BoxWithConstraints {
+                Box(
+                    modifier = Modifier
+                        .clickable { vm.state.showCoverMenu = true }
+                ) {
+                    if (imageRequest != null) {
+                        // TODO: placeholder for book cover
+                        AsyncImage(
+                            model = imageRequest,
+                            contentDescription = stringResource(id = R.string.cover),
+                            Modifier.height(200.dp)
+                        )
+                    } else
+                        EmptyBookCover(Modifier.width(90.dp))
                 }
-            ) {
-                Icon(painterResource(R.drawable.add_24px), stringResource(R.string.add))
             }
-        }
-        OutlinedTextField(
-            value = vm.state.description,
-            onValueChange = { vm.state.description = it },
-            label = { Text(stringResource(id = R.string.summary)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            LanguageAutocomplete(
-                text = vm.state.language,
-                onTextChange = { vm.state.language = it },
-                onOptionSelected = { vm.state.language = it },
-                label = { Text(stringResource(R.string.language)) },
-                isError = vm.state.isLanguageError,
-                modifier = Modifier
-                    .weight(1f)
+            OutlinedTextField(
+                value = vm.state.title,
+                label = { Text(stringResource(id = R.string.title) + "*") },
+                onValueChange = { vm.state.title = it },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-            Column(
-                // verticalArrangement = Arrangement.spacedBy(2.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            OutlinedTextField(
+                value = vm.state.subtitle,
+                label = { Text(stringResource(id = R.string.subtitle)) },
+                singleLine = true,
+                onValueChange = { vm.state.subtitle = it },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = vm.state.authors,
+                onValueChange = { vm.state.authors = it },
+                singleLine = true,
+                label = { Text(stringResource(R.string.authors)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.is_ebook))
-                Switch(
-                    checked = vm.state.isEbook,
-                    onCheckedChange = {
-                        vm.state.isEbook = !vm.state.isEbook
+                items(items = vm.state.genres) { genre ->
+                    InputChip(
+                        selected = true,
+                        onClick = {},
+                        label = { Text(genre) },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    vm.state.genres -= genre
+                                },
+                                modifier = Modifier.size(InputChipDefaults.IconSize)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.close_24px),
+                                    contentDescription = stringResource(R.string.delete)
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedAutocomplete(
+                    text = vm.state.genreInput,
+                    onTextChange = {
+                        vm.state.genreInput = it
+                        if (it.length == 3)
+                            vm.updateExistingGenres(it)
                     },
+                    options = vm.state.existingGenres,
+                    label = { Text(stringResource(R.string.new_genre)) },
+                    onOptionSelected = { vm.state.genreInput = it },
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick = {
+                        if (vm.state.genreInput.isBlank())
+                            return@IconButton
+                        vm.state.genres += vm.state.genreInput
+                        vm.state.genreInput = ""
+                    }
+                ) {
+                    Icon(painterResource(R.drawable.add_24px), stringResource(R.string.add))
+                }
+            }
+            OutlinedTextField(
+                value = vm.state.description,
+                onValueChange = { vm.state.description = it },
+                label = { Text(stringResource(id = R.string.summary)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LanguageAutocomplete(
+                    text = vm.state.language,
+                    onTextChange = { vm.state.language = it },
+                    onOptionSelected = { vm.state.language = it },
+                    label = { Text(stringResource(R.string.language)) },
+                    isError = vm.state.isLanguageError,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+                Column(
+                    // verticalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(stringResource(R.string.is_ebook))
+                    Switch(
+                        checked = vm.state.isEbook,
+                        onCheckedChange = {
+                            vm.state.isEbook = !vm.state.isEbook
+                        },
+                    )
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
+            ) {
+                OutlinedTextField(
+                    value = vm.state.publisher,
+                    onValueChange = { vm.state.publisher = it },
+                    label = { Text(stringResource(R.string.publisher)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(2f)
+                )
+                OutlinedTextField(
+                    value = vm.state.published,
+                    onValueChange = {
+                        vm.state.published = it
+                    },
+                    label = { Text(stringResource(R.string.year)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .weight(1f)
                 )
             }
-        }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(horizontalSpace)
-        ) {
             OutlinedTextField(
-                value = vm.state.publisher,
-                onValueChange = { vm.state.publisher = it },
-                label = { Text(stringResource(R.string.publisher)) },
-                singleLine = true,
-                modifier = Modifier
-                    .weight(2f)
-            )
-            OutlinedTextField(
-                value = vm.state.published,
-                onValueChange = {
-                    vm.state.published = it
-                },
-                label = { Text(stringResource(R.string.year)) },
+                value = vm.state.identifier,
+                onValueChange = { vm.state.identifier = it },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier
-                    .weight(1f)
+                label = { Text(stringResource(R.string.isbn)) },
+                modifier = Modifier.fillMaxWidth()
             )
         }
-        OutlinedTextField(
-            value = vm.state.identifier,
-            onValueChange = { vm.state.identifier = it },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            label = { Text(stringResource(R.string.isbn)) },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
     ModalBottomSheet(
         visible = vm.state.showCoverMenu,

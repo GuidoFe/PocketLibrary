@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -159,7 +160,10 @@ fun SearchBookOnlinePage(
             )
         }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
+    ) {
         OnlineBookList(
             queryData = vm.queryData,
             langRestrict = vm.langRestrict,

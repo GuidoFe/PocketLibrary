@@ -6,7 +6,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -135,7 +134,6 @@ fun AppScreen(
                         onTap = { focusManager.clearFocus() }
                     )
                 }
-                .nestedScroll(viewModel.scaffoldState.scrollBehavior.nestedScrollConnection)
         ) {
             Row() {
                 if (!windowInfo.isBottomAppBarLayout())

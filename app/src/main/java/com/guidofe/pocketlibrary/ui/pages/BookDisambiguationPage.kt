@@ -1,9 +1,12 @@
 package com.guidofe.pocketlibrary.ui.pages
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
@@ -48,18 +51,22 @@ fun BookDisambiguationPage(
             }
         )
     }
-    LazyColumn() {
-        items(
-            bookList.map { SelectableListItem(it, false) },
-            { it.value.externalId }
-        ) { item ->
-            ImportedBookListRow(
-                item = item,
-                onRowTap = {
-                    selectedBook = item.value
-                    isDialogOpen = true
-                }
-            )
+    Box(
+        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
+    ) {
+        LazyColumn() {
+            items(
+                bookList.map { SelectableListItem(it, false) },
+                { it.value.externalId }
+            ) { item ->
+                ImportedBookListRow(
+                    item = item,
+                    onRowTap = {
+                        selectedBook = item.value
+                        isDialogOpen = true
+                    }
+                )
+            }
         }
     }
     if (isDialogOpen) {

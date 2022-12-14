@@ -13,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,7 +79,9 @@ fun SettingsPage(
     LaunchedEffect(settings) {
         settings?.let { vm.state.currentSettings = it }
     }
-    Surface {
+    Surface(
+        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
+    ) {
         vm.state.currentSettings?.let { s ->
             Column(
                 modifier = Modifier

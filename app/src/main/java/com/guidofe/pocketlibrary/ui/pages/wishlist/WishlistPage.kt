@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.pages
+package com.guidofe.pocketlibrary.ui.pages.wishlist
 
 import android.util.Log
 import androidx.compose.foundation.focusable
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -227,40 +228,42 @@ fun WishlistPage(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-    LazyColumn(
-        state = lazyListState,
-    ) {
-        items(
-            items = lazyPagingItems,
-            key = { it.value.info.bookId }
-        ) { item ->
-            if (item == null)
-                return@items
-            Box {
-                WishlistRow(
-                    item,
-                    onRowTap = {
-                        if (vm.selectionManager.isMultipleSelecting) {
-                            vm.selectionManager.multipleSelectToggle(item.value)
-                        } else {
-                            navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
+    Box(modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)) {
+        LazyColumn(
+            state = lazyListState,
+        ) {
+            items(
+                items = lazyPagingItems,
+                key = { it.value.info.bookId }
+            ) { item ->
+                if (item == null)
+                    return@items
+                Box {
+                    WishlistRow(
+                        item,
+                        onRowTap = {
+                            if (vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.multipleSelectToggle(item.value)
+                            } else {
+                                navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
+                            }
+                        },
+                        onCoverLongPress = {
+                            if (!vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.startMultipleSelection(item.value)
+                            }
+                        },
+                        onRowLongPress = {
+                            if (!vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.singleSelectedItem = item.value
+                                vm.state.isContextMenuVisible = true
+                            }
                         }
-                    },
-                    onCoverLongPress = {
-                        if (!vm.selectionManager.isMultipleSelecting) {
-                            vm.selectionManager.startMultipleSelection(item.value)
-                        }
-                    },
-                    onRowLongPress = {
-                        if (!vm.selectionManager.isMultipleSelecting) {
-                            vm.selectionManager.singleSelectedItem = item.value
-                            vm.state.isContextMenuVisible = true
-                        }
-                    }
-                )
+                    )
+                }
             }
+            // TODO manage what happens when added library book is in wishlist
         }
-        // TODO manage what happens when added library book is in wishlist
     }
     if (vm.state.showDoubleIsbnDialog) {
         DuplicateIsbnDialog(
