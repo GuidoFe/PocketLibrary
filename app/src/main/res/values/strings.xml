@@ -219,4 +219,6 @@
     <string name="download_anyway">Download anyway</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="terms_and_conditions">Terms and conditions</string>
+    <string name="hideReturnedBooks">Hide returned books</string>
+    <string name="showReturnedBooks">Show returned books</string>
 </resources>

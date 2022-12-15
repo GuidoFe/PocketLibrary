@@ -277,6 +277,40 @@ fun BookLogPage(
                                 contentDescription = stringResource(R.string.search)
                             )
                         }
+                        if (vm.state.tabIndex == 0) {
+                            IconButton(onClick = {
+                                vm.borrowedTabState.isMoreMenuOpen =
+                                    !vm.borrowedTabState.isMoreMenuOpen
+                            }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.more_vert_24px),
+                                    contentDescription = stringResource(R.string.more)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = vm.borrowedTabState.isMoreMenuOpen,
+                                onDismissRequest = { vm.borrowedTabState.isMoreMenuOpen = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            stringResource(
+                                                if (vm.borrowedTabState.showReturnedBooks)
+                                                    R.string.hideReturnedBooks
+                                                else
+                                                    R.string.showReturnedBooks
+                                            )
+                                        )
+                                    },
+                                    onClick = {
+                                        vm.borrowedTabState.showReturnedBooks =
+                                            !vm.borrowedTabState.showReturnedBooks
+                                        vm.borrowedTabState.isMoreMenuOpen = false
+                                        vm.invalidateBorrowedPagingSource()
+                                    }
+                                )
+                            }
+                        }
                     }
                 )
             }
