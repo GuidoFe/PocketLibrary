@@ -36,7 +36,7 @@ internal fun VerticalCompactBookHeading(
     val pageScrollState = rememberScrollState()
     val genreScrollState = rememberScrollState()
     Column(
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .verticalScroll(pageScrollState)

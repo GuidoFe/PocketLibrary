@@ -1,16 +1,16 @@
 package com.guidofe.pocketlibrary.viewmodels.previews
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import com.guidofe.pocketlibrary.data.local.library_db.BookBundle
 import com.guidofe.pocketlibrary.ui.pages.viewbook.ProgressTabState
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
-import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 
+@OptIn(ExperimentalMaterial3Api::class)
 class ViewBookVMPreview : IViewBookVM {
     override var editedNote: String = ""
-    override val scaffoldState: ScaffoldState
-        get() = ScaffoldState()
+    override val scaffoldState = PreviewUtils.emptyScaffoldState
     override val snackbarHostState: SnackbarHostState
         get() = SnackbarHostState()
 

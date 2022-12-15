@@ -1,11 +1,11 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
-
 package com.guidofe.pocketlibrary.ui.pages.viewbook
 
 import android.util.Log
-import androidx.compose.foundation.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,8 +56,6 @@ private fun EditIcon(navigator: DestinationsNavigator, id: Long) {
         )
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun ViewBookPage(
@@ -71,7 +69,8 @@ fun ViewBookPage(
     var showTitlePopup by remember { mutableStateOf(false) }
     var showConfirmExitDialog by remember { mutableStateOf(false) }
     val windowInfo = rememberWindowInfo()
-
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.book_details)) },
@@ -91,8 +90,6 @@ fun ViewBookPage(
         )
         vm.scaffoldState.fab = {}
     }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val coroutineScope = rememberCoroutineScope()
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_CREATE) {
@@ -129,7 +126,7 @@ fun ViewBookPage(
                                 Log.e("debug", "ViewBook: Read pages error")
                                 return@IconButton
                             }
-                            vm.saveProgress() {
+                            vm.saveProgress {
                                 hasProgressBeenModified = false
                             }
                         }
@@ -154,7 +151,6 @@ fun ViewBookPage(
             }
         }
     }
-
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -210,9 +206,7 @@ fun ViewBookPage(
                             },
                             modifier = Modifier.widthIn(max = 280.dp)
                         )
-                        Column(
-                            // modifier = Modifier.weight(1f)
-                        ) {
+                        Column {
                             ViewBookTabRow(tabState) { tabState = it }
                             TabHost(
                                 bundle = vm.bundle,
@@ -270,6 +264,70 @@ fun ViewBookPage(
                     }
                 }
             } else -> {
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
+                    vm.bundle?.let { bundle ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .width(300.dp)
+                        ) {
+                            VerticalCompactBookHeading(
+                                bundle = bundle,
+                                onHeadingClick = { },
+                                onGenreClick = {
+                                    navigator.navigate(
+                                        LibraryPageDestination(
+                                            LibraryPageNavArgs(genre = it)
+                                        )
+                                    )
+                                }
+                            )
+                            ProgressTab(
+                                vm.progTabState,
+                                false
+                            ) {
+                                hasNoteBeenModified = true
+                            }
+                            DetailsTab(book = bundle.book, isScrollable = true)
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column() {
+                            bundle.book.description?.let { description ->
+                                Text(
+                                    stringResource(R.string.summary),
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Text(description)
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                stringResource(R.string.note),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline,
+                                        MaterialTheme.shapes.medium
+                                    )
+                                    .padding(10.dp)
+                                    .widthIn(min = 500.dp)
+                                    .height(IntrinsicSize.Min)
+                                    .width(IntrinsicSize.Min)
+                            ) {
+                                NoteTab(vm.editedNote) {
+                                    vm.editedNote = it
+                                    hasNoteBeenModified = true
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -287,7 +345,7 @@ fun ViewBookPage(
                     modifier = Modifier.padding(20.dp)
 
                 ) {
-                    SelectionContainer() {
+                    SelectionContainer {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             vm.bundle?.book?.title?.let {
                                 Text(
@@ -407,8 +465,8 @@ internal fun ViewBookTabRow(tabState: LocalTab, setTabState: (LocalTab) -> Unit)
 }
 
 @Composable
-@Preview(device = Devices.PHONE, showSystemUi = true)
-@Preview(device = Devices.TABLET, showSystemUi = true)
+@Preview(showSystemUi = true, device = Devices.PHONE)
+@Preview(showSystemUi = true, device = Devices.TABLET)
 private fun ViewBookPagePreviewDark() {
     PocketLibraryTheme(darkTheme = true) {
         ViewBookPage(
