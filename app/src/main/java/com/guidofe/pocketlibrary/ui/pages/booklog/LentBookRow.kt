@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.modules
+package com.guidofe.pocketlibrary.ui.pages.booklog
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
+import com.guidofe.pocketlibrary.ui.modules.SelectableBookCover
 import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem

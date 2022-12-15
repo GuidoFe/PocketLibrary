@@ -18,7 +18,6 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
-import com.guidofe.pocketlibrary.ui.modules.LentBookRow
 import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination

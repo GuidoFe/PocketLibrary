@@ -1,4 +1,4 @@
-package com.guidofe.pocketlibrary.ui.modules
+package com.guidofe.pocketlibrary.ui.pages.booklog
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
+import com.guidofe.pocketlibrary.ui.modules.SelectableBookCover
 import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
@@ -195,10 +196,176 @@ fun BorrowedBookRow(
 }
 
 @Composable
+fun ExtendedBorrowedBookRow(
+    item: SelectableListItem<BorrowedBundle>,
+    modifier: Modifier = Modifier,
+    onRowTap: (Offset) -> Unit = {},
+    onCoverLongPress: (Offset) -> Unit = {},
+    onLenderTap: () -> Unit = {},
+    onStartTap: () -> Unit = {},
+    onReturnByTap: () -> Unit = {},
+    onRowLongPress: () -> Unit = {},
+    areButtonsActive: Boolean = true,
+
+) {
+    val bookBundle = remember { item.value.bookBundle }
+    Surface(
+        color = if (item.value.info.isReturned)
+            MaterialTheme.colorScheme.surfaceVariant
+        else
+            MaterialTheme.colorScheme.surface,
+        modifier = modifier
+
+    ) {
+        Box(modifier = Modifier.height(120.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        BookRowDefaults.horizontalPadding,
+                        BookRowDefaults.verticalPadding
+                    )
+            ) {
+                SelectableBookCover(
+                    bookBundle.book.coverURI,
+                    item.isSelected,
+                    onRowTap,
+                    onCoverLongPress,
+                    progress = item.value.bookBundle.progress?.phase,
+                    colorFilter = remember {
+                        if (item.value.info.isReturned)
+                            ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                        else
+                            null
+                    }
+                )
+                Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onRowTap(it) },
+                                onLongPress = { onRowLongPress() }
+                            )
+                        }
+                ) {
+                    Text(
+                        text = bookBundle.book.title,
+                        style = BookRowDefaults.titleStyle,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = remember {
+                            bookBundle.authors.joinToString(", ") {
+                                it.name
+                            }
+                        },
+                        style = BookRowDefaults.authorStyle,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .width(
+                            BookRowDefaults.extendedNameCellWidth
+                        )
+                        .fillMaxHeight()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onLenderTap() }
+                            )
+                        }
+                ) {
+                    Text(
+                        item.value.info.who ?: "???",
+                        style = BookRowDefaults.buttonTextStyle,
+                    )
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .width(
+                            BookRowDefaults.extendedDateCellWidth
+                        )
+                        .fillMaxHeight()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onStartTap() }
+                            )
+                        }
+                ) {
+                    Text(
+                        remember { item.value.info.start.toString() },
+                        style = BookRowDefaults.buttonTextStyle,
+                    )
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .width(
+                            BookRowDefaults.extendedDateCellWidth
+                        )
+                        .fillMaxHeight()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onReturnByTap() }
+                            )
+                        }
+                ) {
+                    Text(
+                        remember { item.value.info.end?.toString() ?: "-" },
+                        style = BookRowDefaults.buttonTextStyle,
+                    )
+                }
+            }
+            if (!areButtonsActive) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onRowTap(it) },
+                            )
+                        }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 @Preview(device = Devices.PIXEL_4)
-private fun LibraryListRowPreview() {
+@Preview(widthDp = 600)
+private fun BorrowedBookRowPreview() {
     PreviewUtils.ThemeColumn() {
         BorrowedBookRow(
+            item = SelectableListItem(
+                BorrowedBundle(
+                    BorrowedBook(
+                        1,
+                        "Tim Minchin",
+                        Date.valueOf("2022-03-11"),
+                        Date.valueOf("2022-12-25")
+                    ),
+                    PreviewUtils.exampleBookBundle
+                )
+            ),
+        )
+    }
+}
+
+@Composable
+@Preview(widthDp = 840)
+private fun ExtendedBorrowedBookRowPreview() {
+    PreviewUtils.ThemeColumn() {
+        ExtendedBorrowedBookRow(
             item = SelectableListItem(
                 BorrowedBundle(
                     BorrowedBook(

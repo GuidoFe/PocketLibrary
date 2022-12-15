@@ -35,4 +35,6 @@ object BookRowDefaults {
     val buttonTextStyle
         @Composable
         get() = MaterialTheme.typography.labelMedium
+    val extendedDateCellWidth = 100.dp
+    val extendedNameCellWidth = 120.dp
 }

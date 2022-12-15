@@ -1,12 +1,10 @@
 package com.guidofe.pocketlibrary.ui.pages.booklog
 
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -18,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.guidofe.pocketlibrary.R
@@ -32,7 +31,9 @@ import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ScanIsbnPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.SearchBookOnlinePageDestination
 import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
+import com.guidofe.pocketlibrary.ui.utils.WindowType
 import com.guidofe.pocketlibrary.ui.utils.appBarColorAnimation
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.BookLogVM
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
@@ -62,7 +63,7 @@ fun BookLogPage(
     val lentList by vm.lentItems.collectAsState(initial = emptyList())
     val focusManager = LocalFocusManager.current
     val fabFocusRequester = remember { FocusRequester() }
-
+    val windowInfo = rememberWindowInfo()
     val lazyBorrowedPagingItems = vm.borrowedPager.collectAsLazyPagingItems()
     val appBarColor = appBarColorAnimation(vm.scaffoldState.scrollBehavior)
     LaunchedEffect(Unit) {
@@ -352,7 +353,7 @@ fun BookLogPage(
         }
     }
     LaunchedEffect(vm.state.tabIndex) {
-        if (vm.state.tabIndex == 0) {
+        if (vm.state.tabIndex == 0 && windowInfo.screenWidthInfo < WindowType.EXTENDED) {
             vm.scaffoldState.fab = {
                 AddBookFab(
                     isExpanded = vm.borrowedTabState.isFabExpanded,
@@ -391,48 +392,140 @@ fun BookLogPage(
             vm.scaffoldState.fab = {}
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
-    ) {
-        TabRow(
-            selectedTabIndex = vm.state.tabIndex,
-            modifier = Modifier.fillMaxWidth(),
-            containerColor = appBarColor.value
+    if (windowInfo.screenWidthInfo < WindowType.EXTENDED) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
         ) {
-            Tab(
-                selected = vm.state.tabIndex == 0,
-                onClick = { vm.state.tabIndex = 0 },
-                text = { Text(stringResource(R.string.borrowed)) }
-            )
-            Tab(
-                selected = vm.state.tabIndex == 1,
-                onClick = { vm.state.tabIndex = 1 },
-                text = { Text(stringResource(R.string.lent_tab)) }
-            )
-        }
-        when (vm.state.tabIndex) {
-            0 -> {
-                vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-                BorrowedTab(
-                    lazyBorrowedPagingItems,
-                    setReturnStatus = { id, isReturned ->
-                        vm.setBookReturnStatus(id, isReturned)
-                    },
-                    updateBorrowed = { vm.updateBorrowedBooks(it) },
-                    deleteBorrowedBooks = { ids, callback ->
-                        vm.deleteBorrowedBooks(ids, callback)
-                    },
-                    moveToLibrary = { ids ->
-                        vm.moveBorrowedBooksToLibrary(ids)
-                    },
-                    navigator = navigator,
-                    state = vm.borrowedTabState,
+            TabRow(
+                selectedTabIndex = vm.state.tabIndex,
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = appBarColor.value
+            ) {
+                Tab(
+                    selected = vm.state.tabIndex == 0,
+                    onClick = { vm.state.tabIndex = 0 },
+                    text = { Text(stringResource(R.string.borrowed)) }
+                )
+                Tab(
+                    selected = vm.state.tabIndex == 1,
+                    onClick = { vm.state.tabIndex = 1 },
+                    text = { Text(stringResource(R.string.lent_tab)) }
                 )
             }
-            1 -> {
-                vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+            when (vm.state.tabIndex) {
+                0 -> {
+                    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                    BorrowedTab(
+                        lazyBorrowedPagingItems,
+                        setReturnStatus = { id, isReturned ->
+                            vm.setBookReturnStatus(id, isReturned)
+                        },
+                        updateBorrowed = { vm.updateBorrowedBooks(it) },
+                        deleteBorrowedBooks = { ids, callback ->
+                            vm.deleteBorrowedBooks(ids, callback)
+                        },
+                        moveToLibrary = { ids ->
+                            vm.moveBorrowedBooksToLibrary(ids)
+                        },
+                        navigator = navigator,
+                        state = vm.borrowedTabState,
+                    )
+                }
+                1 -> {
+                    vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                    LentTab(
+                        lentItems = lentList,
+                        updateLent = { vm.updateLent(it) },
+                        removeLentStatus = { list, callback ->
+                            vm.removeLentStatus(list, callback)
+                        },
+                        state = vm.lentTabState,
+                        navigator = navigator,
+                    )
+                }
+            }
+        }
+    } else {
+        vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        Row {
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.borrowed_books),
+                        style = MaterialTheme.typography.displaySmall,
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                    BorrowedTab(
+                        lazyBorrowedPagingItems,
+                        setReturnStatus = { id, isReturned ->
+                            vm.setBookReturnStatus(id, isReturned)
+                        },
+                        updateBorrowed = { vm.updateBorrowedBooks(it) },
+                        deleteBorrowedBooks = { ids, callback ->
+                            vm.deleteBorrowedBooks(ids, callback)
+                        },
+                        moveToLibrary = { ids ->
+                            vm.moveBorrowedBooksToLibrary(ids)
+                        },
+                        navigator = navigator,
+                        state = vm.borrowedTabState,
+                    )
+                }
+                AddBookFab(
+                    isExpanded = vm.borrowedTabState.isFabExpanded,
+                    onMainFabClick = {
+                        vm.borrowedTabState.isFabExpanded = !vm.borrowedTabState.isFabExpanded
+                        if (vm.borrowedTabState.isFabExpanded)
+                            fabFocusRequester.requestFocus()
+                    },
+                    onDismissRequest = { vm.borrowedTabState.isFabExpanded = false },
+                    onIsbnTyped = {
+                        vm.state.isbnToSearch = it
+                    },
+                    onInsertManually = {
+                        navigator.navigate(
+                            EditBookPageDestination(newBookDestination = BookDestination.BORROWED)
+                        )
+                    },
+                    onScanIsbn = {
+                        navigator.navigate(ScanIsbnPageDestination(BookDestination.BORROWED))
+                    },
+                    onSearchOnline = {
+                        navigator.navigate(
+                            SearchBookOnlinePageDestination(BookDestination.BORROWED)
+                        )
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset((-16).dp, (-16).dp)
+                        .focusRequester(fabFocusRequester)
+                        .onFocusChanged {
+                            if (!it.hasFocus)
+                                vm.borrowedTabState.isFabExpanded = false
+                        }
+                        .focusable()
+
+                )
+            }
+            Divider(Modifier.width(1.dp).fillMaxHeight())
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    stringResource(R.string.lent_books),
+                    style = MaterialTheme.typography.displaySmall,
+                    modifier = Modifier
+                        .padding(8.dp)
+                )
                 LentTab(
                     lentItems = lentList,
                     updateLent = { vm.updateLent(it) },
@@ -464,6 +557,7 @@ fun BookLogPage(
 
 @Composable
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
+@Preview(device = Devices.TABLET, showSystemUi = true)
 private fun BookLogPagePreview() {
     PocketLibraryTheme() {
         BookLogPage(
