@@ -3,19 +3,19 @@ package com.guidofe.pocketlibrary.ui.pages
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.ImportedBookData
@@ -32,8 +32,11 @@ import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.SearchBookOnlineVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ISearchBookOnlineVM
+import com.guidofe.pocketlibrary.viewmodels.previews.ImportedBookVMPreview
+import com.guidofe.pocketlibrary.viewmodels.previews.SearchBookOnlineVMPreview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -52,10 +55,8 @@ fun SearchBookOnlinePage(
     var selectedBook: ImportedBookData? by remember { mutableStateOf(null) }
     val selectionManager = vm.selectionManager
     val coroutineScope = rememberCoroutineScope()
-    val density = LocalDensity.current
-    val boxShape = ShapeDefaults.Large.copy(topStart = ZeroCornerSize, topEnd = ZeroCornerSize)
+    val boxShape = ShapeDefaults.Large
     val appBarColor by appBarColorAnimation(vm.scaffoldState.scrollBehavior)
-    var searchBoxYOffset by remember { mutableStateOf(0f) }
     var isSearchBoxVisible by remember { mutableStateOf(true) }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
@@ -159,7 +160,8 @@ fun SearchBookOnlinePage(
         }
     }
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
     ) {
         OnlineBookList(
@@ -174,14 +176,32 @@ fun SearchBookOnlinePage(
             vm = vm.listVM,
             modifier = Modifier.fillMaxSize()
         )
-        AnimatedVisibility(
-            isSearchBoxVisible,
-            enter = slideInVertically(initialOffsetY = { -it }),
-            exit = slideOutVertically(targetOffsetY = { -it }),
-            modifier = Modifier
-                .padding(10.dp, 0.dp)
-                .widthIn(max = 500.dp)
-                .align(Alignment.TopCenter)
+    }
+    if (isDialogOpen) {
+        PreviewBookDialog(
+            bookData = selectedBook,
+            onSaveButtonClicked = {
+                isDialogOpen = false
+                selectedBook?.let { importedBook ->
+                    importVm.saveImportedBook(importedBook, destination, vm.translationState) {
+                        // TODO: Manage error
+                        if (it < 0) return@saveImportedBook
+                        coroutineScope.launch(Dispatchers.Main) {
+                            if (destination == BookDestination.LIBRARY)
+                                navigator.navigate(ViewBookPageDestination(bookId = it))
+                            else
+                                vm.selectionManager.clearSelection()
+                        }
+                    }
+                }
+            },
+            onDismissRequest = { isDialogOpen = false },
+            modifier = Modifier.background(appBarColor)
+        )
+    }
+    if (isSearchBoxVisible) {
+        Dialog(
+            onDismissRequest = { isSearchBoxVisible = false }
         ) {
             SearchBox(
                 title = vm.title,
@@ -206,34 +226,25 @@ fun SearchBookOnlinePage(
                     }
                 },
                 modifier = Modifier
+                    .widthIn(max = 450.dp)
                     .fillMaxWidth()
                     .shadow(3.dp, shape = boxShape)
                     .background(appBarColor, boxShape)
-                    .padding(8.dp)
+                    .padding(16.dp)
             )
         }
     }
-    if (isDialogOpen) {
-        PreviewBookDialog(
-            bookData = selectedBook,
-            onSaveButtonClicked = {
-                isDialogOpen = false
-                selectedBook?.let { importedBook ->
-                    importVm.saveImportedBook(importedBook, destination, vm.translationState) {
-                        // TODO: Manage error
-                        if (it < 0) return@saveImportedBook
-                        coroutineScope.launch(Dispatchers.Main) {
-                            if (destination == BookDestination.LIBRARY)
-                                navigator.navigate(ViewBookPageDestination(bookId = it))
-                            else
-                                vm.selectionManager.clearSelection()
-                        }
-                    }
-                }
-            },
-            onDismissRequest = { isDialogOpen = false },
-            modifier = Modifier.background(appBarColor)
-        )
-    }
     TranslationDialog(vm.translationState)
+}
+
+@Preview(showSystemUi = true, device = Devices.PHONE)
+@Preview(showSystemUi = true, device = Devices.TABLET)
+@Composable
+private fun SearchBoxOnlinePagePreview() {
+    SearchBookOnlinePage(
+        BookDestination.LIBRARY,
+        EmptyDestinationsNavigator,
+        SearchBookOnlineVMPreview(),
+        ImportedBookVMPreview()
+    )
 }
