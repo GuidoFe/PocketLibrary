@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -71,6 +72,7 @@ fun ViewBookPage(
     val windowInfo = rememberWindowInfo()
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(key1 = true) {
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.book_details)) },
@@ -135,6 +137,7 @@ fun ViewBookPage(
                                 hasNoteBeenModified = false
                             }
                         }
+                        focusManager.clearFocus()
                     }
                 ) {
                     Icon(

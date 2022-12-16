@@ -29,6 +29,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -334,7 +335,9 @@ fun ModalBottomSheetLayout(
 
         Surface(
             modifier = Modifier
+                .widthIn(max = 640.dp)
                 .fillMaxWidth()
+                .align(Alignment.TopCenter)
                 .nestedScroll(sheetState.nestedScrollConnection)
                 .offset {
                     val y = if (sheetState.anchors.isEmpty()) {
@@ -470,5 +473,5 @@ object ModalBottomSheetDefaults {
      */
     val scrimColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.32f)
+        get() = MaterialTheme.colorScheme.scrim.copy(alpha = 0.7f)
 }

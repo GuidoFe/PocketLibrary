@@ -33,7 +33,8 @@ fun NoteTab(value: String, onValueChange: (String) -> Unit) {
     var isFocused: Boolean by remember { mutableStateOf(false) }
     LaunchedEffect(true) {
         selection = TextRange(value.length)
-        focusRequester.requestFocus()
+        if (value.isBlank())
+            focusRequester.requestFocus()
     }
     Box(
         modifier = Modifier.fillMaxSize().pointerInput(Unit) {

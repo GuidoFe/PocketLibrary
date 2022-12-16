@@ -27,6 +27,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.ui.modules.BookTile
+import com.guidofe.pocketlibrary.ui.pages.destinations.AboutPageDestination
+import com.guidofe.pocketlibrary.ui.pages.destinations.SettingsPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.*
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
@@ -80,6 +82,21 @@ fun LandingPage(
                     Icon(
                         painterResource(R.drawable.more_vert_24px),
                         stringResource(R.string.more)
+                    )
+                }
+                DropdownMenu(
+                    expanded = showMoreMenu,
+                    onDismissRequest = { showMoreMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        { Text(stringResource(R.string.settings)) },
+                        onClick = { navigator.navigate(SettingsPageDestination) }
+                    )
+                    DropdownMenuItem(
+                        { Text(stringResource(R.string.about)) },
+                        onClick = {
+                            navigator.navigate(AboutPageDestination)
+                        }
                     )
                 }
             }

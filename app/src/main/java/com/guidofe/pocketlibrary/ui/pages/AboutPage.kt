@@ -31,7 +31,7 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun CreditsPage(
+fun AboutPage(
     vm: IBasicPageVM = hiltViewModel<BasicPageVM>(),
     navigator: DestinationsNavigator
 ) {
@@ -156,7 +156,7 @@ fun CreditsPage(
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
 private fun CreditsPagePreview() {
     PocketLibraryTheme(darkTheme = false) {
-        CreditsPage(
+        AboutPage(
             navigator = EmptyDestinationsNavigator,
             vm = BasicPageVMPreview()
         )
@@ -167,7 +167,7 @@ private fun CreditsPagePreview() {
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)
 private fun CreditsPagePreviewDark() {
     PocketLibraryTheme(darkTheme = true) {
-        CreditsPage(
+        AboutPage(
             navigator = EmptyDestinationsNavigator,
             vm = BasicPageVMPreview()
         )

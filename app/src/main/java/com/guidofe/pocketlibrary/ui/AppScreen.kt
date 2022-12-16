@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.ui
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,10 +41,16 @@ fun AppScreen(
 
     ModalBottomSheetLayout(
         sheetContent = {
-            Box(modifier = Modifier.height(1.dp))
-            scaffoldState.bottomSheetContent.invoke(this)
+            Column(
+                modifier = Modifier.heightIn(min = 1.dp)
+            ) {
+                scaffoldState.bottomSheetContent(this)
+            }
         },
         sheetState = scaffoldState.bottomSheetState,
+        sheetShape = MaterialTheme.shapes.extraLarge.copy(
+            bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize
+        )
     ) {
         Scaffold(
             topBar = {
