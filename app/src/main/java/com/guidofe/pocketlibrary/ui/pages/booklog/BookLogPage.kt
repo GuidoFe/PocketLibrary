@@ -431,6 +431,10 @@ fun BookLogPage(
                         },
                         navigator = navigator,
                         state = vm.borrowedTabState,
+                        setBottomSheetContent = { vm.scaffoldState.bottomSheetContent = it },
+                        setBottomSheetVisibility = { visibility, scope ->
+                            vm.scaffoldState.setBottomSheetVisibility(visibility, scope)
+                        }
                     )
                 }
                 1 -> {
@@ -443,6 +447,10 @@ fun BookLogPage(
                         },
                         state = vm.lentTabState,
                         navigator = navigator,
+                        setBottomSheetContent = { vm.scaffoldState.bottomSheetContent = it },
+                        setBottomSheetVisibility = { visibility, scope ->
+                            vm.scaffoldState.setBottomSheetVisibility(visibility, scope)
+                        }
                     )
                 }
             }
@@ -478,6 +486,10 @@ fun BookLogPage(
                         },
                         navigator = navigator,
                         state = vm.borrowedTabState,
+                        setBottomSheetContent = { vm.scaffoldState.bottomSheetContent = it },
+                        setBottomSheetVisibility = { visibility, scope ->
+                            vm.scaffoldState.setBottomSheetVisibility(visibility, scope)
+                        }
                     )
                 }
                 AddBookFab(
@@ -534,6 +546,10 @@ fun BookLogPage(
                     },
                     state = vm.lentTabState,
                     navigator = navigator,
+                    setBottomSheetContent = { vm.scaffoldState.bottomSheetContent = it },
+                    setBottomSheetVisibility = { visibility, scope ->
+                        vm.scaffoldState.setBottomSheetVisibility(visibility, scope)
+                    }
                 )
             }
         }

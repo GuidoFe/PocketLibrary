@@ -2,10 +2,15 @@ package com.guidofe.pocketlibrary.ui.utils
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import com.guidofe.pocketlibrary.ui.modules.bottomsheet.ModalBottomSheetState
+import com.guidofe.pocketlibrary.ui.modules.bottomsheet.ModalBottomSheetValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 class ScaffoldState {
@@ -26,6 +31,19 @@ class ScaffoldState {
         override val state: TopAppBarState
             get() = TopAppBarState(-Float.MAX_VALUE, 0f, 0f)
     })
+    var bottomSheetContent: @Composable ColumnScope.() -> Unit by mutableStateOf({})
+    val bottomSheetState = ModalBottomSheetState(
+        ModalBottomSheetValue.Hidden
+    )
+
+    fun setBottomSheetVisibility(show: Boolean, coroutineScope: CoroutineScope) {
+        coroutineScope.launch {
+            if (show)
+                bottomSheetState.expand()
+            else
+                bottomSheetState.hide()
+        }
+    }
 
     fun refreshBar(
         title: @Composable () -> Unit = {},

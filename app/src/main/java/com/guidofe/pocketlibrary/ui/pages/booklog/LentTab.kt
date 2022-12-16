@@ -1,9 +1,6 @@
 package com.guidofe.pocketlibrary.ui.pages.booklog
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -18,12 +15,12 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
-import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
 import java.sql.Date
 import java.time.LocalDate
 
@@ -35,9 +32,69 @@ fun LentTab(
     removeLentStatus: (books: List<LentBook>, callback: () -> Unit) -> Unit,
     state: LentTabState,
     navigator: DestinationsNavigator,
+    setBottomSheetContent: (@Composable ColumnScope.() -> Unit) -> Unit,
+    setBottomSheetVisibility: (Boolean, CoroutineScope) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val selectionManager = state.selectionManager
+    LaunchedEffect(Unit) {
+        setBottomSheetContent {
+            val selectedItem = selectionManager.singleSelectedItem
+            selectedItem?.let { item ->
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.book_hand_left_24px),
+                            stringResource(R.string.return_to_library)
+                        )
+                    },
+                    onClick = {
+                        setBottomSheetVisibility(false, coroutineScope)
+                        item.lent?.let { lent ->
+                            removeLentStatus(listOf(lent)) {}
+                        }
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.return_to_library)
+                    )
+                }
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.info_24px),
+                            stringResource(R.string.details)
+                        )
+                    },
+                    onClick = {
+                        setBottomSheetVisibility(false, coroutineScope)
+                        navigator.navigate(ViewBookPageDestination(item.info.bookId))
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.details)
+                    )
+                }
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.edit_24px),
+                            stringResource(R.string.edit)
+                        )
+                    },
+                    onClick = {
+                        setBottomSheetVisibility(false, coroutineScope)
+                        navigator.navigate(EditBookPageDestination(item.info.bookId))
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.edit)
+                    )
+                }
+            }
+        }
+    }
     Column(modifier = modifier) {
         if (lentItems.isEmpty())
             Box(modifier = Modifier.fillMaxSize()) {
@@ -45,7 +102,9 @@ fun LentTab(
                     stringResource(R.string.you_have_no_lent),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.padding(10.dp).align(Alignment.Center)
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .align(Alignment.Center)
                 )
             }
         LazyColumn() {
@@ -78,7 +137,7 @@ fun LentTab(
                         },
                         onRowLongPress = {
                             state.selectionManager.singleSelectedItem = item.value
-                            state.isContextMenuVisible = true
+                            setBottomSheetVisibility(true, coroutineScope)
                         },
                         areButtonsActive = !selectionManager.isMultipleSelecting,
                     )
@@ -185,64 +244,6 @@ fun LentTab(
             state.isCalendarVisible = false
             selectionManager.clearSelection()
             state.fieldToChange = null
-        }
-    }
-    ModalBottomSheet(
-        visible = state.isContextMenuVisible,
-        onDismiss = { state.isContextMenuVisible = false }
-    ) {
-        val selectedItem = selectionManager.singleSelectedItem
-        selectedItem?.let { item ->
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.book_hand_left_24px),
-                        stringResource(R.string.return_to_library)
-                    )
-                },
-                onClick = {
-                    item.lent?.let { lent ->
-                        removeLentStatus(listOf(lent)) {}
-                    }
-                    state.isContextMenuVisible = false
-                }
-            ) {
-                Text(
-                    stringResource(R.string.return_to_library)
-                )
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.info_24px),
-                        stringResource(R.string.details)
-                    )
-                },
-                onClick = {
-                    state.isContextMenuVisible = false
-                    navigator.navigate(ViewBookPageDestination(item.info.bookId))
-                }
-            ) {
-                Text(
-                    stringResource(R.string.details)
-                )
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.edit_24px),
-                        stringResource(R.string.edit)
-                    )
-                },
-                onClick = {
-                    state.isContextMenuVisible = false
-                    navigator.navigate(EditBookPageDestination(item.info.bookId))
-                }
-            ) {
-                Text(
-                    stringResource(R.string.edit)
-                )
-            }
         }
     }
 }

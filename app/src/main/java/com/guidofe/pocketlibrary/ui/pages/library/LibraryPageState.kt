@@ -13,6 +13,6 @@ class LibraryPageState {
     var isbnToSearch: String? by mutableStateOf(null)
     var showConfirmDeleteBook by mutableStateOf(false)
     var showLendBookDialog by mutableStateOf(false)
-    var isContextMenuVisible by mutableStateOf(false)
-    var isMenuOpen by mutableStateOf(false)
+    // var isContextMenuVisible by mutableStateOf(false)
+    var isMoreMenuOpen by mutableStateOf(false)
 }

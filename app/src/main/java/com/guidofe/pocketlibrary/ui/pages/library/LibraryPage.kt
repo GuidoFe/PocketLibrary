@@ -60,6 +60,7 @@ fun LibraryPage(
     val context = LocalContext.current
     val state = vm.state
     val fabFocusRequester = remember { FocusRequester() }
+    val coroutineScope = rememberCoroutineScope()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (lazyListState.isScrollInProgress) {
@@ -116,7 +117,7 @@ fun LibraryPage(
                     }
                     Box {
                         IconButton(
-                            onClick = { state.isMenuOpen = true }
+                            onClick = { state.isMoreMenuOpen = true }
                         ) {
                             Icon(
                                 painterResource(R.drawable.more_vert_24px),
@@ -124,8 +125,8 @@ fun LibraryPage(
                             )
                         }
                         DropdownMenu(
-                            expanded = state.isMenuOpen,
-                            onDismissRequest = { state.isMenuOpen = false }
+                            expanded = state.isMoreMenuOpen,
+                            onDismissRequest = { state.isMoreMenuOpen = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.lend_books)) },
@@ -247,6 +248,128 @@ fun LibraryPage(
 
     LaunchedEffect(Unit) {
         vm.invalidate()
+        vm.scaffoldState.bottomSheetContent = {
+            vm.selectionManager.singleSelectedItem?.let { item ->
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(
+                                if (item.info.isFavorite)
+                                    R.drawable.heart_24px
+                                else
+                                    R.drawable.heart_filled_24px
+                            ),
+                            stringResource(
+                                if (item.info.isFavorite)
+                                    R.string.remove_from_favorites
+                                else
+                                    R.string.add_to_favorites
+                            )
+                        )
+                    },
+                    onClick = {
+                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                        vm.setFavoriteAndRefresh(listOf(item.info.bookId), !item.info.isFavorite) {}
+                        vm.selectionManager.singleSelectedItem = null
+                    }
+                ) {
+                    Text(
+                        stringResource(
+                            if (item.info.isFavorite)
+                                R.string.remove_from_favorites
+                            else
+                                R.string.add_to_favorites
+                        )
+                    )
+                }
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(
+                                if (item.lent == null)
+                                    R.drawable.book_hand_right_24px
+                                else
+                                    R.drawable.book_hand_left_24px
+                            ),
+                            stringResource(
+                                if (item.lent == null)
+                                    R.string.lend_book
+                                else
+                                    R.string.mark_as_returned
+                            )
+                        )
+                    },
+                    onClick = {
+                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                        if (item.lent == null)
+                            state.showLendBookDialog = true
+                        else {
+                            vm.markLentBookAsReturned(item.lent)
+                            vm.selectionManager.singleSelectedItem = null
+                        }
+                    }
+                ) {
+                    Text(
+                        stringResource(
+                            if (item.lent == null)
+                                R.string.lend_book
+                            else
+                                R.string.mark_as_returned
+                        )
+                    )
+                }
+                if (item.bookBundle.progress?.phase != ProgressPhase.READ) {
+                    RowWithIcon(
+                        icon = {
+                            Icon(
+                                painterResource(R.drawable.check_24px),
+                                stringResource(R.string.mark_as_read)
+                            )
+                        },
+                        onClick = {
+                            vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                            vm.markBookAsRead(item.bookBundle)
+                        }
+                    ) {
+                        Text(
+                            stringResource(R.string.mark_as_read)
+                        )
+                    }
+                }
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.edit_24px),
+                            stringResource(R.string.edit)
+                        )
+                    },
+                    onClick = {
+                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                        navigator.navigate(EditBookPageDestination(item.info.bookId))
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.edit)
+                    )
+                }
+                RowWithIcon(
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.delete_24px),
+                            stringResource(R.string.delete)
+                        )
+                    },
+                    onClick = {
+                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                        state.showConfirmDeleteBook = true
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.delete)
+                    )
+                }
+            }
+        }
         vm.scaffoldState.fab = {
             AddBookFab(
                 isExpanded = state.isFabExpanded,
@@ -325,7 +448,7 @@ fun LibraryPage(
                         onRowLongPress = {
                             vm.selectionManager.singleSelectedItem =
                                 lazyPagingItems.peek(index)?.value
-                            state.isContextMenuVisible = true
+                            vm.scaffoldState.setBottomSheetVisibility(true, coroutineScope)
                         }
                     )
                 }
@@ -493,133 +616,6 @@ fun LibraryPage(
         if (navResult is NavResult.Value) {
             vm.customQuery = navResult.value
             vm.invalidate()
-        }
-    }
-    ModalBottomSheet(
-        visible = state.isContextMenuVisible,
-        onDismiss = {
-            state.isContextMenuVisible = false
-        },
-    ) {
-        vm.selectionManager.singleSelectedItem?.let { item ->
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(
-                            if (item.info.isFavorite)
-                                R.drawable.heart_24px
-                            else
-                                R.drawable.heart_filled_24px
-                        ),
-                        stringResource(
-                            if (item.info.isFavorite)
-                                R.string.remove_from_favorites
-                            else
-                                R.string.add_to_favorites
-                        )
-                    )
-                },
-                onClick = {
-                    vm.setFavoriteAndRefresh(listOf(item.info.bookId), !item.info.isFavorite) {}
-                    vm.selectionManager.singleSelectedItem = null
-                    state.isContextMenuVisible = false
-                }
-            ) {
-                Text(
-                    stringResource(
-                        if (item.info.isFavorite)
-                            R.string.remove_from_favorites
-                        else
-                            R.string.add_to_favorites
-                    )
-                )
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(
-                            if (item.lent == null)
-                                R.drawable.book_hand_right_24px
-                            else
-                                R.drawable.book_hand_left_24px
-                        ),
-                        stringResource(
-                            if (item.lent == null)
-                                R.string.lend_book
-                            else
-                                R.string.mark_as_returned
-                        )
-                    )
-                },
-                onClick = {
-                    if (item.lent == null)
-                        state.showLendBookDialog = true
-                    else {
-                        vm.markLentBookAsReturned(item.lent)
-                        vm.selectionManager.singleSelectedItem = null
-                    }
-                    state.isContextMenuVisible = false
-                }
-            ) {
-                Text(
-                    stringResource(
-                        if (item.lent == null)
-                            R.string.lend_book
-                        else
-                            R.string.mark_as_returned
-                    )
-                )
-            }
-            if (item.bookBundle.progress?.phase != ProgressPhase.READ) {
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.check_24px),
-                            stringResource(R.string.mark_as_read)
-                        )
-                    },
-                    onClick = {
-                        state.isContextMenuVisible = false
-                        vm.markBookAsRead(item.bookBundle)
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.mark_as_read)
-                    )
-                }
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.edit_24px),
-                        stringResource(R.string.edit)
-                    )
-                },
-                onClick = {
-                    state.isContextMenuVisible = false
-                    navigator.navigate(EditBookPageDestination(item.info.bookId))
-                }
-            ) {
-                Text(
-                    stringResource(R.string.edit)
-                )
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.delete_24px),
-                        stringResource(R.string.delete)
-                    )
-                },
-                onClick = {
-                    state.showConfirmDeleteBook = true
-                    state.isContextMenuVisible = false
-                }
-            ) {
-                Text(
-                    stringResource(R.string.delete)
-                )
-            }
         }
     }
     TranslationDialog(vm.translationState)

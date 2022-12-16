@@ -155,6 +155,72 @@ fun EditBookPage(
         }
     }
     LaunchedEffect(key1 = true) {
+        vm.scaffoldState.bottomSheetContent = {
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.photo_camera_24px),
+                        stringResource(R.string.camera)
+                    )
+                },
+                onClick = {
+                    vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                    try {
+                        val uri = vm.getTempCoverUri()
+                        navigator.navigate(TakeCoverPhotoPageDestination(uri))
+                    } catch (e: ActivityNotFoundException) {
+                        coroutineScope.launch {
+                            vm.snackbarHostState.showSnackbar(
+                                CustomSnackbarVisuals(
+                                    message = context.getString(R.string.error_no_camera),
+                                    isError = true
+                                )
+                            )
+                        }
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.take_photo))
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
+                },
+                onClick = {
+                    vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                    when {
+                        permissionState.status.isGranted -> {
+                            Log.d("debug", "Permission granted")
+                            permissionState.launchPermissionRequest()
+                        }
+                        permissionState.status.shouldShowRationale -> {
+                            showRationaleDialog = true
+                        }
+                        permissionState.status.isPermanentlyDenied -> {
+                            showPermissionDeniedDialog = true
+                        }
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.choose_from_gallery))
+            }
+            RowWithIcon(
+                icon = {
+                    Icon(
+                        painterResource(
+                            R.drawable.delete_24px
+                        ),
+                        stringResource(R.string.clear_cover)
+                    )
+                },
+                onClick = {
+                    vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                    vm.state.coverUri = null
+                }
+            ) {
+                Text(stringResource(R.string.clear_cover))
+            }
+        }
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.edit_book)) },
             actions = {
@@ -208,7 +274,9 @@ fun EditBookPage(
             BoxWithConstraints {
                 Box(
                     modifier = Modifier
-                        .clickable { vm.state.showCoverMenu = true }
+                        .clickable {
+                            vm.scaffoldState.setBottomSheetVisibility(true, coroutineScope)
+                        }
                 ) {
                     if (imageRequest != null) {
                         // TODO: placeholder for book cover
@@ -356,75 +424,6 @@ fun EditBookPage(
                 label = { Text(stringResource(R.string.isbn)) },
                 modifier = Modifier.fillMaxWidth()
             )
-        }
-    }
-    ModalBottomSheet(
-        visible = vm.state.showCoverMenu,
-        onDismiss = { vm.state.showCoverMenu = false }
-    ) {
-        RowWithIcon(
-            icon = {
-                Icon(
-                    painterResource(R.drawable.photo_camera_24px),
-                    stringResource(R.string.camera)
-                )
-            },
-            onClick = {
-                try {
-                    val uri = vm.getTempCoverUri()
-                    navigator.navigate(TakeCoverPhotoPageDestination(uri))
-                } catch (e: ActivityNotFoundException) {
-                    coroutineScope.launch {
-                        vm.snackbarHostState.showSnackbar(
-                            CustomSnackbarVisuals(
-                                message = context.getString(R.string.error_no_camera),
-                                isError = true
-                            )
-                        )
-                    }
-                }
-                vm.state.showCoverMenu = false
-            }
-        ) {
-            Text(stringResource(R.string.take_photo))
-        }
-        RowWithIcon(
-            icon = {
-                Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
-            },
-            onClick = {
-                when {
-                    permissionState.status.isGranted -> {
-                        Log.d("debug", "Permission granted")
-                        permissionState.launchPermissionRequest()
-                    }
-                    permissionState.status.shouldShowRationale -> {
-                        showRationaleDialog = true
-                    }
-                    permissionState.status.isPermanentlyDenied -> {
-                        showPermissionDeniedDialog = true
-                    }
-                }
-                vm.state.showCoverMenu = false
-            }
-        ) {
-            Text(stringResource(R.string.choose_from_gallery))
-        }
-        RowWithIcon(
-            icon = {
-                Icon(
-                    painterResource(
-                        R.drawable.delete_24px
-                    ),
-                    stringResource(R.string.clear_cover)
-                )
-            },
-            onClick = {
-                vm.state.coverUri = null
-                vm.state.showCoverMenu = false
-            }
-        ) {
-            Text(stringResource(R.string.clear_cover))
         }
     }
     if (showRationaleDialog) {

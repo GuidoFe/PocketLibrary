@@ -9,5 +9,4 @@ class WishlistState {
     var showDoubleIsbnDialog by mutableStateOf(false)
     var isbnToSearch: String? by mutableStateOf(null)
     var showConfirmDeleteBook by mutableStateOf(false)
-    var isContextMenuVisible by mutableStateOf(false)
 }

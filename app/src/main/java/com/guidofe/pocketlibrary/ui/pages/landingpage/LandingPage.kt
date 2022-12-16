@@ -27,11 +27,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.ui.modules.BookTile
-import com.guidofe.pocketlibrary.ui.modules.ModalBottomSheet
-import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
-import com.guidofe.pocketlibrary.ui.pages.destinations.BackupPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.CreditsPageDestination
-import com.guidofe.pocketlibrary.ui.pages.destinations.SettingsPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
 import com.guidofe.pocketlibrary.ui.theme.*
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
@@ -151,50 +146,6 @@ fun LandingPage(
                     }
                 }
             }
-        }
-    }
-    ModalBottomSheet(
-        showMoreMenu,
-        onDismiss = { showMoreMenu = false }
-    ) {
-        RowWithIcon(
-            icon = {
-                Icon(
-                    painterResource(R.drawable.settings_24px),
-                    stringResource(R.string.settings)
-                )
-            },
-            onClick = {
-                navigator.navigate(SettingsPageDestination)
-            }
-        ) {
-            Text(stringResource(R.string.settings))
-        }
-        RowWithIcon(
-            icon = {
-                Icon(
-                    painterResource(R.drawable.info_24px),
-                    stringResource(R.string.about)
-                )
-            },
-            onClick = {
-                navigator.navigate(CreditsPageDestination)
-            }
-        ) {
-            Text(stringResource(R.string.about))
-        }
-        RowWithIcon(
-            icon = {
-                Icon(
-                    painterResource(R.drawable.settings_backup_restore_24px),
-                    stringResource(R.string.backup_restore)
-                )
-            },
-            onClick = {
-                navigator.navigate(BackupPageDestination)
-            }
-        ) {
-            Text(stringResource(R.string.backup_restore))
         }
     }
 }
