@@ -23,4 +23,7 @@ interface ISettingsVM {
     fun setMemoryAndTransferFiles(isExternal: Boolean, callback: (Boolean) -> Unit)
     fun setGenreTranslation(translate: Boolean)
     val translationState: TranslationDialogState
+    fun setDaysBeforeDueField(s: String)
+    fun setDefaultNotificationEnabled(enabled: Boolean)
+    fun setDefaultNotificationTime(hours: Int, minutes: Int)
 }

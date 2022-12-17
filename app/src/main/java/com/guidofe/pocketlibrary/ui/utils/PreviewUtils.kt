@@ -212,5 +212,13 @@ class PreviewUtils {
         override fun unzip(zipFilePath: File, destDirectory: String) {}
 
         override suspend fun zipFolder(folder: File, outputZipFile: File) {}
+        override suspend fun setDefaultDaysBeforeDue(n: Int) {
+        }
+
+        override suspend fun setDefaultNotificationEnabled(enabled: Boolean) {
+        }
+
+        override suspend fun setDefaultNotificationTime(hours: Int, minutes: Int) {
+        }
     }
 }

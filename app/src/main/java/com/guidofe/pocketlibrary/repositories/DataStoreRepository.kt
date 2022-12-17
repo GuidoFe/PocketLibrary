@@ -31,4 +31,7 @@ interface DataStoreRepository {
     val BACKUP_FILE_ROOT: String
     fun unzip(zipFilePath: File, destDirectory: String)
     suspend fun zipFolder(folder: File, outputZipFile: File)
+    suspend fun setDefaultDaysBeforeDue(n: Int)
+    suspend fun setDefaultNotificationEnabled(enabled: Boolean)
+    suspend fun setDefaultNotificationTime(hours: Int, minutes: Int)
 }

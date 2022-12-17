@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -134,6 +135,30 @@ class DefaultDataStoreRepository @Inject constructor(
         }
         getCoverDir(isExternal)?.toUri()?.let {
             UriConverter.baseUri = it
+        }
+    }
+
+    override suspend fun setDefaultDaysBeforeDue(n: Int) {
+        context.dataStore.updateData {
+            it.copy(
+                defaultShowNotificationNDaysBeforeDue = n
+            )
+        }
+    }
+
+    override suspend fun setDefaultNotificationEnabled(enabled: Boolean) {
+        context.dataStore.updateData {
+            it.copy(
+                defaultEnableNotification = enabled
+            )
+        }
+    }
+
+    override suspend fun setDefaultNotificationTime(hours: Int, minutes: Int) {
+        context.dataStore.updateData {
+            it.copy(
+                defaultNotificationTime = LocalTime.of(hours, minutes)
+            )
         }
     }
 

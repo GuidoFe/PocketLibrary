@@ -46,4 +46,13 @@ class SettingsVMPreview : ISettingsVM {
 
     override val translationState: TranslationDialogState
         get() = TranslationDialogState()
+
+    override fun setDaysBeforeDueField(s: String) {
+    }
+
+    override fun setDefaultNotificationEnabled(enabled: Boolean) {
+    }
+
+    override fun setDefaultNotificationTime(hours: Int, minutes: Int) {
+    }
 }

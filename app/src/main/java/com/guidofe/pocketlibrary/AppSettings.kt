@@ -23,7 +23,7 @@ data class AppSettings(
     val defaultShowNotificationNDaysBeforeDue: Int = 3,
     val defaultEnableNotification: Boolean = true,
     @Serializable(with = LocalTimeSerializer::class)
-    val defaultTimeToShowNotification: LocalTime = LocalTime.parse("08:00")
+    val defaultNotificationTime: LocalTime = LocalTime.parse("08:00")
 )
 
 @Serializable

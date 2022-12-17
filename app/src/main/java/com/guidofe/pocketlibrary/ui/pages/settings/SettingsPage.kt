@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,8 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +37,7 @@ import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
 import com.guidofe.pocketlibrary.ui.modules.HorizontalDividerWithText
+import com.guidofe.pocketlibrary.ui.modules.TimePickerDialog
 import com.guidofe.pocketlibrary.ui.pages.settings.SettingsState.WifiRequester
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
@@ -43,6 +49,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +64,7 @@ fun SettingsPage(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val innerRowPadding = 10.dp
+    val focusManager = LocalFocusManager.current
     val cm = remember {
         context.getSystemService(Context.CONNECTIVITY_SERVICE)
             as ConnectivityManager
@@ -78,7 +86,10 @@ fun SettingsPage(
         )
     }
     LaunchedEffect(settings) {
-        settings?.let { vm.state.currentSettings = it }
+        settings?.let {
+            vm.state.daysBeforeDueField = it.defaultShowNotificationNDaysBeforeDue.toString()
+            vm.state.currentSettings = it
+        }
     }
     Box(
         modifier = Modifier
@@ -87,6 +98,7 @@ fun SettingsPage(
     ) {
         vm.state.currentSettings?.let { s ->
             Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .verticalScroll(scrollState)
                     .widthIn(max = 600.dp)
@@ -254,6 +266,61 @@ fun SettingsPage(
                         Text(stringResource(R.string.default_notification_settings))
                     }
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(R.string.notification_enabled),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = s.defaultEnableNotification,
+                        onCheckedChange = { vm.setDefaultNotificationEnabled(it) }
+                    )
+                }
+                if (s.defaultEnableNotification) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.notification_days_before_due),
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = vm.state.daysBeforeDueField,
+                            onValueChange = { vm.setDaysBeforeDueField(it) },
+                            isError = vm.state.isDaysBeforeDueError,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { focusManager.clearFocus() }
+                            ),
+                            modifier = Modifier.width(60.dp)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.default_time),
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedButton(
+                            onClick = {
+                                vm.state.showTimePicker = true
+                            }
+                        ) {
+                            Text(
+                                s.defaultNotificationTime.format(
+                                    DateTimeFormatter.ofPattern("HH:mm")
+                                )
+                            )
+                        }
+                    }
+                }
             }
 
             if (vm.state.showThemeSelector) {
@@ -269,6 +336,18 @@ fun SettingsPage(
                 ) {
                     vm.state.showThemeSelector = false
                 }
+            }
+
+            if (vm.state.showTimePicker) {
+                TimePickerDialog(
+                    startingHour = s.defaultNotificationTime.hour,
+                    startingMinutes = s.defaultNotificationTime.minute,
+                    onCancel = { vm.state.showTimePicker = false },
+                    onTimePicked = { hours, minutes ->
+                        vm.setDefaultNotificationTime(hours, minutes)
+                        vm.state.showTimePicker = false
+                    }
+                )
             }
         }
         if (vm.state.showWaitForFileTransfer) {
@@ -343,7 +422,6 @@ fun SettingsPage(
             }
         )
     }
-
     TranslationDialog(vm.translationState)
 }
 
@@ -390,6 +468,8 @@ private fun LanguageSettingDropdown(
 @Preview(showSystemUi = false, device = Devices.PIXEL_4)
 private fun SettingsPagePreview() {
     PreviewUtils.ThemeColumn() {
-        SettingsPage(SettingsVMPreview(), EmptyDestinationsNavigator)
+        Surface {
+            SettingsPage(SettingsVMPreview(), EmptyDestinationsNavigator)
+        }
     }
 }

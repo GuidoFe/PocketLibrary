@@ -13,11 +13,15 @@ class SettingsState {
     }
 
     var isLanguageDropdownOpen by mutableStateOf(false)
+    var isDaysBeforeDueDropdownOpen by mutableStateOf(false)
     var showThemeSelector by mutableStateOf(false)
     var currentSettings: AppSettings? by mutableStateOf(null)
     var showWaitForFileTransfer by mutableStateOf(false)
     var showAskForWifi by mutableStateOf(false)
+    var isDaysBeforeDueError by mutableStateOf(false)
     var wifiRequester: WifiRequester? by mutableStateOf(null)
     var totalFiles by mutableStateOf(0)
     var movedFiles by mutableStateOf(0)
+    var daysBeforeDueField: String by mutableStateOf("")
+    var showTimePicker: Boolean by mutableStateOf(false)
 }

@@ -135,6 +135,31 @@ class SettingsVM @Inject constructor(
         }
     }
 
+    override fun setDaysBeforeDueField(s: String) {
+        state.daysBeforeDueField = s
+        viewModelScope.launch {
+            val n = s.toIntOrNull()
+            if (n == null)
+                state.isDaysBeforeDueError = true
+            else {
+                state.isDaysBeforeDueError = false
+                dataStore.setDefaultDaysBeforeDue(n)
+            }
+        }
+    }
+
+    override fun setDefaultNotificationEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.setDefaultNotificationEnabled(enabled)
+        }
+    }
+
+    override fun setDefaultNotificationTime(hours: Int, minutes: Int) {
+        viewModelScope.launch {
+            dataStore.setDefaultNotificationTime(hours, minutes)
+        }
+    }
+
     override val hasExternalStorage: Boolean
         get() = dataStore.isExternalStorageWritable()
 }

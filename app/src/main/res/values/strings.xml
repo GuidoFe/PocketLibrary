@@ -222,4 +222,10 @@
     <string name="hideReturnedBooks">Hide returned books</string>
     <string name="showReturnedBooks">Show returned books</string>
     <string name="default_notification_settings">Default notification settings</string>
+    <string name="notification_days_before_due">Days before due</string>
+    <string name="notification_enabled">Notification enabled</string>
+    <string name="default_time">Default time</string>
+    <string name="enter_time">Enter time</string>
+    <string name="hour">Hour</string>
+    <string name="minute">Minute</string>
 </resources>
