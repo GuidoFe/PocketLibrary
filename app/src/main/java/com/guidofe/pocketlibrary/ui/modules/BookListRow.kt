@@ -4,18 +4,20 @@ import android.net.Uri
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
@@ -31,8 +33,9 @@ fun LibraryListRow(
     item: SelectableListItem<LibraryBundle>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {}
+    onRowLongPress: (DpOffset) -> Unit = {},
+    onCoverLongPress: (Offset) -> Unit = {},
+    dropdownMenu: @Composable () -> Unit = {}
 ) {
     val bundle = item.value.bookBundle
     GenericListRow(
@@ -47,7 +50,8 @@ fun LibraryListRow(
         onRowTap,
         onRowLongPress,
         onCoverLongPress,
-        item.value.bookBundle.progress?.phase
+        item.value.bookBundle.progress?.phase,
+        dropdownMenu = dropdownMenu
     )
 }
 
@@ -56,8 +60,9 @@ fun WishlistRow(
     item: SelectableListItem<WishlistBundle>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {}
+    onRowLongPress: (DpOffset) -> Unit = {},
+    onCoverLongPress: (Offset) -> Unit = {},
+    dropdownMenu: @Composable () -> Unit = {}
 ) {
     val bundle = item.value.bookBundle
     GenericListRow(
@@ -71,7 +76,8 @@ fun WishlistRow(
         false,
         onRowTap,
         onRowLongPress,
-        onCoverLongPress
+        onCoverLongPress,
+        dropdownMenu = dropdownMenu
     )
 }
 
@@ -80,7 +86,7 @@ fun ImportedBookListRow(
     item: SelectableListItem<ImportedBookData>,
     modifier: Modifier = Modifier,
     onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
+    onRowLongPress: (DpOffset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {},
 ) {
     GenericListRow(
@@ -111,12 +117,13 @@ private fun GenericListRow(
     isSelected: Boolean = false,
     isLent: Boolean = false,
     onRowTap: (Offset) -> Unit = {},
-    onRowLongPress: (Offset) -> Unit = {},
+    onRowLongPress: (DpOffset) -> Unit = {},
     onCoverLongPress: (Offset) -> Unit = {},
     progress: ProgressPhase? = null,
-    enableCoverDiskCache: Boolean = true
+    enableCoverDiskCache: Boolean = true,
+    dropdownMenu: @Composable () -> Unit = {}
 ) {
-    var tapZoneOffset: Offset by remember { mutableStateOf(Offset.Zero) }
+    val density = LocalDensity.current
     BoxWithConstraints(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
@@ -143,64 +150,71 @@ private fun GenericListRow(
                         progress,
                         enableDiskCache = enableCoverDiskCache
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f, true)
-                            .onGloballyPositioned {
-                                tapZoneOffset = it.positionInParent()
-                            }
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        onRowLongPress(
-                                            Offset(
-                                                it.x + tapZoneOffset.x,
-                                                it.y + tapZoneOffset.y
-                                            )
-                                        )
-                                    },
-                                    onTap = onRowTap
-                                )
-                            }
+                    Box(
+                        modifier = Modifier.weight(1f, true)
                     ) {
-                        Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
-                        Column(
-                            verticalArrangement = Arrangement.Center,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .weight(1f)
+                                .fillMaxHeight()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            onRowLongPress(
+                                                getMenuOffset(it, density)
+                                            )
+                                        },
+                                        onTap = onRowTap
+                                    )
+                                }
                         ) {
-                            Text(
-                                text = title,
-                                style = BookRowDefaults.titleStyle,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
-                            if (subtitle != null)
+                            Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .weight(1f)
+                            ) {
                                 Text(
-                                    text = subtitle,
+                                    text = title,
+                                    style = BookRowDefaults.titleStyle,
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 1,
-                                    style = BookRowDefaults.subtitleStyle
                                 )
-                            Text(
-                                text = authors,
-                                style = BookRowDefaults.authorStyle,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
+                                if (subtitle != null)
+                                    Text(
+                                        text = subtitle,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                        style = BookRowDefaults.subtitleStyle
+                                    )
+                                Text(
+                                    text = authors,
+                                    style = BookRowDefaults.authorStyle,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                )
+                            }
+                            if (isFavorite) {
+                                Icon(
+                                    painter = painterResource(R.drawable.heart_filled_24px),
+                                    contentDescription = stringResource(R.string.favorite),
+                                )
+                            }
                         }
-                        if (isFavorite) {
-                            Icon(
-                                painter = painterResource(R.drawable.heart_filled_24px),
-                                contentDescription = stringResource(R.string.favorite),
-                            )
-                        }
+                        dropdownMenu()
                     }
                 }
             }
         }
+    }
+}
+
+private fun getMenuOffset(offset: Offset, density: Density): DpOffset {
+    with(density) {
+        return DpOffset(
+            offset.x.toDp(),
+            offset.y.toDp() - 115.dp + BookRowDefaults.horizontalPadding.times(2)
+        )
     }
 }
 

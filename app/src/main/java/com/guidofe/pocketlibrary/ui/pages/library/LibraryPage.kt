@@ -15,18 +15,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.repositories.LibraryFilter
 import com.guidofe.pocketlibrary.ui.dialogs.*
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
+import com.guidofe.pocketlibrary.ui.utils.Menu
+import com.guidofe.pocketlibrary.ui.utils.MenuItem
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.LibraryVM
@@ -61,6 +66,7 @@ fun LibraryPage(
     val state = vm.state
     val fabFocusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
+    val windowInfo = rememberWindowInfo()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (lazyListState.isScrollInProgress) {
@@ -245,131 +251,109 @@ fun LibraryPage(
             )
         }
     }
-
-    LaunchedEffect(Unit) {
-        vm.invalidate()
-        vm.scaffoldState.bottomSheetContent = {
-            vm.selectionManager.singleSelectedItem?.let { item ->
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(
-                                if (item.info.isFavorite)
-                                    R.drawable.heart_24px
-                                else
-                                    R.drawable.heart_filled_24px
-                            ),
-                            stringResource(
-                                if (item.info.isFavorite)
-                                    R.string.remove_from_favorites
-                                else
-                                    R.string.add_to_favorites
-                            )
-                        )
+    val contextMenu = remember {
+        Menu<LibraryBundle>(
+            menuItems = arrayOf(
+                MenuItem(
+                    labelId = {
+                        if (it.info.isFavorite)
+                            R.string.remove_from_favorites
+                        else
+                            R.string.add_to_favorites
+                    },
+                    iconId = {
+                        if (it.info.isFavorite)
+                            R.drawable.heart_24px
+                        else
+                            R.drawable.heart_filled_24px
                     },
                     onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        vm.setFavoriteAndRefresh(listOf(item.info.bookId), !item.info.isFavorite) {}
-                        vm.selectionManager.singleSelectedItem = null
+                        vm.setFavoriteAndRefresh(listOf(it.info.bookId), !it.info.isFavorite) {}
                     }
-                ) {
-                    Text(
-                        stringResource(
-                            if (item.info.isFavorite)
-                                R.string.remove_from_favorites
-                            else
-                                R.string.add_to_favorites
-                        )
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(
-                                if (item.lent == null)
-                                    R.drawable.book_hand_right_24px
-                                else
-                                    R.drawable.book_hand_left_24px
-                            ),
-                            stringResource(
-                                if (item.lent == null)
-                                    R.string.lend_book
-                                else
-                                    R.string.mark_as_returned
-                            )
-                        )
+                ),
+                MenuItem(
+                    labelId = {
+                        if (it.lent == null)
+                            R.string.lend_book
+                        else
+                            R.string.mark_as_returned
+                    },
+                    iconId = {
+                        if (it.lent == null)
+                            R.drawable.book_hand_right_24px
+                        else
+                            R.drawable.book_hand_left_24px
                     },
                     onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        if (item.lent == null)
+                        if (it.lent == null) {
+                            vm.selectionManager.singleSelectedItem = it
                             state.showLendBookDialog = true
-                        else {
-                            vm.markLentBookAsReturned(item.lent)
-                            vm.selectionManager.singleSelectedItem = null
+                        } else {
+                            vm.markLentBookAsReturned(it.lent)
                         }
                     }
-                ) {
-                    Text(
-                        stringResource(
-                            if (item.lent == null)
-                                R.string.lend_book
-                            else
-                                R.string.mark_as_returned
-                        )
-                    )
-                }
-                if (item.bookBundle.progress?.phase != ProgressPhase.READ) {
+                ),
+                MenuItem(
+                    labelId = { R.string.mark_as_read },
+                    iconId = { R.drawable.check_24px },
+                    onClick = {
+                        vm.markBookAsRead(it.bookBundle)
+                    },
+                    isVisible = {
+                        it.bookBundle.progress?.phase != ProgressPhase.READ
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.edit },
+                    iconId = { R.drawable.edit_24px },
+                    onClick = {
+                        navigator.navigate(EditBookPageDestination(it.info.bookId))
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.delete },
+                    iconId = { R.drawable.delete_24px },
+                    onClick = {
+                        vm.selectionManager.singleSelectedItem = it
+                        state.showConfirmDeleteBook = true
+                    }
+                )
+            )
+        )
+    }
+    LaunchedEffect(Unit) {
+        if (!windowInfo.isBottomSheetLayout())
+            return@LaunchedEffect
+        vm.scaffoldState.bottomSheetContent = {
+            vm.selectionManager.singleSelectedItem?.let { item ->
+                for (line in contextMenu.menuItems.filter { it.isVisible(item) }) {
                     RowWithIcon(
                         icon = {
                             Icon(
-                                painterResource(R.drawable.check_24px),
-                                stringResource(R.string.mark_as_read)
+                                painterResource(
+                                    line.iconId(item)
+                                ),
+                                contentDescription = null
                             )
                         },
                         onClick = {
                             vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                            vm.markBookAsRead(item.bookBundle)
+                            line.onClick(item)
+                            vm.selectionManager.singleSelectedItem = null
                         }
                     ) {
                         Text(
-                            stringResource(R.string.mark_as_read)
+                            stringResource(
+                                line.labelId(item)
+                            )
                         )
                     }
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.edit_24px),
-                            stringResource(R.string.edit)
-                        )
-                    },
-                    onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(EditBookPageDestination(item.info.bookId))
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.edit)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.delete_24px),
-                            stringResource(R.string.delete)
-                        )
-                    },
-                    onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        state.showConfirmDeleteBook = true
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.delete)
-                    )
                 }
             }
         }
+    }
+    LaunchedEffect(Unit) {
+        vm.invalidate()
         vm.scaffoldState.fab = {
             AddBookFab(
                 isExpanded = state.isFabExpanded,
@@ -430,8 +414,9 @@ fun LibraryPage(
             ) { index, item ->
                 if (item == null)
                     return@itemsIndexed
+                var isDropdownMenuExpanded by remember { mutableStateOf(false) }
+                var menuOffset by remember { mutableStateOf(DpOffset.Zero) }
                 Box {
-                    val bundle = item
                     LibraryListRow(
                         item,
                         onRowTap = {
@@ -446,9 +431,49 @@ fun LibraryPage(
                             }
                         },
                         onRowLongPress = {
-                            vm.selectionManager.singleSelectedItem =
-                                lazyPagingItems.peek(index)?.value
-                            vm.scaffoldState.setBottomSheetVisibility(true, coroutineScope)
+                            if (!vm.selectionManager.isMultipleSelecting) {
+                                if (windowInfo.isBottomSheetLayout()) {
+                                    vm.selectionManager.singleSelectedItem =
+                                        lazyPagingItems.peek(index)?.value
+                                    vm.scaffoldState.setBottomSheetVisibility(
+                                        true, coroutineScope
+                                    )
+                                } else {
+                                    menuOffset = it
+                                    isDropdownMenuExpanded = true
+                                }
+                            }
+                        },
+                        dropdownMenu = {
+                            if (!windowInfo.isBottomSheetLayout()) {
+                                DropdownMenu(
+                                    expanded = isDropdownMenuExpanded,
+                                    onDismissRequest = { isDropdownMenuExpanded = false },
+                                    offset = menuOffset
+                                ) {
+                                    for (
+                                        line in contextMenu.menuItems.filter {
+                                            it.isVisible(item.value)
+                                        }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(stringResource(line.labelId(item.value)))
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    painterResource(line.iconId(item.value)),
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            onClick = {
+                                                isDropdownMenuExpanded = false
+                                                line.onClick(item.value)
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                         }
                     )
                 }

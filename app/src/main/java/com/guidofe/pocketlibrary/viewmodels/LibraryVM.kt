@@ -57,7 +57,7 @@ class LibraryVM @Inject constructor(
     override val translationState = TranslationDialogState()
     private var currentPagingSource: PagingSource<Int, LibraryBundle>? = null
     override var customQuery: LibraryFilter? = null
-    override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
+    override var pager = Pager(PagingConfig(50, initialLoadSize = 50)) {
         repo.getLibraryBundlesWithCustomFilter(
             searchFieldManager.searchField.nullIfEmptyOrBlank(),
             customQuery

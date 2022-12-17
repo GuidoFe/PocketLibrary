@@ -11,10 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
@@ -33,11 +36,12 @@ fun LentBookRow(
     onCoverLongPress: (Offset) -> Unit = {},
     onBorrowerTap: () -> Unit = {},
     onStartTap: () -> Unit = {},
-    onRowLongPress: () -> Unit = {},
+    onRowLongPress: (DpOffset) -> Unit = {},
     areButtonsActive: Boolean = true,
+    dropdownMenu: @Composable () -> Unit = {}
 ) {
     val bookBundle = remember { item.value.bookBundle }
-
+    val density = LocalDensity.current
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = modifier
@@ -78,11 +82,16 @@ fun LentBookRow(
                                 .fillMaxWidth()
                                 .pointerInput(Unit) {
                                     detectTapGestures(
-                                        onLongPress = { onRowLongPress() },
+                                        onLongPress = { offset ->
+                                            onRowLongPress(
+                                                getMenuOffset(offset, density)
+                                            )
+                                        },
                                         onTap = onRowTap
                                     )
                                 }
                         ) {
+                            dropdownMenu()
                             Text(
                                 text = bookBundle.book.title,
                                 style = BookRowDefaults.titleStyle,
@@ -144,6 +153,15 @@ fun LentBookRow(
                 }
             }
         }
+    }
+}
+
+private fun getMenuOffset(offset: Offset, density: Density): DpOffset {
+    with(density) {
+        return DpOffset(
+            x = offset.x.toDp(),
+            y = offset.y.toDp() - 68.5.dp
+        )
     }
 }
 

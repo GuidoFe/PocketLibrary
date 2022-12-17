@@ -79,15 +79,19 @@ fun SettingsPage(
     LaunchedEffect(settings) {
         settings?.let { vm.state.currentSettings = it }
     }
-    Surface(
-        modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
     ) {
         vm.state.currentSettings?.let { s ->
             Column(
                 modifier = Modifier
                     .verticalScroll(scrollState)
+                    .widthIn(max = 600.dp)
                     .fillMaxWidth()
                     .padding(5.dp)
+                    .align(Alignment.TopCenter)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

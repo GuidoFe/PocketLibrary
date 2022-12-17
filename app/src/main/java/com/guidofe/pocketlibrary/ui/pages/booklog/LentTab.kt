@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
@@ -18,7 +19,10 @@ import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.ui.utils.Menu
+import com.guidofe.pocketlibrary.ui.utils.MenuItem
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import java.sql.Date
@@ -38,59 +42,49 @@ fun LentTab(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val selectionManager = state.selectionManager
+    val windowInfo = rememberWindowInfo()
+    val contextMenu = remember {
+        Menu<LibraryBundle>(
+            menuItems = arrayOf(
+                MenuItem(
+                    labelId = { R.string.return_to_library },
+                    iconId = { R.drawable.book_hand_left_24px },
+                    onClick = { it.lent?.let { lent -> removeLentStatus(listOf(lent)) {} } }
+                ),
+                MenuItem(
+                    labelId = { R.string.details },
+                    iconId = { R.drawable.info_24px },
+                    onClick = { navigator.navigate(ViewBookPageDestination(it.info.bookId)) }
+                ),
+                MenuItem(
+                    labelId = { R.string.edit },
+                    iconId = { R.drawable.edit_24px },
+                    onClick = { navigator.navigate(EditBookPageDestination(it.info.bookId)) }
+                )
+            )
+        )
+    }
     LaunchedEffect(Unit) {
+        if (!windowInfo.isBottomSheetLayout())
+            return@LaunchedEffect
         setBottomSheetContent {
             val selectedItem = selectionManager.singleSelectedItem
             selectedItem?.let { item ->
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.book_hand_left_24px),
-                            stringResource(R.string.return_to_library)
-                        )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        item.lent?.let { lent ->
-                            removeLentStatus(listOf(lent)) {}
+                for (line in contextMenu.menuItems) {
+                    RowWithIcon(
+                        icon = {
+                            Icon(painterResource(line.iconId(item)), null)
+                        },
+                        onClick = {
+                            setBottomSheetVisibility(false, coroutineScope)
+                            line.onClick(item)
+                            state.selectionManager.singleSelectedItem = null
                         }
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.return_to_library)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.info_24px),
-                            stringResource(R.string.details)
+                    ) {
+                        Text(
+                            stringResource(line.labelId(item))
                         )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(ViewBookPageDestination(item.info.bookId))
                     }
-                ) {
-                    Text(
-                        stringResource(R.string.details)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.edit_24px),
-                            stringResource(R.string.edit)
-                        )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(EditBookPageDestination(item.info.bookId))
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.edit)
-                    )
                 }
             }
         }
@@ -109,6 +103,8 @@ fun LentTab(
             }
         LazyColumn() {
             items(lentItems, key = { it.value.info.bookId }) { item ->
+                var isDropdownMenuExpanded by remember { mutableStateOf(false) }
+                var menuOffset by remember { mutableStateOf(DpOffset.Zero) }
                 Box {
                     LentBookRow(
                         item,
@@ -136,11 +132,42 @@ fun LentTab(
                             state.isCalendarVisible = true
                         },
                         onRowLongPress = {
-                            state.selectionManager.singleSelectedItem = item.value
-                            setBottomSheetVisibility(true, coroutineScope)
+                            if (!selectionManager.isMultipleSelecting) {
+                                if (windowInfo.isBottomSheetLayout()) {
+                                    state.selectionManager.singleSelectedItem = item.value
+                                    setBottomSheetVisibility(true, coroutineScope)
+                                } else {
+                                    menuOffset = it
+                                    isDropdownMenuExpanded = true
+                                }
+                            }
                         },
                         areButtonsActive = !selectionManager.isMultipleSelecting,
-                    )
+                    ) {
+                        if (!windowInfo.isBottomSheetLayout()) {
+                            DropdownMenu(
+                                expanded = isDropdownMenuExpanded,
+                                onDismissRequest = { isDropdownMenuExpanded = false },
+                                offset = menuOffset
+                            ) {
+                                for (line in contextMenu.menuItems) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(line.labelId(item.value))) },
+                                        leadingIcon = {
+                                            Icon(
+                                                painterResource(line.iconId(item.value)),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        onClick = {
+                                            isDropdownMenuExpanded = false
+                                            line.onClick(item.value)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
                 Divider()
             }

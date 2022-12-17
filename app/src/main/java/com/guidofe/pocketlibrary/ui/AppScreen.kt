@@ -64,7 +64,7 @@ fun AppScreen(
                 }
             },
             bottomBar = {
-                if (windowInfo.isBottomAppBarLayout()) MainBottomBar(navController)
+                if (windowInfo.isBottomNavigationBarLayout()) MainBottomBar(navController)
             },
             floatingActionButton = {
                 // TODO: Animate fab changing
@@ -133,7 +133,7 @@ fun AppScreen(
             Surface(
                 modifier = Modifier
                     .padding(
-                        if (windowInfo.isBottomAppBarLayout())
+                        if (windowInfo.isBottomNavigationBarLayout())
                             paddingValues
                         else
                             PaddingValues(
@@ -150,7 +150,7 @@ fun AppScreen(
                     }
             ) {
                 Row {
-                    if (!windowInfo.isBottomAppBarLayout())
+                    if (!windowInfo.isBottomNavigationBarLayout())
                         MainNavigationRail(navController)
                     DestinationsNavHost(NavGraphs.root, navController = navController)
                 }

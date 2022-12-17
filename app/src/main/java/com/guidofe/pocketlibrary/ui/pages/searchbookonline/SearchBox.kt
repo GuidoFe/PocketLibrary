@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
@@ -43,7 +44,13 @@ fun SearchBox(
             onValueChange = {
                 setTitle(it)
             },
-            label = { Text(stringResource(R.string.title)) },
+            label = {
+                Text(
+                    stringResource(R.string.title),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -53,14 +60,26 @@ fun SearchBox(
             OutlinedTextField(
                 value = author,
                 onValueChange = { setAuthor(it) },
-                label = { Text(stringResource(R.string.author)) },
+                label = {
+                    Text(
+                        stringResource(R.string.author),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
             LanguageAutocomplete(
                 text = lang,
                 onTextChange = { setLang(it) },
-                label = { Text(stringResource(R.string.language)) },
+                label = {
+                    Text(
+                        stringResource(R.string.language),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 onOptionSelected = { setLang(it) },
                 modifier = Modifier.weight(1f)
             )

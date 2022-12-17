@@ -59,7 +59,7 @@ class BookLogVM @Inject constructor(
         override var shouldSearchBarRequestFocus by mutableStateOf(true)
     }
 
-    override var borrowedPager = Pager(PagingConfig(10, initialLoadSize = 20)) {
+    override var borrowedPager = Pager(PagingConfig(50, initialLoadSize = 50)) {
         (
             if (borrowedTabState.searchQuery.isBlank()) {
                 repo.getBorrowedBundles(borrowedTabState.showReturnedBooks)

@@ -13,12 +13,13 @@ data class WindowInfo(
     val screenWidthInfo: WindowType,
     val screenHeightInfo: WindowType
 ) {
-    fun isBottomAppBarLayout(): Boolean {
+    fun isBottomNavigationBarLayout(): Boolean {
         return this.screenWidthInfo == WindowType.COMPAT
     }
 
     fun isBottomSheetLayout(): Boolean {
-        return this.screenHeightInfo > WindowType.COMPAT && this.screenWidthInfo > WindowType.COMPAT
+        return this.screenHeightInfo == WindowType.COMPAT ||
+            this.screenWidthInfo == WindowType.COMPAT
     }
 }
 

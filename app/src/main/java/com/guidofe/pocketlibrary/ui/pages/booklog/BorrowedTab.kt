@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -22,7 +23,10 @@ import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
+import com.guidofe.pocketlibrary.ui.utils.Menu
+import com.guidofe.pocketlibrary.ui.utils.MenuItem
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import java.sql.Date
@@ -45,110 +49,81 @@ fun BorrowedTab(
     val selectionManager = state.selectionManager
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val windowInfo = rememberWindowInfo()
+    val contextMenu = remember {
+        Menu<BorrowedBundle>(
+            menuItems = arrayOf(
+                MenuItem(
+                    labelId = {
+                        if (it.info.isReturned)
+                            R.string.mark_as_not_returned
+                        else
+                            R.string.mark_as_returned
+                    },
+                    iconId = {
+                        if (it.info.isReturned)
+                            R.drawable.upload_24px
+                        else
+                            R.drawable.book_hand_right_24px
+                    },
+                    onClick = { setReturnStatus(it.info.bookId, !it.info.isReturned) }
+                ),
+                MenuItem(
+                    labelId = { R.string.details },
+                    iconId = { R.drawable.info_24px },
+                    onClick = { navigator.navigate(ViewBookPageDestination(it.info.bookId)) }
+                ),
+                MenuItem(
+                    labelId = { R.string.edit },
+                    iconId = { R.drawable.edit_24px },
+                    onClick = { navigator.navigate(EditBookPageDestination(it.info.bookId)) }
+                ),
+                MenuItem(
+                    labelId = { R.string.add_to_library },
+                    iconId = { R.drawable.library_add_24px },
+                    onClick = { moveToLibrary(listOf(it.info.bookId)) }
+                ),
+                MenuItem(
+                    labelId = { R.string.delete },
+                    iconId = { R.drawable.delete_24px },
+                    onClick = {
+                        selectionManager.singleSelectedItem = it
+                        state.showConfirmDeleteBook = true
+                    }
+                )
+            )
+        )
+    }
+
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (lazyListState.isScrollInProgress) {
             state.isFabExpanded = false
         }
     }
     LaunchedEffect(Unit) {
+        if (!windowInfo.isBottomSheetLayout())
+            return@LaunchedEffect
         setBottomSheetContent {
             val selectedItem = selectionManager.singleSelectedItem
             selectedItem?.let { item ->
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(
-                                if (item.info.isReturned)
-                                    R.drawable.upload_24px
-                                else
-                                    R.drawable.book_hand_right_24px
-                            ),
-                            stringResource(
-                                if (item.info.isReturned)
-                                    R.string.mark_as_not_returned
-                                else
-                                    R.string.mark_as_returned
+                for (line in contextMenu.menuItems) {
+                    RowWithIcon(
+                        icon = {
+                            Icon(
+                                painterResource(line.iconId(item)),
+                                contentDescription = null
                             )
+                        },
+                        onClick = {
+                            setBottomSheetVisibility(false, coroutineScope)
+                            line.onClick(item)
+                            state.selectionManager.singleSelectedItem = null
+                        }
+                    ) {
+                        Text(
+                            stringResource(line.labelId(item))
                         )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        setReturnStatus(item.info.bookId, !item.info.isReturned)
-                        state.selectionManager.singleSelectedItem = null
                     }
-                ) {
-                    Text(
-                        stringResource(
-                            if (item.info.isReturned)
-                                R.string.mark_as_not_returned
-                            else
-                                R.string.mark_as_returned
-                        )
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.info_24px),
-                            stringResource(R.string.details)
-                        )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(ViewBookPageDestination(item.info.bookId))
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.details)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.edit_24px),
-                            stringResource(R.string.edit)
-                        )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(EditBookPageDestination(item.info.bookId))
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.edit)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.library_add_24px),
-                            stringResource(R.string.add_to_library)
-                        )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        moveToLibrary(listOf(item.info.bookId))
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.add_to_library)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.delete_24px),
-                            stringResource(R.string.delete)
-                        )
-                    },
-                    onClick = {
-                        setBottomSheetVisibility(false, coroutineScope)
-                        state.showConfirmDeleteBook = true
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.delete)
-                    )
                 }
             }
         }
@@ -173,42 +148,75 @@ fun BorrowedTab(
             items(borrowedItems, key = { it.value.info.bookId }) { item ->
                 if (item == null)
                     return@items
-                BorrowedBookRow(
-                    item,
-                    onRowTap = {
-                        if (selectionManager.isMultipleSelecting)
-                            selectionManager.multipleSelectToggle(item.value)
-                        else {
-                            navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
-                        }
-                    },
-                    onRowLongPress = {
-                        if (!selectionManager.isMultipleSelecting) {
+                var isDropdownMenuExpanded by remember { mutableStateOf(false) }
+                var menuOffset by remember { mutableStateOf(DpOffset.Zero) }
+                Box {
+                    BorrowedBookRow(
+                        item,
+                        onRowTap = {
+                            if (selectionManager.isMultipleSelecting)
+                                selectionManager.multipleSelectToggle(item.value)
+                            else {
+                                navigator.navigate(ViewBookPageDestination(item.value.info.bookId))
+                            }
+                        },
+                        onRowLongPress = { offset ->
+                            if (!selectionManager.isMultipleSelecting) {
+                                if (windowInfo.isBottomSheetLayout()) {
+                                    selectionManager.singleSelectedItem = item.value
+                                    setBottomSheetVisibility(true, coroutineScope)
+                                } else {
+                                    menuOffset = offset
+                                    isDropdownMenuExpanded = true
+                                }
+                            }
+                        },
+                        onCoverLongPress = {
+                            if (!selectionManager.isMultipleSelecting)
+                                selectionManager.startMultipleSelection(item.value)
+                        },
+                        onLenderTap = {
+                            state.fieldToChange = BorrowedField.LENDER
                             selectionManager.singleSelectedItem = item.value
-                            setBottomSheetVisibility(true, coroutineScope)
+                            state.isLenderDialogVisible = true
+                        },
+                        onStartTap = {
+                            state.fieldToChange = BorrowedField.START
+                            selectionManager.singleSelectedItem = item.value
+                            state.isCalendarVisible = true
+                        },
+                        onReturnByTap = {
+                            state.fieldToChange = BorrowedField.RETURN_BY
+                            selectionManager.singleSelectedItem = item.value
+                            state.isCalendarVisible = true
+                        },
+                        areButtonsActive = !selectionManager.isMultipleSelecting
+                    ) {
+                        if (!windowInfo.isBottomSheetLayout()) {
+                            DropdownMenu(
+                                expanded = isDropdownMenuExpanded,
+                                onDismissRequest = { isDropdownMenuExpanded = false },
+                                offset = menuOffset
+                            ) {
+                                for (line in contextMenu.menuItems) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(line.labelId(item.value))) },
+                                        leadingIcon = {
+                                            Icon(
+                                                painterResource(line.iconId(item.value)),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        onClick = {
+                                            isDropdownMenuExpanded = false
+                                            line.onClick(item.value)
+                                        }
+                                    )
+                                }
+                            }
                         }
-                    },
-                    onCoverLongPress = {
-                        if (!selectionManager.isMultipleSelecting)
-                            selectionManager.startMultipleSelection(item.value)
-                    },
-                    onLenderTap = {
-                        state.fieldToChange = BorrowedField.LENDER
-                        selectionManager.singleSelectedItem = item.value
-                        state.isLenderDialogVisible = true
-                    },
-                    onStartTap = {
-                        state.fieldToChange = BorrowedField.START
-                        selectionManager.singleSelectedItem = item.value
-                        state.isCalendarVisible = true
-                    },
-                    onReturnByTap = {
-                        state.fieldToChange = BorrowedField.RETURN_BY
-                        selectionManager.singleSelectedItem = item.value
-                        state.isCalendarVisible = true
-                    },
-                    areButtonsActive = !selectionManager.isMultipleSelecting
-                )
+                    }
+                }
                 Divider()
             }
         }

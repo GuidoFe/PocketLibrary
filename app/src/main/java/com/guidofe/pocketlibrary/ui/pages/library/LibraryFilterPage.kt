@@ -83,196 +83,203 @@ fun LibraryFilterPage(
     }
     val scrollState = rememberScrollState()
     val innerPadding = 10.dp
-    Column(
-        verticalArrangement = Arrangement.spacedBy(innerPadding),
+    Box(
+        contentAlignment = Alignment.TopCenter,
         modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(20.dp)
-            .verticalScroll(scrollState)
+            .fillMaxWidth()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(innerPadding)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(innerPadding),
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(20.dp)
+                .verticalScroll(scrollState)
         ) {
-            OutlinedAutocomplete(
-                text = vm.genre,
-                onTextChange = { vm.genre = it },
-                options = vm.genres,
-                label = { Text(stringResource(R.string.genre), maxLines = 1) },
-                onOptionSelected = { vm.genre = it },
-                threshold = 1,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(IntrinsicSize.Min)
-            )
-            LanguageAutocomplete(
-                text = vm.language,
-                onTextChange = { vm.language = it },
-                label = { Text(stringResource(R.string.language), maxLines = 1) },
-                onOptionSelected = { vm.language = it },
-                showTrailingIcon = false,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(IntrinsicSize.Min)
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(innerPadding)
-        ) {
-            Text(
-                stringResource(R.string.show_only_favorites),
-                modifier = Modifier.weight(1f)
-            )
-            Switch(checked = vm.onlyFavorite, onCheckedChange = {
-                vm.onlyFavorite = !vm.onlyFavorite
-            })
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(innerPadding)
-        ) {
-            Text(
-                stringResource(R.string.media_type),
-                modifier = Modifier.weight(1f)
-            )
-            ExposedDropdownMenuBox(
-                expanded = vm.isMediaDropdownExpanded,
-                onExpandedChange = {
-                    vm.isMediaDropdownExpanded = !vm.isMediaDropdownExpanded
-                },
-                modifier = Modifier.wrapContentWidth() // .weight(1f)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(innerPadding)
             ) {
-                DropdownBox(
-                    text = { Text(mediaFilterToString(vm.mediaFilter)) },
-                    isExpanded = vm.isMediaDropdownExpanded,
-                    modifier = Modifier.menuAnchor()
+                OutlinedAutocomplete(
+                    text = vm.genre,
+                    onTextChange = { vm.genre = it },
+                    options = vm.genres,
+                    label = { Text(stringResource(R.string.genre), maxLines = 1) },
+                    onOptionSelected = { vm.genre = it },
+                    threshold = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(IntrinsicSize.Min)
                 )
-                DropdownMenu(
+                LanguageAutocomplete(
+                    text = vm.language,
+                    onTextChange = { vm.language = it },
+                    label = { Text(stringResource(R.string.language), maxLines = 1) },
+                    onOptionSelected = { vm.language = it },
+                    showTrailingIcon = false,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(IntrinsicSize.Min)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(innerPadding)
+            ) {
+                Text(
+                    stringResource(R.string.show_only_favorites),
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(checked = vm.onlyFavorite, onCheckedChange = {
+                    vm.onlyFavorite = !vm.onlyFavorite
+                })
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(innerPadding)
+            ) {
+                Text(
+                    stringResource(R.string.media_type),
+                    modifier = Modifier.weight(1f)
+                )
+                ExposedDropdownMenuBox(
                     expanded = vm.isMediaDropdownExpanded,
-                    onDismissRequest = { vm.isMediaDropdownExpanded = false }
+                    onExpandedChange = {
+                        vm.isMediaDropdownExpanded = !vm.isMediaDropdownExpanded
+                    },
+                    modifier = Modifier.wrapContentWidth() // .weight(1f)
                 ) {
-                    for (value in LibraryFilter.MediaFilter.values()) {
-                        DropdownMenuItem(
-                            text = { Text(mediaFilterToString(value)) },
-                            onClick = {
-                                vm.mediaFilter = value
-                                vm.isMediaDropdownExpanded = false
-                            }
-                        )
+                    DropdownBox(
+                        text = { Text(mediaFilterToString(vm.mediaFilter)) },
+                        isExpanded = vm.isMediaDropdownExpanded,
+                        modifier = Modifier.menuAnchor()
+                    )
+                    DropdownMenu(
+                        expanded = vm.isMediaDropdownExpanded,
+                        onDismissRequest = { vm.isMediaDropdownExpanded = false }
+                    ) {
+                        for (value in LibraryFilter.MediaFilter.values()) {
+                            DropdownMenuItem(
+                                text = { Text(mediaFilterToString(value)) },
+                                onClick = {
+                                    vm.mediaFilter = value
+                                    vm.isMediaDropdownExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(innerPadding)
-        ) {
-            Text(
-                stringResource(R.string.progress_label),
-                modifier = Modifier.weight(1f)
-            )
-            ExposedDropdownMenuBox(
-                expanded = vm.isProgressDropdownExpanded,
-                onExpandedChange = {
-                    vm.isProgressDropdownExpanded = !vm.isProgressDropdownExpanded
-                },
-                modifier = Modifier // .weight(1f)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(innerPadding)
             ) {
-                DropdownBox(
-                    text = { Text(progressToString(vm.progress)) },
-                    isExpanded = vm.isProgressDropdownExpanded,
-                    modifier = Modifier.menuAnchor()
+                Text(
+                    stringResource(R.string.progress_label),
+                    modifier = Modifier.weight(1f)
                 )
-                DropdownMenu(
+                ExposedDropdownMenuBox(
                     expanded = vm.isProgressDropdownExpanded,
-                    onDismissRequest = { vm.isProgressDropdownExpanded = false }
+                    onExpandedChange = {
+                        vm.isProgressDropdownExpanded = !vm.isProgressDropdownExpanded
+                    },
+                    modifier = Modifier // .weight(1f)
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("-") },
-                        onClick = {
-                            vm.progress = null
-                            vm.isProgressDropdownExpanded = false
-                        }
+                    DropdownBox(
+                        text = { Text(progressToString(vm.progress)) },
+                        isExpanded = vm.isProgressDropdownExpanded,
+                        modifier = Modifier.menuAnchor()
                     )
-                    for (value in ProgressPhase.values()) {
+                    DropdownMenu(
+                        expanded = vm.isProgressDropdownExpanded,
+                        onDismissRequest = { vm.isProgressDropdownExpanded = false }
+                    ) {
                         DropdownMenuItem(
-                            text = { Text(progressToString(value)) },
+                            text = { Text("-") },
                             onClick = {
-                                vm.progress = value
+                                vm.progress = null
                                 vm.isProgressDropdownExpanded = false
                             }
                         )
+                        for (value in ProgressPhase.values()) {
+                            DropdownMenuItem(
+                                text = { Text(progressToString(value)) },
+                                onClick = {
+                                    vm.progress = value
+                                    vm.isProgressDropdownExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(innerPadding)
-        ) {
-            Text(stringResource(R.string.sort_by))
-            ExposedDropdownMenuBox(
-                expanded = vm.isSortDropdownExpanded,
-                onExpandedChange = { vm.isSortDropdownExpanded = !vm.isSortDropdownExpanded },
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(innerPadding)
             ) {
-                DropdownBoxWithTrailingButton(
-                    text = { Text(sortingFieldToString(vm.sortingField)) },
-                    enabled = vm.sortingField != null,
-                    icon = {
-                        if (vm.isOrderReversed)
-                            Icon(
-                                painterResource(R.drawable.arrow_upward_24px),
-                                stringResource(R.string.descending)
-                            )
-                        else
-                            Icon(
-                                painterResource(R.drawable.arrow_downward_24px),
-                                stringResource(R.string.ascending)
-                            )
-                    },
-                    buttonColor = MaterialTheme.colorScheme.tertiary,
-                    onIconClick = { vm.isOrderReversed = !vm.isOrderReversed },
-                    modifier = Modifier.menuAnchor()
-                )
-                DropdownMenu(
+                Text(stringResource(R.string.sort_by))
+                ExposedDropdownMenuBox(
                     expanded = vm.isSortDropdownExpanded,
-                    onDismissRequest = { vm.isSortDropdownExpanded = false }
+                    onExpandedChange = { vm.isSortDropdownExpanded = !vm.isSortDropdownExpanded },
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("-") },
-                        onClick = {
-                            vm.sortingField = null
-                            vm.isSortDropdownExpanded = false
-                        }
+                    DropdownBoxWithTrailingButton(
+                        text = { Text(sortingFieldToString(vm.sortingField)) },
+                        enabled = vm.sortingField != null,
+                        icon = {
+                            if (vm.isOrderReversed)
+                                Icon(
+                                    painterResource(R.drawable.arrow_upward_24px),
+                                    stringResource(R.string.descending)
+                                )
+                            else
+                                Icon(
+                                    painterResource(R.drawable.arrow_downward_24px),
+                                    stringResource(R.string.ascending)
+                                )
+                        },
+                        buttonColor = MaterialTheme.colorScheme.tertiary,
+                        onIconClick = { vm.isOrderReversed = !vm.isOrderReversed },
+                        modifier = Modifier.menuAnchor()
                     )
-                    for (value in LibraryFilter.LibrarySortField.values()) {
+                    DropdownMenu(
+                        expanded = vm.isSortDropdownExpanded,
+                        onDismissRequest = { vm.isSortDropdownExpanded = false }
+                    ) {
                         DropdownMenuItem(
-                            text = { Text(sortingFieldToString(value)) },
+                            text = { Text("-") },
                             onClick = {
-                                vm.sortingField = value
+                                vm.sortingField = null
                                 vm.isSortDropdownExpanded = false
                             }
                         )
+                        for (value in LibraryFilter.LibrarySortField.values()) {
+                            DropdownMenuItem(
+                                text = { Text(sortingFieldToString(value)) },
+                                onClick = {
+                                    vm.sortingField = value
+                                    vm.isSortDropdownExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
-        Spacer(Modifier.weight(1f))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(innerPadding),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            OutlinedButton(
-                onClick = { vm.initializeState(null) }
+            Spacer(Modifier.weight(1f))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(innerPadding),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Text(stringResource(R.string.clear))
-            }
-            Button(
-                onClick = { navigator.navigateBack(vm.createQuery()) }
-            ) {
-                Text(stringResource(R.string.apply))
+                OutlinedButton(
+                    onClick = { vm.initializeState(null) }
+                ) {
+                    Text(stringResource(R.string.clear))
+                }
+                Button(
+                    onClick = { navigator.navigateBack(vm.createQuery()) }
+                ) {
+                    Text(stringResource(R.string.apply))
+                }
             }
         }
     }

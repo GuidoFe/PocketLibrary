@@ -18,17 +18,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.data.local.library_db.WishlistBundle
 import com.guidofe.pocketlibrary.model.ImportedBookData
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.dialogs.DuplicateIsbnDialog
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.*
+import com.guidofe.pocketlibrary.ui.utils.Menu
+import com.guidofe.pocketlibrary.ui.utils.MenuItem
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.viewmodels.ImportedBookVM
 import com.guidofe.pocketlibrary.viewmodels.WishlistPageVM
@@ -58,8 +63,47 @@ fun WishlistPage(
     val lazyListState = rememberLazyListState()
     val fabFocusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
+    val windowInfo = rememberWindowInfo()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
+    val contextMenu = remember {
+        Menu<WishlistBundle>(
+            menuItems = arrayOf(
+                MenuItem(
+                    labelId = { R.string.add_to_library },
+                    iconId = { R.drawable.place_item_24px },
+                    onClick = {
+                        vm.moveBookToLibraryAndRefresh(it.info.bookId) {}
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.details },
+                    iconId = { R.drawable.info_24px },
+                    onClick = {
+                        navigator.navigate(
+                            ViewBookPageDestination(it.info.bookId)
+                        )
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.edit },
+                    iconId = { R.drawable.edit_24px },
+                    onClick = {
+                        navigator.navigate(
+                            EditBookPageDestination(it.info.bookId)
+                        )
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.remove_from_wishlist },
+                    iconId = { R.drawable.delete_24px },
+                    onClick = {
+                        vm.selectionManager.singleSelectedItem = it
+                        vm.state.showConfirmDeleteBook = true
+                    }
+                )
+            )
+        )
+    }
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (lazyListState.isScrollInProgress) {
             vm.state.isFabExpanded = false
@@ -219,78 +263,27 @@ fun WishlistPage(
             )
         }
     }
-    LaunchedEffect(vm.selectionManager.singleSelectedItem) {
-        vm.selectionManager.singleSelectedItem?.let { item ->
-            vm.scaffoldState.bottomSheetContent = {
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.place_item_24px),
-                            stringResource(R.string.add_to_library)
-                        )
-                    },
-                    onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        vm.moveBookToLibraryAndRefresh(item.info.bookId) {}
-                        // vm.state.isContextMenuVisible = false
+    LaunchedEffect(Unit) {
+        if (!windowInfo.isBottomSheetLayout())
+            return@LaunchedEffect
+        vm.scaffoldState.bottomSheetContent = {
+            vm.selectionManager.singleSelectedItem?.let { item ->
+                for (line in contextMenu.menuItems) {
+                    RowWithIcon(
+                        icon = {
+                            Icon(
+                                painterResource(line.iconId(item)),
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                            line.onClick(item)
+                            vm.selectionManager.singleSelectedItem = null
+                        }
+                    ) {
+                        Text(stringResource(line.labelId(item)))
                     }
-                ) {
-                    Text(stringResource(R.string.add_to_library))
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.info_24px),
-                            stringResource(R.string.details)
-                        )
-                    },
-                    onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(
-                            ViewBookPageDestination(item.info.bookId)
-                        )
-                        // vm.state.isContextMenuVisible = false
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.details)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.edit_24px),
-                            stringResource(R.string.edit)
-                        )
-                    },
-                    onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        navigator.navigate(
-                            EditBookPageDestination(item.info.bookId)
-                        )
-                        // vm.state.isContextMenuVisible = false
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.edit)
-                    )
-                }
-                RowWithIcon(
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.delete_24px),
-                            stringResource(R.string.remove_from_wishlist)
-                        )
-                    },
-                    onClick = {
-                        vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                        vm.state.showConfirmDeleteBook = true
-                        // vm.state.isContextMenuVisible = false
-                    }
-                ) {
-                    Text(
-                        stringResource(R.string.remove_from_wishlist)
-                    )
                 }
             }
         }
@@ -328,6 +321,8 @@ fun WishlistPage(
                 if (item == null)
                     return@items
                 Box {
+                    var isDropdownExpanded by remember { mutableStateOf(false) }
+                    var menuOffset by remember { mutableStateOf(DpOffset.Zero) }
                     WishlistRow(
                         item,
                         onRowTap = {
@@ -352,11 +347,45 @@ fun WishlistPage(
                         },
                         onRowLongPress = {
                             if (!vm.selectionManager.isMultipleSelecting) {
-                                vm.selectionManager.singleSelectedItem = item.value
-                                Log.d("debug", "Expanding")
-                                vm.scaffoldState.setBottomSheetVisibility(true, coroutineScope)
+                                if (windowInfo.isBottomSheetLayout()) {
+                                    vm.selectionManager.singleSelectedItem = item.value
+                                    vm.scaffoldState.setBottomSheetVisibility(
+                                        true, coroutineScope
+                                    )
+                                } else {
+                                    menuOffset = it
+                                    isDropdownExpanded = true
+                                }
+                            }
+                        },
+                        dropdownMenu = {
+                            if (windowInfo.isBottomSheetLayout())
+                                return@WishlistRow
+                            DropdownMenu(
+                                expanded = isDropdownExpanded,
+                                onDismissRequest = { isDropdownExpanded = false },
+                                offset = menuOffset
+                            ) {
+                                for (line in contextMenu.menuItems) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(stringResource(line.labelId(item.value)))
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                painterResource(line.iconId(item.value)),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        onClick = {
+                                            isDropdownExpanded = false
+                                            line.onClick(item.value)
+                                        }
+                                    )
+                                }
                             }
                         }
+
                     )
                 }
             }

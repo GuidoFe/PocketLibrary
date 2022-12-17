@@ -22,6 +22,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.R
+import com.guidofe.pocketlibrary.ui.utils.WindowType
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,22 +33,26 @@ fun NoteTab(value: String, onValueChange: (String) -> Unit) {
     var selection by remember { mutableStateOf(TextRange(value.length)) }
     var composition: TextRange? by remember { mutableStateOf(null) }
     var isFocused: Boolean by remember { mutableStateOf(false) }
+    val windowInfo = rememberWindowInfo()
     LaunchedEffect(true) {
         selection = TextRange(value.length)
-        if (value.isBlank())
+        if (value.isBlank() && windowInfo.screenWidthInfo < WindowType.EXTENDED)
             focusRequester.requestFocus()
     }
     Box(
-        modifier = Modifier.fillMaxSize().pointerInput(Unit) {
-            detectTapGestures(onTap = {
-                if (isFocused) {
-                    focusManager.clearFocus()
-                } else {
-                    selection = TextRange(Int.MAX_VALUE)
-                    focusRequester.requestFocus()
-                }
-            })
-        }.padding(8.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    if (isFocused) {
+                        focusManager.clearFocus()
+                    } else {
+                        selection = TextRange(Int.MAX_VALUE)
+                        focusRequester.requestFocus()
+                    }
+                })
+            }
+            .padding(8.dp)
     ) {
         BasicTextField(
             value = TextFieldValue(text = value, selection = selection, composition = composition),
@@ -71,9 +77,11 @@ fun NoteTab(value: String, onValueChange: (String) -> Unit) {
                     innerTextField()
                 }
             },
-            modifier = Modifier.focusRequester(focusRequester).onFocusChanged {
-                isFocused = it.isFocused
-            }
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    isFocused = it.isFocused
+                }
         )
     }
 }

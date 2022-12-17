@@ -39,6 +39,9 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.ui.modules.*
 import com.guidofe.pocketlibrary.ui.pages.destinations.TakeCoverPhotoPageDestination
+import com.guidofe.pocketlibrary.ui.utils.Menu
+import com.guidofe.pocketlibrary.ui.utils.MenuItem
+import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.guidofe.pocketlibrary.utils.BookDestination
 import com.guidofe.pocketlibrary.utils.isPermanentlyDenied
 import com.guidofe.pocketlibrary.viewmodels.EditBookVM
@@ -80,12 +83,93 @@ fun EditBookPage(
         }
     }
     val scrollState = rememberScrollState()
+    val windowInfo = rememberWindowInfo()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var imageRequest: ImageRequest? by remember { mutableStateOf(null) }
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showPermissionDeniedDialog by remember { mutableStateOf(false) }
+    var showDropdown by remember { mutableStateOf(false) }
+
     val lifecycleOwner = LocalLifecycleOwner.current
+    val uploadFileLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+        onResult = { result ->
+            val tempUri = vm.getTempCoverUri()
+            result?.let { uri ->
+                val resolver = context.contentResolver
+                resolver.openInputStream(uri).use { iStr ->
+                    File(tempUri.path!!).outputStream().use { oStr ->
+                        iStr?.copyTo(oStr)
+                    }
+                }
+                vm.state.coverUri = tempUri
+            }
+        }
+    )
+    val permissionState = rememberPermissionState(
+        permission =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            Manifest.permission.READ_MEDIA_IMAGES
+        else Manifest.permission.READ_EXTERNAL_STORAGE,
+        onPermissionResult = {
+            if (it) {
+                uploadFileLauncher.launch(
+                    PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            }
+        }
+    )
+    val contextMenu = remember {
+        Menu<Unit>(
+            menuItems = arrayOf(
+                MenuItem(
+                    labelId = { R.string.camera },
+                    iconId = { R.drawable.photo_camera_24px },
+                    onClick = {
+                        try {
+                            val uri = vm.getTempCoverUri()
+                            navigator.navigate(TakeCoverPhotoPageDestination(uri))
+                        } catch (e: ActivityNotFoundException) {
+                            coroutineScope.launch {
+                                vm.snackbarHostState.showSnackbar(
+                                    CustomSnackbarVisuals(
+                                        message = context.getString(R.string.error_no_camera),
+                                        isError = true
+                                    )
+                                )
+                            }
+                        }
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.choose_from_gallery },
+                    iconId = { R.drawable.upload_24px },
+                    onClick = {
+                        when {
+                            permissionState.status.isGranted -> {
+                                Log.d("debug", "Permission granted")
+                                permissionState.launchPermissionRequest()
+                            }
+                            permissionState.status.shouldShowRationale -> {
+                                showRationaleDialog = true
+                            }
+                            permissionState.status.isPermanentlyDenied -> {
+                                showPermissionDeniedDialog = true
+                            }
+                        }
+                    }
+                ),
+                MenuItem(
+                    labelId = { R.string.clear_cover },
+                    iconId = { R.drawable.delete_24px },
+                    onClick = { vm.state.coverUri = null }
+                )
+            )
+        )
+    }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -117,36 +201,6 @@ fun EditBookPage(
 
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    val uploadFileLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia(),
-        onResult = { result ->
-            val tempUri = vm.getTempCoverUri()
-            result?.let { uri ->
-                val resolver = context.contentResolver
-                resolver.openInputStream(uri).use { iStr ->
-                    File(tempUri.path!!).outputStream().use { oStr ->
-                        iStr?.copyTo(oStr)
-                    }
-                }
-                vm.state.coverUri = tempUri
-            }
-        }
-    )
-    val permissionState = rememberPermissionState(
-        permission =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            Manifest.permission.READ_MEDIA_IMAGES
-        else Manifest.permission.READ_EXTERNAL_STORAGE,
-        onPermissionResult = {
-            if (it) {
-                uploadFileLauncher.launch(
-                    PickVisualMediaRequest(
-                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                    )
-                )
-            }
-        }
-    )
     LaunchedEffect(vm.state.coverUri) {
         imageRequest = vm.state.coverUri?.let { uri ->
             ImageRequest.Builder(context)
@@ -155,72 +209,6 @@ fun EditBookPage(
         }
     }
     LaunchedEffect(key1 = true) {
-        vm.scaffoldState.bottomSheetContent = {
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.photo_camera_24px),
-                        stringResource(R.string.camera)
-                    )
-                },
-                onClick = {
-                    vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                    try {
-                        val uri = vm.getTempCoverUri()
-                        navigator.navigate(TakeCoverPhotoPageDestination(uri))
-                    } catch (e: ActivityNotFoundException) {
-                        coroutineScope.launch {
-                            vm.snackbarHostState.showSnackbar(
-                                CustomSnackbarVisuals(
-                                    message = context.getString(R.string.error_no_camera),
-                                    isError = true
-                                )
-                            )
-                        }
-                    }
-                }
-            ) {
-                Text(stringResource(R.string.take_photo))
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(painterResource(R.drawable.upload_24px), stringResource(R.string.upload))
-                },
-                onClick = {
-                    vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                    when {
-                        permissionState.status.isGranted -> {
-                            Log.d("debug", "Permission granted")
-                            permissionState.launchPermissionRequest()
-                        }
-                        permissionState.status.shouldShowRationale -> {
-                            showRationaleDialog = true
-                        }
-                        permissionState.status.isPermanentlyDenied -> {
-                            showPermissionDeniedDialog = true
-                        }
-                    }
-                }
-            ) {
-                Text(stringResource(R.string.choose_from_gallery))
-            }
-            RowWithIcon(
-                icon = {
-                    Icon(
-                        painterResource(
-                            R.drawable.delete_24px
-                        ),
-                        stringResource(R.string.clear_cover)
-                    )
-                },
-                onClick = {
-                    vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
-                    vm.state.coverUri = null
-                }
-            ) {
-                Text(stringResource(R.string.clear_cover))
-            }
-        }
         vm.scaffoldState.refreshBar(
             title = { Text(stringResource(R.string.edit_book)) },
             actions = {
@@ -261,21 +249,55 @@ fun EditBookPage(
                 }
             }
         )
+        if (windowInfo.isBottomSheetLayout()) {
+            vm.scaffoldState.bottomSheetContent = {
+                for (line in contextMenu.menuItems) {
+                    RowWithIcon(
+                        icon = {
+                            Icon(
+                                painterResource(
+                                    line.iconId(Unit)
+                                ),
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
+                            line.onClick(Unit)
+                        }
+                    ) {
+                        Text(stringResource(line.labelId(Unit)))
+                    }
+                }
+            }
+        }
     }
-    Box(modifier = Modifier.nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)) {
+    Box(
+        modifier = Modifier
+            .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
+            .fillMaxWidth()
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(verticalSpace),
             modifier = Modifier
                 .verticalScroll(scrollState)
+                .widthIn(max = 600.dp)
                 .fillMaxWidth()
                 .padding(8.dp)
+                .align(Alignment.TopCenter)
         ) {
             BoxWithConstraints {
                 Box(
                     modifier = Modifier
                         .clickable {
-                            vm.scaffoldState.setBottomSheetVisibility(true, coroutineScope)
+                            if (windowInfo.isBottomSheetLayout())
+                                vm.scaffoldState.setBottomSheetVisibility(
+                                    true, coroutineScope
+                                )
+                            else {
+                                showDropdown = true
+                            }
                         }
                 ) {
                     if (imageRequest != null) {
@@ -287,6 +309,25 @@ fun EditBookPage(
                         )
                     } else
                         EmptyBookCover(Modifier.width(90.dp))
+                }
+                if (!windowInfo.isBottomSheetLayout()) {
+                    DropdownMenu(showDropdown, onDismissRequest = { showDropdown = false }) {
+                        for (line in contextMenu.menuItems) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(line.labelId(Unit))) },
+                                onClick = {
+                                    showDropdown = false
+                                    line.onClick(Unit)
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painterResource(line.iconId(Unit)),
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
+                    }
                 }
             }
             OutlinedTextField(

@@ -46,7 +46,7 @@ class WishlistPageVM @Inject constructor(
 
     private var currentPagingSource: PagingSource<Int, WishlistBundle>? = null
 
-    override var pager = Pager(PagingConfig(10, initialLoadSize = 10)) {
+    override var pager = Pager(PagingConfig(50, initialLoadSize = 50)) {
         (
             if (searchFieldManager.searchField.isNotBlank())
                 repo.getWishlistBundlesByString(searchFieldManager.searchField)
