@@ -31,6 +31,7 @@ import com.guidofe.pocketlibrary.ui.dialogs.ThemeTile
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialog
 import com.guidofe.pocketlibrary.ui.modules.CustomSnackbarVisuals
 import com.guidofe.pocketlibrary.ui.modules.DropdownBox
+import com.guidofe.pocketlibrary.ui.modules.HorizontalDividerWithText
 import com.guidofe.pocketlibrary.ui.pages.settings.SettingsState.WifiRequester
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
@@ -248,6 +249,11 @@ fun SettingsPage(
                         enabled = vm.hasExternalStorage
                     )
                 }
+                HorizontalDividerWithText(
+                    label = {
+                        Text(stringResource(R.string.default_notification_settings))
+                    }
+                )
             }
 
             if (vm.state.showThemeSelector) {

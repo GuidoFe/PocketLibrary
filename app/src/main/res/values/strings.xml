@@ -221,4 +221,5 @@
     <string name="terms_and_conditions">Terms and conditions</string>
     <string name="hideReturnedBooks">Hide returned books</string>
     <string name="showReturnedBooks">Show returned books</string>
+    <string name="default_notification_settings">Default notification settings</string>
 </resources>
