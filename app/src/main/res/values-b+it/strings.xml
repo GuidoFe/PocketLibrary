@@ -212,5 +212,7 @@
     <string name="restore_local_backup">Ripristina un backup locale</string>
     <string name="terms_and_conditions">Termini e condizioni</string>
     <string name="yes">Sì</string>
+    <string name="hideReturnedBooks">Nascondi libri riconsegnati</string>
+    <string name="showReturnedBooks">Mostra libri riconsegnati</string>
 
 </resources>
