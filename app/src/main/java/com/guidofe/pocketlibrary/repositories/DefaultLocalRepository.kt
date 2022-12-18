@@ -11,6 +11,7 @@ import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.utils.TranslationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import java.sql.Date
 import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(
@@ -237,12 +238,16 @@ class DefaultLocalRepository @Inject constructor(
         db.libraryBookDao().updateFavorite(bookIds, isFavorite)
     }
 
-    override suspend fun updateBorrowedBook(borrowedBook: BorrowedBook) {
-        db.borrowedBookDao().update(borrowedBook)
+    override suspend fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?) {
+        db.borrowedBookDao().updateLender(bookIds, lender)
     }
 
-    override suspend fun updateAllBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
-        db.borrowedBookDao().updateAll(borrowedBooks)
+    override suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
+        db.borrowedBookDao().updateStart(bookIds, start)
+    }
+
+    override suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: Date?) {
+        db.borrowedBookDao().updateEnd(bookIds, end)
     }
 
     override suspend fun insertLentBook(lentBook: LentBook) {

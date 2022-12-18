@@ -4,7 +4,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.paging.PagingData
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
@@ -18,6 +17,7 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
+import java.sql.Date
 
 class BookLogVMPreview() : IBookLogVM {
     override val scaffoldState: ScaffoldState
@@ -28,9 +28,6 @@ class BookLogVMPreview() : IBookLogVM {
         get() = BorrowedTabState()
 
     override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
-    }
-
-    override fun updateBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
     }
 
     override val lentTabState: LentTabState
@@ -71,4 +68,13 @@ class BookLogVMPreview() : IBookLogVM {
         get() = PreviewUtils.emptySearchFieldManager
     override val borrowedSearchManager: SearchFieldManager
         get() = PreviewUtils.emptySearchFieldManager
+
+    override fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?) {
+    }
+
+    override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
+    }
+
+    override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: Date?) {
+    }
 }

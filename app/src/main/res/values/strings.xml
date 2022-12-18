@@ -228,4 +228,6 @@
     <string name="enter_time">Enter time</string>
     <string name="hour">Hour</string>
     <string name="minute">Minute</string>
+    <string name="notification_title_due_plural">The lending period of some borrowed books is expiring</string>
+    <string name="notification_title_due">The lending period of a borrowed book is expiring</string>
 </resources>

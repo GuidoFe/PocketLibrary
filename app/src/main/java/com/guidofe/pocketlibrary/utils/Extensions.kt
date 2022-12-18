@@ -32,3 +32,10 @@ fun String.areInitialsEqual(b: String): Boolean {
 @OptIn(ExperimentalPermissionsApi::class)
 val PermissionStatus.isPermanentlyDenied: Boolean
     get() = !this.isGranted && !this.shouldShowRationale
+
+/**
+ * Convert Long into Int. If | value | is > Int.MAX, it will returned value % Int.MAX
+ */
+fun Long.toModInt(): Int {
+    return (this % Int.MAX_VALUE).toInt()
+}

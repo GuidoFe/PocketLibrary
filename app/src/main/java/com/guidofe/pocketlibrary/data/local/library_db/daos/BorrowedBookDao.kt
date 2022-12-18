@@ -3,6 +3,7 @@ package com.guidofe.pocketlibrary.data.local.library_db.daos
 import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
+import java.sql.Date
 
 @Dao
 interface BorrowedBookDao {
@@ -17,6 +18,15 @@ interface BorrowedBookDao {
 
     @Update
     suspend fun updateAll(borrowedBooks: List<BorrowedBook>)
+
+    @Query("UPDATE borrowed_book SET who=:lender WHERE bookId IN ( :bookIds )")
+    suspend fun updateLender(bookIds: List<Long>, lender: String?)
+
+    @Query("UPDATE borrowed_book SET start=:start WHERE bookId IN ( :bookIds )")
+    suspend fun updateStart(bookIds: List<Long>, start: Date)
+
+    @Query("UPDATE borrowed_book SET `end`=:end WHERE bookId IN ( :bookIds )")
+    suspend fun updateEnd(bookIds: List<Long>, end: Date?)
 
     @Query("DELETE FROM borrowed_book WHERE bookId = :bookId")
     suspend fun delete(bookId: Long)

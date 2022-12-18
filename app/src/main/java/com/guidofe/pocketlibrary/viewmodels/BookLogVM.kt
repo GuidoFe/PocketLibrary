@@ -8,9 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
+import com.guidofe.pocketlibrary.notification.NotificationManager
+import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.pages.booklog.BookLogState
@@ -25,6 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.sql.Date
+import java.time.*
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -32,7 +35,9 @@ import javax.inject.Inject
 class BookLogVM @Inject constructor(
     val repo: LocalRepository,
     override val scaffoldState: ScaffoldState,
-    override val snackbarState: SnackbarHostState
+    override val snackbarState: SnackbarHostState,
+    private val notificationManager: NotificationManager,
+    private val dataStore: DataStoreRepository
 ) : ViewModel(), IBookLogVM {
     override val borrowedTabState = BorrowedTabState()
     override val lentTabState = LentTabState()
@@ -94,19 +99,49 @@ class BookLogVM @Inject constructor(
 
     override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
+            for (id in bookIds) {
+                notificationManager.deleteDueDateNotification(id)
+            }
             repo.deleteBooksByIds(bookIds)
             invalidateBorrowedPagingSource()
             callback()
         }
     }
 
-    override fun updateBorrowedBooks(borrowedBooks: List<BorrowedBook>) {
+    override fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.updateAllBorrowedBooks(borrowedBooks)
-            invalidateBorrowedPagingSource()
+            repo.updateBorrowedBooksLender(bookIds, lender)
         }
     }
 
+    override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.updateBorrowedBooksStart(bookIds, start)
+        }
+    }
+
+    override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: Date?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val settings = dataStore.settingsLiveData.value
+            if (end == null || settings?.defaultEnableNotification == false) {
+                for (book in books)
+                    notificationManager.deleteDueDateNotification(book.info.bookId)
+            } else {
+                val daysBefore = settings?.defaultShowNotificationNDaysBeforeDue ?: 3
+                val time = settings?.defaultNotificationTime ?: LocalTime.of(8, 0)
+                val notificationDate = LocalDate.parse(end.toString())
+                val notificationDateTime = ZonedDateTime.of(
+                    notificationDate, time, ZoneId.systemDefault()
+                )
+
+                for (book in books)
+                    notificationManager.setDueDateNotification(
+                        book, notificationDateTime.toEpochSecond()
+                    )
+            }
+            repo.updateBorrowedBooksEnd(books.map { it.info.bookId }, end)
+        }
+    }
     override fun updateLent(list: List<LentBook>) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.updateAllLentBooks(list)

@@ -422,7 +422,15 @@ fun BookLogPage(
                         setReturnStatus = { id, isReturned ->
                             vm.setBookReturnStatus(id, isReturned)
                         },
-                        updateBorrowed = { vm.updateBorrowedBooks(it) },
+                        updateLender = { ids, lender ->
+                            vm.updateBorrowedBooksLender(ids, lender)
+                        },
+                        updateStart = { ids, date ->
+                            vm.updateBorrowedBooksStart(ids, date)
+                        },
+                        updateEnd = { ids, date ->
+                            vm.updateBorrowedBooksEnd(ids, date)
+                        },
                         deleteBorrowedBooks = { ids, callback ->
                             vm.deleteBorrowedBooks(ids, callback)
                         },
@@ -477,7 +485,6 @@ fun BookLogPage(
                         setReturnStatus = { id, isReturned ->
                             vm.setBookReturnStatus(id, isReturned)
                         },
-                        updateBorrowed = { vm.updateBorrowedBooks(it) },
                         deleteBorrowedBooks = { ids, callback ->
                             vm.deleteBorrowedBooks(ids, callback)
                         },
@@ -489,7 +496,10 @@ fun BookLogPage(
                         setBottomSheetContent = { vm.scaffoldState.bottomSheetContent = it },
                         setBottomSheetVisibility = { visibility, scope ->
                             vm.scaffoldState.setBottomSheetVisibility(visibility, scope)
-                        }
+                        },
+                        updateLender = { l, s -> vm.updateBorrowedBooksLender(l, s) },
+                        updateStart = { l, s -> vm.updateBorrowedBooksStart(l, s) },
+                        updateEnd = { l, s -> vm.updateBorrowedBooksEnd(l, s) },
                     )
                 }
                 AddBookFab(

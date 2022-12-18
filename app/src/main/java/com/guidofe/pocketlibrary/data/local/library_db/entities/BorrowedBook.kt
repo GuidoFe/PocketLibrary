@@ -5,8 +5,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.sql.Date
 import kotlinx.parcelize.Parcelize
+import java.sql.Date
 
 @Parcelize
 @Entity(
@@ -25,5 +25,6 @@ data class BorrowedBook(
     @ColumnInfo val who: String? = null,
     @ColumnInfo val start: Date = Date(System.currentTimeMillis()),
     @ColumnInfo val end: Date? = null,
-    @ColumnInfo val isReturned: Boolean = false
+    @ColumnInfo val isReturned: Boolean = false,
+    @ColumnInfo(name = "notification_time") val notificationTime: Date?
 ) : Parcelable

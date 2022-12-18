@@ -370,7 +370,9 @@ private fun BorrowedBookRowPreview() {
                         1,
                         "Tim Minchin",
                         Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25")
+                        Date.valueOf("2022-12-25"),
+                        isReturned = false,
+                        notificationTime = null
                     ),
                     PreviewUtils.exampleBookBundle
                 )
@@ -390,7 +392,9 @@ private fun ExtendedBorrowedBookRowPreview() {
                         1,
                         "Tim Minchin",
                         Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25")
+                        Date.valueOf("2022-12-25"),
+                        isReturned = false,
+                        notificationTime = null
                     ),
                     PreviewUtils.exampleBookBundle
                 )

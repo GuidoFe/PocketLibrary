@@ -318,7 +318,9 @@ class ImportedBookVM @Inject constructor(
     ): Long {
         val id = saveImportedBookAsBookBundle(importedBook, translationDialogState)
         when (destination) {
-            BookDestination.BORROWED -> localRepo.insertBorrowedBook(BorrowedBook(id))
+            BookDestination.BORROWED -> localRepo.insertBorrowedBook(
+                BorrowedBook(id, notificationTime = null)
+            )
             BookDestination.WISHLIST -> localRepo.insertWishlistBook(WishlistBook(id))
             BookDestination.LIBRARY -> localRepo.insertLibraryBook(LibraryBook(id))
         }
@@ -332,9 +334,11 @@ class ImportedBookVM @Inject constructor(
     ): List<Long> {
         val ids = saveImportedBooksAsBookBundles(importedBooks, translationDialogState)
         when (destination) {
-            BookDestination.BORROWED -> localRepo.insertBorrowedBooks(
-                ids.map { BorrowedBook(it) }
-            )
+            BookDestination.BORROWED -> {
+                localRepo.insertBorrowedBooks(
+                    ids.map { BorrowedBook(it, notificationTime = null) }
+                )
+            }
             BookDestination.WISHLIST -> localRepo.insertWishlistBooks(
                 ids.map { WishlistBook(it) }
             )

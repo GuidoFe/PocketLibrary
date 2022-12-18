@@ -17,7 +17,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
@@ -36,7 +35,9 @@ import java.time.LocalDate
 @Composable
 fun BorrowedTab(
     borrowedItems: LazyPagingItems<SelectableListItem<BorrowedBundle>>,
-    updateBorrowed: (List<BorrowedBook>) -> Unit,
+    updateLender: (List<Long>, String?) -> Unit,
+    updateStart: (List<Long>, Date) -> Unit,
+    updateEnd: (List<BorrowedBundle>, Date?) -> Unit,
     setReturnStatus: (Long, Boolean) -> Unit,
     moveToLibrary: (List<Long>) -> Unit,
     deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
@@ -233,18 +234,16 @@ fun BorrowedTab(
             confirmButton = {
                 Button(onClick = {
                     if (selectionManager.isMultipleSelecting) {
-                        updateBorrowed(
+                        updateLender(
                             selectionManager.selectedItems.value.values.map {
-                                it.info.copy(who = textInput.ifBlank { null })
-                            }
+                                it.info.bookId
+                            },
+                            textInput.ifBlank { null }
                         )
                     } else {
                         selectionManager.singleSelectedItem?.let {
                             state.isLenderDialogVisible = false
-                            val newBorrowed = it.info.copy(
-                                who = textInput.ifBlank { null }
-                            )
-                            updateBorrowed(listOf(newBorrowed))
+                            updateLender(listOf(it.info.bookId), textInput.ifBlank { null })
                         }
                     }
                     selectionManager.clearSelection()
@@ -302,29 +301,14 @@ fun BorrowedTab(
                 selectionManager.clearSelection()
                 return@CalendarDialog
             }
-
-            if (state.isMultipleSelecting) {
-                val list = if (state.fieldToChange == BorrowedField.START) {
-                    selectionManager.selectedItems.value.values.map {
-                        it.info.copy(start = convertedDate!!)
-                    }
-                } else {
-                    selectionManager.selectedItems.value.values.map {
-                        it.info.copy(end = convertedDate)
-                    }
-                }
-                updateBorrowed(list)
+            val bundles = if (selectionManager.isMultipleSelecting)
+                selectionManager.selectedItems.value.values.toList()
+            else
+                selectionManager.singleSelectedItem?.let { listOf(it) } ?: emptyList()
+            if (state.fieldToChange == BorrowedField.START) {
+                updateStart(bundles.map { it.info.bookId }, convertedDate!!)
             } else {
-                val info = when (state.fieldToChange) {
-                    BorrowedField.START -> selectionManager.singleSelectedItem?.info?.copy(
-                        start = convertedDate!!
-                    )
-                    BorrowedField.RETURN_BY -> selectionManager.singleSelectedItem?.info?.copy(
-                        end = convertedDate
-                    )
-                    else -> null
-                }
-                info?.let { updateBorrowed(listOf(it)) }
+                updateEnd(bundles, convertedDate)
             }
             state.isCalendarVisible = false
             selectionManager.clearSelection()

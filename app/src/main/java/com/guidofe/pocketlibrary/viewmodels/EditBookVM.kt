@@ -96,7 +96,7 @@ class EditBookVM @Inject constructor(
                     BookDestination.LIBRARY -> repo.insertLibraryBook(LibraryBook(currentBookId))
                     BookDestination.WISHLIST -> repo.insertWishlistBook(WishlistBook(currentBookId))
                     BookDestination.BORROWED -> repo.insertBorrowedBook(
-                        BorrowedBook(currentBookId)
+                        BorrowedBook(currentBookId, notificationTime = null)
                     )
                     else -> {}
                 }
