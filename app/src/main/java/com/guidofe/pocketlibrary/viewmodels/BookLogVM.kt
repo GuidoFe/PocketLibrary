@@ -10,7 +10,7 @@ import androidx.paging.*
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LentBook
 import com.guidofe.pocketlibrary.data.local.library_db.entities.LibraryBook
-import com.guidofe.pocketlibrary.notification.NotificationManager
+import com.guidofe.pocketlibrary.notification.AppNotificationManager
 import com.guidofe.pocketlibrary.repositories.DataStoreRepository
 import com.guidofe.pocketlibrary.repositories.LocalRepository
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
@@ -36,7 +36,7 @@ class BookLogVM @Inject constructor(
     val repo: LocalRepository,
     override val scaffoldState: ScaffoldState,
     override val snackbarState: SnackbarHostState,
-    private val notificationManager: NotificationManager,
+    private val appNotificationManager: AppNotificationManager,
     private val dataStore: DataStoreRepository
 ) : ViewModel(), IBookLogVM {
     override val borrowedTabState = BorrowedTabState()
@@ -100,7 +100,7 @@ class BookLogVM @Inject constructor(
     override fun deleteBorrowedBooks(bookIds: List<Long>, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             for (id in bookIds) {
-                notificationManager.deleteDueDateNotification(id)
+                appNotificationManager.deleteDueDateNotification(id)
             }
             repo.deleteBooksByIds(bookIds)
             invalidateBorrowedPagingSource()
@@ -126,7 +126,7 @@ class BookLogVM @Inject constructor(
             val settings = dataStore.settingsLiveData.value
             if (end == null || settings?.defaultEnableNotification == false) {
                 for (book in books)
-                    notificationManager.deleteDueDateNotification(book.info.bookId)
+                    appNotificationManager.deleteDueDateNotification(book.info.bookId)
             } else {
                 val daysBefore = settings?.defaultShowNotificationNDaysBeforeDue ?: 3
                 val time = settings?.defaultNotificationTime ?: LocalTime.of(8, 0)
@@ -137,7 +137,7 @@ class BookLogVM @Inject constructor(
                 )
 
                 for (book in books)
-                    notificationManager.setDueDateNotification(
+                    appNotificationManager.setDueDateNotification(
                         book, notificationDateTime.toEpochSecond()
                     )
             }

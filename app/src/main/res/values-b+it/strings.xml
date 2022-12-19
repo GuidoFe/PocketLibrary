@@ -214,5 +214,16 @@
     <string name="yes">Sì</string>
     <string name="hideReturnedBooks">Nascondi libri riconsegnati</string>
     <string name="showReturnedBooks">Mostra libri riconsegnati</string>
+    <string name="notification_days_before_due">Giorni prima della scadenza</string>
+    <string name="default_notification_settings">Impostazioni notifica di default</string>
+    <string name="notification_enabled">Notifiche abilitate</string>
+    <string name="default_time">Ora di default</string>
+    <string name="hour">Ora</string>
+    <string name="minute">Minuto</string>
+    <string name="enter_time">Inserisci l\'ora</string>
+    <string name="notification_title_due_plural">Alcuni libri in prestito stanno per scadere</string>
+    <string name="notification_title_due">Un libro in prestito sta per scadere</string>
+    <string name="dueBooksChannelName">Libri da restituire</string>
+    <string name="dueBooksChannelDescription">Canale per notifiche per i libri presi in prestito che si avvicinano alla data massima di consegna.</string>
 
 </resources>
