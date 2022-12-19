@@ -27,7 +27,6 @@ fun PreviewBookDialog(
     bookData: ImportedBookData?,
     onSaveButtonClicked: () -> Unit,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -104,8 +103,6 @@ private fun PreviewPreviewBookDialog() {
                 bookData = PreviewUtils.exampleImportedBook,
                 onSaveButtonClicked = {},
                 onDismissRequest = {},
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
             )
         }
     }

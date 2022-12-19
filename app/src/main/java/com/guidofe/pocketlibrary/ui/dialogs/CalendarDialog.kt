@@ -208,6 +208,7 @@ fun CalendarDialog(
     var dateInput by remember { mutableStateOf("") }
     var isDateInputError by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    @Suppress("DEPRECATION")
     val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         context.resources.configuration.locales[0]
     } else {

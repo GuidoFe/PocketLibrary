@@ -156,6 +156,17 @@ fun LentBookRow(
                         }
                     }
                 }
+                if (!areButtonsActive) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = { onRowTap(it) },
+                                )
+                            }
+                    )
+                }
             }
         }
     }

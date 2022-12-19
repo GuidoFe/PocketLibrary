@@ -26,6 +26,7 @@ fun SearchBox(
     setLang: (String) -> Unit,
     onStartSearch: () -> Unit,
     onEmptyFieldsError: () -> Unit,
+    onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -84,24 +85,34 @@ fun SearchBox(
                 modifier = Modifier.weight(1f)
             )
         }
-        ElevatedButton(
-            onClick = {
-                if (title.isBlank() && author.isBlank())
-                    onEmptyFieldsError()
-                else
-                    onStartSearch()
-                // lazyPagingItems.refresh()
-            },
+        Row(
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            TextButton(
+                onClick = onCancel
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.search_24px),
-                    contentDescription = stringResource(R.string.search)
-                )
-                Text(stringResource(R.string.search).uppercase())
+                Text(stringResource(R.string.cancel))
+            }
+            Spacer(Modifier.width(16.dp))
+            Button(
+                onClick = {
+                    if (title.isBlank() && author.isBlank())
+                        onEmptyFieldsError()
+                    else
+                        onStartSearch()
+                    // lazyPagingItems.refresh()
+                },
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.search_24px),
+                        contentDescription = null
+                    )
+                    Text(stringResource(R.string.search).uppercase())
+                }
             }
         }
     }
@@ -112,7 +123,7 @@ fun SearchBox(
 private fun SearchBoxPreview() {
     PreviewUtils.ThemeColumn() {
         SearchBox(
-            "", "", "", {}, {}, {}, {}, {}
+            "", "", "", {}, {}, {}, {}, {}, {}
         )
     }
 }

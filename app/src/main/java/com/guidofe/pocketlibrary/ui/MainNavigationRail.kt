@@ -1,7 +1,6 @@
 package com.guidofe.pocketlibrary.ui
 
 import android.util.Log
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -20,7 +19,6 @@ import com.ramcosta.composedestinations.navigation.navigate
 fun MainNavigationRail(navController: NavController) {
     val currentDestination: Destination? =
         navController.currentBackStackEntryAsState().value?.appDestination()
-    val scrollState = rememberScrollState()
     NavigationRail() {
         BottomBarDestination.values().forEach { screen ->
             NavigationRailItem(

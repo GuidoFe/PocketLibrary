@@ -247,7 +247,6 @@ fun BottomSheetScaffold(
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     sheetGesturesEnabled: Boolean = true,
     sheetShape: Shape = MaterialTheme.shapes.large,
-    sheetElevation: Dp = BottomSheetScaffoldDefaults.SheetElevation,
     sheetBackgroundColor: Color = MaterialTheme.colorScheme.surface,
     sheetContentColor: Color = contentColorFor(sheetBackgroundColor),
     sheetPeekHeight: Dp = BottomSheetScaffoldDefaults.SheetPeekHeight,

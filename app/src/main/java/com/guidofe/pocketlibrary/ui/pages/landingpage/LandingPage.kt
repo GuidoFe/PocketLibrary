@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,7 +51,6 @@ fun LandingPage(
     vm: ILandingPageVM = hiltViewModel<LandingPageVM>(),
 ) {
     val padding = 8.dp
-    val context = LocalContext.current
     val scroll = rememberScrollState()
     val windowInfo = rememberWindowInfo()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

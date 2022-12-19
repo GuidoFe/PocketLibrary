@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package com.guidofe.pocketlibrary.ui.modules.bottomsheet
 
 /*
@@ -478,7 +480,6 @@ fun BottomDrawer(
     drawerState: BottomDrawerState = rememberBottomDrawerState(BottomDrawerValue.Closed),
     gesturesEnabled: Boolean = true,
     drawerShape: Shape = MaterialTheme.shapes.large,
-    drawerElevation: Dp = DrawerDefaults.Elevation,
     drawerBackgroundColor: Color = MaterialTheme.colorScheme.surface,
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
     scrimColor: Color = DrawerDefaults.scrimColor,

@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                 dynamicColor = settings?.dynamicColors ?: false,
                 theme = settings?.theme ?: Theme.DEFAULT
             ) {
-                settings?.let { s ->
+                settings?.let { _ ->
                     val systemUiController = rememberSystemUiController()
                     val surfaceColor = MaterialTheme.colorScheme.surface
                     LaunchedEffect(surfaceColor) {

@@ -93,8 +93,7 @@ object AppModule {
             appContext,
             AppDatabase::class.java,
             Constants.dbName
-        ).fallbackToDestructiveMigration().build()
-        // TODO: remove fallback to destructive migration
+        ).build()
     }
 
     @Singleton

@@ -60,9 +60,6 @@ class DefaultLocalRepository @Inject constructor(
                 genresId.addAll(newIds)
             }
             insertAllBookGenres(genresId.map { id -> BookGenre(bookId, id) })
-            var placeId: Long? = null
-            var roomId: Long? = null
-            var bookshelfId: Long? = null
             if (bundle.note != null)
                 upsertNote(bundle.note.copy(bookId = bookId))
         }
