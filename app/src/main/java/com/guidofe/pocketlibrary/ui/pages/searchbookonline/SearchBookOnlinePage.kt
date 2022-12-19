@@ -57,7 +57,7 @@ fun SearchBookOnlinePage(
     val coroutineScope = rememberCoroutineScope()
     val boxShape = ShapeDefaults.Large
     val appBarColor by appBarColorAnimation(vm.scaffoldState.scrollBehavior)
-    var isSearchBoxVisible by remember { mutableStateOf(true) }
+    var isSearchBoxVisible by remember { mutableStateOf(false) }
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     LaunchedEffect(true) {
         vm.scaffoldState.refreshBar({ Text(stringResource(R.string.search_online)) })
@@ -174,6 +174,7 @@ fun SearchBookOnlinePage(
             },
             selectionManager = vm.selectionManager,
             vm = vm.listVM,
+            onInitialEmptyList = { isSearchBoxVisible = true },
             modifier = Modifier.fillMaxSize()
         )
     }

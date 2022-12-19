@@ -117,6 +117,7 @@ class BookLogVM @Inject constructor(
     override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.updateBorrowedBooksStart(bookIds, start)
+            currentBorrowedPagingSource?.invalidate()
         }
     }
 
@@ -130,6 +131,7 @@ class BookLogVM @Inject constructor(
                 val daysBefore = settings?.defaultShowNotificationNDaysBeforeDue ?: 3
                 val time = settings?.defaultNotificationTime ?: LocalTime.of(8, 0)
                 val notificationDate = LocalDate.parse(end.toString())
+                    .minusDays(daysBefore.toLong())
                 val notificationDateTime = ZonedDateTime.of(
                     notificationDate, time, ZoneId.systemDefault()
                 )
@@ -140,6 +142,7 @@ class BookLogVM @Inject constructor(
                     )
             }
             repo.updateBorrowedBooksEnd(books.map { it.info.bookId }, end)
+            currentBorrowedPagingSource?.invalidate()
         }
     }
     override fun updateLent(list: List<LentBook>) {

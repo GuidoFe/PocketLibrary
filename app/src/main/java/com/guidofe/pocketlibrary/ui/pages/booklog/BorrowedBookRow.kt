@@ -43,7 +43,7 @@ fun BorrowedBookRow(
     areButtonsActive: Boolean = true,
     dropdownMenu: @Composable () -> Unit = {},
 ) {
-    val bookBundle = remember { item.value.bookBundle }
+    val bookBundle = item.value.bookBundle
     val density = LocalDensity.current
     Surface(
         color = if (item.value.info.isReturned)
@@ -160,7 +160,7 @@ fun BorrowedBookRow(
                                     style = BookRowDefaults.buttonLabelStyle
                                 )
                                 Text(
-                                    remember { item.value.info.start.toString() },
+                                    item.value.info.start.toString(),
                                     style = BookRowDefaults.buttonTextStyle
                                 )
                             }
@@ -181,7 +181,7 @@ fun BorrowedBookRow(
                                     style = BookRowDefaults.buttonLabelStyle
                                 )
                                 Text(
-                                    remember { item.value.info.end?.toString() ?: "-" },
+                                    item.value.info.end?.toString() ?: "-",
                                     style = BookRowDefaults.buttonTextStyle
                                 )
                             }
@@ -226,7 +226,7 @@ fun ExtendedBorrowedBookRow(
     areButtonsActive: Boolean = true,
 
 ) {
-    val bookBundle = remember { item.value.bookBundle }
+    val bookBundle = item.value.bookBundle
     Surface(
         color = if (item.value.info.isReturned)
             MaterialTheme.colorScheme.surfaceVariant
@@ -320,7 +320,7 @@ fun ExtendedBorrowedBookRow(
                         }
                 ) {
                     Text(
-                        remember { item.value.info.start.toString() },
+                        item.value.info.start.toString(),
                         style = BookRowDefaults.buttonTextStyle,
                     )
                 }
@@ -338,7 +338,7 @@ fun ExtendedBorrowedBookRow(
                         }
                 ) {
                     Text(
-                        remember { item.value.info.end?.toString() ?: "-" },
+                        item.value.info.end?.toString() ?: "-",
                         style = BookRowDefaults.buttonTextStyle,
                     )
                 }

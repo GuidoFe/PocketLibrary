@@ -36,6 +36,7 @@ fun OnlineBookList(
         getKey = { it.externalId }
     ),
     multipleSelectionEnabled: Boolean = true,
+    onInitialEmptyList: () -> Unit = {},
     vm: IOnlineBookListVM = hiltViewModel<OnlineBookListVM>()
 ) {
     val lazyPagingItems = vm.pager.collectAsLazyPagingItems()
@@ -58,16 +59,20 @@ fun OnlineBookList(
                 )
             }
             else -> {
-                if (lazyPagingItems.itemCount == 0 && queryData != null) {
-                    LaunchedEffect(Unit) {
-                        delay(500)
-                        errorMessageAlpha.snapTo(1f)
+                if (lazyPagingItems.itemCount == 0) {
+                    if (queryData == null)
+                        onInitialEmptyList()
+                    else {
+                        LaunchedEffect(Unit) {
+                            delay(500)
+                            errorMessageAlpha.snapTo(1f)
+                        }
+                        Text(
+                            stringResource(R.string.no_result_found),
+                            modifier = Modifier.align(Alignment.Center)
+                                .alpha(errorMessageAlpha.value)
+                        )
                     }
-                    Text(
-                        stringResource(R.string.no_result_found),
-                        modifier = Modifier.align(Alignment.Center)
-                            .alpha(errorMessageAlpha.value)
-                    )
                 }
                 LazyColumn() {
                     if (lazyPagingItems.loadState.prepend == LoadState.Loading) {
