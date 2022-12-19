@@ -42,7 +42,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -546,7 +549,7 @@ fun LibraryPage(
         }
     }
     var whoString by remember { mutableStateOf("") }
-    var lentDate by remember { mutableStateOf(LocalDate.now()) }
+    var lentDate by remember { mutableStateOf(Instant.now()) }
     var whoError by remember { mutableStateOf(false) }
     var showCalendar by remember { mutableStateOf(false) }
     if (state.showLendBookDialog) {
@@ -603,7 +606,9 @@ fun LibraryPage(
                             onClick = { showCalendar = true; state.showLendBookDialog = false; },
                             label = {
                                 Text(
-                                    lentDate.format(
+                                    ZonedDateTime.ofInstant(
+                                        lentDate, ZoneId.systemDefault()
+                                    ).format(
                                         DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
                                     )
                                 )
@@ -618,9 +623,15 @@ fun LibraryPage(
         CalendarDialog(
             onDismissed = { state.showLendBookDialog = true; showCalendar = false; },
             onDaySelected = {
-                lentDate = it; state.showLendBookDialog = true; showCalendar = false
+                lentDate = ZonedDateTime.of(
+                    it,
+                    LocalTime.of(0, 0),
+                    ZoneId.systemDefault()
+                ).toInstant()
+                state.showLendBookDialog = true
+                showCalendar = false
             },
-            startingDate = lentDate,
+            startingDate = ZonedDateTime.ofInstant(lentDate, ZoneId.systemDefault()).toLocalDate(),
         )
     }
     disambiguationRecipient.onNavResult { navResult ->

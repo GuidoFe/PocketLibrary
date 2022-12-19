@@ -28,7 +28,10 @@ import com.guidofe.pocketlibrary.ui.modules.SelectableBookCover
 import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Composable
 fun BorrowedBookRow(
@@ -160,7 +163,9 @@ fun BorrowedBookRow(
                                     style = BookRowDefaults.buttonLabelStyle
                                 )
                                 Text(
-                                    item.value.info.start.toString(),
+                                    ZonedDateTime.ofInstant(
+                                        item.value.info.start, ZoneId.systemDefault()
+                                    ).toLocalDate().toString(),
                                     style = BookRowDefaults.buttonTextStyle
                                 )
                             }
@@ -320,7 +325,8 @@ fun ExtendedBorrowedBookRow(
                         }
                 ) {
                     Text(
-                        item.value.info.start.toString(),
+                        ZonedDateTime.ofInstant(item.value.info.start, ZoneId.systemDefault())
+                            .toLocalDate().toString(),
                         style = BookRowDefaults.buttonTextStyle,
                     )
                 }
@@ -369,8 +375,8 @@ private fun BorrowedBookRowPreview() {
                     BorrowedBook(
                         1,
                         "Tim Minchin",
-                        Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25"),
+                        Instant.now(),
+                        LocalDate.parse("2022-12-25"),
                         isReturned = false,
                         notificationTime = null
                     ),
@@ -391,8 +397,8 @@ private fun ExtendedBorrowedBookRowPreview() {
                     BorrowedBook(
                         1,
                         "Tim Minchin",
-                        Date.valueOf("2022-03-11"),
-                        Date.valueOf("2022-12-25"),
+                        Instant.now(),
+                        LocalDate.parse("2022-12-25"),
                         isReturned = false,
                         notificationTime = null
                     ),

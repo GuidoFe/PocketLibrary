@@ -17,7 +17,8 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
 
 class BookLogVMPreview() : IBookLogVM {
     override val scaffoldState: ScaffoldState
@@ -72,9 +73,9 @@ class BookLogVMPreview() : IBookLogVM {
     override fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?) {
     }
 
-    override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
+    override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant) {
     }
 
-    override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: Date?) {
+    override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: LocalDate?) {
     }
 }

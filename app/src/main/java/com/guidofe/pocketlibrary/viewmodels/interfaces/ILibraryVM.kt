@@ -13,7 +13,7 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.SelectionManager
 import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
+import java.time.Instant
 
 interface ILibraryVM {
     val scaffoldState: ScaffoldState
@@ -25,10 +25,10 @@ interface ILibraryVM {
     var duplicateIsbn: String
     val pager: Flow<PagingData<SelectableListItem<LibraryBundle>>>
     fun invalidate()
-    fun markSelectedBooksAsLent(who: String, start: LocalDate, callback: () -> Unit)
+    fun markSelectedBooksAsLent(who: String, start: Instant, callback: () -> Unit)
     fun markSelectedLentBooksAsReturned(callback: () -> Unit)
     fun markLentBookAsReturned(lentBook: LentBook)
-    fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit)
+    fun markSelectedBookAsLent(who: String, start: Instant, callback: () -> Unit)
     val state: LibraryPageState
     var customQuery: LibraryFilter?
     val translationState: TranslationDialogState

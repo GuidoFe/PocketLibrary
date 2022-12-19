@@ -29,8 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.sql.Date
-import java.time.LocalDate
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -109,20 +108,20 @@ class LibraryVM @Inject constructor(
         }
     }
 
-    override fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit) {
+    override fun markSelectedBookAsLent(who: String, start: Instant, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             selectionManager.singleSelectedItem?.let {
-                repo.insertLentBook(LentBook(it.info.bookId, who, Date.valueOf(start.toString())))
+                repo.insertLentBook(LentBook(it.info.bookId, who, start))
                 currentPagingSource?.invalidate()
             }
             callback()
         }
     }
 
-    override fun markSelectedBooksAsLent(who: String, start: LocalDate, callback: () -> Unit) {
+    override fun markSelectedBooksAsLent(who: String, start: Instant, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val lentBooks = selectionManager.selectedKeys.map {
-                LentBook(it, who, Date.valueOf(start.toString()))
+                LentBook(it, who, start)
             }
             repo.insertAllLentBooks(lentBooks)
             currentPagingSource?.invalidate()

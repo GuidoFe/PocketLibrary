@@ -3,7 +3,8 @@ package com.guidofe.pocketlibrary.data.local.library_db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.guidofe.pocketlibrary.data.local.library_db.converters.DateConverter
+import com.guidofe.pocketlibrary.data.local.library_db.converters.InstantConverter
+import com.guidofe.pocketlibrary.data.local.library_db.converters.LocalDateConverter
 import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.data.local.library_db.daos.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.*
@@ -24,11 +25,11 @@ import com.guidofe.pocketlibrary.data.local.library_db.views.SortedBookAuthor
         WishlistBook::class,
     ],
     views = [SortedBookAuthor::class],
-    version = 22,
+    version = 23,
     exportSchema = true,
     autoMigrations = []
 )
-@TypeConverters(DateConverter::class, UriConverter::class)
+@TypeConverters(LocalDateConverter::class, InstantConverter::class, UriConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun authorDao(): AuthorDao
     abstract fun bookAuthorDao(): BookAuthorDao

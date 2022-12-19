@@ -16,8 +16,7 @@ import com.guidofe.pocketlibrary.ui.theme.Theme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -179,7 +178,7 @@ class DefaultDataStoreRepository @Inject constructor(
 
     override suspend fun saveMediaBackupLocally(external: Boolean): File? {
         val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-        val formatted = LocalDateTime.now().format(formatter)
+        val formatted = ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).format(formatter)
         val backupName = "${BACKUP_FILE_ROOT}_$formatted.zip"
         val coverFolder = getCoverDir(external) ?: return null
         val backupZip = getFileInRootDir(backupName, external) ?: return null

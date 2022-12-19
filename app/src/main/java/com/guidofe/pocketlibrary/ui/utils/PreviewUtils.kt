@@ -30,7 +30,7 @@ import com.guidofe.pocketlibrary.ui.theme.PocketLibraryTheme
 import com.guidofe.pocketlibrary.ui.theme.Theme
 import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import java.io.File
-import java.sql.Date
+import java.time.Instant
 
 class PreviewUtils {
     companion object {
@@ -61,7 +61,7 @@ class PreviewUtils {
         val exampleLibraryBundle = LibraryBundle(
             exampleLibraryBook,
             exampleBookBundle,
-            LentBook(1, "Mario", Date(System.currentTimeMillis()))
+            LentBook(1, "Mario", Instant.now())
         )
         val exampleImportedBook = ImportedBookData(
             externalId = "id-234r2",

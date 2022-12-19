@@ -11,7 +11,8 @@ import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.utils.TranslationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
 import javax.inject.Inject
 
 class DefaultLocalRepository @Inject constructor(
@@ -227,7 +228,8 @@ class DefaultLocalRepository @Inject constructor(
     }
 
     override suspend fun updateBorrowedBookNotificationTime(
-        bookIds: List<Long>, notificationTime: Date?
+        bookIds: List<Long>,
+        notificationTime: Instant?
     ) {
         db.borrowedBookDao().updateNotificationTime(bookIds, notificationTime)
     }
@@ -248,11 +250,11 @@ class DefaultLocalRepository @Inject constructor(
         db.borrowedBookDao().updateLender(bookIds, lender)
     }
 
-    override suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
+    override suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant) {
         db.borrowedBookDao().updateStart(bookIds, start)
     }
 
-    override suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: Date?) {
+    override suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: LocalDate?) {
         db.borrowedBookDao().updateEnd(bookIds, end)
     }
 

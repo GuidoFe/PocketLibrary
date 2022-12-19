@@ -3,7 +3,8 @@ package com.guidofe.pocketlibrary.data.local.library_db.daos
 import androidx.room.*
 import com.guidofe.pocketlibrary.data.local.library_db.entities.Book
 import com.guidofe.pocketlibrary.data.local.library_db.entities.BorrowedBook
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
 
 @Dao
 interface BorrowedBookDao {
@@ -23,14 +24,16 @@ interface BorrowedBookDao {
     suspend fun updateLender(bookIds: List<Long>, lender: String?)
 
     @Query("UPDATE borrowed_book SET start=:start WHERE bookId IN ( :bookIds )")
-    suspend fun updateStart(bookIds: List<Long>, start: Date)
+    suspend fun updateStart(bookIds: List<Long>, start: Instant)
 
     @Query("UPDATE borrowed_book SET `end`=:end WHERE bookId IN ( :bookIds )")
-    suspend fun updateEnd(bookIds: List<Long>, end: Date?)
+    suspend fun updateEnd(bookIds: List<Long>, end: LocalDate?)
 
-    @Query("UPDATE borrowed_book SET notification_time=:notificationTime " +
-            "WHERE bookId IN ( :bookIds )")
-    suspend fun updateNotificationTime(bookIds: List<Long>, notificationTime: Date?)
+    @Query(
+        "UPDATE borrowed_book SET notification_time=:notificationTime " +
+            "WHERE bookId IN ( :bookIds )"
+    )
+    suspend fun updateNotificationTime(bookIds: List<Long>, notificationTime: Instant?)
 
     @Query("DELETE FROM borrowed_book WHERE bookId = :bookId")
     suspend fun delete(bookId: Long)

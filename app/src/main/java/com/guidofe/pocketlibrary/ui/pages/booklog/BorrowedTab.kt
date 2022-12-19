@@ -28,16 +28,15 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
-import java.sql.Date
-import java.time.LocalDate
+import java.time.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BorrowedTab(
     borrowedItems: LazyPagingItems<SelectableListItem<BorrowedBundle>>,
     updateLender: (List<Long>, String?) -> Unit,
-    updateStart: (List<Long>, Date) -> Unit,
-    updateEnd: (List<BorrowedBundle>, Date?) -> Unit,
+    updateStart: (List<Long>, Instant) -> Unit,
+    updateEnd: (List<BorrowedBundle>, LocalDate?) -> Unit,
     setReturnStatus: (Long, Boolean) -> Unit,
     moveToLibrary: (List<Long>) -> Unit,
     deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
@@ -285,17 +284,21 @@ fun BorrowedTab(
             hasClearOption = state.fieldToChange == BorrowedField.RETURN_BY,
             startingDate = when (state.fieldToChange) {
                 BorrowedField.START -> selectionManager.singleSelectedItem?.info?.start?.let {
-                    return@let LocalDate.parse(it.toString())
+                    return@let LocalDateTime.ofInstant(it, ZoneId.systemDefault()).toLocalDate()
                 } ?: LocalDate.now()
                 BorrowedField.RETURN_BY -> selectionManager.singleSelectedItem?.info?.end?.let {
-                    return@let LocalDate.parse(it.toString())
+                    return@let it
                 } ?: selectionManager.singleSelectedItem?.info?.start?.let {
-                    return@let LocalDate.parse(it.toString())
+                    return@let LocalDateTime.ofInstant(it, ZoneId.systemDefault()).toLocalDate()
                 } ?: LocalDate.now()
                 else -> LocalDate.now()
             }
         ) { newDate ->
-            val convertedDate = newDate?.let { Date.valueOf(newDate.toString()) }
+            val convertedDate = newDate?.let {
+                ZonedDateTime.of(
+                    it, LocalTime.of(0, 0), ZoneId.systemDefault()
+                ).toInstant()
+            }
             if (state.fieldToChange == BorrowedField.START && convertedDate == null) {
                 state.fieldToChange = null
                 selectionManager.clearSelection()
@@ -308,7 +311,7 @@ fun BorrowedTab(
             if (state.fieldToChange == BorrowedField.START) {
                 updateStart(bundles.map { it.info.bookId }, convertedDate!!)
             } else {
-                updateEnd(bundles, convertedDate)
+                updateEnd(bundles, newDate)
             }
             state.isCalendarVisible = false
             selectionManager.clearSelection()

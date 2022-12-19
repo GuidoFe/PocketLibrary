@@ -26,7 +26,9 @@ import com.guidofe.pocketlibrary.ui.modules.SelectableBookCover
 import com.guidofe.pocketlibrary.ui.utils.BookRowDefaults
 import com.guidofe.pocketlibrary.ui.utils.PreviewUtils
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
-import java.sql.Date
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Composable
 fun LentBookRow(
@@ -144,7 +146,10 @@ fun LentBookRow(
                                     style = BookRowDefaults.buttonLabelStyle,
                                 )
                                 Text(
-                                    item.value.lent?.start?.toString() ?: "-",
+                                    item.value.lent?.start?.let {
+                                        ZonedDateTime.ofInstant(it, ZoneId.systemDefault())
+                                            .toLocalDate().toString()
+                                    } ?: "-",
                                     style = BookRowDefaults.buttonTextStyle,
                                 )
                             }
@@ -172,10 +177,7 @@ private fun LibraryListRowPreview() {
         LentBookRow(
             item = SelectableListItem(
                 PreviewUtils.exampleLibraryBundle.copy(
-                    lent = LentBook(
-                        1, "Pinco",
-                        Date(System.currentTimeMillis())
-                    )
+                    lent = LentBook(1, "Pinco", Instant.now())
                 )
             ),
         )

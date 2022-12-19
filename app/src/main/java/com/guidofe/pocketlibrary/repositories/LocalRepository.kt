@@ -10,7 +10,8 @@ import com.guidofe.pocketlibrary.model.AppStats
 import com.guidofe.pocketlibrary.utils.TranslationPhase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
 
 interface LocalRepository {
     suspend fun <R : Any?> withTransaction(block: suspend () -> R): R
@@ -106,7 +107,7 @@ interface LocalRepository {
     suspend fun updateAllProgress(progress: List<Progress>)
     suspend fun insertAllProgress(progress: List<Progress>): List<Long>
     suspend fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?)
-    suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date)
-    suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: Date?)
-    suspend fun updateBorrowedBookNotificationTime(bookIds: List<Long>, notificationTime: Date?)
+    suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant)
+    suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: LocalDate?)
+    suspend fun updateBorrowedBookNotificationTime(bookIds: List<Long>, notificationTime: Instant?)
 }

@@ -16,7 +16,7 @@ import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.ILibraryVM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.time.LocalDate
+import java.time.Instant
 
 class LibraryVMPreview : ILibraryVM {
     override val scaffoldState: ScaffoldState
@@ -43,7 +43,7 @@ class LibraryVMPreview : ILibraryVM {
     override fun invalidate() {
     }
 
-    override fun markSelectedBooksAsLent(who: String, start: LocalDate, callback: () -> Unit) {
+    override fun markSelectedBooksAsLent(who: String, start: Instant, callback: () -> Unit) {
     }
 
     override fun markSelectedLentBooksAsReturned(callback: () -> Unit) {
@@ -52,7 +52,7 @@ class LibraryVMPreview : ILibraryVM {
     override fun markLentBookAsReturned(lentBook: LentBook) {
     }
 
-    override fun markSelectedBookAsLent(who: String, start: LocalDate, callback: () -> Unit) {
+    override fun markSelectedBookAsLent(who: String, start: Instant, callback: () -> Unit) {
     }
 
     override val state: LibraryPageState

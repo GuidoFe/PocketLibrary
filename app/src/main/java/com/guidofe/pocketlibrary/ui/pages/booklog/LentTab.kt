@@ -25,8 +25,10 @@ import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.ui.utils.rememberWindowInfo
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
-import java.sql.Date
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -246,11 +248,15 @@ fun LentTab(
             },
             startingDate = if (!state.isMultipleSelecting) {
                 state.selectionManager.singleSelectedItem?.lent?.start?.let {
-                    LocalDate.parse(it.toString())
+                    ZonedDateTime.ofInstant(it, ZoneId.systemDefault()).toLocalDate()
                 } ?: LocalDate.now()
             } else LocalDate.now()
         ) { newDate ->
-            val convertedDate = newDate?.let { Date.valueOf(newDate.toString()) }
+            val convertedDate = newDate?.let {
+                ZonedDateTime.of(
+                    newDate, LocalTime.of(0, 0), ZoneId.systemDefault()
+                ).toInstant()
+            }
             if (convertedDate == null) {
                 state.fieldToChange = null
                 selectionManager.clearSelection()

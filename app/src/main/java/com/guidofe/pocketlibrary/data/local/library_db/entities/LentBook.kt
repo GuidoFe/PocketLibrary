@@ -5,8 +5,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.sql.Date
 import kotlinx.parcelize.Parcelize
+import java.time.Instant
 
 @Parcelize
 @Entity(
@@ -23,5 +23,5 @@ import kotlinx.parcelize.Parcelize
 data class LentBook(
     @PrimaryKey val bookId: Long,
     @ColumnInfo val who: String,
-    @ColumnInfo val start: Date
+    @ColumnInfo val start: Instant
 ) : Parcelable

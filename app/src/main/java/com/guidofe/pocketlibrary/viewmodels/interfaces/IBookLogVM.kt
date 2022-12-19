@@ -13,7 +13,8 @@ import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import kotlinx.coroutines.flow.Flow
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
 
 interface IBookLogVM {
     val scaffoldState: ScaffoldState
@@ -36,6 +37,6 @@ interface IBookLogVM {
     val lentSearchManager: SearchFieldManager
     val borrowedSearchManager: SearchFieldManager
     fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?)
-    fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date)
-    fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: Date?)
+    fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant)
+    fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: LocalDate?)
 }

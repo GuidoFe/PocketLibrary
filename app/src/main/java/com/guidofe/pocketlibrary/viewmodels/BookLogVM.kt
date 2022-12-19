@@ -26,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.sql.Date
 import java.time.*
 import javax.inject.Inject
 
@@ -114,14 +113,14 @@ class BookLogVM @Inject constructor(
         }
     }
 
-    override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date) {
+    override fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.updateBorrowedBooksStart(bookIds, start)
             currentBorrowedPagingSource?.invalidate()
         }
     }
 
-    override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: Date?) {
+    override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: LocalDate?) {
         viewModelScope.launch(Dispatchers.IO) {
             val settings = dataStore.settingsLiveData.value
             if (end == null || settings?.defaultEnableNotification == false) {
@@ -134,16 +133,16 @@ class BookLogVM @Inject constructor(
                     .minusDays(daysBefore.toLong())
                 val notificationDateTime = ZonedDateTime.of(
                     notificationDate, time, ZoneId.systemDefault()
-                ).toInstant().toEpochMilli()
-                if (notificationDateTime > System.currentTimeMillis()) {
+                ).toInstant()
+                if (notificationDateTime > Instant.now()) {
                     for (book in books) {
                         appNotificationManager.setDueDateNotification(
-                            book, notificationDateTime
+                            book, notificationDateTime.toEpochMilli()
                         )
                     }
                     repo.updateBorrowedBookNotificationTime(
-                        books.map{it.info.bookId},
-                        Date.from(Instant.ofEpochMilli(notificationDateTime))
+                        books.map { it.info.bookId },
+                        notificationDateTime
                     )
                 } else {
                     for (book in books) {
@@ -158,6 +157,7 @@ class BookLogVM @Inject constructor(
     override fun updateLent(list: List<LentBook>) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.updateAllLentBooks(list)
+            // currentBorrowedPagingSource?.invalidate()
         }
     }
     override fun removeLentStatus(books: List<LentBook>, callback: () -> Unit) {

@@ -6,7 +6,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
-import java.sql.Date
+import java.time.Instant
+import java.time.LocalDate
 
 @Parcelize
 @Entity(
@@ -23,8 +24,8 @@ import java.sql.Date
 data class BorrowedBook(
     @PrimaryKey val bookId: Long,
     @ColumnInfo val who: String? = null,
-    @ColumnInfo val start: Date = Date(System.currentTimeMillis()),
-    @ColumnInfo val end: Date? = null,
+    @ColumnInfo val start: Instant = Instant.now(),
+    @ColumnInfo val end: LocalDate? = null,
     @ColumnInfo val isReturned: Boolean = false,
-    @ColumnInfo(name = "notification_time") val notificationTime: Date?
+    @ColumnInfo(name = "notification_time") val notificationTime: Instant?
 ) : Parcelable
