@@ -18,4 +18,6 @@ class MainActivityVMPreview : IMainActivityVM {
         get() = liveData { emit(AppSettings()) }
 
     override fun getCoverDir(): Uri? = null
+    override fun refreshNotifications() {
+    }
 }

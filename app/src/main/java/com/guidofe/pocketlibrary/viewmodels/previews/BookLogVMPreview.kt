@@ -78,4 +78,7 @@ class BookLogVMPreview() : IBookLogVM {
 
     override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: LocalDate?) {
     }
+
+    override fun updateNotification(bundle: BorrowedBundle, instant: Instant?) {
+    }
 }

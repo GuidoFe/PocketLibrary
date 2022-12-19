@@ -232,4 +232,8 @@
     <string name="notification_title_due">A borrowed book is expiring</string>
     <string name="dueBooksChannelName">Due books</string>
     <string name="dueBooksChannelDescription">Channel for notifications about borrowed books near their expiration date</string>
+    <string name="date_colon">Date:</string>
+    <string name="time_colon">Time:</string>
+    <string name="notification_disabled">Notification disabled</string>
+    <string name="enable_notification">Enable notification</string>
 </resources>

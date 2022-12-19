@@ -442,6 +442,9 @@ fun BookLogPage(
                         setBottomSheetContent = { vm.scaffoldState.bottomSheetContent = it },
                         setBottomSheetVisibility = { visibility, scope ->
                             vm.scaffoldState.setBottomSheetVisibility(visibility, scope)
+                        },
+                        updateNotification = { bundle, instant ->
+                            vm.updateNotification(bundle, instant)
                         }
                     )
                 }
@@ -500,6 +503,9 @@ fun BookLogPage(
                         updateLender = { l, s -> vm.updateBorrowedBooksLender(l, s) },
                         updateStart = { l, s -> vm.updateBorrowedBooksStart(l, s) },
                         updateEnd = { l, s -> vm.updateBorrowedBooksEnd(l, s) },
+                        updateNotification = { bundle, instant ->
+                            vm.updateNotification(bundle, instant)
+                        },
                     )
                 }
                 AddBookFab(

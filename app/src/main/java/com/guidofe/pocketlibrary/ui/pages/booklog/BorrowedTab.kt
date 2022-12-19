@@ -19,6 +19,7 @@ import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import com.guidofe.pocketlibrary.ui.dialogs.CalendarDialog
 import com.guidofe.pocketlibrary.ui.dialogs.ConfirmDeleteBookDialog
+import com.guidofe.pocketlibrary.ui.dialogs.NotificationDialogFlow
 import com.guidofe.pocketlibrary.ui.modules.RowWithIcon
 import com.guidofe.pocketlibrary.ui.pages.destinations.EditBookPageDestination
 import com.guidofe.pocketlibrary.ui.pages.destinations.ViewBookPageDestination
@@ -37,6 +38,7 @@ fun BorrowedTab(
     updateLender: (List<Long>, String?) -> Unit,
     updateStart: (List<Long>, Instant) -> Unit,
     updateEnd: (List<BorrowedBundle>, LocalDate?) -> Unit,
+    updateNotification: (BorrowedBundle, Instant?) -> Unit,
     setReturnStatus: (Long, Boolean) -> Unit,
     moveToLibrary: (List<Long>) -> Unit,
     deleteBorrowedBooks: (bookIds: List<Long>, callback: () -> Unit) -> Unit,
@@ -190,7 +192,11 @@ fun BorrowedTab(
                             selectionManager.singleSelectedItem = item.value
                             state.isCalendarVisible = true
                         },
-                        areButtonsActive = !selectionManager.isMultipleSelecting
+                        areButtonsActive = !selectionManager.isMultipleSelecting,
+                        onNotificationIconClick = {
+                            selectionManager.singleSelectedItem = item.value
+                            state.isNotificationDialogVisible = true
+                        }
                     ) {
                         if (!windowInfo.isBottomSheetLayout()) {
                             DropdownMenu(
@@ -341,5 +347,26 @@ fun BorrowedTab(
             }
             state.showConfirmDeleteBook = false
         }
+    }
+
+    if (state.isNotificationDialogVisible) {
+        NotificationDialogFlow(
+            onDismissRequest = { state.isNotificationDialogVisible = false },
+            onConfirm = {
+                selectionManager.singleSelectedItem?.let { book ->
+                    updateNotification(book, it)
+                    state.isNotificationDialogVisible = false
+                }
+            },
+            startingEnabled = selectionManager.singleSelectedItem?.info?.notificationTime != null,
+            startingInstant = selectionManager.singleSelectedItem?.info?.notificationTime
+                ?: selectionManager.singleSelectedItem?.info?.end?.let { end ->
+                    ZonedDateTime.of(
+                        end,
+                        LocalTime.of(8, 0),
+                        ZoneId.systemDefault()
+                    ).toInstant()
+                } ?: Instant.now()
+        )
     }
 }

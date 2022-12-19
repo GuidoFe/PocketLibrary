@@ -11,4 +11,5 @@ interface IMainActivityVM {
     val snackbarHostState: SnackbarHostState
     val settingsLiveData: LiveData<AppSettings>
     fun getCoverDir(): Uri?
+    fun refreshNotifications()
 }

@@ -20,5 +20,6 @@ class BorrowedTabState {
     // var isContextMenuVisible by mutableStateOf(false)
     var isFabExpanded by mutableStateOf(false)
     var isMoreMenuOpen by mutableStateOf(false)
+    var isNotificationDialogVisible by mutableStateOf(false)
     var searchQuery = ""
 }

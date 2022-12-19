@@ -2,18 +2,18 @@ package com.guidofe.pocketlibrary.ui.pages.booklog
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
@@ -44,6 +44,7 @@ fun BorrowedBookRow(
     onReturnByTap: () -> Unit = {},
     onRowLongPress: (DpOffset) -> Unit = {},
     areButtonsActive: Boolean = true,
+    onNotificationIconClick: () -> Unit = {},
     dropdownMenu: @Composable () -> Unit = {},
 ) {
     val bookBundle = item.value.bookBundle
@@ -89,39 +90,62 @@ fun BorrowedBookRow(
                         modifier = Modifier
                             .weight(1f)
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { onRowTap(it) },
-                                        onLongPress = { offset ->
-                                            onRowLongPress(
-                                                getMenuOffset(offset, density)
-                                            )
-                                        }
-                                    )
-                                }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            dropdownMenu()
-                            Text(
-                                text = bookBundle.book.title,
-                                style = BookRowDefaults.titleStyle,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
-                            Text(
-                                text = remember {
-                                    bookBundle.authors.joinToString(", ") {
-                                        it.name
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { onRowTap(it) },
+                                            onLongPress = { offset ->
+                                                onRowLongPress(
+                                                    getMenuOffset(offset, density)
+                                                )
+                                            }
+                                        )
                                     }
-                                },
-                                style = BookRowDefaults.authorStyle,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
+                            ) {
+                                dropdownMenu()
+                                Text(
+                                    text = bookBundle.book.title,
+                                    style = BookRowDefaults.titleStyle,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    text = remember {
+                                        bookBundle.authors.joinToString(", ") {
+                                            it.name
+                                        }
+                                    },
+                                    style = BookRowDefaults.authorStyle,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                )
+                            }
+                            if (item.value.info.end != null && !item.value.info.isReturned) {
+                                if (item.value.info.notificationTime == null) {
+                                    IconButton(onClick = onNotificationIconClick) {
+                                        Icon(
+                                            painterResource(R.drawable.notifications_off_24px),
+                                            stringResource(R.string.notification_disabled),
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                                .copy(alpha = 0.38f)
+                                        )
+                                    }
+                                } else {
+                                    IconButton(onClick = onNotificationIconClick) {
+                                        Icon(
+                                            painterResource(R.drawable.notifications_24px),
+                                            stringResource(R.string.notification_enabled),
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -187,7 +211,8 @@ fun BorrowedBookRow(
                                 )
                                 Text(
                                     item.value.info.end?.toString() ?: "-",
-                                    style = BookRowDefaults.buttonTextStyle
+                                    style = BookRowDefaults.buttonTextStyle,
+                                    color = endDateColor(item.value.info)
                                 )
                             }
                         }
@@ -219,149 +244,11 @@ private fun getMenuOffset(offset: Offset, density: Density): DpOffset {
 }
 
 @Composable
-fun ExtendedBorrowedBookRow(
-    item: SelectableListItem<BorrowedBundle>,
-    modifier: Modifier = Modifier,
-    onRowTap: (Offset) -> Unit = {},
-    onCoverLongPress: (Offset) -> Unit = {},
-    onLenderTap: () -> Unit = {},
-    onStartTap: () -> Unit = {},
-    onReturnByTap: () -> Unit = {},
-    onRowLongPress: () -> Unit = {},
-    areButtonsActive: Boolean = true,
-
-) {
-    val bookBundle = item.value.bookBundle
-    Surface(
-        color = if (item.value.info.isReturned)
-            MaterialTheme.colorScheme.surfaceVariant
-        else
-            MaterialTheme.colorScheme.surface,
-        modifier = modifier
-
-    ) {
-        Box(modifier = Modifier.height(120.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        BookRowDefaults.horizontalPadding,
-                        BookRowDefaults.verticalPadding
-                    )
-            ) {
-                SelectableBookCover(
-                    bookBundle.book.coverURI,
-                    item.isSelected,
-                    onRowTap,
-                    onCoverLongPress,
-                    progress = item.value.bookBundle.progress?.phase,
-                    colorFilter = remember {
-                        if (item.value.info.isReturned)
-                            ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-                        else
-                            null
-                    }
-                )
-                Spacer(Modifier.width(BookRowDefaults.coverTextDistance))
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onRowTap(it) },
-                                onLongPress = { onRowLongPress() }
-                            )
-                        }
-                ) {
-                    Text(
-                        text = bookBundle.book.title,
-                        style = BookRowDefaults.titleStyle,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = remember {
-                            bookBundle.authors.joinToString(", ") {
-                                it.name
-                            }
-                        },
-                        style = BookRowDefaults.authorStyle,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .width(
-                            BookRowDefaults.extendedNameCellWidth
-                        )
-                        .fillMaxHeight()
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onLenderTap() }
-                            )
-                        }
-                ) {
-                    Text(
-                        item.value.info.who ?: "???",
-                        style = BookRowDefaults.buttonTextStyle,
-                    )
-                }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .width(
-                            BookRowDefaults.extendedDateCellWidth
-                        )
-                        .fillMaxHeight()
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onStartTap() }
-                            )
-                        }
-                ) {
-                    Text(
-                        ZonedDateTime.ofInstant(item.value.info.start, ZoneId.systemDefault())
-                            .toLocalDate().toString(),
-                        style = BookRowDefaults.buttonTextStyle,
-                    )
-                }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .width(
-                            BookRowDefaults.extendedDateCellWidth
-                        )
-                        .fillMaxHeight()
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onReturnByTap() }
-                            )
-                        }
-                ) {
-                    Text(
-                        item.value.info.end?.toString() ?: "-",
-                        style = BookRowDefaults.buttonTextStyle,
-                    )
-                }
-            }
-            if (!areButtonsActive) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onRowTap(it) },
-                            )
-                        }
-                )
-            }
-        }
-    }
+private fun endDateColor(info: BorrowedBook): Color {
+    return if (info.end != null && info.end <= LocalDate.now() && !info.isReturned)
+        MaterialTheme.colorScheme.error
+    else
+        MaterialTheme.colorScheme.onSurface
 }
 
 @Composable
@@ -376,29 +263,7 @@ private fun BorrowedBookRowPreview() {
                         1,
                         "Tim Minchin",
                         Instant.now(),
-                        LocalDate.parse("2022-12-25"),
-                        isReturned = false,
-                        notificationTime = null
-                    ),
-                    PreviewUtils.exampleBookBundle
-                )
-            ),
-        )
-    }
-}
-
-@Composable
-@Preview(widthDp = 840)
-private fun ExtendedBorrowedBookRowPreview() {
-    PreviewUtils.ThemeColumn() {
-        ExtendedBorrowedBookRow(
-            item = SelectableListItem(
-                BorrowedBundle(
-                    BorrowedBook(
-                        1,
-                        "Tim Minchin",
-                        Instant.now(),
-                        LocalDate.parse("2022-12-25"),
+                        LocalDate.parse("2021-12-25"),
                         isReturned = false,
                         notificationTime = null
                     ),

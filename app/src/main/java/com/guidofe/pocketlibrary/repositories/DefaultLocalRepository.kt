@@ -485,4 +485,8 @@ class DefaultLocalRepository @Inject constructor(
     override suspend fun insertAllProgress(progress: List<Progress>): List<Long> {
         return db.progressDao().insertAll(progress)
     }
+
+    override suspend fun getBorrowedBundlesWithFutureNotification(): List<BorrowedBundle> {
+        return db.borrowedBundleDao().getBorrowedBundlesWithFutureNotification()
+    }
 }

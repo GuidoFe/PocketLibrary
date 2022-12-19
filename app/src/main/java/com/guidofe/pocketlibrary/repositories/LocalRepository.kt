@@ -110,4 +110,5 @@ interface LocalRepository {
     suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant)
     suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: LocalDate?)
     suspend fun updateBorrowedBookNotificationTime(bookIds: List<Long>, notificationTime: Instant?)
+    suspend fun getBorrowedBundlesWithFutureNotification(): List<BorrowedBundle>
 }

@@ -122,6 +122,7 @@ class BookLogVM @Inject constructor(
 
     override fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: LocalDate?) {
         viewModelScope.launch(Dispatchers.IO) {
+            val ids = books.map { it.info.bookId }
             val settings = dataStore.settingsLiveData.value
             if (end == null || settings?.defaultEnableNotification == false) {
                 for (book in books)
@@ -141,7 +142,7 @@ class BookLogVM @Inject constructor(
                         )
                     }
                     repo.updateBorrowedBookNotificationTime(
-                        books.map { it.info.bookId },
+                        ids,
                         notificationDateTime
                     )
                 } else {
@@ -167,6 +168,18 @@ class BookLogVM @Inject constructor(
         }
     }
 
+    override fun updateNotification(bundle: BorrowedBundle, instant: Instant?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = bundle.info.bookId
+            repo.updateBorrowedBookNotificationTime(listOf(id), instant)
+            if (instant == null)
+                appNotificationManager.deleteDueDateNotification(id)
+            else
+                appNotificationManager.setDueDateNotification(bundle, instant.toEpochMilli())
+            currentBorrowedPagingSource?.invalidate()
+        }
+    }
+
     override fun setStatusOfSelectedBorrowedBooks(isReturned: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.setBorrowedBookStatus(borrowedTabState.selectionManager.selectedKeys, isReturned)
@@ -178,6 +191,7 @@ class BookLogVM @Inject constructor(
     override fun setBookReturnStatus(bookId: Long, isReturned: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.setBorrowedBookStatus(listOf(bookId), isReturned)
+            appNotificationManager.deleteDueDateNotification(bookId)
             invalidateBorrowedPagingSource()
         }
     }

@@ -39,4 +39,5 @@ interface IBookLogVM {
     fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?)
     fun updateBorrowedBooksStart(bookIds: List<Long>, start: Instant)
     fun updateBorrowedBooksEnd(books: List<BorrowedBundle>, end: LocalDate?)
+    fun updateNotification(bundle: BorrowedBundle, instant: Instant?)
 }

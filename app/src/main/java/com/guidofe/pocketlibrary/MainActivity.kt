@@ -28,15 +28,16 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val viewModel: MainActivityVM by viewModels()
+    private val vm: MainActivityVM by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        vm.refreshNotifications()
         setContent {
-            val settings by viewModel.settingsLiveData.observeAsState()
+            val settings by vm.settingsLiveData.observeAsState()
             PocketLibraryTheme(
                 darkTheme = settings?.darkTheme ?: false,
                 dynamicColor = settings?.dynamicColors ?: false,
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                     LaunchedEffect(true) {
-                        UriConverter.baseUri = viewModel.getCoverDir() ?: Uri.parse("")
+                        UriConverter.baseUri = vm.getCoverDir() ?: Uri.parse("")
                     }
                     AppScreen()
                 }

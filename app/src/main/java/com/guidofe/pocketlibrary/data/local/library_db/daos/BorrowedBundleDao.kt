@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
 
 @Dao
 interface BorrowedBundleDao {
@@ -36,4 +37,13 @@ interface BorrowedBundleDao {
             "'%' || :lowerString || '%' OR lower( Author.name ) LIKE '%' || :lowerString || '%'"
     )
     fun getBorrowedBundlesByString(lowerString: String): PagingSource<Int, BorrowedBundle>
+
+    @Transaction
+    @Query(
+        "SELECT borrowed_book.* FROM borrowed_book WHERE notification_time IS NOT NULL " +
+            "AND notification_time > :fromInstant"
+    )
+    fun getBorrowedBundlesWithFutureNotification(
+        fromInstant: Instant = Instant.now()
+    ): List<BorrowedBundle>
 }

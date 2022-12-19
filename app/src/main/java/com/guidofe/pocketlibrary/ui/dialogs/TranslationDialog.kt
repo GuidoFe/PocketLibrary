@@ -3,10 +3,7 @@ package com.guidofe.pocketlibrary.ui.dialogs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,9 +30,9 @@ fun TranslationDialog(state: TranslationDialogState) {
     Dialog(onDismissRequest = {}) {
         Column(
             modifier = Modifier
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(10.dp)
+                .clip(AlertDialogDefaults.shape)
+                .background(AlertDialogDefaults.containerColor)
+                .padding(16.dp)
         ) {
             Text(
                 stringResource(R.string.translation_in_progress),

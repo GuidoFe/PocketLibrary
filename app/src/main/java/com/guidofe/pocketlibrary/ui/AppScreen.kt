@@ -27,10 +27,10 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScreen(
-    viewModel: IMainActivityVM = hiltViewModel<MainActivityVM>(),
+    vm: IMainActivityVM = hiltViewModel<MainActivityVM>(),
 ) {
     val navController = rememberNavController()
-    val scaffoldState = viewModel.scaffoldState
+    val scaffoldState = vm.scaffoldState
     val windowInfo = rememberWindowInfo()
     LaunchedEffect(navController) {
         navController.addOnDestinationChangedListener { _, _, _ ->
@@ -59,7 +59,7 @@ fun AppScreen(
                         title = scaffoldState.title,
                         actions = scaffoldState.actions,
                         navigationIcon = scaffoldState.navigationIcon,
-                        scrollBehavior = viewModel.scaffoldState.scrollBehavior
+                        scrollBehavior = vm.scaffoldState.scrollBehavior
                     )
                 }
             },
@@ -68,11 +68,11 @@ fun AppScreen(
             },
             floatingActionButton = {
                 // TODO: Animate fab changing
-                viewModel.scaffoldState.fab()
+                vm.scaffoldState.fab()
             },
             snackbarHost = {
                 // reuse default SnackbarHost to have default animation and timing handling
-                SnackbarHost(viewModel.snackbarHostState) { data ->
+                SnackbarHost(vm.snackbarHostState) { data ->
                     // custom snackbar with the custom action button color and border
                     val custom = (data.visuals as? CustomSnackbarVisuals)
                     val isError = custom?.isError ?: false
