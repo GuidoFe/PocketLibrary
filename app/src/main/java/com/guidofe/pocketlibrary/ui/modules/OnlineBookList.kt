@@ -60,16 +60,17 @@ fun OnlineBookList(
             }
             else -> {
                 if (lazyPagingItems.itemCount == 0) {
-                    if (queryData == null)
+                    if (queryData == null) {
                         onInitialEmptyList()
-                    else {
+                    } else {
                         LaunchedEffect(Unit) {
                             delay(500)
                             errorMessageAlpha.snapTo(1f)
                         }
                         Text(
                             stringResource(R.string.no_result_found),
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier
+                                .align(Alignment.Center)
                                 .alpha(errorMessageAlpha.value)
                         )
                     }

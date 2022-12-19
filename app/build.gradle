@@ -194,7 +194,7 @@ dependencies {
     implementation "androidx.paging:paging-compose:1.0.0-alpha17"
 
     // Barcode scanner
-    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
+    implementation 'com.google.mlkit:barcode-scanning:17.0.3'
 
     // CameraX
     // TODO: Remove unused CameraX libraries

@@ -75,7 +75,7 @@ internal fun HorizontalCompactBookHeading(
                     modifier = Modifier.clickable { onHeadingClick() }
                 ) {
                     Text(
-                        bundle.book.title ?: "",
+                        bundle.book.title,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis

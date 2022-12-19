@@ -167,7 +167,6 @@ class DefaultDataStoreRepository @Inject constructor(
 
     override suspend fun saveCover(bitmap: Bitmap, fullPath: String, callback: () -> Unit) {
         withContext(Dispatchers.IO) {
-            val file = File(fullPath)
             val fOut = FileOutputStream(fullPath)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut)
             fOut.flush()

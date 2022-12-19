@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary
 
 import com.guidofe.pocketlibrary.ui.theme.Theme
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
@@ -32,6 +33,7 @@ enum class Language(val localizedName: String, val code: String) {
     ITALIAN("Italiano", "it");
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = LocalTime::class)
 object LocalTimeSerializer : KSerializer<LocalTime> {
     override val descriptor: SerialDescriptor

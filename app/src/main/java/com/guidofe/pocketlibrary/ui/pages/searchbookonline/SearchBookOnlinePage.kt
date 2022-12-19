@@ -197,7 +197,6 @@ fun SearchBookOnlinePage(
                 }
             },
             onDismissRequest = { isDialogOpen = false },
-            modifier = Modifier.background(appBarColor)
         )
     }
     if (isSearchBoxVisible) {
@@ -225,6 +224,9 @@ fun SearchBookOnlinePage(
                             )
                         )
                     }
+                },
+                onCancel = {
+                    navigator.navigateUp()
                 },
                 modifier = Modifier
                     .widthIn(max = 450.dp)
