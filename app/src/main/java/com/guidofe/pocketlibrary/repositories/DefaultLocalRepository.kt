@@ -226,6 +226,12 @@ class DefaultLocalRepository @Inject constructor(
         db.close()
     }
 
+    override suspend fun updateBorrowedBookNotificationTime(
+        bookIds: List<Long>, notificationTime: Date?
+    ) {
+        db.borrowedBookDao().updateNotificationTime(bookIds, notificationTime)
+    }
+
     override suspend fun getBookBundlesWithSameIsbn(isbn: String): List<BookBundle> {
         return db.bookBundleDao().getBookBundlesWithSameIsbn(isbn)
     }

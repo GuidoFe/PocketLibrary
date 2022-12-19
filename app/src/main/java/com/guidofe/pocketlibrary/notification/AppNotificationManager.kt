@@ -26,7 +26,7 @@ class AppNotificationManager(val context: Context) {
         )
     }
 
-    fun setDueDateNotification(bundle: BorrowedBundle, time: Long) {
+    fun setDueDateNotification(bundle: BorrowedBundle, timeMilli: Long) {
         val pendingIntent = createPendingIntent(
             bundle.info.bookId.toModInt(),
             bundle.bookBundle.book.title
@@ -34,9 +34,9 @@ class AppNotificationManager(val context: Context) {
         Log.d(
             "notification",
             "Setting alarm with id ${bundle.info.bookId} for time " +
-                "${Date.from(Instant.ofEpochMilli(time))}"
+                "${Date.from(Instant.ofEpochMilli(timeMilli))}"
         )
-        alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent)
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeMilli, pendingIntent)
     }
 
     fun deleteDueDateNotification(bookId: Long) {

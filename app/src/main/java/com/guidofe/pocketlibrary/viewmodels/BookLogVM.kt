@@ -134,12 +134,22 @@ class BookLogVM @Inject constructor(
                     .minusDays(daysBefore.toLong())
                 val notificationDateTime = ZonedDateTime.of(
                     notificationDate, time, ZoneId.systemDefault()
-                )
-
-                for (book in books)
-                    appNotificationManager.setDueDateNotification(
-                        book, notificationDateTime.toEpochSecond()
+                ).toInstant().toEpochMilli()
+                if (notificationDateTime > System.currentTimeMillis()) {
+                    for (book in books) {
+                        appNotificationManager.setDueDateNotification(
+                            book, notificationDateTime
+                        )
+                    }
+                    repo.updateBorrowedBookNotificationTime(
+                        books.map{it.info.bookId},
+                        Date.from(Instant.ofEpochMilli(notificationDateTime))
                     )
+                } else {
+                    for (book in books) {
+                        appNotificationManager.deleteDueDateNotification(book.info.bookId)
+                    }
+                }
             }
             repo.updateBorrowedBooksEnd(books.map { it.info.bookId }, end)
             currentBorrowedPagingSource?.invalidate()

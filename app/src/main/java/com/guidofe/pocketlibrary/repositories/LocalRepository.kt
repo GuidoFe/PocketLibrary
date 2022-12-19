@@ -108,4 +108,5 @@ interface LocalRepository {
     suspend fun updateBorrowedBooksLender(bookIds: List<Long>, lender: String?)
     suspend fun updateBorrowedBooksStart(bookIds: List<Long>, start: Date)
     suspend fun updateBorrowedBooksEnd(bookIds: List<Long>, end: Date?)
+    suspend fun updateBorrowedBookNotificationTime(bookIds: List<Long>, notificationTime: Date?)
 }

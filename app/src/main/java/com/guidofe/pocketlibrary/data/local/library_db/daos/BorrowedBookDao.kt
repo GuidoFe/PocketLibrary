@@ -28,6 +28,10 @@ interface BorrowedBookDao {
     @Query("UPDATE borrowed_book SET `end`=:end WHERE bookId IN ( :bookIds )")
     suspend fun updateEnd(bookIds: List<Long>, end: Date?)
 
+    @Query("UPDATE borrowed_book SET notification_time=:notificationTime " +
+            "WHERE bookId IN ( :bookIds )")
+    suspend fun updateNotificationTime(bookIds: List<Long>, notificationTime: Date?)
+
     @Query("DELETE FROM borrowed_book WHERE bookId = :bookId")
     suspend fun delete(bookId: Long)
 
