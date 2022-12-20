@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -87,7 +88,9 @@ class WishlistPageVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repo.moveBookFromWishlistToLibrary(bookId)
             currentPagingSource?.invalidate()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 
@@ -96,7 +99,9 @@ class WishlistPageVM @Inject constructor(
             repo.moveBooksFromWishlistToLibrary(selectionManager.selectedKeys)
             currentPagingSource?.invalidate()
             selectionManager.clearSelection()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 

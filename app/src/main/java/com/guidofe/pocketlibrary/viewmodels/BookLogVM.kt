@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.*
 import javax.inject.Inject
 
@@ -103,7 +104,9 @@ class BookLogVM @Inject constructor(
             }
             repo.deleteBooksByIds(bookIds)
             invalidateBorrowedPagingSource()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 
@@ -164,7 +167,9 @@ class BookLogVM @Inject constructor(
     override fun removeLentStatus(books: List<LentBook>, callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBooks(books)
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 

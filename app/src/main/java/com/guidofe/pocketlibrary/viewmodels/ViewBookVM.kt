@@ -17,6 +17,7 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IViewBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,7 +54,9 @@ class ViewBookVM @Inject constructor(
                             repo.upsertNote(Note(id, editedNote))
                     }
                 }
-                callback()
+                withContext(Dispatchers.Main) {
+                    callback()
+                }
             }
         }
     }
@@ -79,7 +82,9 @@ class ViewBookVM @Inject constructor(
                     }
                 }
             }
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 }

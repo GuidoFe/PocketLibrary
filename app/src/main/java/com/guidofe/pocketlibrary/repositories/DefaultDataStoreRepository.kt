@@ -13,8 +13,6 @@ import com.guidofe.pocketlibrary.AppSettingsSerializer
 import com.guidofe.pocketlibrary.Language
 import com.guidofe.pocketlibrary.data.local.library_db.converters.UriConverter
 import com.guidofe.pocketlibrary.ui.theme.Theme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.*
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -22,6 +20,8 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private val Context.dataStore by dataStore(
     fileName = "app-settings.json",
@@ -171,7 +171,9 @@ class DefaultDataStoreRepository @Inject constructor(
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut)
             fOut.flush()
             fOut.close()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 

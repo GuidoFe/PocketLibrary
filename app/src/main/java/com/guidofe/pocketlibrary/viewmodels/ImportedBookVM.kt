@@ -18,6 +18,7 @@ import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,17 +37,21 @@ class ImportedBookVM @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val res = metaRepo.fetchVolumesByIsbn(isbn, maxResults)
-            if (res.isSuccess())
-                callback(res.data ?: emptyList())
-            else
-                failureCallback(res.message ?: "Error")
+            withContext(Dispatchers.Main) {
+                if (res.isSuccess())
+                    callback(res.data ?: emptyList())
+                else
+                    failureCallback(res.message ?: "Error")
+            }
         }
     }
 
     override fun getBooksInLibraryWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInLibraryWithSameIsbn(isbn)
-            callback(list)
+            withContext(Dispatchers.Main) {
+                callback(list)
+            }
         }
     }
 
@@ -60,7 +65,9 @@ class ImportedBookVM @Inject constructor(
             val ids = saveImportedBooksToDestination(
                 importedBooks, destination, translationDialogState
             )
-            callback(ids)
+            withContext(Dispatchers.Main) {
+                callback(ids)
+            }
         }
     }
 
@@ -74,21 +81,27 @@ class ImportedBookVM @Inject constructor(
             val id = saveImportedBookToDestination(
                 importedBook, destination, translationDialogState
             )
-            callback(id)
+            withContext(Dispatchers.Main) {
+                callback(id)
+            }
         }
     }
 
     override fun getBooksInWishlistWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInWishlistWithSameIsbn(isbn)
-            callback(list)
+            withContext(Dispatchers.Main) {
+                callback(list)
+            }
         }
     }
 
     override fun getBooksInBorrowedWithSameIsbn(isbn: String, callback: (List<Book>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = localRepo.getBooksInBorrowedWithSameIsbn(isbn)
-            callback(list)
+            withContext(Dispatchers.Main) {
+                callback(list)
+            }
         }
     }
 

@@ -29,6 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 
@@ -104,7 +105,9 @@ class LibraryVM @Inject constructor(
             if (ids.isEmpty()) return@launch
             repo.updateFavorite(ids, favorite)
             currentPagingSource?.invalidate()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 
@@ -114,7 +117,9 @@ class LibraryVM @Inject constructor(
                 repo.insertLentBook(LentBook(it.info.bookId, who, start))
                 currentPagingSource?.invalidate()
             }
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 
@@ -125,7 +130,9 @@ class LibraryVM @Inject constructor(
             }
             repo.insertAllLentBooks(lentBooks)
             currentPagingSource?.invalidate()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 
@@ -140,7 +147,9 @@ class LibraryVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repo.deleteLentBooks(selectionManager.selectedItems.value.mapNotNull { it.value.lent })
             currentPagingSource?.invalidate()
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 
@@ -161,7 +170,9 @@ class LibraryVM @Inject constructor(
                         Progress(it.info.bookId, ProgressPhase.READ)
                 }
             )
-            callback()
+            withContext(Dispatchers.Main) {
+                callback()
+            }
         }
     }
 

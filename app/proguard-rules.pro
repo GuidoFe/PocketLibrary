@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.guidofe.pocketlibrary.model.** { *; }
+-keep class com.guidofe.pocketlibrary.data.** { *; }
+-dontwarn org.openjsse.*
+-dontwarn org.bouncycastle.*
+-keepattributes *Annotation*, Signature, Exception
+-optimizations !method/removal/parameter
