@@ -43,8 +43,8 @@ android {
         applicationId "com.guidofe.pocketlibrary"
         minSdk 21
         targetSdk 33
-        versionCode 10001
-        versionName "1.0.1"
+        versionCode 10002
+        versionName "1.0.2"
         resConfigs "en", "it"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
