@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.items
 import com.guidofe.pocketlibrary.R
 import com.guidofe.pocketlibrary.data.local.library_db.LibraryBundle
 import com.guidofe.pocketlibrary.data.local.library_db.entities.ProgressPhase
@@ -342,7 +342,6 @@ fun LibraryPage(
                         onClick = {
                             vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
                             line.onClick(item)
-                            vm.selectionManager.singleSelectedItem = null
                         }
                     ) {
                         Text(
@@ -409,14 +408,14 @@ fun LibraryPage(
         LazyColumn(
             state = lazyListState,
         ) {
-            itemsIndexed(
+            items(
                 items = lazyPagingItems,
-                key = { _, item ->
+                key = { item ->
                     item.value.info.bookId
                 }
-            ) { index, item ->
+            ) { item ->
                 if (item == null)
-                    return@itemsIndexed
+                    return@items
                 var isDropdownMenuExpanded by remember { mutableStateOf(false) }
                 var menuOffset by remember { mutableStateOf(DpOffset.Zero) }
                 Box {
@@ -435,9 +434,8 @@ fun LibraryPage(
                         },
                         onRowLongPress = {
                             if (!vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.singleSelectedItem = item.value
                                 if (windowInfo.isBottomSheetLayout()) {
-                                    vm.selectionManager.singleSelectedItem =
-                                        lazyPagingItems.peek(index)?.value
                                     vm.scaffoldState.setBottomSheetVisibility(
                                         true, coroutineScope
                                     )

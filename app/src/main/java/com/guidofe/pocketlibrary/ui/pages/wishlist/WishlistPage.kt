@@ -279,7 +279,6 @@ fun WishlistPage(
                         onClick = {
                             vm.scaffoldState.setBottomSheetVisibility(false, coroutineScope)
                             line.onClick(item)
-                            vm.selectionManager.singleSelectedItem = null
                         }
                     ) {
                         Text(stringResource(line.labelId(item)))
@@ -347,8 +346,8 @@ fun WishlistPage(
                         },
                         onRowLongPress = {
                             if (!vm.selectionManager.isMultipleSelecting) {
+                                vm.selectionManager.singleSelectedItem = item.value
                                 if (windowInfo.isBottomSheetLayout()) {
-                                    vm.selectionManager.singleSelectedItem = item.value
                                     vm.scaffoldState.setBottomSheetVisibility(
                                         true, coroutineScope
                                     )

@@ -163,9 +163,9 @@ fun BorrowedTab(
                             }
                         },
                         onRowLongPress = { offset ->
+                            selectionManager.singleSelectedItem = item.value
                             if (!selectionManager.isMultipleSelecting) {
                                 if (windowInfo.isBottomSheetLayout()) {
-                                    selectionManager.singleSelectedItem = item.value
                                     setBottomSheetVisibility(true, coroutineScope)
                                 } else {
                                     menuOffset = offset

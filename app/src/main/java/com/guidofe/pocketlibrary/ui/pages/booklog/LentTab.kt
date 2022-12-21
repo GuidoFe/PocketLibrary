@@ -80,7 +80,6 @@ fun LentTab(
                         onClick = {
                             setBottomSheetVisibility(false, coroutineScope)
                             line.onClick(item)
-                            state.selectionManager.singleSelectedItem = null
                         }
                     ) {
                         Text(
@@ -134,9 +133,9 @@ fun LentTab(
                             state.isCalendarVisible = true
                         },
                         onRowLongPress = {
+                            state.selectionManager.singleSelectedItem = item.value
                             if (!selectionManager.isMultipleSelecting) {
                                 if (windowInfo.isBottomSheetLayout()) {
-                                    state.selectionManager.singleSelectedItem = item.value
                                     setBottomSheetVisibility(true, coroutineScope)
                                 } else {
                                     menuOffset = it
