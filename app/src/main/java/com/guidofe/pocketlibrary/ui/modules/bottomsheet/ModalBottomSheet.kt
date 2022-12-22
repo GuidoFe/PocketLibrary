@@ -45,10 +45,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.guidofe.pocketlibrary.ui.modules.bottomsheet.*
 import com.guidofe.pocketlibrary.ui.modules.bottomsheet.ModalBottomSheetValue.*
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 /**
  * Possible values of [ModalBottomSheetState].

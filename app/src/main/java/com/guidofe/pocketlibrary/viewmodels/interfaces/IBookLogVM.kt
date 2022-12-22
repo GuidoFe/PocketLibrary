@@ -12,9 +12,9 @@ import com.guidofe.pocketlibrary.ui.pages.booklog.LentTabState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.utils.SearchFieldManager
-import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 
 interface IBookLogVM {
     val scaffoldState: ScaffoldState

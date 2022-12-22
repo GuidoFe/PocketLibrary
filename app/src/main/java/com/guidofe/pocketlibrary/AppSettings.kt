@@ -1,6 +1,7 @@
 package com.guidofe.pocketlibrary
 
 import com.guidofe.pocketlibrary.ui.theme.Theme
+import java.time.LocalTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -10,7 +11,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.time.LocalTime
 
 @Serializable
 data class AppSettings(

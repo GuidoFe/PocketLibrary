@@ -14,11 +14,11 @@ import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
 import com.guidofe.pocketlibrary.ui.utils.SelectableListItem
 import com.guidofe.pocketlibrary.utils.SearchFieldManager
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IBookLogVM
+import java.time.Instant
+import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import java.time.Instant
-import java.time.LocalDate
 
 class BookLogVMPreview() : IBookLogVM {
     override val scaffoldState: ScaffoldState

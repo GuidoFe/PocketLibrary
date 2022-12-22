@@ -5,8 +5,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.guidofe.pocketlibrary.data.local.library_db.BorrowedBundle
-import kotlinx.coroutines.flow.Flow
 import java.time.Instant
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BorrowedBundleDao {

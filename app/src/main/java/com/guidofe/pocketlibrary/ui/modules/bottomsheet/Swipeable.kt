@@ -42,15 +42,15 @@ import com.guidofe.pocketlibrary.ui.modules.bottomsheet.SwipeableDefaults.Animat
 import com.guidofe.pocketlibrary.ui.modules.bottomsheet.SwipeableDefaults.StandardResistanceFactor
 import com.guidofe.pocketlibrary.ui.modules.bottomsheet.SwipeableDefaults.VelocityThreshold
 import com.guidofe.pocketlibrary.ui.modules.bottomsheet.SwipeableDefaults.resistanceConfig
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.sign
+import kotlin.math.sin
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.sign
-import kotlin.math.sin
 
 /**
  * State of the [swipeable] modifier.

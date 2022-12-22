@@ -16,10 +16,10 @@ import com.guidofe.pocketlibrary.utils.TranslationPhase
 import com.guidofe.pocketlibrary.utils.TranslationService
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IImportedBookVM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class ImportedBookVM @Inject constructor(
