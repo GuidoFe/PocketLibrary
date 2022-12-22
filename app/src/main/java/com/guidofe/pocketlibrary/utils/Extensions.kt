@@ -3,10 +3,14 @@ package com.guidofe.pocketlibrary.utils
 import android.content.ContentResolver
 import android.content.res.Resources
 import android.net.Uri
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.shouldShowRationale
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun Resources.getUri(id: Int): Uri {
     return Uri.Builder()
@@ -38,4 +42,10 @@ val PermissionStatus.isPermanentlyDenied: Boolean
  */
 fun Long.toModInt(): Int {
     return (this % Int.MAX_VALUE).toInt()
+}
+
+fun IntOffset.distance(other: IntOffset): Double {
+    val x = (this.x - other.x).toDouble().pow(2)
+    val y = (this.y - other.y).toDouble().pow(2)
+    return sqrt(x + y)
 }

@@ -10,6 +10,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -19,11 +20,14 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.guidofe.pocketlibrary.ui.dialogs.TranslationDialogState
 import com.guidofe.pocketlibrary.ui.utils.ScaffoldState
+import com.guidofe.pocketlibrary.utils.distance
 import com.guidofe.pocketlibrary.viewmodels.interfaces.IScanIsbnVM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 const val MIN_HEIGHT = 1080
 const val MIN_WIDTH = 1920
@@ -86,20 +90,21 @@ class ScanIsbnVM @Inject constructor(
             val mediaImage = imageProxy.image
             if (mediaImage != null) {
                 val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
+                val imageCenter = IntOffset(image.width, image.height)
                 scanner.process(image)
                     .addOnSuccessListener { barcodes ->
                         var bestBarcode: Barcode? = null
-                        var bestSize = -1
+                        var bestDistance = Double.POSITIVE_INFINITY
                         for (barcode in barcodes) {
                             if (barcode.valueType == Barcode.TYPE_ISBN) {
-                                val rect = barcode.boundingBox
-                                val newSize = if (rect != null)
-                                    abs(rect.right - rect.left) * (rect.bottom - rect.top)
-                                else
-                                    0
-                                if (bestBarcode == null || bestSize < newSize) {
-                                    bestBarcode = barcode
-                                    bestSize = newSize
+                                barcode.boundingBox?.let { rect ->
+                                    val distance = imageCenter.distance(
+                                        IntOffset(rect.centerX(), rect.centerY())
+                                    )
+                                    if (distance < bestDistance) {
+                                        bestBarcode = barcode
+                                        bestDistance = distance
+                                    }
                                 }
                             } else {
                                 // TODO: popup error
