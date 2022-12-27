@@ -2,6 +2,7 @@ package com.guidofe.pocketlibrary.ui.modules
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -73,6 +74,7 @@ fun exitTransition(duration: Int, delay: Int): ExitTransition {
     ) + fadeOut(tween(duration, delay))
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AddBookFab(
     isExpanded: Boolean,
@@ -87,6 +89,7 @@ fun AddBookFab(
     stepDuration: Int = 100,
 ) {
     var showInsertIsbnDialog by remember { mutableStateOf(false) }
+    val transition = updateTransition(isExpanded, label = "fab_expansion")
     Column(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -97,8 +100,8 @@ fun AddBookFab(
             horizontalAlignment = Alignment.End,
             // modifier = Modifier.offset(x = (-7).dp)
         ) {
-            AnimatedVisibility(
-                visible = isExpanded,
+            transition.AnimatedVisibility(
+                visible = { it },
                 enter = enterTransition(stepDuration * 4, stepDelay),
                 exit = exitTransition(stepDuration * 1, stepDelay)
             ) {
@@ -116,8 +119,8 @@ fun AddBookFab(
                     onInsertManually()
                 }
             }
-            AnimatedVisibility(
-                visible = isExpanded,
+            transition.AnimatedVisibility(
+                visible = { it },
                 enter = enterTransition(stepDuration * 3, stepDelay),
                 exit = exitTransition(stepDuration * 2, stepDelay)
             ) {
@@ -135,8 +138,8 @@ fun AddBookFab(
                     showInsertIsbnDialog = true
                 }
             }
-            AnimatedVisibility(
-                visible = isExpanded,
+            transition.AnimatedVisibility(
+                visible = { it },
                 enter = enterTransition(stepDuration * 2, stepDelay),
                 exit = exitTransition(stepDuration * 3, stepDelay)
             ) {
@@ -154,8 +157,8 @@ fun AddBookFab(
                     onSearchOnline()
                 }
             }
-            AnimatedVisibility(
-                visible = isExpanded,
+            transition.AnimatedVisibility(
+                visible = { it },
                 enter = enterTransition(stepDuration * 1, stepDelay),
                 exit = exitTransition(stepDuration * 4, stepDelay)
             ) {
