@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -50,7 +51,7 @@ fun LandingPage(
     navigator: DestinationsNavigator,
     vm: ILandingPageVM = hiltViewModel<LandingPageVM>(),
 ) {
-    val padding = 8.dp
+    val innerPadding = 16.dp
     val scroll = rememberScrollState()
     val windowInfo = rememberWindowInfo()
     vm.scaffoldState.scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -106,9 +107,9 @@ fun LandingPage(
             .nestedScroll(vm.scaffoldState.scrollBehavior.nestedScrollConnection)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(padding),
+            verticalArrangement = Arrangement.spacedBy(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(scroll)
+            modifier = Modifier.verticalScroll(scroll).padding(16.dp)
         ) {
             vm.stats?.let { stats ->
                 if (stats.booksCurrentlyReading.isEmpty()) {
@@ -117,14 +118,14 @@ fun LandingPage(
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(padding)
+                            .padding(innerPadding)
                     )
                 } else {
                     Text(
                         stringResource(
                             R.string.books_currently_reading
                         ),
-                        modifier = Modifier.padding(padding)
+                        modifier = Modifier.padding(innerPadding)
                     )
                     LazyRow(
                         horizontalArrangement = Arrangement.Center,
@@ -145,18 +146,23 @@ fun LandingPage(
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(innerPadding))
                 if (windowInfo.screenWidthInfo == WindowType.COMPAT) {
-                    StatsQuarters(stats, modifier = Modifier.heightIn(max = 300.dp))
+                    StatsQuarters(
+                        stats,
+                        innerPadding = innerPadding,
+                        modifier = Modifier.heightIn(max = 300.dp)
+                    )
                     PieStatsTile(stats)
                 } else {
                     Row(modifier = Modifier.size(600.dp, 296.dp)) {
                         StatsQuarters(
                             stats,
+                            innerPadding = innerPadding,
                             modifier = Modifier
                                 .weight(1f).fillMaxHeight()
                         )
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(innerPadding))
                         PieStatsTile(stats, modifier = Modifier.weight(1f))
                     }
                 }
@@ -166,13 +172,13 @@ fun LandingPage(
 }
 
 @Composable
-fun StatsQuarters(stats: AppStats, modifier: Modifier = Modifier) {
+fun StatsQuarters(stats: AppStats, innerPadding: Dp, modifier: Modifier = Modifier) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(innerPadding),
         modifier = modifier
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(innerPadding),
             modifier = Modifier.weight(1f)
         ) {
             NumberTile(
@@ -187,7 +193,7 @@ fun StatsQuarters(stats: AppStats, modifier: Modifier = Modifier) {
             )
         }
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(innerPadding),
             modifier = Modifier.weight(1f)
         ) {
             NumberTile(
