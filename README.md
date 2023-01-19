@@ -1,9 +1,7 @@
 # PocketLibrary
 Android app for managing your personal library. It lets you scan the barcode of any book, and it will automatically fetch the book data through the Google Books API.
 
-![Library Screen](./screens/sceen_library.png "Library screen")
-![Book details](./screens/screen_details.png "Book details")
-![Borrowed books list](./screens/screen_borrowed.png "Borrowed books list")
+<img src="./screens/screens.png" width="1000" alt="App screenshots" />
 
 ## Features
 * Mulltiple ways to add a book to your collection:
